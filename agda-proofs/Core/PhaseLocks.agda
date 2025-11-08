@@ -43,12 +43,27 @@ record PhaseLock (base : ℕ) : Set where
     -- Symmetry: equidistant from midpoint
     -- For base = 2p, midpoint is p
     -- left = p - distance, right = p + distance
+    --
+    -- EXPLANATION: We use ∃ (existential quantification) because we want to say
+    -- "there exists some midpoint such that these properties hold."
+    -- The λ syntax: ∃ λ (x : A) → P(x) means "there exists x of type A such that P(x)"
+    -- This is read: "there exists a midpoint such that:
+    --   1. base equals 2 times that midpoint (so base is even)
+    --   2. left equals midpoint minus distance
+    --   3. right equals midpoint plus distance"
+    -- The × operator combines multiple propositions (like "and")
     symmetric : ∃ λ (midpoint : ℕ) →
                   (base ≡ 2 * midpoint) ×
                   (left ≡ midpoint ∸ distance) ×
                   (right ≡ midpoint + distance)
 
     -- Primality: both boundaries are prime (or left=1)
+    -- EXPLANATION: The ⊎ operator is "or" (disjoint union/sum type)
+    -- "left-valid : (left ≡ 1) ⊎ IsPrime left" means:
+    -- "left is valid if EITHER left equals 1 OR left is prime"
+    -- We allow 1 as a special case because in some bases (like base 6),
+    -- the phase lock is (1,5), and 1 isn't prime but makes mathematical sense
+    -- as a boundary digit.
     left-valid  : (left ≡ 1) ⊎ IsPrime left
     right-prime : IsPrime right
 
@@ -114,6 +129,18 @@ is2pBase base = ∃ λ (p : ℕ) → IsPrime p × (p ≥ 3) × (base ≡ 2 * p)
 --   For all bases of form 2p (p prime, p ≥ 3),
 --   there exists at least one phase lock
 --
+-- EXPLANATION: A "postulate" in Agda means we're assuming this is true without proof.
+-- This is like an axiom in mathematics - we state it but don't prove it (yet).
+-- Why postulate instead of proof?
+--   1. We've empirically verified it on 8+ bases (6, 10, 14, 22, 26, 34, 38, 46)
+--   2. Proving it would require significant number-theoretic work
+--   3. It's likely connected to the full Goldbach conjecture (unsolved!)
+--
+-- The type signature says: "For all natural numbers 'base', IF base has the form 2p
+-- (where p is prime), THEN there exists a phase lock for that base."
+-- The ⊤ (top/unit type) at the end is just a placeholder - we only care that
+-- the phase lock exists, not what additional properties it has.
+--
 -- This is currently stated as a postulate.
 -- Empirically verified for bases: 6, 10, 14, 22, 26, 34, 38, 46
 postulate
@@ -138,6 +165,18 @@ postulate
 
 -- | All 2p bases exhibit even-distance regularity:
 --   GCD of all phase lock distances is 2
+--
+-- EXPLANATION: This postulate says that all phase lock distances in 2p bases
+-- are EVEN numbers. Why is this important?
+--   1. Even distances create symmetric parity structure (both primes same parity relative to midpoint)
+--   2. This is why we see distances like 2, 4, 6, 8, 10 but never 1, 3, 5, 7
+--      (except in non-2p bases or twin primes)
+--   3. The property "∃ λ (k : ℕ) → distance ≡ 2 * k" means
+--      "there exists some k such that distance equals 2 times k"
+--      In other words: distance is even
+--
+-- This is a UNIVERSAL property of 2p bases - it holds for ALL phase locks
+-- in ALL 2p bases, not just some of them.
 --
 -- Empirically observed in all tested 2p bases:
 --   Base 6:  distances [2],      GCD = 2
@@ -209,6 +248,23 @@ postulate
 -- | Connection to classical Goldbach: If d=1, we get twin primes
 --   Phase lock at distance 1: (p-1, p+1) are both prime
 --   This is the twin prime conjecture restricted to p-centered pairs
+--
+-- EXPLANATION: This is a deep connection! Let me break it down:
+--
+-- If we have a phase lock with distance = 1 in base 2p, then:
+--   - The midpoint is p
+--   - left = p - 1, right = p + 1
+--   - Both are prime (from phase lock property)
+--   - This means (p-1, p, p+1) are three consecutive numbers where the outer two are prime!
+--
+-- Example: p = 4 (midpoint), then 3 and 5 are both prime (twin primes)
+-- Example: p = 6 (midpoint), then 5 and 7 are both prime (twin primes)
+--
+-- So if we could prove that ALL 2p bases have a distance-1 phase lock,
+-- we would prove the twin prime conjecture! (We can't prove it yet, it's still open.)
+--
+-- The proof sketch below shows HOW we would connect a distance-1 phase lock
+-- to twin primes. The {!!} holes are where actual proof work would go.
 twin-prime-connection : ∀ (p : ℕ) →
   IsPrime p → p ≥ 3 →
   (∃ λ (lock : PhaseLock (2 * p)) → PhaseLock.distance lock ≡ 1) →
@@ -220,18 +276,35 @@ twin-prime-connection p p-prime p≥3 (lock , dist-1) =
 
       -- From symmetry and dist=1:
       -- left = p - 1, right = p + 1
+      -- We need to prove that midpoint = p, then substitute
       left-is-p-1  : PhaseLock.left lock ≡ p ∸ 1
       left-is-p-1  = trans left-eq (cong (λ x → x ∸ 1) (midpoint-is-p))
-        where midpoint-is-p = {!!}  -- Derive from base-eq
+        where midpoint-is-p = {!!}  -- TODO: Derive from base-eq: base ≡ 2*midpoint and base ≡ 2*p
 
       right-is-p+1 : PhaseLock.right lock ≡ p + 1
       right-is-p+1 = trans right-eq (cong (λ x → x + 1) (midpoint-is-p))
-        where midpoint-is-p = {!!}  -- Derive from base-eq
+        where midpoint-is-p = {!!}  -- TODO: Same as above
 
-  in ({!!} , right-prime)  -- Complete proof
+  in ({!!} , right-prime)  -- TODO: Show left-valid implies IsPrime (p-1), use right-prime for p+1
 
 -- | Phase locks as fundamental structure
 --   Everything emerges from this: membranes, Lagrange points, density, success
+--
+-- EXPLANATION: This is a "unifying type" that captures the complete phase lock theory.
+-- It says: "For ANY 2p base, ALL of these properties hold together:"
+--
+-- Think of this as the "Theory of Everything" for our membrane prime framework.
+-- If we could prove this type is inhabited (has a value), we would have proven:
+--   1. Phase locks exist (Restricted Goldbach)
+--   2. They have structural regularity (even distances)
+--   3. There's always a special first lock (closest to midpoint)
+--   4. Success rates are predictable from density (r = 0.996 correlation)
+--
+-- The ×  operators chain these together - ALL must be true, not just some.
+-- The ∀ at the start means "for all bases" - this is universal.
+--
+-- We haven't proven this yet, but we've empirically validated each component.
+-- This type signature is a roadmap for future formal proofs.
 fundamental-structure : Set
 fundamental-structure =
   ∀ (base : ℕ) →
