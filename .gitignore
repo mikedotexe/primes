@@ -50,3 +50,43 @@ __pycache__/
 
 # AI development output
 ai-output.txt
+
+# Generated data and output files (should not be committed)
+# Data files
+/*.csv
+data/*.csv
+# Exception: allow test fixtures
+!tests/**/*.csv
+
+# Generated images
+/*.png
+outputs/**/*.png
+outputs/**/*.jpg
+
+# Generated JSON results
+/ultimate_hardening_results.json
+/atomic_primes_comprehensive.json
+outputs/**/*.json
+
+# Test/benchmark outputs
+*_output.txt
+*_results.txt
+*_analysis.txt
+*_report.txt
+landscape_*.txt
+validation_*.txt
+
+# Timestamped outputs (pattern: filename_YYYYMMDD_HHMMSS.txt)
+*_202[0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9].txt
+*_202[0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9].csv
+
+# Build/release artifacts
+/*.tar.gz
+/*.zip
+
+# Demo HTML files in root (canonical versions in subdirs)
+/index*.html
+
+# Temporary/empty files
+tui_error.txt
+tui_output.txt
