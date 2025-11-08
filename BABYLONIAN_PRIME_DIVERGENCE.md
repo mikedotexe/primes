@@ -95,6 +95,44 @@ fn prime_harmony_score(gap: usize) -> f64 {
 
 ## The Orthogonality Proof
 
+### Visual Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│               HOW NORMALIZATION REVEALS TRUTH                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  BEFORE (Raw Counts):                                          │
+│  ═══════════════════════                                       │
+│                                                                 │
+│    Gap   Babylonian   RawPairs   Observation                  │
+│    ───────────────────────────────────────────                 │
+│      6      13.5       13549     "Divisible wins!" ✗          │
+│     30      26.5        5442     "60-friendly best!" ✗        │
+│                                                                 │
+│    Correlation: r ≈ +0.56                                     │
+│    └─→ MISLEADING! Both favor small prime factors             │
+│                                                                 │
+│  ─────────────────────────────────────────────────────────────  │
+│                                                                 │
+│  AFTER (HL Normalization):                                    │
+│  ═══════════════════════                                       │
+│                                                                 │
+│    Gap   Babylonian   Normalized   Reality Check              │
+│    ────────────────────────────────────────────                │
+│      6      13.5        0.98      "Just average" ✓            │
+│     30      26.5        1.01      "Also average" ✓            │
+│                                                                 │
+│    Correlation: r ≈ -0.01                                     │
+│    └─→ ORTHOGONAL! Babylonian tells you nothing               │
+│                                                                 │
+│  KEY INSIGHT:                                                  │
+│  Raw correlation was just S(g) bias—both metrics reward        │
+│  smooth numbers. True structure: INDEPENDENT!                  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ### Naive Correlation: Misleading
 
 Without proper normalization, Babylonian scores and gap frequencies show positive correlation (r ≈ +0.56):
