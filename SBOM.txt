@@ -1,0 +1,258 @@
+prime-physics-engine v1.0.0 (/Users/mikepurvis/Library/CloudStorage/Dropbox/Kairos/primes/prime-physics-engine) crossterm,default,dvfs-adaptive,ratatui,visualization,wheel30
+├── chrono v0.4.41 alloc,android-tzdata,clock,default,iana-time-zone,js-sys,now,oldtime,std,wasm-bindgen,wasmbind,winapi,windows-link
+│   ├── iana-time-zone v0.1.63 fallback
+│   │   └── core-foundation-sys v0.8.7 default,link
+│   └── num-traits v0.2.19 default,i128,std
+│       [build-dependencies]
+│       └── autocfg v1.5.0 
+├── clap v4.5.41 color,default,derive,error-context,help,std,suggestions,usage
+│   ├── clap_builder v4.5.41 color,error-context,help,std,suggestions,usage
+│   │   ├── anstream v0.6.19 auto,default,wincon
+│   │   │   ├── anstyle v1.0.11 default,std
+│   │   │   ├── anstyle-parse v0.2.7 default,utf8
+│   │   │   │   └── utf8parse v0.2.2 default
+│   │   │   ├── anstyle-query v1.1.3 
+│   │   │   ├── colorchoice v1.0.4 
+│   │   │   ├── is_terminal_polyfill v1.70.1 default
+│   │   │   └── utf8parse v0.2.2 default
+│   │   ├── anstyle v1.0.11 default,std
+│   │   ├── clap_lex v0.7.5 
+│   │   └── strsim v0.11.1 
+│   └── clap_derive v4.5.41 (proc-macro) default
+│       ├── heck v0.5.0 
+│       ├── proc-macro2 v1.0.95 default,proc-macro
+│       │   └── unicode-ident v1.0.18 
+│       ├── quote v1.0.40 default,proc-macro
+│       │   └── proc-macro2 v1.0.95 default,proc-macro (*)
+│       └── syn v2.0.104 clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro
+│           ├── proc-macro2 v1.0.95 default,proc-macro (*)
+│           ├── quote v1.0.40 default,proc-macro (*)
+│           └── unicode-ident v1.0.18 
+├── colored v2.2.0 
+│   └── lazy_static v1.5.0 
+├── colorful v0.2.2 
+├── crossterm v0.27.0 bracketed-paste,default,events,windows
+│   ├── bitflags v2.9.1 
+│   ├── libc v0.2.174 default,std
+│   ├── mio v0.8.11 default,log,net,os-ext,os-poll
+│   │   ├── libc v0.2.174 default,std
+│   │   └── log v0.4.27 
+│   ├── parking_lot v0.12.4 default
+│   │   ├── lock_api v0.4.13 atomic_usize,default
+│   │   │   └── scopeguard v1.2.0 
+│   │   │   [build-dependencies]
+│   │   │   └── autocfg v1.5.0 
+│   │   └── parking_lot_core v0.9.11 
+│   │       ├── cfg-if v1.0.1 
+│   │       ├── libc v0.2.174 default,std
+│   │       └── smallvec v1.15.1 
+│   ├── signal-hook v0.3.18 channel,default,iterator
+│   │   ├── libc v0.2.174 default,std
+│   │   └── signal-hook-registry v1.4.5 
+│   │       └── libc v0.2.174 default,std
+│   └── signal-hook-mio v0.2.4 mio-0_8,support-v0_8
+│       ├── libc v0.2.174 default,std
+│       ├── mio v0.8.11 default,log,net,os-ext,os-poll (*)
+│       └── signal-hook v0.3.18 channel,default,iterator (*)
+├── num-bigint v0.4.6 default,rand,serde,std
+│   ├── num-integer v0.1.46 default,i128,std
+│   │   └── num-traits v0.2.19 default,i128,std (*)
+│   ├── num-traits v0.2.19 default,i128,std (*)
+│   ├── rand v0.8.5 alloc,default,getrandom,libc,rand_chacha,std,std_rng
+│   │   ├── libc v0.2.174 default,std
+│   │   ├── rand_chacha v0.3.1 std
+│   │   │   ├── ppv-lite86 v0.2.21 simd,std
+│   │   │   │   └── zerocopy v0.8.26 simd
+│   │   │   └── rand_core v0.6.4 alloc,getrandom,std
+│   │   │       └── getrandom v0.2.16 std
+│   │   │           ├── cfg-if v1.0.1 
+│   │   │           └── libc v0.2.174 default,std
+│   │   └── rand_core v0.6.4 alloc,getrandom,std (*)
+│   └── serde v1.0.219 alloc,default,derive,serde_derive,std
+│       └── serde_derive v1.0.219 (proc-macro) default
+│           ├── proc-macro2 v1.0.95 default,proc-macro (*)
+│           ├── quote v1.0.40 default,proc-macro (*)
+│           └── syn v2.0.104 clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro (*)
+├── num-integer v0.1.46 default,i128,std (*)
+├── num-traits v0.2.19 default,i128,std (*)
+├── once_cell v1.21.3 alloc,default,race,std
+├── plotters v0.3.7 all_elements,all_series,area_series,bitmap_backend,bitmap_encoder,bitmap_gif,boxplot,candlestick,chrono,colormaps,default,deprecated_items,errorbar,font-kit,full_palette,histogram,image,lazy_static,line_series,pathfinder_geometry,plotters-bitmap,plotters-svg,point_series,surface_series,svg_backend,ttf,ttf-parser
+│   ├── chrono v0.4.41 alloc,android-tzdata,clock,default,iana-time-zone,js-sys,now,oldtime,std,wasm-bindgen,wasmbind,winapi,windows-link (*)
+│   ├── font-kit v0.14.3 default,source
+│   │   ├── bitflags v2.9.1 
+│   │   ├── byteorder v1.5.0 default,std
+│   │   ├── core-foundation v0.9.4 default,link
+│   │   │   ├── core-foundation-sys v0.8.7 default,link
+│   │   │   └── libc v0.2.174 default,std
+│   │   ├── core-graphics v0.23.2 default,link
+│   │   │   ├── bitflags v1.3.2 default
+│   │   │   ├── core-foundation v0.9.4 default,link (*)
+│   │   │   ├── core-graphics-types v0.1.3 link
+│   │   │   │   ├── bitflags v1.3.2 default
+│   │   │   │   ├── core-foundation v0.9.4 default,link (*)
+│   │   │   │   └── libc v0.2.174 default,std
+│   │   │   ├── foreign-types v0.5.0 default,std
+│   │   │   │   ├── foreign-types-macros v0.2.3 (proc-macro) std
+│   │   │   │   │   ├── proc-macro2 v1.0.95 default,proc-macro (*)
+│   │   │   │   │   ├── quote v1.0.40 default,proc-macro (*)
+│   │   │   │   │   └── syn v2.0.104 clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro (*)
+│   │   │   │   └── foreign-types-shared v0.3.1 
+│   │   │   └── libc v0.2.174 default,std
+│   │   ├── core-text v20.1.0 default,mountainlion
+│   │   │   ├── core-foundation v0.9.4 default,link (*)
+│   │   │   ├── core-graphics v0.23.2 default,link (*)
+│   │   │   ├── foreign-types v0.5.0 default,std (*)
+│   │   │   └── libc v0.2.174 default,std
+│   │   ├── dirs v6.0.0 
+│   │   │   └── dirs-sys v0.5.0 
+│   │   │       ├── libc v0.2.174 default,std
+│   │   │       └── option-ext v0.2.0 
+│   │   ├── float-ord v0.3.2 
+│   │   ├── lazy_static v1.5.0 
+│   │   ├── libc v0.2.174 default,std
+│   │   ├── log v0.4.27 
+│   │   ├── pathfinder_geometry v0.5.1 
+│   │   │   ├── log v0.4.27 
+│   │   │   └── pathfinder_simd v0.5.5 
+│   │   │       [build-dependencies]
+│   │   │       └── rustc_version v0.4.1 
+│   │   │           └── semver v1.0.26 default,std
+│   │   ├── pathfinder_simd v0.5.5  (*)
+│   │   └── walkdir v2.5.0 
+│   │       └── same-file v1.0.6 
+│   ├── image v0.24.9 bmp,jpeg,png
+│   │   ├── bytemuck v1.23.1 extern_crate_alloc
+│   │   ├── byteorder v1.5.0 default,std
+│   │   ├── color_quant v1.1.0 
+│   │   ├── jpeg-decoder v0.3.2 
+│   │   ├── num-traits v0.2.19 default,i128,std (*)
+│   │   └── png v0.17.16 
+│   │       ├── bitflags v1.3.2 default
+│   │       ├── crc32fast v1.4.2 default,std
+│   │       │   └── cfg-if v1.0.1 
+│   │       ├── fdeflate v0.3.7 
+│   │       │   └── simd-adler32 v0.3.7 const-generics,default,std
+│   │       ├── flate2 v1.1.2 any_impl,default,miniz_oxide,rust_backend
+│   │       │   ├── crc32fast v1.4.2 default,std (*)
+│   │       │   └── miniz_oxide v0.8.9 default,simd,simd-adler32,with-alloc
+│   │       │       ├── adler2 v2.0.1 
+│   │       │       └── simd-adler32 v0.3.7 const-generics,default,std
+│   │       └── miniz_oxide v0.8.9 default,simd,simd-adler32,with-alloc (*)
+│   ├── lazy_static v1.5.0 
+│   ├── num-traits v0.2.19 default,i128,std (*)
+│   ├── pathfinder_geometry v0.5.1  (*)
+│   ├── plotters-backend v0.3.7 
+│   ├── plotters-bitmap v0.3.7 gif,gif_backend,image,image_encoder
+│   │   ├── gif v0.12.0 color_quant,default,raii_no_panic,std
+│   │   │   ├── color_quant v1.1.0 
+│   │   │   └── weezl v0.1.10 alloc,default,std
+│   │   ├── image v0.24.9 bmp,jpeg,png (*)
+│   │   └── plotters-backend v0.3.7 
+│   ├── plotters-svg v0.3.7 
+│   │   └── plotters-backend v0.3.7 
+│   └── ttf-parser v0.20.0 apple-layout,default,glyph-names,opentype-layout,std,variable-fonts
+├── primal v0.3.3 
+│   ├── primal-check v0.3.4 
+│   │   └── num-integer v0.1.46 default,i128,std (*)
+│   ├── primal-estimate v0.3.3 
+│   └── primal-sieve v0.3.7 
+│       ├── primal-bit v0.3.2 
+│       │   └── hamming v0.1.3 
+│       ├── primal-estimate v0.3.3 
+│       └── smallvec v1.15.1 
+├── rand v0.8.5 alloc,default,getrandom,libc,rand_chacha,std,std_rng (*)
+├── ratatui v0.25.0 crossterm,default,underline-color
+│   ├── bitflags v2.9.1 
+│   ├── cassowary v0.3.0 
+│   ├── crossterm v0.27.0 bracketed-paste,default,events,windows (*)
+│   ├── indoc v2.0.6 (proc-macro) 
+│   ├── itertools v0.12.1 default,use_alloc,use_std
+│   │   └── either v1.15.0 std,use_std
+│   ├── lru v0.12.5 default,hashbrown
+│   │   └── hashbrown v0.15.4 allocator-api2,default,default-hasher,equivalent,inline-more,raw-entry
+│   │       ├── allocator-api2 v0.2.21 alloc
+│   │       ├── equivalent v1.0.2 
+│   │       └── foldhash v0.1.5 
+│   ├── paste v1.0.15 (proc-macro) 
+│   ├── stability v0.1.1 (proc-macro) 
+│   │   ├── quote v1.0.40 default,proc-macro (*)
+│   │   └── syn v1.0.109 clone-impls,default,derive,full,parsing,printing,proc-macro,quote
+│   │       ├── proc-macro2 v1.0.95 default,proc-macro (*)
+│   │       ├── quote v1.0.40 default,proc-macro (*)
+│   │       └── unicode-ident v1.0.18 
+│   ├── strum v0.25.0 default,derive,std,strum_macros
+│   │   └── strum_macros v0.25.3 (proc-macro) 
+│   │       ├── heck v0.4.1 default
+│   │       ├── proc-macro2 v1.0.95 default,proc-macro (*)
+│   │       ├── quote v1.0.40 default,proc-macro (*)
+│   │       ├── rustversion v1.0.21 (proc-macro) 
+│   │       └── syn v2.0.104 clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro (*)
+│   ├── unicode-segmentation v1.12.0 
+│   └── unicode-width v0.1.14 cjk,default
+├── rayon v1.10.0 
+│   ├── either v1.15.0 std,use_std
+│   └── rayon-core v1.12.1 
+│       ├── crossbeam-deque v0.8.6 default,std
+│       │   ├── crossbeam-epoch v0.9.18 alloc,std
+│       │   │   └── crossbeam-utils v0.8.21 default,std
+│       │   └── crossbeam-utils v0.8.21 default,std
+│       └── crossbeam-utils v0.8.21 default,std
+├── serde v1.0.219 alloc,default,derive,serde_derive,std (*)
+├── serde_json v1.0.140 default,std
+│   ├── itoa v1.0.15 
+│   ├── memchr v2.7.5 alloc,std
+│   ├── ryu v1.0.20 
+│   └── serde v1.0.219 alloc,default,derive,serde_derive,std (*)
+├── sha2 v0.10.9 default,std
+│   ├── cfg-if v1.0.1 
+│   ├── cpufeatures v0.2.17 
+│   │   └── libc v0.2.174 default,std
+│   └── digest v0.10.7 alloc,block-buffer,core-api,default,std
+│       ├── block-buffer v0.10.4 
+│       │   └── generic-array v0.14.7 more_lengths
+│       │       └── typenum v1.18.0 
+│       │       [build-dependencies]
+│       │       └── version_check v0.9.5 
+│       └── crypto-common v0.1.6 std
+│           ├── generic-array v0.14.7 more_lengths (*)
+│           └── typenum v1.18.0 
+└── thiserror v1.0.69 
+    └── thiserror-impl v1.0.69 (proc-macro) 
+        ├── proc-macro2 v1.0.95 default,proc-macro (*)
+        ├── quote v1.0.40 default,proc-macro (*)
+        └── syn v2.0.104 clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro (*)
+[dev-dependencies]
+└── criterion v0.5.1 cargo_bench_support,default,html_reports,plotters,rayon
+    ├── anes v0.1.6 default
+    ├── cast v0.3.0 
+    ├── ciborium v0.2.2 default,std
+    │   ├── ciborium-io v0.2.2 alloc,std
+    │   ├── ciborium-ll v0.2.2 
+    │   │   ├── ciborium-io v0.2.2 alloc,std
+    │   │   └── half v2.6.0 
+    │   │       └── cfg-if v1.0.1 
+    │   └── serde v1.0.219 alloc,default,derive,serde_derive,std (*)
+    ├── clap v4.5.41 color,default,derive,error-context,help,std,suggestions,usage (*)
+    ├── criterion-plot v0.5.0 
+    │   ├── cast v0.3.0 
+    │   └── itertools v0.10.5 default,use_alloc,use_std
+    │       └── either v1.15.0 std,use_std
+    ├── is-terminal v0.4.16 
+    │   └── libc v0.2.174 default,std
+    ├── itertools v0.10.5 default,use_alloc,use_std (*)
+    ├── num-traits v0.2.19 default,i128,std (*)
+    ├── once_cell v1.21.3 alloc,default,race,std
+    ├── oorandom v11.1.5 
+    ├── plotters v0.3.7 all_elements,all_series,area_series,bitmap_backend,bitmap_encoder,bitmap_gif,boxplot,candlestick,chrono,colormaps,default,deprecated_items,errorbar,font-kit,full_palette,histogram,image,lazy_static,line_series,pathfinder_geometry,plotters-bitmap,plotters-svg,point_series,surface_series,svg_backend,ttf,ttf-parser (*)
+    ├── rayon v1.10.0  (*)
+    ├── regex v1.11.1 std
+    │   ├── regex-automata v0.4.9 alloc,meta,nfa-pikevm,nfa-thompson,std,syntax
+    │   │   └── regex-syntax v0.8.5 std
+    │   └── regex-syntax v0.8.5 std
+    ├── serde v1.0.219 alloc,default,derive,serde_derive,std (*)
+    ├── serde_derive v1.0.219 (proc-macro) default (*)
+    ├── serde_json v1.0.140 default,std (*)
+    ├── tinytemplate v1.2.1 
+    │   ├── serde v1.0.219 alloc,default,derive,serde_derive,std (*)
+    │   └── serde_json v1.0.140 default,std (*)
+    └── walkdir v2.5.0  (*)

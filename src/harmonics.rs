@@ -13,12 +13,12 @@ pub fn fourier_transform(signal: &[f64]) -> Vec<Complex64> {
     let n = signal.len();
     let mut spectrum = vec![Complex64::new(0.0, 0.0); n];
     
-    for k in 0..n {
+    for (k, freq_bin) in spectrum.iter_mut().enumerate().take(n) {
         for (t, &sample) in signal.iter().enumerate() {
             let angle = -2.0 * PI * k as f64 * t as f64 / n as f64;
-            spectrum[k] += Complex64::new(angle.cos(), angle.sin()) * sample;
+            *freq_bin += Complex64::new(angle.cos(), angle.sin()) * sample;
         }
-        spectrum[k] /= n as f64;
+        *freq_bin /= n as f64;
     }
     
     spectrum

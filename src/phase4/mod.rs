@@ -91,6 +91,12 @@ impl PmuDoubleBuffer {
     }
 }
 
+impl Default for PmuDoubleBuffer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// On-chip RL controller with eligibility traces
 pub struct OnChipRL {
     q_table: [[f32; 4]; 16],        // 16 states, 4 actions
@@ -164,6 +170,12 @@ impl OnChipRL {
     }
 }
 
+impl Default for OnChipRL {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// SLC residency controller with demand-driven maintenance
 /// 
 /// # System Level Cache (SLC) Strategy
@@ -192,19 +204,23 @@ impl SlcResident {
         }
     }
     
-    pub fn maintain_residency(&mut self, current_warmth: f32, weights_ptr: *const u8, size: usize) {
+    /// # Safety
+    /// 
+    /// This function is safe to call when:
+    /// - `weights_ptr` points to a valid memory region of at least `size` bytes
+    /// - The memory region remains valid for the duration of the call
+    /// - No concurrent writes occur to the memory region
+    pub unsafe fn maintain_residency(&mut self, current_warmth: f32, weights_ptr: *const u8, size: usize) {
         let now = std::time::Instant::now();
         
         // Only ping if warmth below threshold AND interval elapsed
         if current_warmth < self.target_warmth 
             && now.duration_since(self.last_ping).as_millis() >= self.ping_interval_ms as u128 {
             
-            unsafe {
-                // Touch cache lines in pseudo-LRU pattern
-                for offset in (0..size).step_by(64) {
-                    let ptr = weights_ptr.add(offset);
-                    std::ptr::read_volatile(ptr);
-                }
+            // Touch cache lines in pseudo-LRU pattern
+            for offset in (0..size).step_by(64) {
+                let ptr = weights_ptr.add(offset);
+                std::ptr::read_volatile(ptr);
             }
             
             self.last_ping = now;
@@ -213,7 +229,12 @@ impl SlcResident {
 }
 
 /// Feature-gated SME prediction (stub for now)
-/// Safety: The input array must be properly aligned for SME operations
+/// 
+/// # Safety
+/// 
+/// Caller must ensure:
+/// - The input array is properly aligned for SME operations
+/// - The CPU supports SME/AMX instructions (checked by feature flag)
 #[cfg(all(feature = "amx", target_arch = "aarch64"))]
 pub unsafe fn predict_sme_padded(x: [i8; 16]) -> i32 {
     // Stub: Simple computation until real SME intrinsics available
@@ -221,6 +242,10 @@ pub unsafe fn predict_sme_padded(x: [i8; 16]) -> i32 {
     x[..8].iter().map(|&v| v as i32).sum()
 }
 
+/// # Safety
+/// 
+/// This fallback version is marked unsafe for API compatibility,
+/// but performs only safe operations internally.
 #[cfg(not(all(feature = "amx", target_arch = "aarch64")))]
 pub unsafe fn predict_sme_padded(x: [i8; 16]) -> i32 {
     // Direct computation fallback
@@ -229,6 +254,8 @@ pub unsafe fn predict_sme_padded(x: [i8; 16]) -> i32 {
 
 /// Safe wrapper that checks for SME support
 pub fn predict_sme_padded_safe(x: [i8; 16]) -> i32 {
+    // SAFETY: predict_sme_padded expects a properly aligned 16-byte array,
+    // which is guaranteed by the function signature
     unsafe { predict_sme_padded(x) }
 }
 

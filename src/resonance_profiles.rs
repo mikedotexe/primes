@@ -26,11 +26,30 @@ use num_traits::Num;
 
 /// Simple membrane configuration for resonance analysis
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub struct MembraneConfig {
     pub outer_digit: u8,
     pub inner_digit: u8,
     pub k_outer: usize,
     pub k_inner: usize,
+}
+
+impl MembraneConfig {
+    /// Create a new membrane configuration
+    pub fn new(_base: u32, outer_digit: u8, inner_digit: u8, k_outer: usize, k_inner: usize) -> Self {
+        Self { outer_digit, inner_digit, k_outer, k_inner }
+    }
+    
+    /// Check if this configuration is valid (coprime boundary digits)
+    pub fn is_valid(&self) -> bool {
+        // For base 10, check that digits are coprime to 10
+        gcd(self.outer_digit as u32, 10) == 1 && gcd(self.inner_digit as u32, 10) == 1
+    }
+}
+
+/// Helper function to compute GCD
+fn gcd(a: u32, b: u32) -> u32 {
+    if b == 0 { a } else { gcd(b, a % b) }
 }
 
 /// Represents a specific membrane configuration and its success metrics

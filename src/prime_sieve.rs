@@ -62,6 +62,7 @@ impl Segment {
 }
 
 /// Bit‑packed sieve
+#[non_exhaustive]
 pub struct BitSieve {
     limit: usize,
     base_primes: Vec<usize>,       // primes ≤ √limit
@@ -448,7 +449,7 @@ mod tests {
         ];
         for &(n, exp) in LIMITS {
             let sieve = BitSieve::new(n);
-            assert_eq!(sieve.primes().len(), exp, "wrong count for {}", n);
+            assert_eq!(sieve.primes().len(), exp, "wrong count for {n}");
         }
     }
     

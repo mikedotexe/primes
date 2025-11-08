@@ -185,6 +185,7 @@ fn benchmark_memory_patterns() {
         let start = Instant::now();
         for i in 0..accesses {
             let idx = pattern(i) % BUFFER_SIZE;
+            // SAFETY: idx is guaranteed to be < BUFFER_SIZE due to modulo operation
             unsafe {
                 std::ptr::write_volatile(&mut buffer[idx], i as u64);
             }
@@ -224,6 +225,8 @@ fn benchmark_cache_effects() {
         let start = Instant::now();
         for j in 0..accesses {
             let idx = (j * 13) % size;
+            // SAFETY: idx is guaranteed to be < size due to modulo operation,
+            // and buffer is properly initialized
             unsafe {
                 let val = std::ptr::read_volatile(&buffer[idx]);
                 std::ptr::write_volatile(&mut buffer[idx], val + 1);

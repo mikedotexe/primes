@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lagrange Point Explorer - Web TUI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1b26;
+            color: #c0caf5;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.2;
+            overflow: hidden;
+        }
+        
+        #terminal {
+            width: 100vw;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            white-space: pre;
+            overflow: auto;
+        }
+        
+        .fg-black { color: #000000; }
+        .fg-red { color: #f7768e; }
+        .fg-green { color: #9ece6a; }
+        .fg-yellow { color: #e0af68; }
+        .fg-blue { color: #7aa2f7; }
+        .fg-magenta { color: #bb9af7; }
+        .fg-cyan { color: #7dcfff; }
+        .fg-gray { color: #565f89; }
+        .fg-darkgray { color: #414868; }
+        .fg-white { color: #c0caf5; }
+        
+        .bold { font-weight: 700; }
+        .dim { opacity: 0.7; }
+        
+        .box-drawing {
+            color: #565f89;
+        }
+        
+        .emoji {
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+        }
+        
+        .prime-value {
+            color: #9ece6a;
+            font-weight: 700;
+        }
+        
+        .status-bar {
+            background: #24283b;
+            border-top: 1px solid #414868;
+        }
+        
+        .help-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1f2335;
+            border: 2px solid #7aa2f7;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .control-hint {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: #24283b;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #414868;
+            font-size: 12px;
+        }
+        
+        @keyframes flash {
+            0% { background: transparent; }
+            50% { background: rgba(158, 206, 106, 0.2); }
+            100% { background: transparent; }
+        }
+        
+        .flash-success {
+            animation: flash 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal"></div>
+    
+    <div class="help-overlay" id="help">
+        <h2 style="color: #e0af68; margin-top: 0;">Lagrange Point Explorer Help</h2>
+        <p>This tool visualizes membrane primes with symmetric zero-padding.</p>
+        
+        <h3 style="color: #9ece6a;">Real Examples:</h3>
+        <p>Config (3,3) k=(1,1) base 10:<br>
+        303050303 = 3-0-3-0-5-0-3-0-3 ✓ PRIME</p>
+        
+        <p>Config (3,7) k=(1,1) base 10:<br>
+        307050703 = 3-0-7-0-5-0-7-0-3 ✓ PRIME (Exclusive!)</p>
+        
+        <p>The zeros are actual padding between membrane layers.</p>
+        
+        <h3 style="color: #7dcfff;">Commands:</h3>
+        <ul style="list-style: none; padding-left: 0;">
+            <li><span class="fg-cyan bold">g</span> - Generate new prime pair</li>
+            <li><span class="fg-cyan bold">t</span> - Test Lagrange points for primality</li>
+            <li><span class="fg-cyan bold">c</span> - Cycle through configurations</li>
+            <li><span class="fg-cyan bold">← →</span> - Select prime atom</li>
+            <li><span class="fg-cyan bold">h</span> - Toggle this help</li>
+            <li><span class="fg-cyan bold">q</span> - Quit (refresh page)</li>
+        </ul>
+        
+        <p style="margin-top: 20px; font-size: 12px; opacity: 0.7;">Press any key to close</p>
+    </div>
+    
+    <div class="control-hint">
+        Press <span class="fg-cyan bold">h</span> for help
+    </div>
+
+    <script src="lagrange-tui.js"></script>
+</body>
+</html>

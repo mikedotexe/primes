@@ -4,6 +4,7 @@ use std::time::Duration;
 
 /// Baseline measurement structure
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct BaselineMetrics {
     pub limit: usize,
     pub time_ms: f64,
@@ -24,7 +25,7 @@ fn measure_baseline(limit: usize) -> BaselineMetrics {
     let elapsed = start.elapsed();
     
     // Calculate memory usage (1 bit per odd number)
-    let memory_bytes = (limit / 2 + 7) / 8;
+    let memory_bytes = (limit / 2).div_ceil(8);
     
     // Estimate cache misses (64-byte cache lines)
     let cache_misses = memory_bytes as u64 / 64;

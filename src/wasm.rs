@@ -10,7 +10,9 @@ use num_bigint::BigUint;
 use crate::{
     membrane::{MembraneConfig, MembraneBuilder},
     is_prime as check_prime,
+    tui::LagrangeUIState,
 };
+use serde_wasm_bindgen::to_value;
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
@@ -184,10 +186,10 @@ pub fn string_to_bigint(s: &str) -> Result<JsValue, JsValue> {
     match s.parse::<BigUint>() {
         Ok(_) => {
             // Use JavaScript's BigInt constructor
-            let js_bigint = js_sys::Function::new_with_args("n", &format!("return BigInt('{}')", s));
+            let js_bigint = js_sys::Function::new_with_args("n", &format!("return BigInt('{s}'))"));
             js_bigint.call0(&JsValue::null())
         }
-        Err(e) => Err(JsValue::from_str(&format!("Invalid number: {}", e))),
+        Err(e) => Err(JsValue::from_str(&format!("Invalid number: {e}"))),
     }
 }
 
@@ -196,7 +198,7 @@ pub fn string_to_bigint(s: &str) -> Result<JsValue, JsValue> {
 pub fn is_bigint_prime(bigint_str: &str) -> Result<bool, JsValue> {
     match bigint_str.parse::<BigUint>() {
         Ok(n) => Ok(check_prime(&n)),
-        Err(e) => Err(JsValue::from_str(&format!("Invalid BigInt string: {}", e))),
+        Err(e) => Err(JsValue::from_str(&format!("Invalid BigInt string: {e}"))),
     }
 }
 
@@ -221,4 +223,85 @@ pub fn generate_primes_batch(base: u32, outer: u32, inner: u32, count: u32) -> R
     }
     
     Ok(primes)
+}
+
+// ========== TUI WASM Bindings ==========
+
+/// WASM wrapper for the Lagrange TUI state
+#[wasm_bindgen]
+pub struct WasmLagrangeUI {
+    state: LagrangeUIState,
+}
+
+#[wasm_bindgen]
+impl WasmLagrangeUI {
+    /// Create a new TUI instance
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Self {
+            state: LagrangeUIState::default(),
+        }
+    }
+    
+    /// Get the current state as a JavaScript object
+    #[wasm_bindgen(js_name = getState)]
+    pub fn get_state(&self) -> Result<JsValue, JsValue> {
+        to_value(&self.state).map_err(|e| JsValue::from_str(&e.to_string()))
+    }
+    
+    /// Generate a new prime pair
+    #[wasm_bindgen(js_name = generatePrimePair)]
+    pub fn generate_prime_pair(&mut self) {
+        self.state.generate_prime_pair();
+    }
+    
+    /// Test Lagrange points for primality
+    #[wasm_bindgen(js_name = testLagrangePoints)]
+    pub fn test_lagrange_points(&mut self) {
+        self.state.test_lagrange_points();
+    }
+    
+    /// Cycle through configurations
+    #[wasm_bindgen(js_name = cycleConfiguration)]
+    pub fn cycle_configuration(&mut self) {
+        self.state.cycle_configuration();
+    }
+    
+    /// Toggle help display
+    #[wasm_bindgen(js_name = toggleHelp)]
+    pub fn toggle_help(&mut self) {
+        self.state.show_help = !self.state.show_help;
+    }
+    
+    /// Select a prime (0 or 1)
+    #[wasm_bindgen(js_name = selectPrime)]
+    pub fn select_prime(&mut self, index: usize) {
+        if index <= 1 {
+            self.state.selected_prime = index;
+        }
+    }
+    
+    /// Get the status message
+    #[wasm_bindgen(js_name = getStatusMessage)]
+    pub fn get_status_message(&self) -> String {
+        self.state.status_message.clone()
+    }
+    
+    /// Get the current configuration string
+    #[wasm_bindgen(js_name = getConfigString)]
+    pub fn get_config_string(&self) -> String {
+        format!("({},{}) k=({},{}) b{}", 
+            self.state.config.outer,
+            self.state.config.inner,
+            self.state.config.k_outer,
+            self.state.config.k_inner,
+            self.state.config.base
+        )
+    }
+    
+    /// Render the state to text (for debugging)
+    #[wasm_bindgen(js_name = renderToText)]
+    pub fn render_to_text(&self) -> String {
+        crate::tui::render_to_text(&self.state)
+    }
 }

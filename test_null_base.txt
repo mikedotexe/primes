@@ -1,0 +1,8 @@
+Testing NULL MODEL: Base 17 (poor performer from landscape analysis)
+
+From our landscape testing, base 17 achieved only 25% membrane construction rate.
+We predict it will show WEAK correlation in placement prediction.
+
+Expected: r < +0.25 (much weaker than base 30's r ≈ +0.40)
+
+This tests whether our selection of bases 6, 12, 30 was arbitrary or principled.

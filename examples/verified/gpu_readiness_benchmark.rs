@@ -124,6 +124,8 @@ fn benchmark_memory_bandwidth() {
         let start = Instant::now();
         for i in 0..iterations {
             let idx = (i * 127) % size_u64; // Prime stride for avoiding patterns
+            // SAFETY: idx is guaranteed to be < size_u64 due to modulo operation,
+            // and buffer is properly initialized
             unsafe {
                 let val = std::ptr::read_volatile(&buffer[idx]);
                 std::ptr::write_volatile(&mut buffer[idx], val.wrapping_add(1));

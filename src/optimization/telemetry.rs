@@ -270,7 +270,12 @@ impl MemoryMonitor {
     
     fn get_available(&self) -> usize {
         // Simplified - would use system APIs
-        8 * 1024 * 1024 * 1024 // 8 GB
+        #[cfg(target_arch = "wasm32")]
+        const MEMORY_LIMIT: usize = 2_147_483_648; // 2 GB max for WASM
+        #[cfg(not(target_arch = "wasm32"))]
+        const MEMORY_LIMIT: usize = 8 * 1024 * 1024 * 1024; // 8 GB
+        
+        MEMORY_LIMIT
     }
     
     fn get_used(&self) -> usize {

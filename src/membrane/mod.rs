@@ -393,6 +393,16 @@ impl MembraneConfig {
             },
         }
     }
+    
+    /// Check if this configuration is valid (coprime boundary digits)
+    pub fn is_valid(&self) -> bool {
+        fn gcd(a: u32, b: u32) -> u32 {
+            if b == 0 { a } else { gcd(b, a % b) }
+        }
+        
+        // Check that boundary digits are coprime to the base
+        gcd(self.outer, self.base) == 1 && gcd(self.inner, self.base) == 1
+    }
 }
 
 /// Builder for creating membrane-constructed prime particles

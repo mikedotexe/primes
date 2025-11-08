@@ -529,7 +529,7 @@ mod tests {
             FailureMode::CompleteFailure { reason } => {
                 assert!(reason.contains("wave node"));
             }
-            other => panic!("Expected complete failure, got: {:?}", other),
+            other => panic!("Expected complete failure, got: {other:?}"),
         }
     }
 }

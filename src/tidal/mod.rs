@@ -718,15 +718,15 @@ mod tests {
         // Test classification thresholds
         let zone = analyzer.classify_tidal_zone(3.0);
         assert!(matches!(zone, TidalZone::Ineffective { .. }), 
-               "Expected ineffective zone, got: {:?}", zone);
+               "Expected ineffective zone, got: {zone:?}");
         
         let zone = analyzer.classify_tidal_zone(12.9);
         assert!(matches!(zone, TidalZone::Organizing { .. }), 
-               "Expected organizing zone, got: {:?}", zone);
+               "Expected organizing zone, got: {zone:?}");
         
         let zone = analyzer.classify_tidal_zone(20.0);
         assert!(matches!(zone, TidalZone::Destructive { .. }), 
-               "Expected destructive zone, got: {:?}", zone);
+               "Expected destructive zone, got: {zone:?}");
     }
     
     #[test]

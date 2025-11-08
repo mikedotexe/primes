@@ -274,7 +274,7 @@ mod tests {
         
         // Predict effectiveness (should be reasonable given the input data)
         let effectiveness = predictor.predict_effectiveness(&context, "TestStrategy");
-        assert!(effectiveness >= 0.0 && effectiveness <= 1.0, "Effectiveness should be in valid range [0,1]");
+        assert!((0.0..=1.0).contains(&effectiveness), "Effectiveness should be in valid range [0,1]");
         
         // Get insights
         let insights = predictor.get_insights();

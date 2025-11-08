@@ -73,7 +73,7 @@ impl GpuSieveOptimized {
         };
         
         // Allocate output buffer
-        let mask_words = ((count + 31) / 32) as usize;
+        let mask_words = count.div_ceil(32) as usize;
         
         // Create Metal buffers
         let sig_buf = self.device.new_buffer_with_data(
@@ -98,8 +98,8 @@ impl GpuSieveOptimized {
             return Err("GPU output buffer is null".to_string());
         }
         
+        // SAFETY: Safe because we checked for null above
         unsafe {
-            // Safe because we checked for null above
             let ptr = out_buf.contents() as *mut u32;
             std::ptr::write_bytes(ptr, 0, mask_words);
         }
@@ -113,7 +113,7 @@ impl GpuSieveOptimized {
         enc.set_buffer(1, Some(&sig_buf), 0);
         enc.set_buffer(2, Some(&out_buf), 0);
         
-        let groups = MTLSize::new((count as u64 + TPB - 1) / TPB, 1, 1);
+        let groups = MTLSize::new((count as u64).div_ceil(TPB), 1, 1);
         enc.dispatch_thread_groups(groups, MTLSize::new(TPB, 1, 1));
         
         enc.end_encoding();
@@ -125,8 +125,8 @@ impl GpuSieveOptimized {
             return Err("GPU output buffer is null after computation".to_string());
         }
         
+        // SAFETY: Safe because we checked for null above
         let masks = unsafe {
-            // Safe because we checked for null above
             std::slice::from_raw_parts(out_buf.contents() as *const u32, mask_words)
         }.to_vec();
         

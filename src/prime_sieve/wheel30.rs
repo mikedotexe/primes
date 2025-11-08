@@ -98,6 +98,12 @@ impl Wheel30Segment {
     }
     
     /// Count primes in this segment using SIMD popcount
+    /// 
+    /// # Safety
+    /// 
+    /// Caller must ensure:
+    /// - The function is called on a properly aligned ARM NEON-capable CPU
+    /// - The bit array is properly initialized
     #[cfg(target_arch = "aarch64")]
     pub unsafe fn count_primes_simd(&self) -> usize {
         let mut total = 0u32;

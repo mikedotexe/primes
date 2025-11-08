@@ -47,3 +47,6 @@ __pycache__/
 # Documentation build
 /book/
 /docs/_build/
+
+# AI development output
+ai-output.txt

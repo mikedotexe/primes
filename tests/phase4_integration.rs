@@ -131,12 +131,18 @@ fn slc_demand_driven_maintenance() {
     
     // Low warmth should trigger maintenance
     let start = std::time::Instant::now();
-    slc.maintain_residency(0.5, ptr, dummy_weights.len());
+    // SAFETY: ptr points to dummy_weights which is valid for its entire length
+    unsafe {
+        slc.maintain_residency(0.5, ptr, dummy_weights.len());
+    }
     let elapsed1 = start.elapsed();
     
     // High warmth should skip maintenance
     let start = std::time::Instant::now();
-    slc.maintain_residency(0.9, ptr, dummy_weights.len());
+    // SAFETY: ptr points to dummy_weights which is valid for its entire length
+    unsafe {
+        slc.maintain_residency(0.9, ptr, dummy_weights.len());
+    }
     let elapsed2 = start.elapsed();
     
     // Maintenance should take longer than skip
@@ -167,6 +173,7 @@ fn integration_full_stack() {
         
         // Simulate inference
         let x = [1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0];
+        // SAFETY: x is a properly aligned 16-byte array as required by predict_sme_padded
         let _result = unsafe { prime_physics_engine::phase4::predict_sme_padded(x) };
     }
     

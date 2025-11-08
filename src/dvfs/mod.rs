@@ -43,6 +43,7 @@ fn estimate_current_frequency() -> f64 {
     
     // Read cycle counter frequency (fixed at 24 MHz on Apple Silicon)  
     let _cntfrq: u64;
+    // SAFETY: mrs instruction is read-only and available on aarch64
     unsafe {
         std::arch::asm!("mrs {0}, cntfrq_el0", out(reg) _cntfrq);
     }
@@ -82,7 +83,7 @@ mod tests {
     #[test]
     fn test_cpu_freq_reasonable() {
         let freq = cpu_freq_ghz();
-        assert!(freq > 1.0 && freq < 6.0, "CPU frequency {} GHz seems unreasonable", freq);
+        assert!(freq > 1.0 && freq < 6.0, "CPU frequency {freq} GHz seems unreasonable");
     }
 
     #[test]

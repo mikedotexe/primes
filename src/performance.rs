@@ -112,6 +112,9 @@ impl CycleTimer {
     #[cfg(target_arch = "aarch64")]
     fn read_cycles() -> u64 {
         let cycles: u64;
+        // SAFETY: Reading the cycle counter is a read-only operation that is
+        // guaranteed to be safe on aarch64. The cntvct_el0 register is accessible
+        // from user space and provides a monotonic timer value.
         unsafe {
             std::arch::asm!(
                 "mrs {}, cntvct_el0",
@@ -142,6 +145,9 @@ impl CycleTimer {
             {
                 // Read CNTFRQ_EL0 (ticks per second) - fixed at 24 MHz on Apple Silicon
                 let freq: u64;
+                // SAFETY: Reading the counter frequency is a read-only operation that is
+                // guaranteed to be safe on aarch64. The cntfrq_el0 register provides
+                // the system timer frequency.
                 unsafe { 
                     std::arch::asm!(
                         "mrs {0}, cntfrq_el0", 

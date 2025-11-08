@@ -118,6 +118,8 @@ pub struct MetalSieve {
 }
 
 // Mark as Send but not Sync - can be moved between threads but not shared
+// SAFETY: MetalSieve contains only a pointer to Objective-C handle which is
+// safe to send between threads. The underlying Metal objects are thread-safe.
 unsafe impl Send for MetalSieve {}
 
 impl MetalSieve {

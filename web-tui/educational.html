@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Lagrange Explorer - Prime Physics</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0e27;
+            color: #c0caf5;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.2;
+            overflow: hidden;
+        }
+        
+        #terminal {
+            width: 100vw;
+            height: 100vh;
+            padding: 10px;
+            box-sizing: border-box;
+            white-space: pre;
+            overflow: auto;
+            background: linear-gradient(180deg, #0a0e27 0%, #1a1b26 100%);
+        }
+        
+        /* Enhanced color scheme for educational content */
+        .fg-green { color: #9ece6a; }
+        .fg-yellow { color: #e0af68; }
+        .fg-cyan { color: #7dcfff; }
+        .fg-magenta { color: #bb9af7; }
+        .fg-blue { color: #7aa2f7; }
+        
+        .bold { font-weight: 700; }
+        
+        /* Special styles for the educational version */
+        .lagrange-point {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .explanation {
+            background: rgba(122, 162, 247, 0.1);
+            padding: 5px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        
+        @keyframes flash {
+            0% { background: transparent; }
+            50% { background: rgba(158, 206, 106, 0.2); }
+            100% { background: transparent; }
+        }
+        
+        .flash-success {
+            animation: flash 0.5s ease-out;
+        }
+        
+        @keyframes gravitational-pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        
+        .animating {
+            animation: gravitational-pulse 2s ease-in-out infinite;
+        }
+        
+        /* Info panel */
+        .info-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(31, 35, 53, 0.95);
+            border: 2px solid #7aa2f7;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 300px;
+            font-size: 12px;
+        }
+        
+        .info-panel h3 {
+            margin: 0 0 10px 0;
+            color: #e0af68;
+        }
+        
+        .info-panel ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        
+        .badge {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: #bb9af7;
+            color: #1a1b26;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal">Loading educational visualization...</div>
+    
+    <div class="badge">Educational Mode 🎓</div>
+    
+    <div class="info-panel">
+        <h3>Quick Guide</h3>
+        <p><strong>What are Lagrange Points?</strong></p>
+        <p>In space, these are positions where gravitational forces balance perfectly. 
+           In our prime universe, they represent mathematical equilibrium zones.</p>
+        
+        <p><strong>The Five Points:</strong></p>
+        <ul>
+            <li><strong>L1</strong> - Between the primes</li>
+            <li><strong>L2</strong> - Behind smaller prime</li>
+            <li><strong>L3</strong> - Behind larger prime</li>
+            <li><strong>L4/L5</strong> - Stable triangular points</li>
+        </ul>
+        
+        <p><strong>Controls:</strong></p>
+        <ul>
+            <li><strong>g</strong> - Generate primes</li>
+            <li><strong>a</strong> - Animate interaction</li>
+            <li><strong>e</strong> - Next explanation</li>
+            <li><strong>h</strong> - Help</li>
+        </ul>
+    </div>
+
+    <script src="educational-tui.js"></script>
+</body>
+</html>

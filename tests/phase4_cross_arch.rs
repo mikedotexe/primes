@@ -55,10 +55,16 @@ fn slc_controller_basic() {
     let dummy_data = vec![0u8; 4096];
     
     // Low warmth should trigger maintenance
-    slc.maintain_residency(0.5, dummy_data.as_ptr(), dummy_data.len());
+    // SAFETY: dummy_data is valid for its entire length and lives long enough
+    unsafe {
+        slc.maintain_residency(0.5, dummy_data.as_ptr(), dummy_data.len());
+    }
     
     // High warmth should not
-    slc.maintain_residency(0.9, dummy_data.as_ptr(), dummy_data.len());
+    // SAFETY: dummy_data is valid for its entire length and lives long enough
+    unsafe {
+        slc.maintain_residency(0.9, dummy_data.as_ptr(), dummy_data.len());
+    }
 }
 
 #[cfg(not(target_arch = "aarch64"))]

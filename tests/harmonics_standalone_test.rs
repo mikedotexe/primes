@@ -3,11 +3,10 @@
 
 #[cfg(feature = "prime-harmonics")]
 use prime_physics_engine::harmonics::{
-    fourier_transform, power_spectrum, find_dominant_frequencies, HarmonicAnalyzer
+    fourier_transform, power_spectrum, HarmonicAnalyzer
 };
-use prime_physics_engine::{is_prime, prime_sieve::BitSieve};
+use prime_physics_engine::{prime_sieve::BitSieve, is_prime};
 use num_bigint::BigUint;
-use std::f64::consts::PI;
 
 /// Helper function to create a prime indicator sequence
 fn create_prime_sequence(limit: usize) -> Vec<f64> {

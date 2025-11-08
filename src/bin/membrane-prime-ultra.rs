@@ -13,6 +13,7 @@ use std::arch::x86_64::_mulx_u32;
 #[inline(always)]
 fn mod_mul_u32_fast(a: u32, b: u32, m: u32) -> u32 {
     #[cfg(target_arch = "x86_64")]
+    // SAFETY: _mulx_u32 is a standard x86_64 intrinsic
     unsafe {
         let mut high: u32 = 0;
         let low = _mulx_u32(a, b, &mut high);

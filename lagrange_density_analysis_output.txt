@@ -1,0 +1,48 @@
+🔬 LAGRANGE DENSITY ANALYSIS
+================================================================================
+
+Hypothesis: Simpler numbers (lower digit sums, no zeros) create better Lagrange fields
+
+Body 1          Body 2                Sum1       Sum2      Product        Zero%     Success%
+------------------------------------------------------------------------------------------
+7               11                       7          2           14         0.0%        17.8%
+11              13                       2          4            8         0.0%        15.6%
+11              121                      2          4            8         0.0%        15.6%
+13              17                       4          8           32         0.0%        13.3%
+23              29                       5         11           55         0.0%        13.3%
+31              37                       4         10           40         0.0%        13.3%
+101             103                      2          4            8        33.3%        11.1%
+13              169                      4         16           64         0.0%        11.1%
+10007           10009                    8         10           80        60.0%        11.1%
+17              19                       8         10           80         0.0%         6.7%
+10301           10301                    5          5           25        40.0%         6.7%
+10301           3007003007003            5         23          115        50.8%         4.4%
+100003          100019                   4         11           44        58.3%         4.4%
+101             30103                    2          7           14        36.7%         2.2%
+
+📊 PATTERN ANALYSIS:
+
+🌟 HIGH PERFORMERS (>10% success):
+   7 ↔ 11: Product=14, Zeros=0%
+   11 ↔ 13: Product=8, Zeros=0%
+   11 ↔ 121: Product=8, Zeros=0%
+   13 ↔ 17: Product=32, Zeros=0%
+   23 ↔ 29: Product=55, Zeros=0%
+   31 ↔ 37: Product=40, Zeros=0%
+   101 ↔ 103: Product=8, Zeros=33%
+   13 ↔ 169: Product=64, Zeros=0%
+   10007 ↔ 10009: Product=80, Zeros=60%
+
+💤 LOW PERFORMERS (<5% success):
+   10301 ↔ 3007003007003: Product=115, Zeros=51%
+   100003 ↔ 100019: Product=44, Zeros=58%
+   101 ↔ 30103: Product=14, Zeros=37%
+
+📈 STATISTICAL SUMMARY:
+   High performers: avg product = 34.3, avg zero% = 10.4%
+   Low performers:  avg product = 57.7, avg zero% = 48.6%
+
+💡 CONCLUSIONS:
+   1. Lower digit products correlate with higher Lagrange success
+   2. Zero-heavy numbers (membranes) have lower Lagrange density
+   3. Simple primes create the strongest Lagrange fields
