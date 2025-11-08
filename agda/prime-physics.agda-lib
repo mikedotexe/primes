@@ -1,0 +1,4 @@
+name: prime-physics
+version: 1.0.0
+depend: standard-library
+include: src
