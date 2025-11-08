@@ -1,0 +1,7 @@
+[build]
+# Set custom target directory for build artifacts
+target-dir = "/Users/mikepurvis/claude-target/primes"
+
+[net]
+# Use git CLI for better compatibility
+git-fetch-with-cli = true

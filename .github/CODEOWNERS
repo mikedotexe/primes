@@ -1,0 +1,30 @@
+# Prime Physics Engine Code Owners
+# These owners will be automatically requested for review on pull requests
+
+# Global owners for the entire repository
+* @mikepurvis
+
+# Core engine
+/src/ @mikepurvis
+/src/core/ @mikepurvis
+/src/membrane/ @mikepurvis
+
+# GPU/Metal implementation
+/src/gpu.rs @mikepurvis
+/src/gpu_optimized.rs @mikepurvis
+/src/metal*.rs @mikepurvis
+/shaders/ @mikepurvis
+*.metal @mikepurvis
+
+# Build and CI
+/.github/ @mikepurvis
+/build.rs @mikepurvis
+/Cargo.toml @mikepurvis
+
+# Documentation
+/*.md @mikepurvis
+/docs/ @mikepurvis
+
+# Examples
+/examples/verified/ @mikepurvis
+/examples/experimental/ @mikepurvis

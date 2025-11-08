@@ -1,0 +1,42 @@
+
+
+============================================================
+Search run: 2025-07-17 21:33:39.048188
+============================================================
+
+(7)─(5)─(7)
+Value: 70507
+Prime: YES
+Verify: https://www.wolframalpha.com/input/?i=isprime(70507)
+
+(3)─(7)──(5)──(7)─(3)
+Value: 307050703
+Prime: YES
+Verify: https://www.wolframalpha.com/input/?i=isprime(307050703)
+
+(3)─(7)──(5)──(7)─(3)
+Value: 3070050703
+Prime: YES
+Verify: https://www.wolframalpha.com/input/?i=isprime(3070050703)
+
+
+
+============================================================
+Search run: 2025-07-18 15:27:29.797598
+============================================================
+
+(7)─(5)─(7)
+Value: 70507
+Prime: YES
+Verify: https://www.wolframalpha.com/input/?i=isprime(70507)
+
+(3)─(7)──(5)──(7)─(3)
+Value: 307050703
+Prime: YES
+Verify: https://www.wolframalpha.com/input/?i=isprime(307050703)
+
+(3)─(7)──(5)──(7)─(3)
+Value: 3070050703
+Prime: YES
+Verify: https://www.wolframalpha.com/input/?i=isprime(3070050703)
+

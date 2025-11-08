@@ -1,0 +1,28 @@
+[package]
+name = "prime_physics_wasm"
+version = "0.1.0"
+edition = "2021"
+authors = ["Prime Physics Team"]
+description = "Interactive WebAssembly demo of membrane prime generation and cache-aware sieve"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"
+num-traits = "0.2"
+num-bigint = "0.4"
+
+# Use the parent project as a dependency
+prime-physics-engine = { path = ".." }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+
+# Enable wasm features
+[features]
+default = []
+simd = ["wasm-bindgen/simd128"]

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prime Physics Engine - Interactive Demo</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <header>
+        <h1>🌌 Prime Physics Engine</h1>
+        <p>Interactive membrane prime generation & cache-aware algorithms</p>
+    </header>
+
+    <nav>
+        <button class="tab-btn active" data-tab="membrane">Membrane Primes</button>
+        <button class="tab-btn" data-tab="sieve">Prime Sieve</button>
+        <button class="tab-btn" data-tab="neural">Neural Cache</button>
+    </nav>
+
+    <main>
+        <!-- Tab 1: Membrane Prime Generation -->
+        <section id="membrane" class="tab-content active">
+            <h2>Membrane Prime Generator</h2>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label>Base: <span id="base-value">10</span></label>
+                    <input type="range" id="base" min="2" max="30" value="10" step="1">
+                </div>
+                
+                <div class="control-group">
+                    <label>Outer digit: <span id="outer-value">3</span></label>
+                    <input type="range" id="outer" min="1" max="9" value="3" step="1">
+                </div>
+                
+                <div class="control-group">
+                    <label>Inner digit: <span id="inner-value">7</span></label>
+                    <input type="range" id="inner" min="1" max="9" value="7" step="1">
+                </div>
+                
+                <div class="control-group">
+                    <label>Outer padding (k): <span id="k-outer-value">0</span></label>
+                    <input type="range" id="k-outer" min="0" max="3" value="0" step="1">
+                </div>
+                
+                <div class="control-group">
+                    <label>Inner padding (k): <span id="k-inner-value">0</span></label>
+                    <input type="range" id="k-inner" min="0" max="3" value="0" step="1">
+                </div>
+                
+                <div class="control-group">
+                    <label>Middle seed start: <span id="middle-value">1</span></label>
+                    <input type="range" id="middle" min="1" max="100" value="1" step="1">
+                </div>
+            </div>
+            
+            <div class="status">
+                <p id="coprime-status">✅ Boundary digits are coprime to base</p>
+                <button id="optimal-config">Load Optimal Config</button>
+                <button id="generate-batch">Generate 20 Candidates</button>
+            </div>
+            
+            <div id="membrane-results" class="results">
+                <h3>Structure Preview</h3>
+                <pre id="structure-preview">3 0 7 0 5 0 7 0 3 → 30705070003</pre>
+                
+                <h3>Generated Candidates</h3>
+                <div id="candidates-list"></div>
+                
+                <h3>Statistics</h3>
+                <div id="membrane-stats"></div>
+            </div>
+        </section>
+
+        <!-- Tab 2: Prime Sieve -->
+        <section id="sieve" class="tab-content">
+            <h2>Cache-Aware Prime Sieve</h2>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label>Limit:</label>
+                    <select id="sieve-limit">
+                        <option value="10000">10,000</option>
+                        <option value="100000">100,000</option>
+                        <option value="1000000" selected>1,000,000</option>
+                        <option value="10000000">10,000,000</option>
+                        <option value="50000000">50,000,000</option>
+                    </select>
+                </div>
+                
+                <button id="run-sieve">Run Sieve</button>
+                <button id="benchmark-sieve">Run Benchmark</button>
+            </div>
+            
+            <div id="sieve-results" class="results">
+                <div id="sieve-output"></div>
+                <canvas id="sieve-chart" width="600" height="300"></canvas>
+            </div>
+        </section>
+
+        <!-- Tab 3: Neural Network -->
+        <section id="neural" class="tab-content">
+            <h2>Cache-Resident Neural Network</h2>
+            <p>8→16→1 architecture optimized for Apple Silicon AMX/SME</p>
+            
+            <div class="controls">
+                <h3>Input Vector (8 × int8)</h3>
+                <div id="neural-inputs" class="neural-grid"></div>
+                
+                <div class="neural-actions">
+                    <button id="neural-random">Random Input</button>
+                    <button id="neural-zero">Zero Input</button>
+                    <button id="neural-pattern">Test Pattern</button>
+                </div>
+            </div>
+            
+            <div id="neural-results" class="results">
+                <h3>Network Output</h3>
+                <div class="output-display">
+                    <span id="neural-output">0</span>
+                </div>
+                
+                <h3>Performance</h3>
+                <p>Target latency: &lt;3 ns with real SME hardware</p>
+                <p>Current (WASM): <span id="neural-timing">-- μs</span></p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Part of the Prime Physics Engine project</p>
+        <p>WebAssembly demo showcasing membrane prime generation and cache-aware algorithms</p>
+    </footer>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

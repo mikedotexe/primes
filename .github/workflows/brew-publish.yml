@@ -1,0 +1,65 @@
+name: Homebrew Formula
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0-rc1)'
+        required: true
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Download release artifacts
+        if: github.event_name == 'release'
+        run: |
+          # Download macOS and Linux artifacts
+          curl -L -o prime-physics-engine-macos.tar.gz \
+            "https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.VERSION }}/prime-physics-engine-${{ steps.version.outputs.VERSION }}-x86_64-apple-darwin.tar.gz"
+          curl -L -o prime-physics-engine-linux.tar.gz \
+            "https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.VERSION }}/prime-physics-engine-${{ steps.version.outputs.VERSION }}-x86_64-unknown-linux-gnu.tar.gz"
+      
+      - name: Calculate SHA256
+        id: sha
+        run: |
+          echo "SHA_MACOS=$(sha256sum prime-physics-engine-macos.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "SHA_LINUX=$(sha256sum prime-physics-engine-linux.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+      
+      - name: Generate formula
+        run: |
+          mkdir -p Formula
+          ./scripts/gen_formula.rb \
+            --version "${{ steps.version.outputs.VERSION }}" \
+            --sha-mac "${{ steps.sha.outputs.SHA_MACOS }}" \
+            --sha-linux "${{ steps.sha.outputs.SHA_LINUX }}" \
+            > Formula/prime-physics-engine.rb
+      
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update Homebrew formula to ${{ steps.version.outputs.VERSION }}"
+          title: "Update Homebrew formula to ${{ steps.version.outputs.VERSION }}"
+          body: |
+            Automated update of Homebrew formula for Prime Physics Engine ${{ steps.version.outputs.VERSION }}.
+            
+            - Updated download URLs
+            - Updated SHA256 checksums
+            - Version bump to ${{ steps.version.outputs.VERSION }}
+          branch: homebrew-${{ steps.version.outputs.VERSION }}
+          base: main
+          delete-branch: true

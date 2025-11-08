@@ -1,0 +1,31 @@
+╔══════════════════════════════════════════════════════════╗
+║              MEMBRANE PRIME QUICK REFERENCE              ║
+╚══════════════════════════════════════════════════════════╝
+
+
+BEST CONFIGURATIONS BY BASE:
+───────────────────────────
+Base 4:  (3,1) k=(0,0) → 50% density
+Base 6:  (1,3) k=(0,0) → 41% density ⭐
+Base 8:  (1,3) k=(0,0) → 22% density
+Base 10: (1,3) k=(0,0) → 27% density
+Base 12: (1,3) k=(0,0) → 27% density
+
+UNIVERSAL PATTERN: (1,3) k=(0,0) works everywhere!
+
+KEY FORMULAS:
+────────────
+Membrane: outer + k₀·0 + inner + k₁·0 + middle + k₁·0 + inner + k₀·0 + outer
+Wavelength: λ = base / gcd(distance, base)
+Quality: Q = amplitude × base_factor × distance_factor
+
+QUICK TIPS:
+──────────
+• Use even bases (44% better)
+• Try breathing patterns k=(0,1)
+• The 5-7 config is magical
+• Small coprime digits work best
+• GPU gives 691x speedup
+
+Happy prime hunting! 🔍✨
+

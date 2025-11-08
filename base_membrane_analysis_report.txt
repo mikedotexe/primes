@@ -1,0 +1,363 @@
+# SYSTEMATIC BASE-MEMBRANE ANALYSIS REPORT
+=========================================
+
+## SUMMARY TABLE
+
+| Base | Factorization | Best Config | Success Rate | vs Baseline | p-value |
+|------|---------------|-------------|--------------|-------------|----------|
+| 6 | 2×3 | (1,5) k=(0,0) | 26.0% | 3.1x | 0.0000 |
+| 8 | 2×2×2 | (3,5) k=(0,0) | 23.0% | 3.4x | 0.0000 |
+| 10 | 2×5 | (1,9) k=(0,0) | 22.0% | 3.6x | 0.0000 |
+| 12 | 2×2×3 | (1,11) k=(0,0) | 25.0% | 4.4x | 0.0000 |
+| 14 | 2×7 | (1,5) k=(0,0) | 27.0% | 5.0x | 0.0000 |
+| 16 | 2×2×2×2 | (1,5) k=(0,0) | 20.0% | 3.9x | 0.0000 |
+| 18 | 2×3×3 | (1,5) k=(0,0) | 25.0% | 7.4x | 0.0000 |
+| 20 | 2×2×5 | (1,9) k=(0,0) | 21.0% | 4.2x | 0.0000 |
+| 24 | 2×2×2×3 | (11,1) k=(1,0) | 23.0% | 4.8x | 0.0000 |
+| 30 | 2×3×5 | (11,1) k=(0,0) | 25.0% | 5.4x | 0.0000 |
+
+## DETAILED ANALYSIS BY BASE
+
+### Base 6
+Factorization: [2, 3]
+Baseline rate: 8.50%
+
+Special relationships:
+- 1 + 5 = 6 (base)
+- 2 + 4 = 6 (base)
+- 3 + 3 = 6 (base)
+- 1 × 1 ≡ 1 (mod 6)
+- 5 × 5 ≡ 1 (mod 6)
+- 1 × 5 ≡ -1 (mod 6)
+
+Top configurations:
+1. (1,5) k=(0,0) → 26.0% (26/100) p=0.0000
+   Examples: 15451 (decimal: 2551), 151051 (decimal: 14503), 151551 (decimal: 14683)
+2. (1,5) k=(0,1) → 23.0% (23/100) p=0.0000
+   Examples: 1502051 (decimal: 85999), 15010051 (decimal: 514543), 15013051 (decimal: 515191)
+3. (1,5) k=(1,0) → 23.0% (23/100) p=0.0000
+   Examples: 1054501 (decimal: 54181), 10510501 (decimal: 320293), 10513501 (decimal: 320941)
+4. (5,1) k=(0,0) → 22.0% (22/100) p=0.0000
+   Examples: 51215 (decimal: 6779), 511515 (decimal: 40583), 512415 (decimal: 40763)
+5. (5,1) k=(2,0) → 18.0% (18/100) p=0.0001
+   Examples: 5001241005 (decimal: 50456093), 5001251005 (decimal: 50457389), 5001321005 (decimal: 50461277)
+
+### Base 8
+Factorization: [2, 2, 2]
+Baseline rate: 6.70%
+
+Special relationships:
+- 1 + 7 = 8 (base)
+- 2 + 6 = 8 (base)
+- 3 + 5 = 8 (base)
+- 4 + 4 = 8 (base)
+- 5 × 5 ≡ 1 (mod 8)
+- 1 × 1 ≡ 1 (mod 8)
+- 3 × 3 ≡ 1 (mod 8)
+- 7 × 7 ≡ 1 (mod 8)
+- 1 × 7 ≡ -1 (mod 8)
+- 3 × 5 ≡ -1 (mod 8)
+
+Top configurations:
+1. (3,5) k=(0,0) → 23.0% (23/100) p=0.0000
+   Examples: 35353 (decimal: 15083), 351553 (decimal: 119659), 351653 (decimal: 119723)
+2. (7,5) k=(0,0) → 23.0% (23/100) p=0.0000
+   Examples: 75657 (decimal: 31663), 75757 (decimal: 31727), 751257 (decimal: 250543)
+3. (7,3) k=(0,0) → 22.0% (22/100) p=0.0000
+   Examples: 73237 (decimal: 30367), 73337 (decimal: 30431), 73537 (decimal: 30559)
+4. (5,7) k=(0,0) → 20.0% (20/100) p=0.0000
+   Examples: 57375 (decimal: 24317), 57675 (decimal: 24509), 571675 (decimal: 193469)
+5. (1,5) k=(0,0) → 18.0% (18/100) p=0.0001
+   Examples: 15151 (decimal: 6761), 151351 (decimal: 53993), 151551 (decimal: 54121)
+
+### Base 10
+Factorization: [2, 5]
+Baseline rate: 6.10%
+
+Special relationships:
+- 1 + 9 = 10 (base)
+- 2 + 8 = 10 (base)
+- 3 + 7 = 10 (base)
+- 4 + 6 = 10 (base)
+- 5 + 5 = 10 (base)
+- 9 × 9 ≡ 1 (mod 10)
+- 1 × 1 ≡ 1 (mod 10)
+- 1 × 9 ≡ -1 (mod 10)
+- 3 × 3 ≡ -1 (mod 10)
+- 7 × 7 ≡ -1 (mod 10)
+
+Top configurations:
+1. (1,9) k=(0,0) → 22.0% (22/100) p=0.0000
+   Examples: 19391 (decimal: 19391), 19891 (decimal: 19891), 19991 (decimal: 19991)
+2. (3,1) k=(0,1) → 22.0% (22/100) p=0.0000
+   Examples: 3103013 (decimal: 3103013), 3106013 (decimal: 3106013), 31012013 (decimal: 31012013)
+3. (7,1) k=(0,0) → 22.0% (22/100) p=0.0000
+   Examples: 71317 (decimal: 71317), 71917 (decimal: 71917), 711017 (decimal: 711017)
+4. (9,3) k=(0,0) → 22.0% (22/100) p=0.0000
+   Examples: 93139 (decimal: 93139), 93239 (decimal: 93239), 93739 (decimal: 93739)
+5. (3,7) k=(0,0) → 21.0% (21/100) p=0.0000
+   Examples: 37273 (decimal: 37273), 37573 (decimal: 37573), 371573 (decimal: 371573)
+
+### Base 12
+Factorization: [2, 2, 3]
+Baseline rate: 5.70%
+
+Special relationships:
+- 1 + 11 = 12 (base)
+- 2 + 10 = 12 (base)
+- 3 + 9 = 12 (base)
+- 4 + 8 = 12 (base)
+- 5 + 7 = 12 (base)
+- 6 + 6 = 12 (base)
+- 11 × 11 ≡ 1 (mod 12)
+- 5 × 5 ≡ 1 (mod 12)
+- 1 × 1 ≡ 1 (mod 12)
+- 7 × 7 ≡ 1 (mod 12)
+- 1 × 11 ≡ -1 (mod 12)
+- 5 × 7 ≡ -1 (mod 12)
+
+Top configurations:
+1. (1,11) k=(0,0) → 25.0% (25/100) p=0.0000
+   Examples: 1B5B1 (decimal: 40597), 1B13B1 (decimal: 479221), 1B15B1 (decimal: 479509)
+2. (5,11) k=(0,0) → 24.0% (24/100) p=0.0000
+   Examples: 5B2B5 (decimal: 123113), 5B4B5 (decimal: 123401), 5B7B5 (decimal: 123833)
+3. (7,5) k=(0,0) → 24.0% (24/100) p=0.0000
+   Examples: 75357 (decimal: 154291), 75557 (decimal: 154579), 75657 (decimal: 154723)
+4. (11,7) k=(0,0) → 24.0% (24/100) p=0.0000
+   Examples: B737B (decimal: 240719), B7A7B (decimal: 241727), B7137B (decimal: 2884559)
+5. (1,5) k=(0,0) → 23.0% (23/100) p=0.0000
+   Examples: 15151 (decimal: 29581), 15451 (decimal: 30013), 151051 (decimal: 354301)
+
+### Base 14
+Factorization: [2, 7]
+Baseline rate: 5.40%
+
+Special relationships:
+- 1 + 13 = 14 (base)
+- 2 + 12 = 14 (base)
+- 3 + 11 = 14 (base)
+- 4 + 10 = 14 (base)
+- 5 + 9 = 14 (base)
+- 6 + 8 = 14 (base)
+- 7 + 7 = 14 (base)
+- 13 × 13 ≡ 1 (mod 14)
+- 1 × 1 ≡ 1 (mod 14)
+- 1 × 13 ≡ -1 (mod 14)
+- 3 × 9 ≡ -1 (mod 14)
+- 5 × 11 ≡ -1 (mod 14)
+
+Top configurations:
+1. (1,5) k=(0,0) → 27.0% (27/100) p=0.0000
+   Examples: 15A51 (decimal: 54167), 15C51 (decimal: 54559), 151251 (decimal: 733111)
+2. (1,3) k=(0,0) → 23.0% (23/100) p=0.0000
+   Examples: 13331 (decimal: 47279), 13831 (decimal: 48259), 13B31 (decimal: 48847)
+3. (13,1) k=(0,0) → 21.0% (21/100) p=0.0000
+   Examples: D151D (decimal: 503159), D171D (decimal: 503551), D1A1D (decimal: 504139)
+4. (5,13) k=(0,0) → 19.0% (19/100) p=0.0000
+   Examples: 5D2D5 (decimal: 228331), 5D8D5 (decimal: 229507), 5D9D5 (decimal: 229703)
+5. (9,5) k=(0,0) → 19.0% (19/100) p=0.0000
+   Examples: 95859 (decimal: 361111), 951059 (decimal: 5035319), 951259 (decimal: 5035711)
+
+### Base 16
+Factorization: [2, 2, 2, 2]
+Baseline rate: 5.10%
+
+Special relationships:
+- 1 + 15 = 16 (base)
+- 2 + 14 = 16 (base)
+- 3 + 13 = 16 (base)
+- 4 + 12 = 16 (base)
+- 5 + 11 = 16 (base)
+- 6 + 10 = 16 (base)
+- 7 + 9 = 16 (base)
+- 8 + 8 = 16 (base)
+- 15 × 15 ≡ 1 (mod 16)
+- 9 × 9 ≡ 1 (mod 16)
+- 7 × 7 ≡ 1 (mod 16)
+- 1 × 1 ≡ 1 (mod 16)
+- 1 × 15 ≡ -1 (mod 16)
+- 3 × 5 ≡ -1 (mod 16)
+- 7 × 9 ≡ -1 (mod 16)
+- 11 × 13 ≡ -1 (mod 16)
+
+Top configurations:
+1. (1,5) k=(0,0) → 20.0% (20/100) p=0.0000
+   Examples: 15151 (decimal: 86353), 15451 (decimal: 87121), 15A51 (decimal: 88657)
+2. (1,13) k=(0,0) → 19.0% (19/100) p=0.0000
+   Examples: 1D4D1 (decimal: 120017), 1DAD1 (decimal: 121553), 1DDD1 (decimal: 122321)
+3. (3,5) k=(0,0) → 18.0% (18/100) p=0.0001
+   Examples: 35753 (decimal: 218963), 35A53 (decimal: 219731), 35C53 (decimal: 220243)
+4. (1,3) k=(0,0) → 17.0% (17/100) p=0.0005
+   Examples: 13531 (decimal: 79153), 13931 (decimal: 80177), 13E31 (decimal: 81457)
+5. (3,9) k=(0,0) → 17.0% (17/100) p=0.0005
+   Examples: 39293 (decimal: 234131), 39D93 (decimal: 236947), 39E93 (decimal: 237203)
+
+### Base 18
+Factorization: [2, 3, 3]
+Baseline rate: 3.40%
+
+Special relationships:
+- 1 + 17 = 18 (base)
+- 2 + 16 = 18 (base)
+- 3 + 15 = 18 (base)
+- 4 + 14 = 18 (base)
+- 5 + 13 = 18 (base)
+- 6 + 12 = 18 (base)
+- 7 + 11 = 18 (base)
+- 8 + 10 = 18 (base)
+- 9 + 9 = 18 (base)
+- 1 × 1 ≡ 1 (mod 18)
+- 17 × 17 ≡ 1 (mod 18)
+- 1 × 17 ≡ -1 (mod 18)
+- 5 × 7 ≡ -1 (mod 18)
+- 11 × 13 ≡ -1 (mod 18)
+
+Top configurations:
+1. (1,5) k=(0,0) → 25.0% (25/100) p=0.0000
+   Examples: 15951 (decimal: 137143), 15B51 (decimal: 137791), 15E51 (decimal: 138763)
+2. (13,7) k=(0,0) → 24.0% (24/100) p=0.0000
+   Examples: D747D (decimal: 1406947), D757D (decimal: 1407271), D797D (decimal: 1408567)
+3. (1,13) k=(0,0) → 21.0% (21/100) p=0.0000
+   Examples: 1D9D1 (decimal: 183943), 1DGD1 (decimal: 186211), 1D14D1 (decimal: 3261619)
+4. (5,1) k=(0,0) → 21.0% (21/100) p=0.0000
+   Examples: 51215 (decimal: 531383), 51715 (decimal: 533003), 51815 (decimal: 533327)
+5. (13,5) k=(0,0) → 21.0% (21/100) p=0.0000
+   Examples: D525D (decimal: 1394599), D595D (decimal: 1396867), D5C5D (decimal: 1397839)
+
+### Base 20
+Factorization: [2, 2, 5]
+Baseline rate: 5.00%
+
+Special relationships:
+- 1 + 19 = 20 (base)
+- 2 + 18 = 20 (base)
+- 3 + 17 = 20 (base)
+- 4 + 16 = 20 (base)
+- 5 + 15 = 20 (base)
+- 6 + 14 = 20 (base)
+- 7 + 13 = 20 (base)
+- 8 + 12 = 20 (base)
+- 9 + 11 = 20 (base)
+- 10 + 10 = 20 (base)
+- 9 × 9 ≡ 1 (mod 20)
+- 1 × 1 ≡ 1 (mod 20)
+- 11 × 11 ≡ 1 (mod 20)
+- 19 × 19 ≡ 1 (mod 20)
+- 1 × 19 ≡ -1 (mod 20)
+- 3 × 13 ≡ -1 (mod 20)
+- 7 × 17 ≡ -1 (mod 20)
+- 9 × 11 ≡ -1 (mod 20)
+
+Top configurations:
+1. (1,9) k=(0,0) → 21.0% (21/100) p=0.0000
+   Examples: 19591 (decimal: 234181), 19C91 (decimal: 236981), 19E91 (decimal: 237781)
+2. (1,11) k=(0,0) → 20.0% (20/100) p=0.0000
+   Examples: 1B1B1 (decimal: 248621), 1B3B1 (decimal: 249421), 1B15B1 (decimal: 4970221)
+3. (3,9) k=(1,0) → 18.0% (18/100) p=0.0001
+   Examples: 3091903 (decimal: 193451603), 3095903 (decimal: 193483603), 309D903 (decimal: 193547603)
+4. (3,11) k=(0,0) → 18.0% (18/100) p=0.0001
+   Examples: 3B3B3 (decimal: 569423), 3B15B3 (decimal: 11370223), 3B1BB3 (decimal: 11372623)
+5. (7,11) k=(0,0) → 18.0% (18/100) p=0.0001
+   Examples: 7B3B7 (decimal: 1209427), 7B7B7 (decimal: 1211027), 7B9B7 (decimal: 1211827)
+
+### Base 24
+Factorization: [2, 2, 2, 3]
+Baseline rate: 4.80%
+
+Special relationships:
+- 1 + 23 = 24 (base)
+- 2 + 22 = 24 (base)
+- 3 + 21 = 24 (base)
+- 4 + 20 = 24 (base)
+- 5 + 19 = 24 (base)
+- 6 + 18 = 24 (base)
+- 7 + 17 = 24 (base)
+- 8 + 16 = 24 (base)
+- 9 + 15 = 24 (base)
+- 10 + 14 = 24 (base)
+- 11 + 13 = 24 (base)
+- 12 + 12 = 24 (base)
+- 5 × 5 ≡ 1 (mod 24)
+- 13 × 13 ≡ 1 (mod 24)
+- 7 × 7 ≡ 1 (mod 24)
+- 17 × 17 ≡ 1 (mod 24)
+- 19 × 19 ≡ 1 (mod 24)
+- 11 × 11 ≡ 1 (mod 24)
+- 1 × 1 ≡ 1 (mod 24)
+- 23 × 23 ≡ 1 (mod 24)
+- 1 × 23 ≡ -1 (mod 24)
+- 5 × 19 ≡ -1 (mod 24)
+- 7 × 17 ≡ -1 (mod 24)
+- 11 × 13 ≡ -1 (mod 24)
+
+Top configurations:
+1. (11,1) k=(1,0) → 23.0% (23/100) p=0.0000
+   Examples: B01610B (decimal: 2102548043), B01A10B (decimal: 2102603339), B01D10B (decimal: 2102644811)
+2. (13,1) k=(0,0) → 23.0% (23/100) p=0.0000
+   Examples: D131D (decimal: 4328677), D141D (decimal: 4329253), D181D (decimal: 4331557)
+3. (1,13) k=(1,0) → 22.0% (22/100) p=0.0000
+   Examples: 10DCD01 (decimal: 195589441), 10DED01 (decimal: 195617089), 10DFD01 (decimal: 195630913)
+4. (1,7) k=(0,0) → 21.0% (21/100) p=0.0000
+   Examples: 17471 (decimal: 431017), 17I71 (decimal: 439081), 17L71 (decimal: 440809)
+5. (5,1) k=(0,0) → 20.0% (20/100) p=0.0000
+   Examples: 51315 (decimal: 1674461), 51515 (decimal: 1675613), 51L15 (decimal: 1684829)
+
+### Base 30
+Factorization: [2, 3, 5]
+Baseline rate: 4.60%
+
+Special relationships:
+- 1 + 29 = 30 (base)
+- 2 + 28 = 30 (base)
+- 3 + 27 = 30 (base)
+- 4 + 26 = 30 (base)
+- 5 + 25 = 30 (base)
+- 6 + 24 = 30 (base)
+- 7 + 23 = 30 (base)
+- 8 + 22 = 30 (base)
+- 9 + 21 = 30 (base)
+- 10 + 20 = 30 (base)
+- 11 + 19 = 30 (base)
+- 12 + 18 = 30 (base)
+- 13 + 17 = 30 (base)
+- 14 + 16 = 30 (base)
+- 15 + 15 = 30 (base)
+- 29 × 29 ≡ 1 (mod 30)
+- 1 × 1 ≡ 1 (mod 30)
+- 19 × 19 ≡ 1 (mod 30)
+- 11 × 11 ≡ 1 (mod 30)
+- 1 × 29 ≡ -1 (mod 30)
+- 7 × 17 ≡ -1 (mod 30)
+- 11 × 19 ≡ -1 (mod 30)
+- 13 × 23 ≡ -1 (mod 30)
+
+Top configurations:
+1. (11,1) k=(0,0) → 25.0% (25/100) p=0.0000
+   Examples: B1F1B (decimal: 8950541), B1G1B (decimal: 8951441), B1H1B (decimal: 8952341)
+2. (11,7) k=(0,0) → 24.0% (24/100) p=0.0000
+   Examples: B717B (decimal: 9100121), B737B (decimal: 9101921), B767B (decimal: 9104621)
+3. (7,1) k=(0,0) → 23.0% (23/100) p=0.0000
+   Examples: 71217 (decimal: 5698837), 71417 (decimal: 5700637), 71717 (decimal: 5703337)
+4. (1,13) k=(0,0) → 22.0% (22/100) p=0.0000
+   Examples: 1D3D1 (decimal: 1164091), 1D4D1 (decimal: 1164991), 1D9D1 (decimal: 1169491)
+5. (13,7) k=(0,0) → 22.0% (22/100) p=0.0000
+   Examples: D747D (decimal: 10722823), D7B7D (decimal: 10729123), D7C7D (decimal: 10730023)
+
+## CROSS-BASE PATTERNS
+
+Universal configurations (work well across multiple bases):
+- (1,7) appears in 8 bases, avg success: 19.9%
+- (1,9) appears in 3 bases, avg success: 21.0%
+- (1,11) appears in 7 bases, avg success: 21.7%
+- (5,13) appears in 3 bases, avg success: 20.0%
+- (1,13) appears in 8 bases, avg success: 20.9%
+- (5,11) appears in 5 bases, avg success: 20.6%
+- (3,9) appears in 5 bases, avg success: 18.4%
+- (11,13) appears in 4 bases, avg success: 19.0%
+- (1,5) appears in 20 bases, avg success: 19.9%
+- (3,5) appears in 3 bases, avg success: 19.7%
+- (3,11) appears in 3 bases, avg success: 17.3%
+- (5,7) appears in 5 bases, avg success: 21.8%
+- (7,11) appears in 8 bases, avg success: 21.4%
+- (3,7) appears in 3 bases, avg success: 19.7%
+- (1,3) appears in 5 bases, avg success: 19.8%

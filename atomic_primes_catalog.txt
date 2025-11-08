@@ -1,0 +1,135 @@
+
+
+================================================================================
+COMPREHENSIVE ATOMIC PRIME SEARCH - 2025-07-17 21:34:42.264325
+================================================================================
+
+Total patterns tested: 392
+Atomic primes found: 51
+  Single membrane: 7
+  Double membrane: 26
+  Triple membrane: 18
+
+⚛️  MOST ATTRACTIVE ATOMIC PRIMES:
+============================================================
+
+1. (1)─(5)─(1)
+   Value: 151
+   Type: Single membrane
+   Digits: 3
+   Verify: https://www.wolframalpha.com/input/?i=isprime(151)
+
+2. (3)─(5)─(3)
+   Value: 353
+   Type: Single membrane
+   Digits: 3
+   Verify: https://www.wolframalpha.com/input/?i=isprime(353)
+
+3. (7)─(5)─(7)
+   Value: 757
+   Type: Single membrane
+   Digits: 3
+   Verify: https://www.wolframalpha.com/input/?i=isprime(757)
+
+4. (1)─(5)─(5)─(5)─(1)
+   Value: 15551
+   Type: Double membrane
+   Digits: 5
+   Verify: https://www.wolframalpha.com/input/?i=isprime(15551)
+
+5. (3)─(1)─(5)─(1)─(3)
+   Value: 31513
+   Type: Double membrane
+   Digits: 5
+   Verify: https://www.wolframalpha.com/input/?i=isprime(31513)
+
+6. (3)─(7)─(5)─(7)─(3)
+   Value: 37573
+   Type: Double membrane
+   Digits: 5
+   Verify: https://www.wolframalpha.com/input/?i=isprime(37573)
+
+7. (7)─(5)─(5)─(5)─(7)
+   Value: 75557
+   Type: Double membrane
+   Digits: 5
+   Verify: https://www.wolframalpha.com/input/?i=isprime(75557)
+
+8. (9)─(7)─(5)─(7)─(9)
+   Value: 97579
+   Type: Double membrane
+   Digits: 5
+   Verify: https://www.wolframalpha.com/input/?i=isprime(97579)
+
+9. (1)──(5)──(1)
+   Value: 10501
+   Type: Single membrane
+   Digits: 5
+   Verify: https://www.wolframalpha.com/input/?i=isprime(10501)
+
+10. (7)──(5)──(7)
+   Value: 70507
+   Type: Single membrane
+   Digits: 5
+   Verify: https://www.wolframalpha.com/input/?i=isprime(70507)
+
+11. (1)──(3)─(5)─(3)──(1)
+   Value: 1035301
+   Type: Double membrane
+   Digits: 7
+   Verify: https://www.wolframalpha.com/input/?i=isprime(1035301)
+
+12. (1)──(5)─(5)─(5)──(1)
+   Value: 1055501
+   Type: Double membrane
+   Digits: 7
+   Verify: https://www.wolframalpha.com/input/?i=isprime(1055501)
+
+13. (3)──(7)─(5)─(7)──(3)
+   Value: 3075703
+   Type: Double membrane
+   Digits: 7
+   Verify: https://www.wolframalpha.com/input/?i=isprime(3075703)
+
+14. (3)──(9)─(5)─(9)──(3)
+   Value: 3095903
+   Type: Double membrane
+   Digits: 7
+   Verify: https://www.wolframalpha.com/input/?i=isprime(3095903)
+
+15. (7)──(3)─(5)─(3)──(7)
+   Value: 7035307
+   Type: Double membrane
+   Digits: 7
+   Verify: https://www.wolframalpha.com/input/?i=isprime(7035307)
+
+16. (9)──(1)─(5)─(1)──(9)
+   Value: 9015109
+   Type: Double membrane
+   Digits: 7
+   Verify: https://www.wolframalpha.com/input/?i=isprime(9015109)
+
+17. (7)─(9)─(3)─(5)─(3)─(9)─(7)
+   Value: 7935397
+   Type: Triple membrane
+   Digits: 7
+   Verify: https://www.wolframalpha.com/input/?i=isprime(7935397)
+
+18. (9)─(3)─(7)─(5)─(7)─(3)─(9)
+   Value: 9375739
+   Type: Triple membrane
+   Digits: 7
+   Verify: https://www.wolframalpha.com/input/?i=isprime(9375739)
+
+19. (3)──(1)──(5)──(1)──(3)
+   Value: 301050103
+   Type: Double membrane
+   Digits: 9
+   Verify: https://www.wolframalpha.com/input/?i=isprime(301050103)
+
+20. (3)───(1)─(5)─(1)───(3)
+   Value: 300151003
+   Type: Double membrane
+   Digits: 9
+   Verify: https://www.wolframalpha.com/input/?i=isprime(300151003)
+

@@ -1,0 +1,114 @@
+[package]
+name = "prime-physics-engine"
+version = "1.0.0"
+edition = "2021"
+authors = ["Mike Purvis <mike@purvis.org>", "Prime Physics Research Team"]
+description = "Revolutionary prime number generation through symmetric membrane constructions with 3-7x performance over random methods"
+license = "MIT"
+keywords = ["prime-numbers", "number-theory", "cryptography", "membrane-physics", "high-performance"]
+categories = ["mathematics", "algorithms", "science", "cryptography"]
+repository = "https://github.com/mikepurvis/prime-physics-engine"
+documentation = "https://docs.rs/prime-physics-engine"
+homepage = "https://github.com/mikepurvis/prime-physics-engine"
+readme = "README.md"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Core mathematics
+num-bigint = { version = "0.4", features = ["rand", "serde"] }
+num-traits = "0.2"
+num-integer = "0.1"
+num-complex = { version = "0.4", optional = true }
+primal = "0.3.3"
+once_cell = "1.19"
+
+# Physics simulation
+rand = "0.8"
+rayon = "1.10"
+
+# Serialization & data
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+sha2 = "0.10"
+
+# Visualization
+plotters = "0.3"
+
+# Performance testing - moved to dev-dependencies for WASM compatibility
+
+# CLI
+clap = { version = "4.0", features = ["derive"] }
+colorful = "0.2"
+colored = "2.0"
+
+# Optional visualization (feature-gated)
+crossterm = { version = "0.27", optional = true }
+ratatui = { version = "0.25", optional = true }
+chrono = "0.4.41"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+metal = { version = "0.29", optional = true }
+objc = { version = "0.2", optional = true }
+block = { version = "0.1", optional = true }
+
+[features]
+# Production-ready defaults: optimized for Apple Silicon but falls back gracefully
+# Note: metal feature requires compiled shaders - enable explicitly when available
+default = ["visualization", "wheel30", "dvfs-adaptive"]
+visualization = ["crossterm", "ratatui"]
+wheel30 = []
+dvfs-adaptive = []
+full_precision = []
+experimental = []
+metal = ["dep:metal", "dep:objc", "dep:block"]
+wasm = ["wasm-bindgen", "web-sys", "js-sys", "getrandom/js", "console_error_panic_hook"]
+phase4 = []
+amx = ["phase4"]
+rl-stats = []
+prime-harmonics = ["num-complex"]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { version = "0.2", optional = true }
+web-sys = { version = "0.3", optional = true }
+js-sys = { version = "0.3", optional = true }
+getrandom = { version = "0.2", features = ["js"], optional = true }
+console_error_panic_hook = { version = "0.1", optional = true }
+
+[dev-dependencies]
+# Only include criterion on non-WASM targets
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+# Examples are automatically detected from examples/ directory
+# Run with: cargo run --example <name>
+#
+# Available examples:
+# - educational_explorer: Simple introduction for the adventurous and curious
+# - membrane_lab_tui: Interactive membrane laboratory with real-time parameter tuning
+# - prime_discovery_dashboard: Comprehensive dashboard with physics simulation
+# - findings_visualization: Beautiful ASCII art summary of verified results
+# - prime_atoms_tutorial: 5-part educational journey
+# - unified_explorer: Complete system demonstration
+# - tidal_organization: Tidal physics in action
+# - validation_demo: Statistical validation against random baselines
+# - membrane_visualization: Shows all configurations for a base/seed
+# - multi_atom_stability: Multi-prime interaction experiments
+# - wave_function_calculator: Prime wave mechanics with interference patterns
+# - interference_zone_explorer: Chirality-based constructive/destructive zones
+# - resonance_frequency_analyzer: Harmonic frequencies in prime generation
+# - inverse_square_emergence: How 1/r² law emerges from wave mechanics
+#
+# Future examples (not yet implemented):
+# - trinity_chaos: Three-body prime dynamics
+# - lagrange_hunting: L-point discovery
+
+[[bench]]
+name = "sieve_bench"
+harness = false
+
+[[bench]]
+name = "optimization_verification"
+harness = false

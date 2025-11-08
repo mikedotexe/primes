@@ -1,0 +1,442 @@
+{
+  "search_timestamp": "2025-07-17T21:34:42.263599",
+  "center_value": 5,
+  "total_patterns_tested": 392,
+  "total_primes_found": 51,
+  "by_type": {
+    "single": 7,
+    "double": 26,
+    "triple": 18
+  },
+  "atomic_primes": [
+    {
+      "value": "151",
+      "visual": "(1)\u2500(5)\u2500(1)",
+      "type": "single",
+      "digits": 3,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(151)"
+    },
+    {
+      "value": "353",
+      "visual": "(3)\u2500(5)\u2500(3)",
+      "type": "single",
+      "digits": 3,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(353)"
+    },
+    {
+      "value": "757",
+      "visual": "(7)\u2500(5)\u2500(7)",
+      "type": "single",
+      "digits": 3,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(757)"
+    },
+    {
+      "value": "15551",
+      "visual": "(1)\u2500(5)\u2500(5)\u2500(5)\u2500(1)",
+      "type": "double",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(15551)"
+    },
+    {
+      "value": "31513",
+      "visual": "(3)\u2500(1)\u2500(5)\u2500(1)\u2500(3)",
+      "type": "double",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(31513)"
+    },
+    {
+      "value": "37573",
+      "visual": "(3)\u2500(7)\u2500(5)\u2500(7)\u2500(3)",
+      "type": "double",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(37573)"
+    },
+    {
+      "value": "75557",
+      "visual": "(7)\u2500(5)\u2500(5)\u2500(5)\u2500(7)",
+      "type": "double",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(75557)"
+    },
+    {
+      "value": "97579",
+      "visual": "(9)\u2500(7)\u2500(5)\u2500(7)\u2500(9)",
+      "type": "double",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(97579)"
+    },
+    {
+      "value": "10501",
+      "visual": "(1)\u2500\u2500(5)\u2500\u2500(1)",
+      "type": "single",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(10501)"
+    },
+    {
+      "value": "70507",
+      "visual": "(7)\u2500\u2500(5)\u2500\u2500(7)",
+      "type": "single",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(70507)"
+    },
+    {
+      "value": "1035301",
+      "visual": "(1)\u2500\u2500(3)\u2500(5)\u2500(3)\u2500\u2500(1)",
+      "type": "double",
+      "digits": 7,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(1035301)"
+    },
+    {
+      "value": "1055501",
+      "visual": "(1)\u2500\u2500(5)\u2500(5)\u2500(5)\u2500\u2500(1)",
+      "type": "double",
+      "digits": 7,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(1055501)"
+    },
+    {
+      "value": "3075703",
+      "visual": "(3)\u2500\u2500(7)\u2500(5)\u2500(7)\u2500\u2500(3)",
+      "type": "double",
+      "digits": 7,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(3075703)"
+    },
+    {
+      "value": "3095903",
+      "visual": "(3)\u2500\u2500(9)\u2500(5)\u2500(9)\u2500\u2500(3)",
+      "type": "double",
+      "digits": 7,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(3095903)"
+    },
+    {
+      "value": "7035307",
+      "visual": "(7)\u2500\u2500(3)\u2500(5)\u2500(3)\u2500\u2500(7)",
+      "type": "double",
+      "digits": 7,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(7035307)"
+    },
+    {
+      "value": "9015109",
+      "visual": "(9)\u2500\u2500(1)\u2500(5)\u2500(1)\u2500\u2500(9)",
+      "type": "double",
+      "digits": 7,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(9015109)"
+    },
+    {
+      "value": "7935397",
+      "visual": "(7)\u2500(9)\u2500(3)\u2500(5)\u2500(3)\u2500(9)\u2500(7)",
+      "type": "triple",
+      "digits": 7,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(7935397)"
+    },
+    {
+      "value": "9375739",
+      "visual": "(9)\u2500(3)\u2500(7)\u2500(5)\u2500(7)\u2500(3)\u2500(9)",
+      "type": "triple",
+      "digits": 7,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(9375739)"
+    },
+    {
+      "value": "301050103",
+      "visual": "(3)\u2500\u2500(1)\u2500\u2500(5)\u2500\u2500(1)\u2500\u2500(3)",
+      "type": "double",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(301050103)"
+    },
+    {
+      "value": "300151003",
+      "visual": "(3)\u2500\u2500\u2500(1)\u2500(5)\u2500(1)\u2500\u2500\u2500(3)",
+      "type": "double",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(300151003)"
+    },
+    {
+      "value": "370050073",
+      "visual": "(3)\u2500(7)\u2500\u2500\u2500(5)\u2500\u2500\u2500(7)\u2500(3)",
+      "type": "double",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(370050073)"
+    },
+    {
+      "value": "307050703",
+      "visual": "(3)\u2500\u2500(7)\u2500\u2500(5)\u2500\u2500(7)\u2500\u2500(3)",
+      "type": "double",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(307050703)"
+    },
+    {
+      "value": "390050093",
+      "visual": "(3)\u2500(9)\u2500\u2500\u2500(5)\u2500\u2500\u2500(9)\u2500(3)",
+      "type": "double",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(390050093)"
+    },
+    {
+      "value": "300959003",
+      "visual": "(3)\u2500\u2500\u2500(9)\u2500(5)\u2500(9)\u2500\u2500\u2500(3)",
+      "type": "double",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(300959003)"
+    },
+    {
+      "value": "700353007",
+      "visual": "(7)\u2500\u2500\u2500(3)\u2500(5)\u2500(3)\u2500\u2500\u2500(7)",
+      "type": "double",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(700353007)"
+    },
+    {
+      "value": "900757009",
+      "visual": "(9)\u2500\u2500\u2500(7)\u2500(5)\u2500(7)\u2500\u2500\u2500(9)",
+      "type": "double",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(900757009)"
+    },
+    {
+      "value": "100050001",
+      "visual": "(1)\u2500\u2500\u2500\u2500(5)\u2500\u2500\u2500\u2500(1)",
+      "type": "single",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(100050001)"
+    },
+    {
+      "value": "900050009",
+      "visual": "(9)\u2500\u2500\u2500\u2500(5)\u2500\u2500\u2500\u2500(9)",
+      "type": "single",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(900050009)"
+    },
+    {
+      "value": "319050913",
+      "visual": "(3)\u2500(1)\u2500(9)\u2500\u2500(5)\u2500\u2500(9)\u2500(1)\u2500(3)",
+      "type": "triple",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(319050913)"
+    },
+    {
+      "value": "370959073",
+      "visual": "(3)\u2500(7)\u2500\u2500(9)\u2500(5)\u2500(9)\u2500\u2500(7)\u2500(3)",
+      "type": "triple",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(370959073)"
+    },
+    {
+      "value": "307959703",
+      "visual": "(3)\u2500\u2500(7)\u2500(9)\u2500(5)\u2500(9)\u2500(7)\u2500\u2500(3)",
+      "type": "triple",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(307959703)"
+    },
+    {
+      "value": "391050193",
+      "visual": "(3)\u2500(9)\u2500(1)\u2500\u2500(5)\u2500\u2500(1)\u2500(9)\u2500(3)",
+      "type": "triple",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(391050193)"
+    },
+    {
+      "value": "790353097",
+      "visual": "(7)\u2500(9)\u2500\u2500(3)\u2500(5)\u2500(3)\u2500\u2500(9)\u2500(7)",
+      "type": "triple",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(790353097)"
+    },
+    {
+      "value": "709353907",
+      "visual": "(7)\u2500\u2500(9)\u2500(3)\u2500(5)\u2500(3)\u2500(9)\u2500\u2500(7)",
+      "type": "triple",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(709353907)"
+    },
+    {
+      "value": "913050319",
+      "visual": "(9)\u2500(1)\u2500(3)\u2500\u2500(5)\u2500\u2500(3)\u2500(1)\u2500(9)",
+      "type": "triple",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(913050319)"
+    },
+    {
+      "value": "910353019",
+      "visual": "(9)\u2500(1)\u2500\u2500(3)\u2500(5)\u2500(3)\u2500\u2500(1)\u2500(9)",
+      "type": "triple",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(910353019)"
+    },
+    {
+      "value": "901353109",
+      "visual": "(9)\u2500\u2500(1)\u2500(3)\u2500(5)\u2500(3)\u2500(1)\u2500\u2500(9)",
+      "type": "triple",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(901353109)"
+    },
+    {
+      "value": "907353709",
+      "visual": "(9)\u2500\u2500(7)\u2500(3)\u2500(5)\u2500(3)\u2500(7)\u2500\u2500(9)",
+      "type": "triple",
+      "digits": 9,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(907353709)"
+    },
+    {
+      "value": "10050505001",
+      "visual": "(1)\u2500\u2500\u2500(5)\u2500\u2500(5)\u2500\u2500(5)\u2500\u2500\u2500(1)",
+      "type": "double",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(10050505001)"
+    },
+    {
+      "value": "10900500901",
+      "visual": "(1)\u2500\u2500(9)\u2500\u2500\u2500(5)\u2500\u2500\u2500(9)\u2500\u2500(1)",
+      "type": "double",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(10900500901)"
+    },
+    {
+      "value": "30700500703",
+      "visual": "(3)\u2500\u2500(7)\u2500\u2500\u2500(5)\u2500\u2500\u2500(7)\u2500\u2500(3)",
+      "type": "double",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(30700500703)"
+    },
+    {
+      "value": "30090509003",
+      "visual": "(3)\u2500\u2500\u2500(9)\u2500\u2500(5)\u2500\u2500(9)\u2500\u2500\u2500(3)",
+      "type": "double",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(30090509003)"
+    },
+    {
+      "value": "70500500507",
+      "visual": "(7)\u2500\u2500(5)\u2500\u2500\u2500(5)\u2500\u2500\u2500(5)\u2500\u2500(7)",
+      "type": "double",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(70500500507)"
+    },
+    {
+      "value": "90030503009",
+      "visual": "(9)\u2500\u2500\u2500(3)\u2500\u2500(5)\u2500\u2500(3)\u2500\u2500\u2500(9)",
+      "type": "double",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(90030503009)"
+    },
+    {
+      "value": "10309590301",
+      "visual": "(1)\u2500\u2500(3)\u2500\u2500(9)\u2500(5)\u2500(9)\u2500\u2500(3)\u2500\u2500(1)",
+      "type": "triple",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(10309590301)"
+    },
+    {
+      "value": "30790509703",
+      "visual": "(3)\u2500\u2500(7)\u2500(9)\u2500\u2500(5)\u2500\u2500(9)\u2500(7)\u2500\u2500(3)",
+      "type": "triple",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(30790509703)"
+    },
+    {
+      "value": "39070507093",
+      "visual": "(3)\u2500(9)\u2500\u2500(7)\u2500\u2500(5)\u2500\u2500(7)\u2500\u2500(9)\u2500(3)",
+      "type": "triple",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(39070507093)"
+    },
+    {
+      "value": "70390509307",
+      "visual": "(7)\u2500\u2500(3)\u2500(9)\u2500\u2500(5)\u2500\u2500(9)\u2500(3)\u2500\u2500(7)",
+      "type": "triple",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(70390509307)"
+    },
+    {
+      "value": "90130503109",
+      "visual": "(9)\u2500\u2500(1)\u2500(3)\u2500\u2500(5)\u2500\u2500(3)\u2500(1)\u2500\u2500(9)",
+      "type": "triple",
+      "digits": 11,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(90130503109)"
+    },
+    {
+      "value": "1005005005001",
+      "visual": "(1)\u2500\u2500\u2500(5)\u2500\u2500\u2500(5)\u2500\u2500\u2500(5)\u2500\u2500\u2500(1)",
+      "type": "double",
+      "digits": 13,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(1005005005001)"
+    },
+    {
+      "value": "9010305030109",
+      "visual": "(9)\u2500\u2500(1)\u2500\u2500(3)\u2500\u2500(5)\u2500\u2500(3)\u2500\u2500(1)\u2500\u2500(9)",
+      "type": "triple",
+      "digits": 13,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(9010305030109)"
+    }
+  ],
+  "most_attractive": [
+    {
+      "value": "151",
+      "visual": "(1)\u2500(5)\u2500(1)",
+      "type": "single",
+      "digits": 3,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(151)"
+    },
+    {
+      "value": "353",
+      "visual": "(3)\u2500(5)\u2500(3)",
+      "type": "single",
+      "digits": 3,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(353)"
+    },
+    {
+      "value": "757",
+      "visual": "(7)\u2500(5)\u2500(7)",
+      "type": "single",
+      "digits": 3,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(757)"
+    },
+    {
+      "value": "15551",
+      "visual": "(1)\u2500(5)\u2500(5)\u2500(5)\u2500(1)",
+      "type": "double",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(15551)"
+    },
+    {
+      "value": "31513",
+      "visual": "(3)\u2500(1)\u2500(5)\u2500(1)\u2500(3)",
+      "type": "double",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(31513)"
+    },
+    {
+      "value": "37573",
+      "visual": "(3)\u2500(7)\u2500(5)\u2500(7)\u2500(3)",
+      "type": "double",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(37573)"
+    },
+    {
+      "value": "75557",
+      "visual": "(7)\u2500(5)\u2500(5)\u2500(5)\u2500(7)",
+      "type": "double",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(75557)"
+    },
+    {
+      "value": "97579",
+      "visual": "(9)\u2500(7)\u2500(5)\u2500(7)\u2500(9)",
+      "type": "double",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(97579)"
+    },
+    {
+      "value": "10501",
+      "visual": "(1)\u2500\u2500(5)\u2500\u2500(1)",
+      "type": "single",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(10501)"
+    },
+    {
+      "value": "70507",
+      "visual": "(7)\u2500\u2500(5)\u2500\u2500(7)",
+      "type": "single",
+      "digits": 5,
+      "verify_url": "https://www.wolframalpha.com/input/?i=isprime(70507)"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+Testing examples in main examples/ directory...
+================================================
+Testing atomic_membrane_visualizer... ✓
+Testing base6_investigation... ✓
+Testing body_swapper... ✓
+Testing builder_investigation... ✓
+Testing check_big_membrane... ✓
+Testing check_prime... ✓
+Testing complex_landscape_visualizer... ✓
+Testing comprehensive_base_analysis... ✓
+Testing concatenated_lagrange_explorer... ✓
+Testing factorization_landscape_mapper... ✓
+Testing find_padded_membrane_primes... ✓
+Testing fix_base6_example... ✓
+Testing gcd_paradox_resolver... ✓
+Testing goldbach_ntransform_explorer... ✓
+Testing lagrange_asymmetric... ✓
+Testing lagrange_clustering_verifier... ✓
+Testing lagrange_composite_investigation... ✓
+Testing lagrange_density_analysis... ✓
+Testing lagrange_educational_tui... ✓
+Testing lagrange_full_verification... ✓
+Testing lagrange_landscape_3d_visualizer... ✓
+Testing lagrange_landscape_visualizer... ✓
+Testing lagrange_mechanics... ✓
+Testing lagrange_point_deep_dive... ✓
+Testing lagrange_space_size... ✓
+Testing lagrange_systematic_study... ✓
+Testing lagrange_tui_demo... ✓
+Testing lagrange_verbose... ✓
+Testing lagrange_verification... ✓
+Testing membrane_lab_tui... ✓
+Testing membrane_lagrange_analysis... ✓
+Testing membrane_lagrange_pairs... ✓
+Testing membrane_lagrange_verifier... ✓
+Testing membrane_showcase... ✓
+Testing membrane_sphere_tui... ✓
+Testing multi_resonance_plotter... ✓
+Testing pair_scanner... ✓
+Testing perturbation_analyzer... ✓
+Testing prime_atom_orbital... ✓
+Testing prime_atom_tui... ✓
+Testing prime_characterizer... ✓
+Testing prime_checker_test... ✓
+Testing prime_coordinate_mapper... ✓
+Testing prime_count_smoke_test... ✓
+Testing prime_distance_field... ✓
+Testing prime_placement_predictor... ✓
+Testing prime_verification_report... ✓
+Testing proper_membrane_generator... ✓
+Testing resonance_analyzer... ✓
+Testing resonance_plotter... ✓
+Testing simple_lagrange_test... ✓
+Testing statistical_prime_factory... ✓
+Testing statistical_prime_generator... ✓
+Testing statistical_sampling_demo... ✓
+Testing symmetry_debugger... ✓
+Testing symmetry_verifier... ✓
+Testing theory_tester... ✓
+Testing true_landscape_visualizer... ✓
+Testing tui_demo_output... ✓
+Testing verify_asymmetric_lagrange... ✓
+Testing verify_new_claim... ✓
+Testing verify_padded_membrane_lagrange... ✓
+Testing verify_prime_checker... ✓
+
+================================================
+SUMMARY:
+  Working: 63/63
+  Broken:  0/63
+
+Working examples:
+  atomic_membrane_visualizer
+  base6_investigation
+  body_swapper
+  builder_investigation
+  check_big_membrane
+  check_prime
+  complex_landscape_visualizer
+  comprehensive_base_analysis
+  concatenated_lagrange_explorer
+  factorization_landscape_mapper
+  find_padded_membrane_primes
+  fix_base6_example
+  gcd_paradox_resolver
+  goldbach_ntransform_explorer
+  lagrange_asymmetric
+  lagrange_clustering_verifier
+  lagrange_composite_investigation
+  lagrange_density_analysis
+  lagrange_educational_tui
+  lagrange_full_verification
+  lagrange_landscape_3d_visualizer
+  lagrange_landscape_visualizer
+  lagrange_mechanics
+  lagrange_point_deep_dive
+  lagrange_space_size
+  lagrange_systematic_study
+  lagrange_tui_demo
+  lagrange_verbose
+  lagrange_verification
+  membrane_lab_tui
+  membrane_lagrange_analysis
+  membrane_lagrange_pairs
+  membrane_lagrange_verifier
+  membrane_showcase
+  membrane_sphere_tui
+  multi_resonance_plotter
+  pair_scanner
+  perturbation_analyzer
+  prime_atom_orbital
+  prime_atom_tui
+  prime_characterizer
+  prime_checker_test
+  prime_coordinate_mapper
+  prime_count_smoke_test
+  prime_distance_field
+  prime_placement_predictor
+  prime_verification_report
+  proper_membrane_generator
+  resonance_analyzer
+  resonance_plotter
+  simple_lagrange_test
+  statistical_prime_factory
+  statistical_prime_generator
+  statistical_sampling_demo
+  symmetry_debugger
+  symmetry_verifier
+  theory_tester
+  true_landscape_visualizer
+  tui_demo_output
+  verify_asymmetric_lagrange
+  verify_new_claim
+  verify_padded_membrane_lagrange
+  verify_prime_checker
+

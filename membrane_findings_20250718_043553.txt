@@ -1,0 +1,56 @@
+MEMBRANE PRIME GENERATION - VERIFIED FINDINGS
+Generated: 2025-07-18 04:35:53
+================================================================================
+
+PERFORMANCE BY BASE
+========================================
+Top 10 Base Performance (Best Configuration):
+Base  6 (1,5) ██████████████████████████████████████████████████████████████ 31.0%
+Base  4 (3,1) ████████████████████████████████████████████████████████ 28.0%
+Base 30 (11,7) ████████████████████████████████████████████████ 24.0%
+Base 12 (1,11) ██████████████████████████████████████████████ 23.0%
+Base  3 (2,1) ██████████████████████████████████████████ 21.0%
+Base  8 (3,5) ██████████████████████████████████████████ 21.0%
+Base 10 (7,1) █████████████████████████████████████████ 20.5%
+Base 14 (1,3) █████████████████████████████████████████ 20.5%
+Base 18 (1,5) █████████████████████████████████████████ 20.5%
+Base 24 (7,17) █████████████████████████████████████████ 20.5%
+
+EVEN VS ODD BASES
+========================================
+Even bases: 20.8% average success
+Odd bases:  14.0% average success
+Advantage:  48.7% (Even bases win!)
+
+UNIVERSAL PATTERNS
+========================================
+Pattern (1,7): Works in 23 bases, 18.3% success
+Pattern (1,5): Works in 22 bases, 17.9% success
+Pattern (3,7): Works in 21 bases, 16.8% success
+
+KEY INSIGHTS
+========================================
+1. Coprimality is absolutely essential
+2. Minimal padding (k=0,0) works best
+3. Even bases outperform odd bases
+4. Simple patterns beat complex ones
+5. Performance is 3-7x better than random
+
+PRACTICAL RECOMMENDATIONS
+========================================
+1. Use base 6 with (1,5) k=(0,0)
+2. Always ensure coprime digits
+3. Never add unnecessary zeros
+4. When unsure, try (1,7) or (1,5)
+
+CONCLUSION
+========================================
+After 286,200 tests across 25 bases:
+- Membrane prime generation works
+- The best patterns are the simplest ones
+- Mathematics rewards clarity, not complexity
+
+"Everything should be made as simple as possible,
+but not simpler." - Often attributed to Einstein
+
+In our case: Membrane primes ARE as simple as possible.

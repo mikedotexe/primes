@@ -1,0 +1,49 @@
+# Rust build artifacts
+/target/
+**/target/
+# Custom target directory (from .cargo/config.toml)
+/Users/mikepurvis/claude-target/
+/Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# macOS
+.DS_Store
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Metal shader build artifacts
+*.air
+*.metallib
+
+# Performance profiling
+*.prof
+perf.data
+perf.data.old
+
+# Test output
+test_output/
+*.log
+*_output.log
+*_analysis.log
+
+# Generated documentation
+PRIME_MAIN_ISSUES.md
+
+# Local environment
+.env
+.env.local
+
+# Python (if any scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Documentation build
+/book/
+/docs/_build/
