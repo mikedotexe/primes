@@ -750,6 +750,35 @@ These indicate the example needs fixes before users can run it. Always:
 
 The `ai-output.txt` file is gitignored for capturing test outputs during development.
 
+### Pre-PR Checklist: Formatting and Linting
+
+**IMPORTANT**: Before creating any pull request, always run these commands to ensure your code passes CI:
+
+```bash
+# 1. Format all code according to Rust standards
+cargo fmt
+
+# 2. Run clippy to catch common mistakes and style issues
+cargo clippy --all-targets -- -D warnings
+
+# 3. (Optional) Run clippy on library code only for faster checks
+cargo clippy --lib -- -D warnings
+```
+
+**Why this matters**:
+- Our CI pipeline runs `cargo fmt -- --check` and will **fail** if code is not formatted
+- CI runs `cargo clippy -- -D warnings` which treats all warnings as errors
+- Running these locally saves CI time and prevents failed builds
+- Ensures consistent code quality across all contributions
+
+**Quick verification workflow**:
+```bash
+# Format, check, and test in one go
+cargo fmt && cargo clippy --all-targets -- -D warnings && cargo test
+```
+
+If clippy suggests changes, review them carefully - clippy warnings often highlight real issues or opportunities for improvement.
+
 ## Recent Updates (July 2025)
 
 ### Security Improvements
