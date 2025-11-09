@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Prime Density Heatmap</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 20px; }
+    #chart { max-width: 900px; }
+    .axis text { font-size: 12px; }
+    .cell { stroke: #fff; stroke-width: 1px; }
+    .legend rect { stroke: #ccc; }
+    .caption { color: #555; }
+    input[type=file] { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Prime Density Heatmap</h1>
+  <p class="caption">Drop a CSV produced by <code>density-explorer grid</code> here or click the file picker. Axes: midpoint length vs inner zero padding. Color: prime density.</p>
+  <input type="file" id="file" accept=".csv">
+  <div id="chart"></div>
+  <script>
+    const fileInput = document.getElementById('file');
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = reader.result;
+        render(text);
+      };
+      reader.readAsText(file);
+    });
+
+    function render(csvText) {
+      const data = d3.csvParse(csvText, d3.autoType);
+      const midLens = Array.from(new Set(data.map(d => d.mid_len))).sort((a,b)=>a-b);
+      const innerZeros = Array.from(new Set(data.map(d => d.inner_zero))).sort((a,b)=>a-b);
+      const densityExt = d3.extent(data, d => d.prime_density);
+
+      const margin = {top: 20, right: 20, bottom: 40, left: 50};
+      const width = 800, height = 500;
+      d3.select('#chart').selectAll('*').remove();
+      const svg = d3.select('#chart').append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+      const x = d3.scaleBand().domain(midLens).range([margin.left, width - margin.right]).padding(0.05);
+      const y = d3.scaleBand().domain(innerZeros).range([height - margin.bottom, margin.top]).padding(0.05);
+      const color = d3.scaleSequential(d3.interpolateViridis).domain(densityExt);
+
+      svg.append('g')
+        .attr('transform', `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x));
+
+      svg.append('g')
+        .attr('transform', `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y));
+
+      svg.append('text')
+        .attr('x', (width)/2)
+        .attr('y', height - 5)
+        .attr('text-anchor', 'middle')
+        .text('midpoint length');
+
+      svg.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -height/2)
+        .attr('y', 15)
+        .attr('text-anchor', 'middle')
+        .text('inner zero padding');
+
+      svg.selectAll('.cell')
+        .data(data)
+        .join('rect')
+        .attr('class', 'cell')
+        .attr('x', d => x(d.mid_len))
+        .attr('y', d => y(d.inner_zero))
+        .attr('width', x.bandwidth())
+        .attr('height', y.bandwidth())
+        .attr('fill', d => color(d.prime_density))
+        .append('title')
+        .text(d => `mid=${d.mid_len}, iz=${d.inner_zero}\nρ=${(+d.prime_density).toFixed(6)}\nCI=[${(+d.ci_lo).toFixed(6)}, ${(+d.ci_hi).toFixed(6)}]\nN=${d.samples}`);
+
+      const legendW = 300, legendH = 12;
+      const legend = svg.append('g').attr('class', 'legend')
+        .attr('transform', `translate(${width - margin.right - legendW},${margin.top})`);
+
+      const lg = d3.range(legendW).map(i=>i/(legendW-1)).map(t=>({t, v: densityExt[0] + t*(densityExt[1]-densityExt[0])}));
+      legend.selectAll('rect').data(lg).join('rect')
+        .attr('x', d => d.t * legendW)
+        .attr('y', 0)
+        .attr('width', 1)
+        .attr('height', legendH)
+        .attr('fill', d => color(d.v));
+
+      legend.append('text').attr('x', 0).attr('y', legendH+12).text(densityExt[0].toFixed(4));
+      legend.append('text').attr('x', legendW).attr('y', legendH+12).attr('text-anchor','end').text(densityExt[1].toFixed(4));
+      legend.append('text').attr('x', legendW/2).attr('y', legendH+12).attr('text-anchor','middle').text('prime density');
+    }
+  </script>
+</body>
+</html>
