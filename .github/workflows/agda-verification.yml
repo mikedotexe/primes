@@ -20,7 +20,7 @@ jobs:
 
       - name: Cache Agda installation
         id: cache-agda
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.agda
@@ -75,14 +75,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore Agda cache
-        uses: actions/cache@v3
+      - name: Cache Agda installation
+        id: cache-agda
+        uses: actions/cache@v4
         with:
           path: |
             ~/.agda
             ~/.cabal
             ~/.ghcup
           key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+
+      - name: Install Agda
+        if: steps.cache-agda.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y agda
+          agda --version
+
+      - name: Setup Agda Standard Library
+        if: steps.cache-agda.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --branch ${{ env.AGDA_STDLIB_VERSION }} \
+            https://github.com/agda/agda-stdlib.git ~/.agda/agda-stdlib
+          mkdir -p ~/.agda
+          echo "$HOME/.agda/agda-stdlib/standard-library.agda-lib" > ~/.agda/libraries
+          echo "standard-library-2.3" > ~/.agda/defaults
 
       - name: Register project library
         run: |
@@ -106,14 +123,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore Agda cache
-        uses: actions/cache@v3
+      - name: Cache Agda installation
+        id: cache-agda
+        uses: actions/cache@v4
         with:
           path: |
             ~/.agda
             ~/.cabal
             ~/.ghcup
           key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+
+      - name: Install Agda
+        if: steps.cache-agda.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y agda
+          agda --version
+
+      - name: Setup Agda Standard Library
+        if: steps.cache-agda.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --branch ${{ env.AGDA_STDLIB_VERSION }} \
+            https://github.com/agda/agda-stdlib.git ~/.agda/agda-stdlib
+          mkdir -p ~/.agda
+          echo "$HOME/.agda/agda-stdlib/standard-library.agda-lib" > ~/.agda/libraries
+          echo "standard-library-2.3" > ~/.agda/defaults
 
       - name: Register project library
         run: |
@@ -149,14 +183,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore Agda cache
-        uses: actions/cache@v3
+      - name: Cache Agda installation
+        id: cache-agda
+        uses: actions/cache@v4
         with:
           path: |
             ~/.agda
             ~/.cabal
             ~/.ghcup
           key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+
+      - name: Install Agda
+        if: steps.cache-agda.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y agda
+          agda --version
+
+      - name: Setup Agda Standard Library
+        if: steps.cache-agda.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --branch ${{ env.AGDA_STDLIB_VERSION }} \
+            https://github.com/agda/agda-stdlib.git ~/.agda/agda-stdlib
+          mkdir -p ~/.agda
+          echo "$HOME/.agda/agda-stdlib/standard-library.agda-lib" > ~/.agda/libraries
+          echo "standard-library-2.3" > ~/.agda/defaults
 
       - name: Register project library
         run: |
