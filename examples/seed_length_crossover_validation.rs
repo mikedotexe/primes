@@ -21,10 +21,10 @@ const PHI: f64 = 1.618033988749;
 // Phase lock counts for each base (from phase lock density model)
 fn get_phase_locks(base: u32) -> u32 {
     match base {
-        6 => 1,   // (1,5)
-        10 => 1,  // (3,7)
-        14 => 2,  // (3,11), (1,13)
-        22 => 2,  // (3,19), (9,13)
+        6 => 1,  // (1,5)
+        10 => 1, // (3,7)
+        14 => 2, // (3,11), (1,13)
+        22 => 2, // (3,19), (9,13)
         _ => 0,
     }
 }
@@ -89,12 +89,7 @@ fn single_membrane(outer: u32, inner: u32, seed: u32, base: u32) -> BigUint {
 }
 
 // Generate double membrane number (nested)
-fn double_membrane(
-    outer: (u32, u32),
-    inner: (u32, u32),
-    seed: u32,
-    base: u32,
-) -> BigUint {
+fn double_membrane(outer: (u32, u32), inner: (u32, u32), seed: u32, base: u32) -> BigUint {
     // outer.0-outer.1-inner.0-inner.1-seed-inner.1-inner.0-outer.1-outer.0
     let mut result = BigUint::zero();
     let base_big = BigUint::from(base);
@@ -215,16 +210,10 @@ fn main() {
         let single_config = get_single_config(base);
         let double_config = get_double_config(base);
 
-        println!(
-            "Single membrane: ({},{})",
-            single_config.0, single_config.1
-        );
+        println!("Single membrane: ({},{})", single_config.0, single_config.1);
         println!(
             "Double membrane: (({},{}), ({},{}))",
-            double_config.0.0,
-            double_config.0.1,
-            double_config.1.0,
-            double_config.1.1
+            double_config.0 .0, double_config.0 .1, double_config.1 .0, double_config.1 .1
         );
         println!();
 
@@ -325,7 +314,10 @@ fn main() {
                 println!("  Status:              ✗ FALSIFIED (>50% error)");
             }
         } else {
-            println!("  Observed crossover:  Not found in range 1-{}", max_seed_length);
+            println!(
+                "  Observed crossover:  Not found in range 1-{}",
+                max_seed_length
+            );
             println!("  Status:              ? INCONCLUSIVE (need larger seeds)");
         }
         println!();
@@ -360,7 +352,10 @@ fn main() {
         println!("  Double membrane digits: {}", double_digits);
         println!("  Ratio: {:.3}", ratio);
         println!("  Expected (5/3): 1.667");
-        println!("  Deviation: {:.1}%", ((ratio - 1.667) / 1.667 * 100.0).abs());
+        println!(
+            "  Deviation: {:.1}%",
+            ((ratio - 1.667) / 1.667 * 100.0).abs()
+        );
         println!();
     }
 

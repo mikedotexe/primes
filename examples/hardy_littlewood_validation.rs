@@ -52,7 +52,7 @@ fn residues_blocked(gap: u64, p: u64) -> u64 {
 
     if gap % p == 0 {
         // If p divides gap, then n and n+gap hit same residue
-        1  // Only one residue class blocked (the 0)
+        1 // Only one residue class blocked (the 0)
     } else {
         // Two residues blocked: 0 and -gap ≡ p-gap (mod p)
         2
@@ -78,7 +78,8 @@ fn singular_series(gap: u64, max_prime: usize) -> f64 {
     let mut product = 1.0;
 
     for &p in &primes {
-        if p > 2 {  // Skip p=2 for odd gaps
+        if p > 2 {
+            // Skip p=2 for odd gaps
             let factor = local_factor(gap, p);
             product *= factor;
 
@@ -146,7 +147,10 @@ fn main() {
     println!("6/π² ≈ {:.10} (totient density limit)", six_over_pi_sq);
     println!();
 
-    println!("RELATIONSHIP: C₂ ≈ {:.3} vs 6/π² ≈ {:.3}", c2, six_over_pi_sq);
+    println!(
+        "RELATIONSHIP: C₂ ≈ {:.3} vs 6/π² ≈ {:.3}",
+        c2, six_over_pi_sq
+    );
     println!("  Ratio: C₂ / (6/π²) ≈ {:.3}", c2 / six_over_pi_sq);
     println!();
 
@@ -174,7 +178,7 @@ fn main() {
             name: "Gap-8",
             gap: 8,
             distance: 4,
-            observed_success: 12.8,  // From base 14 validation
+            observed_success: 12.8, // From base 14 validation
         },
     ];
 
@@ -244,7 +248,8 @@ fn main() {
     println!("├──────────┼─────────┼──────────┼────────────────┤");
 
     // Fit constant for combined model
-    let combined_calibration = data[0].observed_success / (s_values[0] / (data[0].distance as f64).sqrt());
+    let combined_calibration =
+        data[0].observed_success / (s_values[0] / (data[0].distance as f64).sqrt());
 
     for (i, datum) in data.iter().enumerate() {
         let sqrt_factor = 1.0 / (datum.distance as f64).sqrt();
@@ -276,7 +281,10 @@ fn main() {
     // Model 1: success ~ S(gap)
     let mean: f64 = data.iter().map(|d| d.observed_success).sum::<f64>() / data.len() as f64;
 
-    let ss_tot: f64 = data.iter().map(|d| (d.observed_success - mean).powi(2)).sum();
+    let ss_tot: f64 = data
+        .iter()
+        .map(|d| (d.observed_success - mean).powi(2))
+        .sum();
 
     let ss_res_1: f64 = data
         .iter()
@@ -371,7 +379,10 @@ fn main() {
     println!();
 
     println!("✓ Computed HL singular series for gaps 2,4,6,8");
-    println!("✓ Verified S(gap) alone insufficient (R² = {:.3})", r2_model_1);
+    println!(
+        "✓ Verified S(gap) alone insufficient (R² = {:.3})",
+        r2_model_1
+    );
     println!("✓ Validated S(gap) × 1/√d model (R² = {:.3})", r2_model_2);
     println!("✓ Connected to Montgomery pair correlation");
     println!("✓ Explained -1/2 exponent via ζ(1/2) critical line");

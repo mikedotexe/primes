@@ -24,9 +24,9 @@
 // - Correlation coefficient (rational)
 // - Δ₃ bounds (rational inequalities)
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::HashMap;
 
 fn is_coprime(a: u32, b: u32) -> bool {
@@ -191,9 +191,7 @@ fn main() {
         println!("─────────────────────────────────────────────────────────────");
         println!();
 
-        let middle_values: Vec<u32> = (1..*base)
-            .filter(|&m| is_coprime(m, *base))
-            .collect();
+        let middle_values: Vec<u32> = (1..*base).filter(|&m| is_coprime(m, *base)).collect();
 
         println!("  Collecting primes...");
         let primes = collect_primes(*base, &middle_values, limit);
@@ -233,20 +231,28 @@ fn main() {
 
         // Joint repulsion test
         let small_threshold = 0.5;
-        let both_small = pairs.iter()
+        let both_small = pairs
+            .iter()
             .filter(|p| p.gap1 < small_threshold && p.gap2 < small_threshold)
             .count();
         let both_small_frac = both_small as f64 / pairs.len() as f64;
 
         println!("  JOINT REPULSION TEST:");
-        println!("    Pairs where both gaps < {}: {} ({:.2}%)",
-                 small_threshold, both_small, both_small_frac * 100.0);
+        println!(
+            "    Pairs where both gaps < {}: {} ({:.2}%)",
+            small_threshold,
+            both_small,
+            both_small_frac * 100.0
+        );
 
         // For independent Poisson: P(both < 0.5) ≈ P(g₁<0.5) × P(g₂<0.5)
         let single_small = pairs.iter().filter(|p| p.gap1 < small_threshold).count();
         let expected_indep = (single_small as f64 / pairs.len() as f64).powi(2);
 
-        println!("    Expected if independent: {:.2}%", expected_indep * 100.0);
+        println!(
+            "    Expected if independent: {:.2}%",
+            expected_indep * 100.0
+        );
 
         if both_small_frac < expected_indep * 0.5 {
             println!("    ✓ REPULSION: Much fewer than expected (GUE-like)");
@@ -286,7 +292,10 @@ fn main() {
             let balanced = ratios.iter().filter(|&&r| r < 2.0).count();
             let balanced_frac = balanced as f64 / ratios.len() as f64;
 
-            println!("    Balanced pairs (ratio < 2): {:.1}%", balanced_frac * 100.0);
+            println!(
+                "    Balanced pairs (ratio < 2): {:.1}%",
+                balanced_frac * 100.0
+            );
 
             if balanced_frac > 0.6 {
                 println!("    → Gaps tend to be similar (compensation)");

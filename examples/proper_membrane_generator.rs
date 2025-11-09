@@ -53,8 +53,8 @@
 //!
 //! You should see success rates of 30-55% with multiple primes marked ✓.
 
-use prime_physics_engine::{MembraneConfig, is_prime};
 use num_bigint::BigUint;
+use prime_physics_engine::{is_prime, MembraneConfig};
 use rand::prelude::*;
 
 /// Generate a membrane prime using the seed AS the middle digit(s)
@@ -74,14 +74,14 @@ fn generate_membrane_directly(config: &MembraneConfig, seed: u32) -> Option<BigU
             "0".repeat(config.k_outer as usize),
             config.outer
         );
-        
+
         if let Ok(num) = membrane_str.parse::<BigUint>() {
             if is_prime(&num) {
                 return Some(num);
             }
         }
     }
-    
+
     None
 }
 
@@ -109,7 +109,7 @@ impl StatisticalGenerator {
                     known_seeds: vec![4, 5, 7],
                     description: "Breathing (3,3) k=(0,1)".to_string(),
                 },
-                // Base 10 symmetric - 10% success 
+                // Base 10 symmetric - 10% success
                 EmpiricalConfig {
                     config: MembraneConfig::new(10, 3, 3, 1, 1),
                     success_rate: 0.10,
@@ -133,15 +133,15 @@ impl StatisticalGenerator {
             ],
         }
     }
-    
+
     /// Generate a prime using weighted random selection
     fn generate_weighted(&self) -> Option<(BigUint, String)> {
         let mut rng = thread_rng();
-        
+
         // Select config based on success rate
         let total_weight: f64 = self.configs.iter().map(|c| c.success_rate).sum();
         let mut roll = rng.gen::<f64>() * total_weight;
-        
+
         for emp_config in &self.configs {
             roll -= emp_config.success_rate;
             if roll <= 0.0 {
@@ -154,22 +154,25 @@ impl StatisticalGenerator {
                 break;
             }
         }
-        
+
         None
     }
-    
+
     /// Test all configurations systematically
     fn test_all_configs(&self) {
         println!("Testing all configurations with all single-digit seeds:");
         println!("{}", "-".repeat(80));
-        
+
         for emp_config in &self.configs {
             println!("\n{}", emp_config.description);
-            println!("Expected success rate: {:.0}%", emp_config.success_rate * 100.0);
-            
+            println!(
+                "Expected success rate: {:.0}%",
+                emp_config.success_rate * 100.0
+            );
+
             let mut found = 0;
             let mut successful_seeds = Vec::new();
-            
+
             for seed in 0..10 {
                 if let Some(prime) = generate_membrane_directly(&emp_config.config, seed) {
                     found += 1;
@@ -177,10 +180,14 @@ impl StatisticalGenerator {
                     println!("  Seed {}: {} ✓", seed, prime);
                 }
             }
-            
-            println!("Actual success rate: {:.0}% ({}/10)", found as f64 * 10.0, found);
+
+            println!(
+                "Actual success rate: {:.0}% ({}/10)",
+                found as f64 * 10.0,
+                found
+            );
             println!("Successful seeds: {:?}", successful_seeds);
-            
+
             if successful_seeds != emp_config.known_seeds {
                 println!("⚠️  WARNING: Actual seeds differ from expected!");
             }
@@ -192,56 +199,72 @@ fn main() {
     println!("🎯 Proper Membrane Prime Generator");
     println!("{}", "=".repeat(80));
     println!();
-    
+
     let generator = StatisticalGenerator::new();
-    
+
     // First, verify our empirical data
     generator.test_all_configs();
-    
+
     // Generate some primes statistically
     println!("\n\n📊 Statistical Generation (100 attempts)");
     println!("{}", "-".repeat(80));
-    
+
     let mut successes = 0;
     let mut by_config = std::collections::HashMap::new();
-    
+
     for _ in 0..100 {
         if let Some((prime, config_name)) = generator.generate_weighted() {
             successes += 1;
             *by_config.entry(config_name).or_insert(0) += 1;
-            
+
             if successes <= 5 {
                 println!("Generated: {}", prime);
             }
         }
     }
-    
+
     println!("\nResults:");
     println!("  Success rate: {}%", successes);
     println!("\nBreakdown by configuration:");
     for (config, count) in by_config.iter() {
         println!("  {}: {} primes", config, count);
     }
-    
+
     // Demonstrate deterministic generation
     println!("\n\n🔒 Deterministic Generation");
     println!("{}", "-".repeat(80));
     println!("Using known seed-config pairs:");
-    
+
     let deterministic_pairs = vec![
-        (MembraneConfig::new(10, 3, 3, 0, 1), 5, "Breathing pattern, seed 5"),
-        (MembraneConfig::new(10, 3, 7, 1, 1), 5, "Exclusive config, seed 5"),
-        (MembraneConfig::new(10, 3, 3, 1, 1), 5, "Symmetric pattern, seed 5"),
+        (
+            MembraneConfig::new(10, 3, 3, 0, 1),
+            5,
+            "Breathing pattern, seed 5",
+        ),
+        (
+            MembraneConfig::new(10, 3, 7, 1, 1),
+            5,
+            "Exclusive config, seed 5",
+        ),
+        (
+            MembraneConfig::new(10, 3, 3, 1, 1),
+            5,
+            "Symmetric pattern, seed 5",
+        ),
     ];
-    
+
     for (config, seed, desc) in deterministic_pairs {
         if let Some(prime) = generate_membrane_directly(&config, seed) {
             println!("\n{}: {} ✓", desc, prime);
-            
+
             // Verify structure
             let prime_str = prime.to_string();
-            println!("  Structure: {}", 
-                prime_str.chars().map(|c| if c == '0' { '◯' } else { c }).collect::<String>()
+            println!(
+                "  Structure: {}",
+                prime_str
+                    .chars()
+                    .map(|c| if c == '0' { '◯' } else { c })
+                    .collect::<String>()
             );
         }
     }

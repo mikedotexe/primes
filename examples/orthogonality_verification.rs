@@ -88,7 +88,7 @@ fn print_base_data() {
 
     let bases = vec![
         // (base, spectral_regularity, phase_lock_density, observed_success)
-        (6,  0.40, 0.667, 33.0),
+        (6, 0.40, 0.667, 33.0),
         (10, 0.45, 0.400, 18.5),
         (14, 0.52, 0.571, 27.0),
         (22, 0.48, 0.364, 15.0),
@@ -102,20 +102,27 @@ fn print_base_data() {
     println!("├──────┼──────────┼──────────┼─────────┼────────┼───────────────┤");
 
     for (base, spectral, density, success) in &bases {
-        let base_type = if is_2p(*base) { "2p    " }
-                       else if *base == 30 { "Hybrid" }
-                       else if *base == 60 { "Comp  " }
-                       else { "Other " };
+        let base_type = if is_2p(*base) {
+            "2p    "
+        } else if *base == 30 {
+            "Hybrid"
+        } else if *base == 60 {
+            "Comp  "
+        } else {
+            "Other "
+        };
 
         let factorization = factorize(*base);
 
-        println!("│ {:4} │  {:.1}    │  {:.3}   │  {:.1}   │  {}  │  {}  │",
-                 base,
-                 spectral * 100.0,
-                 density,
-                 success,
-                 base_type,
-                 factorization);
+        println!(
+            "│ {:4} │  {:.1}    │  {:.3}   │  {:.1}   │  {}  │  {}  │",
+            base,
+            spectral * 100.0,
+            density,
+            success,
+            base_type,
+            factorization
+        );
     }
     println!("└──────┴──────────┴──────────┴─────────┴────────┴───────────────┘\n");
 
@@ -134,7 +141,7 @@ fn print_correlation_analysis() {
     println!("═══════════════════════════════════════════════════════════════\n");
 
     let bases_data = vec![
-        (6,  0.40, 0.667, 33.0),
+        (6, 0.40, 0.667, 33.0),
         (10, 0.45, 0.400, 18.5),
         (14, 0.52, 0.571, 27.0),
         (22, 0.48, 0.364, 15.0),
@@ -168,13 +175,17 @@ fn print_correlation_analysis() {
     println!("  Formula: normalized = observed / (50 × density)");
     println!();
 
-    let density_normalized: Vec<f64> = bases_data.iter()
+    let density_normalized: Vec<f64> = bases_data
+        .iter()
         .map(|(_, _, d, s)| s / (50.0 * d))
         .collect();
 
     let r_spectral_norm = pearson_correlation(&spectral, &density_normalized);
 
-    println!("  r(spectral, density-normalized-success) = {:.3}", r_spectral_norm);
+    println!(
+        "  r(spectral, density-normalized-success) = {:.3}",
+        r_spectral_norm
+    );
     interpret_correlation("spectral vs normalized", r_spectral_norm);
     println!();
 
@@ -185,8 +196,11 @@ fn print_correlation_analysis() {
     println!();
 
     println!("Current Status:");
-    println!("  ✓ Raw correlation: r = {:.3} (correlated as expected)", r_spectral_success);
-    println!("  ~ Partial normalization reduces correlation", );
+    println!(
+        "  ✓ Raw correlation: r = {:.3} (correlated as expected)",
+        r_spectral_success
+    );
+    println!("  ~ Partial normalization reduces correlation",);
     println!("  ✗ NOT YET orthogonal - need S_membrane derivation");
     println!();
 
@@ -267,7 +281,7 @@ fn print_pareto_frontier() {
     println!();
 
     let bases = vec![
-        (6,  0.40, 0.667, 33.0, true),   // (base, spectral, density, success, pareto)
+        (6, 0.40, 0.667, 33.0, true), // (base, spectral, density, success, pareto)
         (10, 0.45, 0.400, 18.5, false),
         (14, 0.52, 0.571, 27.0, true),
         (22, 0.48, 0.364, 15.0, false),
@@ -281,14 +295,22 @@ fn print_pareto_frontier() {
 
     for (base, spectral, density, success, pareto) in &bases {
         let status = if *pareto { "  ✓   " } else { "  ✗   " };
-        let why = if *base == 6 { "Max density      " }
-                 else if *base == 60 { "Max spectral     " }
-                 else if *base == 30 { "Best balance     " }
-                 else if *base == 14 { "High density     " }
-                 else { "Dominated        " };
+        let why = if *base == 6 {
+            "Max density      "
+        } else if *base == 60 {
+            "Max spectral     "
+        } else if *base == 30 {
+            "Best balance     "
+        } else if *base == 14 {
+            "High density     "
+        } else {
+            "Dominated        "
+        };
 
-        println!("│ {:4} │  {:.2}    │  {:.3}   │  {:.1}   │  {}  │  {}  │",
-                 base, spectral, density, success, status, why);
+        println!(
+            "│ {:4} │  {:.2}    │  {:.3}   │  {:.1}   │  {}  │  {}  │",
+            base, spectral, density, success, status, why
+        );
     }
     println!("└──────┴──────────┴──────────┴─────────┴─────────┴──────────────────┘\n");
 
@@ -327,9 +349,9 @@ fn print_predictions() {
     println!();
 
     println!("Fitted Values (rough estimate):");
-    let alpha = 0.10;  // 10% weight to spectral
-    let beta = 0.50;   // 50% weight to density
-    let gamma = 0.05;  // 5% baseline
+    let alpha = 0.10; // 10% weight to spectral
+    let beta = 0.50; // 50% weight to density
+    let gamma = 0.05; // 5% baseline
 
     println!("  α ≈ {:.2} (spectral matters, but less)", alpha);
     println!("  β ≈ {:.2} (density dominates)", beta);
@@ -341,7 +363,7 @@ fn print_predictions() {
     println!("├──────┼──────────┼─────────┼───────────┼──────────┼───────┤");
 
     let bases = vec![
-        (6,  0.40, 0.667, 33.0),
+        (6, 0.40, 0.667, 33.0),
         (10, 0.45, 0.400, 18.5),
         (14, 0.52, 0.571, 27.0),
         (30, 0.55, 0.333, 30.0),
@@ -352,8 +374,10 @@ fn print_predictions() {
         let predicted = (alpha * spectral + beta * density + gamma) * 100.0;
         let error = (((predicted - observed) / observed * 100.0) as f64).abs();
 
-        println!("│ {:4} │   {:.2}   │  {:.3}  │   {:.1}%   │  {:.1}%   │ {:.1}% │",
-                 base, spectral, density, predicted, observed, error);
+        println!(
+            "│ {:4} │   {:.2}   │  {:.3}  │   {:.1}%   │  {:.1}%   │ {:.1}% │",
+            base, spectral, density, predicted, observed, error
+        );
     }
     println!("└──────┴──────────┴─────────┴───────────┴──────────┴───────┘\n");
 
@@ -364,10 +388,16 @@ fn print_predictions() {
 
     println!("Untested Base Predictions:");
     println!("  Base 12 (2² × 3): spectral ~0.60, density ~0.250");
-    println!("    Predicted: {:.1}%", (alpha * 0.60 + beta * 0.250 + gamma) * 100.0);
+    println!(
+        "    Predicted: {:.1}%",
+        (alpha * 0.60 + beta * 0.250 + gamma) * 100.0
+    );
     println!();
     println!("  Base 210 (2×3×5×7): spectral ~0.65, density ~0.200");
-    println!("    Predicted: {:.1}%", (alpha * 0.65 + beta * 0.200 + gamma) * 100.0);
+    println!(
+        "    Predicted: {:.1}%",
+        (alpha * 0.65 + beta * 0.200 + gamma) * 100.0
+    );
     println!();
 
     println!("═══════════════════════════════════════════════════════════════");
@@ -428,16 +458,27 @@ fn pearson_correlation(x: &[f64], y: &[f64]) -> f64 {
 
 fn interpret_correlation(label: &str, r: f64) {
     let abs_r = r.abs();
-    let strength = if abs_r < 0.15 { "negligible" }
-                  else if abs_r < 0.30 { "weak" }
-                  else if abs_r < 0.50 { "moderate" }
-                  else if abs_r < 0.70 { "strong" }
-                  else { "very strong" };
+    let strength = if abs_r < 0.15 {
+        "negligible"
+    } else if abs_r < 0.30 {
+        "weak"
+    } else if abs_r < 0.50 {
+        "moderate"
+    } else if abs_r < 0.70 {
+        "strong"
+    } else {
+        "very strong"
+    };
 
     let direction = if r > 0.0 { "positive" } else { "negative" };
 
-    println!("  {} → {}: {} {} correlation",
-             label, strength, direction, if abs_r < 0.15 { "(ORTHOGONAL!)" } else { "" });
+    println!(
+        "  {} → {}: {} {} correlation",
+        label,
+        strength,
+        direction,
+        if abs_r < 0.15 { "(ORTHOGONAL!)" } else { "" }
+    );
 }
 
 fn is_2p(base: u32) -> bool {
@@ -449,13 +490,21 @@ fn is_2p(base: u32) -> bool {
 }
 
 fn is_prime_simple(n: u32) -> bool {
-    if n < 2 { return false; }
-    if n == 2 { return true; }
-    if n % 2 == 0 { return false; }
+    if n < 2 {
+        return false;
+    }
+    if n == 2 {
+        return true;
+    }
+    if n % 2 == 0 {
+        return false;
+    }
 
     let limit = (n as f64).sqrt() as u32;
     for i in (3..=limit).step_by(2) {
-        if n % i == 0 { return false; }
+        if n % i == 0 {
+            return false;
+        }
     }
     true
 }

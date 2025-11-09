@@ -37,12 +37,7 @@ fn single_membrane(outer: u32, inner: u32, seed: u32, base: u32) -> BigUint {
 
 // Generate double membrane: outer-middle-inner-seed-inner-middle-outer
 // Using 7-layer structure
-fn double_membrane(
-    outer: (u32, u32),
-    inner: (u32, u32),
-    seed: u32,
-    base: u32,
-) -> BigUint {
+fn double_membrane(outer: (u32, u32), inner: (u32, u32), seed: u32, base: u32) -> BigUint {
     let mut result = BigUint::zero();
     let base_big = BigUint::from(base);
 
@@ -222,12 +217,23 @@ fn main() {
     let mut results = Vec::new();
 
     for seed_length in 1..=max_seed_length {
-        let (s_p, s_t, d_p, d_t, t_p, t_t) =
-            test_seed_length(base, seed_length, seeds_per_length);
+        let (s_p, s_t, d_p, d_t, t_p, t_t) = test_seed_length(base, seed_length, seeds_per_length);
 
-        let s_rate = if s_t > 0 { (s_p as f64) / (s_t as f64) * 100.0 } else { 0.0 };
-        let d_rate = if d_t > 0 { (d_p as f64) / (d_t as f64) * 100.0 } else { 0.0 };
-        let t_rate = if t_t > 0 { (t_p as f64) / (t_t as f64) * 100.0 } else { 0.0 };
+        let s_rate = if s_t > 0 {
+            (s_p as f64) / (s_t as f64) * 100.0
+        } else {
+            0.0
+        };
+        let d_rate = if d_t > 0 {
+            (d_p as f64) / (d_t as f64) * 100.0
+        } else {
+            0.0
+        };
+        let t_rate = if t_t > 0 {
+            (t_p as f64) / (t_t as f64) * 100.0
+        } else {
+            0.0
+        };
 
         let leader = if t_rate > d_rate && t_rate > s_rate {
             "TRIPLE ★★★"
@@ -241,11 +247,7 @@ fn main() {
 
         println!(
             "│  {:2}  │ {:2}/{:2} {:4.1}% │ {:2}/{:2} {:4.1}% │ {:2}/{:2} {:4.1}% │ {} │",
-            seed_length,
-            s_p, s_t, s_rate,
-            d_p, d_t, d_rate,
-            t_p, t_t, t_rate,
-            leader
+            seed_length, s_p, s_t, s_rate, d_p, d_t, d_rate, t_p, t_t, t_rate, leader
         );
 
         results.push((seed_length, s_rate, d_rate, t_rate));
@@ -328,8 +330,10 @@ fn main() {
         println!("Seed length {} (Single→Double crossover):", crossover);
         println!("  Single membrane: {} digits", single.to_string().len());
         println!("  Double membrane: {} digits", double.to_string().len());
-        println!("  Ratio: {:.3} (Expected: φ ≈ 1.618)",
-                 double.to_string().len() as f64 / single.to_string().len() as f64);
+        println!(
+            "  Ratio: {:.3} (Expected: φ ≈ 1.618)",
+            double.to_string().len() as f64 / single.to_string().len() as f64
+        );
         println!();
     }
 
@@ -341,8 +345,10 @@ fn main() {
         println!("Seed length {} (Double→Triple crossover):", crossover);
         println!("  Double membrane: {} digits", double.to_string().len());
         println!("  Triple membrane: {} digits", triple.to_string().len());
-        println!("  Ratio: {:.3} (Expected: φ ≈ 1.618)",
-                 triple.to_string().len() as f64 / double.to_string().len() as f64);
+        println!(
+            "  Ratio: {:.3} (Expected: φ ≈ 1.618)",
+            triple.to_string().len() as f64 / double.to_string().len() as f64
+        );
         println!();
     }
 
@@ -360,14 +366,21 @@ fn main() {
             println!("The φ^(n-1) scaling law holds across membrane depths:");
             println!("  - Single → Double at length ~4");
             println!("  - Double → Triple at length ~{}", observed);
-            println!("  - Ratio: {} / 4 ≈ {:.2} ≈ φ", observed, observed as f64 / 4.0);
+            println!(
+                "  - Ratio: {} / 4 ≈ {:.2} ≈ φ",
+                observed,
+                observed as f64 / 4.0
+            );
             println!();
             println!("This validates the golden ratio as a fundamental constant");
             println!("governing membrane emergence across multiple scales.");
         } else {
             println!("⚠ PARTIAL VALIDATION");
             println!();
-            println!("Triple membrane emerges at length {}, with {:.1}% error", observed, error);
+            println!(
+                "Triple membrane emerges at length {}, with {:.1}% error",
+                observed, error
+            );
             println!("from the φ scaling prediction. This suggests refinements");
             println!("needed for higher-order membrane structures.");
         }

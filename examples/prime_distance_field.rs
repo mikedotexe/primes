@@ -50,8 +50,8 @@
 //! cargo run --example prime_distance_field -- --range=2500:2600 --membrane
 //! ```
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
+use prime_physics_engine::is_prime;
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -66,13 +66,19 @@ fn gcd(mut a: u64, mut b: u64) -> u64 {
     a
 }
 
-fn smallest_prime_factor(mut n: u64) -> u64 {
-    if n <= 1 { return n; }
-    if n % 2 == 0 { return 2; }
+fn smallest_prime_factor(n: u64) -> u64 {
+    if n <= 1 {
+        return n;
+    }
+    if n.is_multiple_of(2) {
+        return 2;
+    }
 
     let mut d = 3;
     while d * d <= n {
-        if n % d == 0 { return d; }
+        if n.is_multiple_of(d) {
+            return d;
+        }
         d += 2;
     }
     n // n is prime
@@ -121,7 +127,9 @@ fn compute_absolute_distances(n: u64, max_search: u64) -> (Option<u64>, Option<u
 
 /// Compute hamming distance (digit changes to make prime)
 fn compute_hamming_distance(n: u64) -> u64 {
-    if is_prime(&BigUint::from(n)) { return 0; }
+    if is_prime(&BigUint::from(n)) {
+        return 0;
+    }
 
     let s = n.to_string();
 
@@ -146,15 +154,19 @@ fn compute_hamming_distance(n: u64) -> u64 {
 
 /// Count how many small primes divide n
 fn compute_coprime_distance(n: u64) -> u64 {
-    if n <= 1 { return 0; }
+    if n <= 1 {
+        return 0;
+    }
 
     let small_primes = [2u64, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
-    small_primes.iter().filter(|&&p| n % p == 0).count() as u64
+    small_primes.iter().filter(|&&p| n.is_multiple_of(p)).count() as u64
 }
 
 /// Check if a number fits a membrane pattern
 fn fits_membrane_pattern(n: u64, base: u64) -> Option<String> {
-    if n < 10 { return None; }
+    if n < 10 {
+        return None;
+    }
 
     // Convert to base representation (simplified for common bases)
     let digits = to_base_digits(n, base);
@@ -164,7 +176,7 @@ fn fits_membrane_pattern(n: u64, base: u64) -> Option<String> {
         let len = digits.len();
 
         // Perfect symmetry check
-        if digits[0] == digits[len-1] && digits[1] == digits[len-2] {
+        if digits[0] == digits[len - 1] && digits[1] == digits[len - 2] {
             // Check for known successful patterns
             let outer = digits[0];
             let inner = digits[1];
@@ -193,7 +205,9 @@ fn fits_membrane_pattern(n: u64, base: u64) -> Option<String> {
 
 /// Convert number to base representation (returns digits)
 fn to_base_digits(mut n: u64, base: u64) -> Vec<u32> {
-    if n == 0 { return vec![0]; }
+    if n == 0 {
+        return vec![0];
+    }
 
     let mut digits = Vec::new();
     while n > 0 {
@@ -258,21 +272,31 @@ fn analyze_number(n: u64) -> DistanceMetrics {
 
 fn distance_to_block(dist: Option<u64>) -> &'static str {
     match dist {
-        Some(0) => "██",  // Prime
-        Some(1) => "▓▓",  // Distance 1
-        Some(2) => "▒▒",  // Distance 2
-        Some(3) => "░░",  // Distance 3
-        _ => "  ",        // Far or unknown
+        Some(0) => "██", // Prime
+        Some(1) => "▓▓", // Distance 1
+        Some(2) => "▒▒", // Distance 2
+        Some(3) => "░░", // Distance 3
+        _ => "  ",       // Far or unknown
     }
 }
 
 fn print_single_analysis(metrics: &DistanceMetrics) {
     println!("╔══════════════════════════════════════════════════════════════════╗");
-    println!("║              NUMBER ANALYSIS: {}                        ", metrics.number);
+    println!(
+        "║              NUMBER ANALYSIS: {}                        ",
+        metrics.number
+    );
     println!("╚══════════════════════════════════════════════════════════════════╝");
     println!();
 
-    println!("STATUS: {}", if metrics.is_prime { "PRIME" } else { "COMPOSITE" });
+    println!(
+        "STATUS: {}",
+        if metrics.is_prime {
+            "PRIME"
+        } else {
+            "COMPOSITE"
+        }
+    );
     println!();
 
     println!("DISTANCE METRICS:");
@@ -296,11 +320,20 @@ fn print_single_analysis(metrics: &DistanceMetrics) {
     }
 
     if !metrics.is_prime {
-        println!("  Factor distance:        {} (smallest prime factor)", metrics.factor_distance);
+        println!(
+            "  Factor distance:        {} (smallest prime factor)",
+            metrics.factor_distance
+        );
     }
 
-    println!("  Hamming distance:       {} (digit changes)", metrics.hamming_distance);
-    println!("  Coprime distance:       {} (small prime divisors)", metrics.coprime_distance);
+    println!(
+        "  Hamming distance:       {} (digit changes)",
+        metrics.hamming_distance
+    );
+    println!(
+        "  Coprime distance:       {} (small prime divisors)",
+        metrics.coprime_distance
+    );
 
     if let Some(pattern) = &metrics.membrane_match {
         println!("  Membrane pattern:       MATCH - {}", pattern);
@@ -311,8 +344,8 @@ fn print_single_analysis(metrics: &DistanceMetrics) {
 
     // Overall score
     let total = metrics.absolute_below.unwrap_or(10)
-              + metrics.absolute_above.unwrap_or(10)
-              + metrics.hamming_distance * 2;
+        + metrics.absolute_above.unwrap_or(10)
+        + metrics.hamming_distance * 2;
 
     let score = (30_u64.saturating_sub(total)) * 10 / 30;
 
@@ -344,7 +377,7 @@ fn print_range_visualization(start: u64, end: u64) {
         }
         metrics_vec.push(m);
 
-        if (n - start) % 10 == 0 {
+        if (n - start).is_multiple_of(10) {
             print!(".");
             use std::io::Write;
             std::io::stdout().flush().ok();
@@ -363,7 +396,10 @@ fn print_range_visualization(start: u64, end: u64) {
     // Print absolute distances
     print!("Distance: ");
     for m in &metrics_vec {
-        let dist = m.absolute_below.unwrap_or(99).min(m.absolute_above.unwrap_or(99));
+        let dist = m
+            .absolute_below
+            .unwrap_or(99)
+            .min(m.absolute_above.unwrap_or(99));
         print!("{:3} ", dist);
     }
     println!();
@@ -371,7 +407,10 @@ fn print_range_visualization(start: u64, end: u64) {
     // Print heat map
     print!("Heat Map: ");
     for m in &metrics_vec {
-        let dist = m.absolute_below.unwrap_or(99).min(m.absolute_above.unwrap_or(99));
+        let dist = m
+            .absolute_below
+            .unwrap_or(99)
+            .min(m.absolute_above.unwrap_or(99));
         print!("{} ", distance_to_block(Some(dist)));
     }
     println!();
@@ -390,12 +429,20 @@ fn print_range_visualization(start: u64, end: u64) {
     // Statistics
     println!("STATISTICS:");
     println!("  Total numbers: {}", end - start + 1);
-    println!("  Primes: {} ({:.1}%)", primes.len(),
-             (primes.len() as f64) / ((end - start + 1) as f64) * 100.0);
+    println!(
+        "  Primes: {} ({:.1}%)",
+        primes.len(),
+        (primes.len() as f64) / ((end - start + 1) as f64) * 100.0
+    );
 
-    let distances: Vec<u64> = metrics_vec.iter()
+    let distances: Vec<u64> = metrics_vec
+        .iter()
         .filter(|m| !m.is_prime)
-        .map(|m| m.absolute_below.unwrap_or(99).min(m.absolute_above.unwrap_or(99)))
+        .map(|m| {
+            m.absolute_below
+                .unwrap_or(99)
+                .min(m.absolute_above.unwrap_or(99))
+        })
         .collect();
 
     if !distances.is_empty() {
@@ -413,7 +460,10 @@ fn detect_clusters(start: u64, end: u64, window_size: usize, threshold: f64) {
     println!("╚══════════════════════════════════════════════════════════════════╝");
     println!();
 
-    println!("Scanning range [{}-{}] with window size {}...", start, end, window_size);
+    println!(
+        "Scanning range [{}-{}] with window size {}...",
+        start, end, window_size
+    );
     println!();
 
     let mut metrics_vec = Vec::new();
@@ -425,10 +475,15 @@ fn detect_clusters(start: u64, end: u64, window_size: usize, threshold: f64) {
     let mut deserts = Vec::new();
 
     for window_start in 0..metrics_vec.len().saturating_sub(window_size) {
-        let window = &metrics_vec[window_start..window_start+window_size];
+        let window = &metrics_vec[window_start..window_start + window_size];
 
-        let distances: Vec<u64> = window.iter()
-            .map(|m| m.absolute_below.unwrap_or(99).min(m.absolute_above.unwrap_or(99)))
+        let distances: Vec<u64> = window
+            .iter()
+            .map(|m| {
+                m.absolute_below
+                    .unwrap_or(99)
+                    .min(m.absolute_above.unwrap_or(99))
+            })
             .collect();
 
         let avg_dist = distances.iter().sum::<u64>() as f64 / distances.len() as f64;
@@ -444,7 +499,10 @@ fn detect_clusters(start: u64, end: u64, window_size: usize, threshold: f64) {
     if !clusters.is_empty() {
         println!("PRIME CLUSTERS DETECTED: {} regions", clusters.len());
         for (pos, avg_dist, primes) in clusters.iter().take(10) {
-            println!("  Position {}: avg_distance={:.1}, primes={}", pos, avg_dist, primes);
+            println!(
+                "  Position {}: avg_distance={:.1}, primes={}",
+                pos, avg_dist, primes
+            );
         }
         println!();
     }
@@ -452,7 +510,10 @@ fn detect_clusters(start: u64, end: u64, window_size: usize, threshold: f64) {
     if !deserts.is_empty() {
         println!("PRIME DESERTS DETECTED: {} regions", deserts.len());
         for (pos, avg_dist, primes) in deserts.iter().take(10) {
-            println!("  Position {}: avg_distance={:.1}, primes={}", pos, avg_dist, primes);
+            println!(
+                "  Position {}: avg_distance={:.1}, primes={}",
+                pos, avg_dist, primes
+            );
         }
     }
 }

@@ -1,4 +1,3 @@
-
 use plotters::prelude::*;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -10,7 +9,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut data = Vec::new();
     for (index, line) in reader.lines().enumerate() {
-        if index == 0 { continue; } // Skip header row
+        if index == 0 {
+            continue;
+        } // Skip header row
         let line = line?;
         let parts: Vec<&str> = line.split(',').collect();
         if parts.len() == 2 {
@@ -24,7 +25,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new(out_file_name, (1024, 768)).into_drawing_area();
     root.fill(&WHITE)?;
 
-    let (max_x, max_y) = data.iter().fold((0, 0), |(mx, my), (x, y)| (mx.max(*x), my.max(*y)));
+    let (max_x, max_y) = data
+        .iter()
+        .fold((0, 0), |(mx, my), (x, y)| (mx.max(*x), my.max(*y)));
 
     let mut chart = ChartBuilder::on(&root)
         .caption("Prime Yield vs. Space Size", ("sans-serif", 50).into_font())
@@ -35,10 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     chart.configure_mesh().draw()?;
 
-    chart.draw_series(LineSeries::new(
-        data,
-        &RED,
-    ))?;
+    chart.draw_series(LineSeries::new(data, &RED))?;
 
     root.present()?;
     println!("Resonance chart saved to {}", out_file_name);

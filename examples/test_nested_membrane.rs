@@ -50,7 +50,10 @@ fn main() {
     println!("Results:");
     println!("  Seeds tested: {}", test_seeds);
     println!("  Primes found: {}", single_success);
-    println!("  Success rate: {:.1}%", (single_success as f64 / test_seeds as f64) * 100.0);
+    println!(
+        "  Success rate: {:.1}%",
+        (single_success as f64 / test_seeds as f64) * 100.0
+    );
     println!("  (Expected: ~27% based on previous data)");
 
     println!("\n═══════════════════════════════════════════════════════════════");
@@ -68,7 +71,10 @@ fn main() {
     println!("Results:");
     println!("  Seeds tested: {}", test_seeds);
     println!("  Primes found: {}", nested_success);
-    println!("  Success rate: {:.1}%", (nested_success as f64 / test_seeds as f64) * 100.0);
+    println!(
+        "  Success rate: {:.1}%",
+        (nested_success as f64 / test_seeds as f64) * 100.0
+    );
 
     println!("\n═══════════════════════════════════════════════════════════════");
     println!("COMPARISON");
@@ -79,13 +85,17 @@ fn main() {
 
     println!("│ Configuration │ Success Rate │ Primes │ Difference │");
     println!("├───────────────┼──────────────┼────────┼────────────┤");
-    println!("│ Single (3,11) │    {:.1}%     │   {:2}   │     --     │",
-             (single_success as f64 / test_seeds as f64) * 100.0,
-             single_success);
-    println!("│ Nested layers │    {:.1}%     │   {:2}   │   {:+3}     │",
-             (nested_success as f64 / test_seeds as f64) * 100.0,
-             nested_success,
-             diff);
+    println!(
+        "│ Single (3,11) │    {:.1}%     │   {:2}   │     --     │",
+        (single_success as f64 / test_seeds as f64) * 100.0,
+        single_success
+    );
+    println!(
+        "│ Nested layers │    {:.1}%     │   {:2}   │   {:+3}     │",
+        (nested_success as f64 / test_seeds as f64) * 100.0,
+        nested_success,
+        diff
+    );
     println!("└───────────────┴──────────────┴────────┴────────────┘\n");
 
     println!("Improvement factor: {:.2}x", improvement);
@@ -108,7 +118,10 @@ fn main() {
     } else if diff >= 0 {
         println!("~ MARGINAL SIGNAL");
         println!();
-        println!("Nested structure shows modest improvement ({:+} primes).", diff);
+        println!(
+            "Nested structure shows modest improvement ({:+} primes).",
+            diff
+        );
         println!("Signal is positive but not decisive. Possible interpretations:");
         println!("  1. Double-membrane works but effect is subtle");
         println!("  2. Need larger sample size (test 1000+ seeds)");
@@ -116,7 +129,10 @@ fn main() {
     } else {
         println!("✗ DOUBLE-MEMBRANE NOT VALIDATED");
         println!();
-        println!("Nested structure underperforms single membrane by {} primes.", -diff);
+        println!(
+            "Nested structure underperforms single membrane by {} primes.",
+            -diff
+        );
         println!("This suggests:");
         println!("  1. Additional constraints are too restrictive");
         println!("  2. Double-membrane is optional, not beneficial at current scale");
@@ -224,8 +240,10 @@ fn construct_single_membrane(
     let seed_str = seed.to_string();
 
     // Structure: outer + inner + seed + inner + outer
-    let membrane_str = format!("{}{}{}{}{}",
-        outer_str, inner_str, seed_str, inner_str, outer_str);
+    let membrane_str = format!(
+        "{}{}{}{}{}",
+        outer_str, inner_str, seed_str, inner_str, outer_str
+    );
 
     // Convert from base to decimal
     base_string_to_biguint(&membrane_str, base)
@@ -247,14 +265,16 @@ fn construct_nested_membrane(
     let seed_str = seed.to_string();
 
     // Nested structure: outer + buffer + inner + seed + inner + buffer + outer
-    let membrane_str = format!("{}0{}{}{}{}{}0{}",
-        ol,          // Outer left
-        il,          // Inner left
-        ir,          // Inner right
-        seed_str,    // Seed
-        ir,          // Inner right
-        il,          // Inner left
-        or);         // Outer right
+    let membrane_str = format!(
+        "{}0{}{}{}{}{}0{}",
+        ol,       // Outer left
+        il,       // Inner left
+        ir,       // Inner right
+        seed_str, // Seed
+        ir,       // Inner right
+        il,       // Inner left
+        or
+    ); // Outer right
 
     base_string_to_biguint(&membrane_str, base)
 }
@@ -308,7 +328,11 @@ fn is_probably_prime(n: &BigUint, rounds: u32) -> bool {
 
     let mut d = n_minus_1.clone();
     let mut r = 0u32;
-    while d.to_u32_digits().first().map_or(false, |&digit| digit % 2 == 0) {
+    while d
+        .to_u32_digits()
+        .first()
+        .map_or(false, |&digit| digit % 2 == 0)
+    {
         d = d / &two;
         r += 1;
     }
@@ -367,7 +391,7 @@ mod tests {
     #[test]
     fn test_single_membrane_construction() {
         // Base 6, (1,5), seed 4
-        let result = construct_single_membrane(6, 1, 5, (0,0), 4);
+        let result = construct_single_membrane(6, 1, 5, (0, 0), 4);
 
         // Should be 15451 in base 6 = 1×6⁴ + 5×6³ + 4×6² + 5×6 + 1
         // = 1296 + 1080 + 144 + 30 + 1 = 2551

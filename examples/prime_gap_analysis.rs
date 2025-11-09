@@ -18,9 +18,9 @@
 // Hexagonal structure with φ(base)=6 may enhance gap=6 occurrence
 // (sexy primes) due to the perfect number connection.
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::HashMap;
 
 fn is_coprime(a: u32, b: u32) -> bool {
@@ -129,9 +129,7 @@ fn main() {
         println!();
 
         // Use all coprime middle values
-        let middle_values: Vec<u32> = (1..*base)
-            .filter(|&m| is_coprime(m, *base))
-            .collect();
+        let middle_values: Vec<u32> = (1..*base).filter(|&m| is_coprime(m, *base)).collect();
 
         println!("  Collecting primes...");
         let primes = collect_primes(*base, &middle_values, limit);
@@ -156,12 +154,21 @@ fn main() {
         let sexy_count = *gaps.get(&6).unwrap_or(&0);
 
         println!("  Special Gap Types:");
-        println!("    Twin primes   (gap=2): {:4} ({:5.2}%)",
-                 twin_count, twin_count as f64 / total_gaps as f64 * 100.0);
-        println!("    Cousin primes (gap=4): {:4} ({:5.2}%)",
-                 cousin_count, cousin_count as f64 / total_gaps as f64 * 100.0);
-        println!("    Sexy primes   (gap=6): {:4} ({:5.2}%)",
-                 sexy_count, sexy_count as f64 / total_gaps as f64 * 100.0);
+        println!(
+            "    Twin primes   (gap=2): {:4} ({:5.2}%)",
+            twin_count,
+            twin_count as f64 / total_gaps as f64 * 100.0
+        );
+        println!(
+            "    Cousin primes (gap=4): {:4} ({:5.2}%)",
+            cousin_count,
+            cousin_count as f64 / total_gaps as f64 * 100.0
+        );
+        println!(
+            "    Sexy primes   (gap=6): {:4} ({:5.2}%)",
+            sexy_count,
+            sexy_count as f64 / total_gaps as f64 * 100.0
+        );
         println!();
 
         // Top 10 most common gaps
@@ -178,7 +185,7 @@ fn main() {
                 2 => "Twin".to_string(),
                 4 => "Cousin".to_string(),
                 6 => "Sexy (!)".to_string(),
-                g if g % 6 == 0 => format!("×6 ({}×6)", g/6),
+                g if g % 6 == 0 => format!("×6 ({}×6)", g / 6),
                 g if g % 2 == 0 => "Even".to_string(),
                 _ => "Odd".to_string(),
             };
@@ -188,7 +195,8 @@ fn main() {
         println!();
 
         // Analyze multiples of 6
-        let mult_6_count: usize = gaps.iter()
+        let mult_6_count: usize = gaps
+            .iter()
             .filter(|(&gap, _)| gap > 0 && gap % 6 == 0)
             .map(|(_, &count)| count)
             .sum();
@@ -196,13 +204,18 @@ fn main() {
         let mult_6_pct = mult_6_count as f64 / total_gaps as f64 * 100.0;
 
         println!("  HEXAGONAL CONNECTION (φ(base)=6 hypothesis):");
-        println!("    Gaps that are multiples of 6: {:4} ({:5.2}%)",
-                 mult_6_count, mult_6_pct);
+        println!(
+            "    Gaps that are multiples of 6: {:4} ({:5.2}%)",
+            mult_6_count, mult_6_pct
+        );
 
         if *base == 6 || *base == 7 || *base == 14 || *base == 18 {
             println!("    φ({}) = {}", base, middle_values.len());
             if middle_values.len() == 6 && mult_6_pct > 20.0 {
-                println!("    ✓ ENHANCED: Multiples of 6 are {:.1}% (>20% threshold)", mult_6_pct);
+                println!(
+                    "    ✓ ENHANCED: Multiples of 6 are {:.1}% (>20% threshold)",
+                    mult_6_pct
+                );
             } else if middle_values.len() == 6 {
                 println!("    ~ MODERATE: Multiples of 6 are {:.1}%", mult_6_pct);
             }
@@ -210,20 +223,32 @@ fn main() {
         println!();
 
         // Even vs odd gaps
-        let even_count: usize = gaps.iter()
+        let even_count: usize = gaps
+            .iter()
             .filter(|(&gap, _)| gap % 2 == 0)
             .map(|(_, &count)| count)
             .sum();
         let odd_count = total_gaps - even_count;
 
         println!("  PARITY ANALYSIS:");
-        println!("    Even gaps: {:4} ({:5.2}%)", even_count, even_count as f64 / total_gaps as f64 * 100.0);
-        println!("    Odd gaps:  {:4} ({:5.2}%)", odd_count, odd_count as f64 / total_gaps as f64 * 100.0);
+        println!(
+            "    Even gaps: {:4} ({:5.2}%)",
+            even_count,
+            even_count as f64 / total_gaps as f64 * 100.0
+        );
+        println!(
+            "    Odd gaps:  {:4} ({:5.2}%)",
+            odd_count,
+            odd_count as f64 / total_gaps as f64 * 100.0
+        );
 
         // For random primes, we expect mostly even gaps (since primes are odd)
         // Odd gaps indicate consecutive primes with different parity (rare except 2,3)
         if odd_count > 0 {
-            println!("    ⚠ {} odd gaps detected (indicates prime 2 or computational boundary)", odd_count);
+            println!(
+                "    ⚠ {} odd gaps detected (indicates prime 2 or computational boundary)",
+                odd_count
+            );
         }
         println!();
 
@@ -232,7 +257,8 @@ fn main() {
         println!();
 
         let max_display_gap = 30;
-        let max_count = gap_vec.iter()
+        let max_count = gap_vec
+            .iter()
             .filter(|(&gap, _)| gap <= max_display_gap)
             .map(|(_, &count)| count)
             .max()

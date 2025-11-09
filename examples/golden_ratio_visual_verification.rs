@@ -16,9 +16,9 @@
 
 use std::f64::consts::PI;
 
-const PHI: f64 = 1.618033988749895;  // (1 + √5) / 2
-const PHI_SQUARED: f64 = 2.618033988749895;  // φ² = φ + 1
-const PHI_INV: f64 = 0.618033988749895;  // 1/φ = φ - 1
+const PHI: f64 = 1.618033988749895; // (1 + √5) / 2
+const PHI_SQUARED: f64 = 2.618033988749895; // φ² = φ + 1
+const PHI_INV: f64 = 0.618033988749895; // 1/φ = φ - 1
 
 fn main() {
     println!("╔════════════════════════════════════════════════════════════════╗");
@@ -77,14 +77,14 @@ fn print_fibonacci_convergence() {
     println!("│  n │  F(n)  │ F(n+1) │ F(n+1)/F(n)  │ Error from φ │ Convergence │");
     println!("├────┼────────┼────────┼──────────────┼──────────────┼─────────────┤");
 
-    for i in 1..fib_nums.len()-1 {
+    for i in 1..fib_nums.len() - 1 {
         let f_n = fib_nums[i] as f64;
-        let f_n_plus_1 = fib_nums[i+1] as f64;
+        let f_n_plus_1 = fib_nums[i + 1] as f64;
         let ratio = f_n_plus_1 / f_n;
         let error = (ratio - PHI).abs();
 
         let prev_error = if i > 1 {
-            let prev_ratio = fib_nums[i] as f64 / fib_nums[i-1] as f64;
+            let prev_ratio = fib_nums[i] as f64 / fib_nums[i - 1] as f64;
             (prev_ratio - PHI).abs()
         } else {
             1.0
@@ -92,28 +92,44 @@ fn print_fibonacci_convergence() {
 
         let convergence = if error < prev_error { "→ φ" } else { "   " };
 
-        let highlight = if fib_nums[i] == 3 && fib_nums[i+1] == 5 {
+        let highlight = if fib_nums[i] == 3 && fib_nums[i + 1] == 5 {
             "  ← BASE 14 DATA!"
         } else {
             ""
         };
 
-        println!("│ {:2} │ {:6} │ {:6} │  {:.10}  │  {:.8}    │    {}      │{}",
-                 i, fib_nums[i], fib_nums[i+1], ratio, error, convergence, highlight);
+        println!(
+            "│ {:2} │ {:6} │ {:6} │  {:.10}  │  {:.8}    │    {}      │{}",
+            i,
+            fib_nums[i],
+            fib_nums[i + 1],
+            ratio,
+            error,
+            convergence,
+            highlight
+        );
     }
     println!("└────┴────────┴────────┴──────────────┴──────────────┴─────────────┘\n");
 
     println!("Key Observation:");
-    println!("  F₅/F₄ = 5/3 = {:.15}", 5.0/3.0);
+    println!("  F₅/F₄ = 5/3 = {:.15}", 5.0 / 3.0);
     println!("  This EXACTLY matches our observed nested/single size ratio!");
-    println!("  Observed in base 14: 15/9 = 5/3 = {:.15}", 15.0/9.0);
+    println!("  Observed in base 14: 15/9 = 5/3 = {:.15}", 15.0 / 9.0);
     println!();
 
     println!("Convergence Rate:");
     let ratio_10 = fib_nums[10] as f64 / fib_nums[9] as f64;
     let ratio_12 = fib_nums[12] as f64 / fib_nums[11] as f64;
-    println!("  F₁₀/F₉  = {:.12} (error: {:.8})", ratio_10, (ratio_10 - PHI).abs());
-    println!("  F₁₂/F₁₁ = {:.12} (error: {:.8})", ratio_12, (ratio_12 - PHI).abs());
+    println!(
+        "  F₁₀/F₉  = {:.12} (error: {:.8})",
+        ratio_10,
+        (ratio_10 - PHI).abs()
+    );
+    println!(
+        "  F₁₂/F₁₁ = {:.12} (error: {:.8})",
+        ratio_12,
+        (ratio_12 - PHI).abs()
+    );
     println!("  ✓ Error decreases exponentially");
     println!();
 }
@@ -131,9 +147,9 @@ fn print_crossover_predictions() {
     println!();
 
     let test_bases = vec![
-        (6,  0.667, 4.0),   // (base, density, observed - 4.0 means unknown)
-        (10, 0.400, 0.0),   // 0.0 = not tested yet
-        (14, 0.571, 4.0),   // Known!
+        (6, 0.667, 4.0),  // (base, density, observed - 4.0 means unknown)
+        (10, 0.400, 0.0), // 0.0 = not tested yet
+        (14, 0.571, 4.0), // Known!
         (22, 0.364, 0.0),
         (26, 0.308, 0.0),
         (30, 0.333, 0.0),
@@ -148,18 +164,30 @@ fn print_crossover_predictions() {
 
         let (obs_str, error_str, status) = if *observed > 0.0 {
             let error_pct = ((predicted - observed).abs() / observed) * 100.0;
-            let status = if error_pct < 15.0 { "✓ PASS" }
-                        else if error_pct < 25.0 { "~ CLOSE" }
-                        else { "✗ FAIL" };
-            (format!(" {:.1}  ", observed),
-             format!("{:.1}%", error_pct),
-             status.to_string())
+            let status = if error_pct < 15.0 {
+                "✓ PASS"
+            } else if error_pct < 25.0 {
+                "~ CLOSE"
+            } else {
+                "✗ FAIL"
+            };
+            (
+                format!(" {:.1}  ", observed),
+                format!("{:.1}%", error_pct),
+                status.to_string(),
+            )
         } else {
-            ("  ?   ".to_string(), "  -  ".to_string(), " TEST ".to_string())
+            (
+                "  ?   ".to_string(),
+                "  -  ".to_string(),
+                " TEST ".to_string(),
+            )
         };
 
-        println!("│ {:4} │  {:.3}  │  {:.3}  │      {:.2}       │  {}  │  {}  │  {}  │",
-                 base, density, sqrt_base, predicted, obs_str, error_str, status);
+        println!(
+            "│ {:4} │  {:.3}  │  {:.3}  │      {:.2}       │  {}  │  {}  │  {}  │",
+            base, density, sqrt_base, predicted, obs_str, error_str, status
+        );
     }
     println!("└──────┴─────────┴─────────┴─────────────────┴──────────┴─────────┴────────┘\n");
 
@@ -168,10 +196,18 @@ fn print_crossover_predictions() {
     println!("  density     = {:.15}", 0.571);
     println!("  √14         = {:.15}", 14.0_f64.sqrt());
     println!("  Predicted   = φ × density × √14");
-    println!("              = {:.6} × {:.6} × {:.6}", PHI, 0.571, 14.0_f64.sqrt());
+    println!(
+        "              = {:.6} × {:.6} × {:.6}",
+        PHI,
+        0.571,
+        14.0_f64.sqrt()
+    );
     println!("              = {:.6}", PHI * 0.571 * 14.0_f64.sqrt());
     println!("  Observed    = 4.0");
-    println!("  Error       = {:.2}%", ((PHI * 0.571 * 14.0_f64.sqrt() - 4.0).abs() / 4.0) * 100.0);
+    println!(
+        "  Error       = {:.2}%",
+        ((PHI * 0.571 * 14.0_f64.sqrt() - 4.0).abs() / 4.0) * 100.0
+    );
     println!("  ✓ Within 15% tolerance (typical for n=50 statistical samples)");
     println!();
 }
@@ -185,10 +221,10 @@ fn print_size_ratio_analysis() {
     println!();
 
     let base14_data = vec![
-        (1, 8, 13),   // (seed_len, single_size, nested_size)
+        (1, 8, 13), // (seed_len, single_size, nested_size)
         (2, 9, 14),
         (3, 10, 15),
-        (4, 11, 17),  // ← Crossover
+        (4, 11, 17), // ← Crossover
         (5, 12, 18),
         (6, 14, 19),
         (7, 15, 20),
@@ -212,26 +248,29 @@ fn print_size_ratio_analysis() {
 
         let highlight = if *len == 4 { " ← CROSSOVER" } else { "" };
 
-        println!("│  {}   │   {}   │   {}   │ {:.4}  │    {}   │  {:.4}   │  {:.4}   │{}",
-                 len, single, nested, ratio, fib_pair, fib_ratio, delta_phi, highlight);
+        println!(
+            "│  {}   │   {}   │   {}   │ {:.4}  │    {}   │  {:.4}   │  {:.4}   │{}",
+            len, single, nested, ratio, fib_pair, fib_ratio, delta_phi, highlight
+        );
     }
     println!("└──────┴────────┴────────┴─────────────┴─────────────┴───────────┴──────────┘\n");
 
     let mean_ratio = ratios.iter().sum::<f64>() / ratios.len() as f64;
-    let variance = ratios.iter().map(|r| (r - mean_ratio).powi(2)).sum::<f64>() / ratios.len() as f64;
+    let variance =
+        ratios.iter().map(|r| (r - mean_ratio).powi(2)).sum::<f64>() / ratios.len() as f64;
     let std_dev = variance.sqrt();
 
     println!("Statistical Summary:");
     println!("  Mean ratio:         {:.6}", mean_ratio);
     println!("  Standard deviation: {:.6}", std_dev);
     println!("  φ =                 {:.6}", PHI);
-    println!("  5/3 =               {:.6}", 5.0/3.0);
+    println!("  5/3 =               {:.6}", 5.0 / 3.0);
     println!("  Mean - φ:           {:+.6}", mean_ratio - PHI);
-    println!("  Mean - 5/3:         {:+.6}", mean_ratio - 5.0/3.0);
+    println!("  Mean - 5/3:         {:+.6}", mean_ratio - 5.0 / 3.0);
     println!();
 
     println!("Interpretation:");
-    if (mean_ratio - 5.0/3.0).abs() < (mean_ratio - PHI).abs() {
+    if (mean_ratio - 5.0 / 3.0).abs() < (mean_ratio - PHI).abs() {
         println!("  ✓ Data closer to F₅/F₄ = 5/3 than to φ");
         println!("  This suggests we're in the EARLY Fibonacci convergence region");
         println!("  (Before full φ convergence - consistent with finite sample sizes)");
@@ -265,18 +304,28 @@ fn print_multi_shell_capacity() {
         let formula = if n == 1 {
             "√14         ".to_string()
         } else {
-            format!("φ^{} × √14   ", n-1)
+            format!("φ^{} × √14   ", n - 1)
         };
 
-        let emergence = if n == 1 { "   -   " }
-                       else if n == 2 { "  ~4   " }
-                       else if n == 3 { "  ~7?  " }
-                       else if n == 4 { " ~11?  " }
-                       else { "  ?    " };
+        let emergence = if n == 1 {
+            "   -   "
+        } else if n == 2 {
+            "  ~4   "
+        } else if n == 3 {
+            "  ~7?  "
+        } else if n == 4 {
+            " ~11?  "
+        } else {
+            "  ?    "
+        };
 
-        let tested = if n == 1 { "✓" }
-                    else if n == 2 { "✓" }
-                    else { "TODO" };
+        let tested = if n == 1 {
+            "✓"
+        } else if n == 2 {
+            "✓"
+        } else {
+            "TODO"
+        };
 
         let shell_name = match n {
             1 => "Single",
@@ -288,19 +337,27 @@ fn print_multi_shell_capacity() {
             _ => "N     ",
         };
 
-        println!("│ {}  │ {}│  {:.4}  │   {:.2}   │   {}    │  {}   │",
-                 shell_name, formula, phi_power, capacity, emergence, tested);
+        println!(
+            "│ {}  │ {}│  {:.4}  │   {:.2}   │   {}    │  {}   │",
+            shell_name, formula, phi_power, capacity, emergence, tested
+        );
     }
     println!("└────────┴───────────────┴──────────┴──────────┴───────────┴─────────┘\n");
 
     println!("Specific Predictions (FALSIFIABLE):");
-    println!("  1. Triple emerges at: φ × 4 = {:.2} ≈ 7 digits", PHI * 4.0);
+    println!(
+        "  1. Triple emerges at: φ × 4 = {:.2} ≈ 7 digits",
+        PHI * 4.0
+    );
     println!("     Test: Run seed_length_scaling to 10 digits");
     println!("     If triple wins at length ~7: ✓ VALIDATED");
     println!("     If triple wins at length ≠7: ✗ FALSIFIED");
     println!();
 
-    println!("  2. Quad emerges at: φ² × 4 = {:.2} ≈ 11 digits", PHI.powi(2) * 4.0);
+    println!(
+        "  2. Quad emerges at: φ² × 4 = {:.2} ≈ 11 digits",
+        PHI.powi(2) * 4.0
+    );
     println!("     Test: Extend scaling test to 15 digits");
     println!();
 
@@ -321,7 +378,7 @@ fn print_statistical_validation() {
 
     // Known data points: (predicted, observed)
     let data_points = vec![
-        (PHI * 0.571 * 14.0_f64.sqrt(), 4.0),  // Base 14
+        (PHI * 0.571 * 14.0_f64.sqrt(), 4.0), // Base 14
     ];
 
     // We only have one point, but show the framework
@@ -332,8 +389,10 @@ fn print_statistical_validation() {
         let error = (predicted - observed).abs();
         let error_pct = (error / observed) * 100.0;
 
-        println!("│  14  │    {:.2}    │    {:.1}    │  {:.2}   │ {:.1}%  │",
-                 predicted, observed, error, error_pct);
+        println!(
+            "│  14  │    {:.2}    │    {:.1}    │  {:.2}   │ {:.1}%  │",
+            predicted, observed, error, error_pct
+        );
     }
     println!("└──────┴─────────────┴────────────┴─────────┴─────────┘\n");
 
@@ -402,13 +461,25 @@ fn print_falsifiability_guide() {
     println!("Independent Verification:");
     println!("  All constants can be verified:");
     println!("    φ = {:.15}  ← Check with (1+√5)/2", PHI);
-    println!("    φ² - φ - 1 = {:.2e}   ← Should be ~0", PHI.powi(2) - PHI - 1.0);
-    println!("    1/φ - (φ-1) = {:.2e}  ← Should be ~0", 1.0/PHI - (PHI - 1.0));
+    println!(
+        "    φ² - φ - 1 = {:.2e}   ← Should be ~0",
+        PHI.powi(2) - PHI - 1.0
+    );
+    println!(
+        "    1/φ - (φ-1) = {:.2e}  ← Should be ~0",
+        1.0 / PHI - (PHI - 1.0)
+    );
     println!();
 
     println!("  All predictions are CONCRETE numbers:");
-    println!("    Base 6 crossover:  {:.2} digits", PHI * 0.667 * 6.0_f64.sqrt());
-    println!("    Base 10 crossover: {:.2} digits", PHI * 0.400 * 10.0_f64.sqrt());
+    println!(
+        "    Base 6 crossover:  {:.2} digits",
+        PHI * 0.667 * 6.0_f64.sqrt()
+    );
+    println!(
+        "    Base 10 crossover: {:.2} digits",
+        PHI * 0.400 * 10.0_f64.sqrt()
+    );
     println!("    Base 14 triple:    {:.2} digits", PHI * 4.0);
     println!();
     println!("  Run the tests. Compare. Accept or reject.");
@@ -440,7 +511,7 @@ fn print_falsifiability_guide() {
 fn generate_fibonacci(count: usize) -> Vec<u64> {
     let mut fib = vec![0, 1];
     for i in 2..count {
-        let next = fib[i-1] + fib[i-2];
+        let next = fib[i - 1] + fib[i - 2];
         fib.push(next);
     }
     fib
@@ -452,13 +523,13 @@ fn find_closest_fib_ratio(target: f64) -> (String, f64, f64) {
     let mut best_ratio = 0.0;
     let mut best_diff = f64::MAX;
 
-    for i in 1..fib.len()-1 {
-        let ratio = fib[i+1] as f64 / fib[i] as f64;
+    for i in 1..fib.len() - 1 {
+        let ratio = fib[i + 1] as f64 / fib[i] as f64;
         let diff = (ratio - target).abs();
         if diff < best_diff {
             best_diff = diff;
             best_ratio = ratio;
-            best_pair = format!("{}/{}", fib[i+1], fib[i]);
+            best_pair = format!("{}/{}", fib[i + 1], fib[i]);
         }
     }
 

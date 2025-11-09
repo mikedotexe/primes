@@ -31,12 +31,42 @@ fn main() {
 
     // Test configurations with known empirical results
     let configs = vec![
-        MembraneConfig { base: 6, divisor: 3, raw_success: 33.0, desc: "Base 6 champion (1,5)" },
-        MembraneConfig { base: 10, divisor: 3, raw_success: 18.5, desc: "Base 10 (3,7)" },
-        MembraneConfig { base: 12, divisor: 3, raw_success: 26.0, desc: "Base 12" },
-        MembraneConfig { base: 30, divisor: 3, raw_success: 30.0, desc: "Base 30 (11,7)" },
-        MembraneConfig { base: 14, divisor: 3, raw_success: 27.0, desc: "Base 14" },
-        MembraneConfig { base: 18, divisor: 3, raw_success: 24.0, desc: "Base 18" },
+        MembraneConfig {
+            base: 6,
+            divisor: 3,
+            raw_success: 33.0,
+            desc: "Base 6 champion (1,5)",
+        },
+        MembraneConfig {
+            base: 10,
+            divisor: 3,
+            raw_success: 18.5,
+            desc: "Base 10 (3,7)",
+        },
+        MembraneConfig {
+            base: 12,
+            divisor: 3,
+            raw_success: 26.0,
+            desc: "Base 12",
+        },
+        MembraneConfig {
+            base: 30,
+            divisor: 3,
+            raw_success: 30.0,
+            desc: "Base 30 (11,7)",
+        },
+        MembraneConfig {
+            base: 14,
+            divisor: 3,
+            raw_success: 27.0,
+            desc: "Base 14",
+        },
+        MembraneConfig {
+            base: 18,
+            divisor: 3,
+            raw_success: 24.0,
+            desc: "Base 18",
+        },
     ];
 
     println!("Testing {} membrane configurations...\n", configs.len());
@@ -83,7 +113,10 @@ fn main() {
     println!("Correlation Results:");
     println!("───────────────────────────────────────────────────────────────");
     println!("  Corr(Regularity, Raw Success):       {:.4}", corr_raw);
-    println!("  Corr(Regularity, HL-Normalized):     {:.4}", corr_normalized);
+    println!(
+        "  Corr(Regularity, HL-Normalized):     {:.4}",
+        corr_normalized
+    );
     println!();
 
     // Statistical interpretation
@@ -93,8 +126,14 @@ fn main() {
     if corr_raw > 0.4 && is_orthogonal {
         println!("✓ ORTHOGONALITY PATTERN DETECTED");
         println!();
-        println!("  Before normalization: ρ = {:.3} (positive correlation)", corr_raw);
-        println!("  After normalization:  ρ = {:.3} (orthogonal)", corr_normalized);
+        println!(
+            "  Before normalization: ρ = {:.3} (positive correlation)",
+            corr_raw
+        );
+        println!(
+            "  After normalization:  ρ = {:.3} (orthogonal)",
+            corr_normalized
+        );
         println!();
         println!("Interpretation:");
         println!("  Spectral regularity scores capture the structural bias that");
@@ -105,8 +144,14 @@ fn main() {
     } else if corr_raw > 0.4 && !is_orthogonal {
         println!("⚠ PARTIAL ORTHOGONALITY");
         println!();
-        println!("  Before normalization: ρ = {:.3} (positive correlation)", corr_raw);
-        println!("  After normalization:  ρ = {:.3} (not orthogonal)", corr_normalized);
+        println!(
+            "  Before normalization: ρ = {:.3} (positive correlation)",
+            corr_raw
+        );
+        println!(
+            "  After normalization:  ρ = {:.3} (not orthogonal)",
+            corr_normalized
+        );
         println!();
         println!("Interpretation:");
         println!("  Regularity scores show predictive power, but the correlation");
@@ -139,12 +184,14 @@ fn main() {
 
     for i in 0..configs.len() {
         let residual = hl_normalized_rates[i] - mean_hl;
-        println!("│ {:14} │   {:.4}    │ {:5.1} │  {:.4}  │ {:+7.4}  │",
-                 configs[i].desc,
-                 regularity_scores[i],
-                 raw_success_rates[i],
-                 hl_normalized_rates[i],
-                 residual);
+        println!(
+            "│ {:14} │   {:.4}    │ {:5.1} │  {:.4}  │ {:+7.4}  │",
+            configs[i].desc,
+            regularity_scores[i],
+            raw_success_rates[i],
+            hl_normalized_rates[i],
+            residual
+        );
     }
     println!("└────────────────┴────────────┴───────┴─────────┴──────────┘\n");
 
@@ -155,8 +202,10 @@ fn main() {
     println!("Variance Analysis:");
     println!("  Raw success variance:        {:.4}", var_raw);
     println!("  HL-normalized variance:      {:.4}", var_hl);
-    println!("  Variance reduction:          {:.1}%",
-             ((var_raw - var_hl) / var_raw * 100.0).max(0.0));
+    println!(
+        "  Variance reduction:          {:.1}%",
+        ((var_raw - var_hl) / var_raw * 100.0).max(0.0)
+    );
     println!();
 
     println!("═══════════════════════════════════════════════════════════════");
@@ -167,33 +216,49 @@ fn main() {
     println!();
     println!("1. Does membrane orthogonality hold?");
     if is_orthogonal {
-        println!("   → YES: |ρ| < {:.2} after HL normalization", orthogonal_threshold);
+        println!(
+            "   → YES: |ρ| < {:.2} after HL normalization",
+            orthogonal_threshold
+        );
         println!("   → This validates the spectral regularity framework");
     } else {
-        println!("   → PARTIAL: |ρ| = {:.3} (threshold {:.2})",
-                 corr_normalized.abs(), orthogonal_threshold);
+        println!(
+            "   → PARTIAL: |ρ| = {:.3} (threshold {:.2})",
+            corr_normalized.abs(),
+            orthogonal_threshold
+        );
         println!("   → Suggests refinement needed in singular series estimation");
     }
     println!();
 
     println!("2. Is the membrane singular series correct?");
     if var_hl < var_raw * 0.5 {
-        println!("   → Normalization reduces variance by {:.0}%",
-                 (var_raw - var_hl) / var_raw * 100.0);
+        println!(
+            "   → Normalization reduces variance by {:.0}%",
+            (var_raw - var_hl) / var_raw * 100.0
+        );
         println!("   → This suggests the theoretical framework is sound");
     } else {
-        println!("   → Variance reduction is minimal ({:.1}%)",
-                 (var_raw - var_hl) / var_raw * 100.0);
+        println!(
+            "   → Variance reduction is minimal ({:.1}%)",
+            (var_raw - var_hl) / var_raw * 100.0
+        );
         println!("   → Theoretical derivation or empirical calibration needed");
     }
     println!();
 
     println!("3. Can we predict optimal configurations without testing?");
     if corr_raw > 0.6 {
-        println!("   → YES: Regularity score correlates (r={:.3}) with success", corr_raw);
+        println!(
+            "   → YES: Regularity score correlates (r={:.3}) with success",
+            corr_raw
+        );
         println!("   → Pre-screening by regularity reduces testing by 10x");
     } else {
-        println!("   → MODERATE: Correlation r={:.3} provides weak guidance", corr_raw);
+        println!(
+            "   → MODERATE: Correlation r={:.3} provides weak guidance",
+            corr_raw
+        );
         println!("   → Additional features may improve prediction");
     }
     println!();
@@ -235,15 +300,19 @@ fn spectral_regularity_simple(freq_counts: &[usize]) -> f64 {
     let total: f64 = freq_counts.iter().sum::<usize>() as f64;
     let mean = total / n as f64;
 
-    let variance: f64 = freq_counts.iter()
+    let variance: f64 = freq_counts
+        .iter()
         .map(|&count| {
             let dev = count as f64 - mean;
             dev * dev
         })
-        .sum::<f64>() / n as f64;
+        .sum::<f64>()
+        / n as f64;
 
     let max_var = mean * mean;
-    if max_var == 0.0 { return 1.0; }
+    if max_var == 0.0 {
+        return 1.0;
+    }
 
     // Regularity score: 1 - normalized_variance
     1.0 - (variance / max_var)
@@ -326,9 +395,7 @@ fn compute_variance(values: &[f64]) -> f64 {
     let n = values.len() as f64;
     let mean = values.iter().sum::<f64>() / n;
 
-    values.iter()
-        .map(|&v| (v - mean).powi(2))
-        .sum::<f64>() / n
+    values.iter().map(|&v| (v - mean).powi(2)).sum::<f64>() / n
 }
 
 #[cfg(test)]
@@ -360,7 +427,11 @@ mod tests {
     fn test_regularity_irregular() {
         // Irregular: [4,3,3]
         let reg = spectral_regularity_simple(&[4, 3, 3]);
-        assert!(reg < 1.0 && reg > 0.5, "Irregular should be <1.0, got {}", reg);
+        assert!(
+            reg < 1.0 && reg > 0.5,
+            "Irregular should be <1.0, got {}",
+            reg
+        );
     }
 
     #[test]
@@ -383,6 +454,10 @@ mod tests {
     fn test_variance_computation() {
         // Variance of {1,2,3,4,5} = 2.0
         let var = compute_variance(&[1.0, 2.0, 3.0, 4.0, 5.0]);
-        assert!((var - 2.0).abs() < 0.01, "Expected variance ~2.0, got {}", var);
+        assert!(
+            (var - 2.0).abs() < 0.01,
+            "Expected variance ~2.0, got {}",
+            var
+        );
     }
 }

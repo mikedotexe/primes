@@ -1,4 +1,3 @@
-
 use num_bigint::BigUint;
 use prime_physics_engine::is_prime;
 use std::time::Instant;
@@ -12,7 +11,9 @@ fn fertility_scan(body1: &str, body2: &str) -> u32 {
         for position in 0..space_size {
             for digit in 1..=9 {
                 let mut test_str = zeros.clone();
-                unsafe { test_str.as_bytes_mut()[position] = b'0' + digit as u8; }
+                unsafe {
+                    test_str.as_bytes_mut()[position] = b'0' + digit as u8;
+                }
                 let full_number = format!("{}{}{}", body1, test_str, body2);
                 if let Ok(num) = full_number.parse::<BigUint>() {
                     if is_prime(&num) {
@@ -30,7 +31,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let num_primes = primes_to_test.len();
 
     println!("--- Pair Scanner ---");
-    println!("Scanning {} unique pairs of the first {} primes...", (num_primes * (num_primes - 1)) / 2, num_primes);
+    println!(
+        "Scanning {} unique pairs of the first {} primes...",
+        (num_primes * (num_primes - 1)) / 2,
+        num_primes
+    );
     println!("--------------------------------------------------");
 
     let start_time = Instant::now();
@@ -42,8 +47,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let yield_result = fertility_scan(p1, p2);
 
-            let classification = if yield_result > 0 { "Fertile" } else { "Sterile" };
-            println!("Pair: ({}, {}), Result: {}, Yield: {}", p1, p2, classification, yield_result);
+            let classification = if yield_result > 0 {
+                "Fertile"
+            } else {
+                "Sterile"
+            };
+            println!(
+                "Pair: ({}, {}), Result: {}, Yield: {}",
+                p1, p2, classification, yield_result
+            );
         }
     }
 

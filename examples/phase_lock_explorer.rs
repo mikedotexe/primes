@@ -44,10 +44,12 @@ fn main() {
         let locks = count_phase_locks(base);
         let lock_list = find_phase_locks(base);
 
-        println!("Base {} (midpoint {}{})",
-                 base,
-                 midpoint,
-                 if is_2p { " prime" } else { "" });
+        println!(
+            "Base {} (midpoint {}{})",
+            base,
+            midpoint,
+            if is_2p { " prime" } else { "" }
+        );
         println!("  Phase locks: {}", locks);
 
         if !lock_list.is_empty() {
@@ -65,12 +67,14 @@ fn main() {
     println!("PART 2: 2p vs Composite Base Comparison");
     println!("═══════════════════════════════════════════════════════════════\n");
 
-    let locks_2p: Vec<usize> = phase_lock_data.iter()
+    let locks_2p: Vec<usize> = phase_lock_data
+        .iter()
         .filter(|(_, is_2p, _, _)| *is_2p)
         .map(|(_, _, locks, _)| *locks)
         .collect();
 
-    let locks_composite: Vec<usize> = phase_lock_data.iter()
+    let locks_composite: Vec<usize> = phase_lock_data
+        .iter()
         .filter(|(_, is_2p, _, _)| !*is_2p)
         .map(|(_, _, locks, _)| *locks)
         .collect();
@@ -80,15 +84,19 @@ fn main() {
 
     println!("2p bases (p prime):");
     println!("  Average phase locks: {:.2}", avg_2p);
-    println!("  Range: {} to {}",
-             locks_2p.iter().min().unwrap(),
-             locks_2p.iter().max().unwrap());
+    println!(
+        "  Range: {} to {}",
+        locks_2p.iter().min().unwrap(),
+        locks_2p.iter().max().unwrap()
+    );
 
     println!("\nComposite bases:");
     println!("  Average phase locks: {:.2}", avg_composite);
-    println!("  Range: {} to {}",
-             locks_composite.iter().min().unwrap(),
-             locks_composite.iter().max().unwrap());
+    println!(
+        "  Range: {} to {}",
+        locks_composite.iter().min().unwrap(),
+        locks_composite.iter().max().unwrap()
+    );
 
     println!("\nDifference: {:.2}x", avg_2p / avg_composite.max(0.1));
 
@@ -106,8 +114,10 @@ fn main() {
         let factors = prime_factorization(*base);
         let factor_str = format_factors(&factors);
 
-        println!("│ {:4} │ {:9} │  {:3}  │  {:.3}  │ {:13} │",
-                 base, base_type, locks, density, factor_str);
+        println!(
+            "│ {:4} │ {:9} │  {:3}  │  {:.3}  │ {:13} │",
+            base, base_type, locks, density, factor_str
+        );
     }
     println!("└──────┴───────────┴───────┴─────────┴───────────────┘\n");
 
@@ -123,7 +133,10 @@ fn main() {
         (14, 27.0),
         (18, 24.0),
         (30, 30.0),
-    ].iter().cloned().collect();
+    ]
+    .iter()
+    .cloned()
+    .collect();
 
     let mut correlation_data = Vec::new();
 
@@ -133,8 +146,10 @@ fn main() {
     for (base, _, locks, _) in &phase_lock_data {
         if let Some(&success) = known_success.get(base) {
             let ratio = *locks as f64 / success;
-            println!("│ {:4} │      {:2}     │  {:5.1}% │     {:.3}     │",
-                     base, locks, success, ratio);
+            println!(
+                "│ {:4} │      {:2}     │  {:5.1}% │     {:.3}     │",
+                base, locks, success, ratio
+            );
             correlation_data.push((*locks as f64, success));
         }
     }
@@ -148,8 +163,10 @@ fn main() {
         println!("Correlation (phase locks ↔ success): {:.3}", corr);
 
         if corr.abs() > 0.5 {
-            println!("  → {} correlation detected!",
-                     if corr > 0.0 { "Positive" } else { "Negative" });
+            println!(
+                "  → {} correlation detected!",
+                if corr > 0.0 { "Positive" } else { "Negative" }
+            );
         }
     }
 
@@ -161,9 +178,7 @@ fn main() {
 
     for (base, is_2p, _, lock_list) in &phase_lock_data {
         if !lock_list.is_empty() && *base <= 30 {
-            println!("Base {} {}:",
-                     base,
-                     if *is_2p { "(2p)" } else { "" });
+            println!("Base {} {}:", base, if *is_2p { "(2p)" } else { "" });
 
             let distances: Vec<u32> = lock_list.iter().map(|(_, _, d)| *d).collect();
             let dist_set: std::collections::HashSet<u32> = distances.iter().cloned().collect();
@@ -206,14 +221,24 @@ fn main() {
     let pct_2p = guaranteed_locks_2p as f64 / bases_2p.len() as f64 * 100.0;
     let pct_comp = guaranteed_locks_comp as f64 / bases_composite.len() as f64 * 100.0;
 
-    println!("2p bases with at least one phase lock: {}/{} ({:.0}%)",
-             guaranteed_locks_2p, bases_2p.len(), pct_2p);
-    println!("Composite bases with at least one phase lock: {}/{} ({:.0}%)",
-             guaranteed_locks_comp, bases_composite.len(), pct_comp);
+    println!(
+        "2p bases with at least one phase lock: {}/{} ({:.0}%)",
+        guaranteed_locks_2p,
+        bases_2p.len(),
+        pct_2p
+    );
+    println!(
+        "Composite bases with at least one phase lock: {}/{} ({:.0}%)",
+        guaranteed_locks_comp,
+        bases_composite.len(),
+        pct_comp
+    );
 
     if pct_2p > pct_comp {
-        println!("\n→ 2p bases are {:.1}x more likely to have phase locks",
-                 pct_2p / pct_comp.max(1.0));
+        println!(
+            "\n→ 2p bases are {:.1}x more likely to have phase locks",
+            pct_2p / pct_comp.max(1.0)
+        );
     }
 
     // Check if there's a Goldbach-like pattern
@@ -221,8 +246,7 @@ fn main() {
     println!("CONJECTURE: Phase Lock Existence");
     println!("═══════════════════════════════════════════════════════════════\n");
 
-    let all_2p_have_locks = bases_2p.iter()
-        .all(|&b| count_phase_locks(b) > 0);
+    let all_2p_have_locks = bases_2p.iter().all(|&b| count_phase_locks(b) > 0);
 
     if all_2p_have_locks {
         println!("✓ OBSERVED: Every tested 2p base has at least one phase lock");
@@ -298,13 +322,13 @@ fn is_prime(n: u32) -> bool {
     if n == 2 {
         return true;
     }
-    if n % 2 == 0 {
+    if n.is_multiple_of(2) {
         return false;
     }
 
     let sqrt_n = (n as f64).sqrt() as u32;
     for i in (3..=sqrt_n).step_by(2) {
-        if n % i == 0 {
+        if n.is_multiple_of(i) {
             return false;
         }
     }
@@ -317,7 +341,7 @@ fn prime_factorization(mut n: u32) -> Vec<u32> {
 
     let mut d = 2;
     while d * d <= n {
-        while n % d == 0 {
+        while n.is_multiple_of(d) {
             factors.push(d);
             n /= d;
         }
@@ -435,9 +459,14 @@ mod tests {
         for base in vec![6, 10, 12, 14, 20, 30] {
             let locks = find_phase_locks(base);
             for (left, right, _dist) in locks {
-                assert_eq!(left + right, base,
-                          "Phase lock ({},{}) should sum to base {}",
-                          left, right, base);
+                assert_eq!(
+                    left + right,
+                    base,
+                    "Phase lock ({},{}) should sum to base {}",
+                    left,
+                    right,
+                    base
+                );
             }
         }
     }

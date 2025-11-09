@@ -16,9 +16,9 @@
 // - Our eigenspaces: allowed coordinates in residue space
 // - Both: geometric structure from symmetry constraints
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::{HashMap, HashSet};
 
 fn is_coprime(a: u32, b: u32) -> bool {
@@ -208,11 +208,13 @@ fn main() {
         println!("─────────────────────────────────────────────────────────────");
         println!();
 
-        let middle_values: Vec<u32> = (1..*base)
-            .filter(|&m| is_coprime(m, *base))
-            .collect();
+        let middle_values: Vec<u32> = (1..*base).filter(|&m| is_coprime(m, *base)).collect();
 
-        println!("  φ({}) = {} (coprime middle values)", base, middle_values.len());
+        println!(
+            "  φ({}) = {} (coprime middle values)",
+            base,
+            middle_values.len()
+        );
         println!();
 
         println!("  Collecting coordinate space...");
@@ -239,7 +241,7 @@ fn main() {
         let dist_from_mid = ((mean.0 - midpoint).powi(2)
             + (mean.1 - midpoint).powi(2)
             + (mean.2 - midpoint).powi(2))
-            .sqrt();
+        .sqrt();
         println!("    Distance from midpoint: {:.3}", dist_from_mid);
         println!();
 
@@ -247,49 +249,104 @@ fn main() {
         let cov = covariance_matrix(&coords, mean);
         println!("  COVARIANCE MATRIX:");
         println!("           x        y        z");
-        println!("    x  {:7.3}  {:7.3}  {:7.3}", cov[0][0], cov[0][1], cov[0][2]);
-        println!("    y  {:7.3}  {:7.3}  {:7.3}", cov[1][0], cov[1][1], cov[1][2]);
-        println!("    z  {:7.3}  {:7.3}  {:7.3}", cov[2][0], cov[2][1], cov[2][2]);
+        println!(
+            "    x  {:7.3}  {:7.3}  {:7.3}",
+            cov[0][0], cov[0][1], cov[0][2]
+        );
+        println!(
+            "    y  {:7.3}  {:7.3}  {:7.3}",
+            cov[1][0], cov[1][1], cov[1][2]
+        );
+        println!(
+            "    z  {:7.3}  {:7.3}  {:7.3}",
+            cov[2][0], cov[2][1], cov[2][2]
+        );
         println!();
 
         let corr = correlation_matrix(&cov);
         println!("  CORRELATION MATRIX:");
         println!("           x        y        z");
-        println!("    x  {:7.3}  {:7.3}  {:7.3}", corr[0][0], corr[0][1], corr[0][2]);
-        println!("    y  {:7.3}  {:7.3}  {:7.3}", corr[1][0], corr[1][1], corr[1][2]);
-        println!("    z  {:7.3}  {:7.3}  {:7.3}", corr[2][0], corr[2][1], corr[2][2]);
+        println!(
+            "    x  {:7.3}  {:7.3}  {:7.3}",
+            corr[0][0], corr[0][1], corr[0][2]
+        );
+        println!(
+            "    y  {:7.3}  {:7.3}  {:7.3}",
+            corr[1][0], corr[1][1], corr[1][2]
+        );
+        println!(
+            "    z  {:7.3}  {:7.3}  {:7.3}",
+            corr[2][0], corr[2][1], corr[2][2]
+        );
         println!();
 
         // Interpret correlations
         println!("  CORRELATION INTERPRETATION:");
-        println!("    ρ(x,y) = {:.3} {}", corr[0][1],
-                 if corr[0][1].abs() < 0.1 { "(uncorrelated)" }
-                 else if corr[0][1] > 0.0 { "(positive correlation)" }
-                 else { "(negative correlation)" });
+        println!(
+            "    ρ(x,y) = {:.3} {}",
+            corr[0][1],
+            if corr[0][1].abs() < 0.1 {
+                "(uncorrelated)"
+            } else if corr[0][1] > 0.0 {
+                "(positive correlation)"
+            } else {
+                "(negative correlation)"
+            }
+        );
 
-        println!("    ρ(x,z) = {:.3} {}", corr[0][2],
-                 if corr[0][2].abs() < 0.1 { "(uncorrelated)" }
-                 else if corr[0][2] > 0.0 { "(positive correlation)" }
-                 else { "(negative correlation)" });
+        println!(
+            "    ρ(x,z) = {:.3} {}",
+            corr[0][2],
+            if corr[0][2].abs() < 0.1 {
+                "(uncorrelated)"
+            } else if corr[0][2] > 0.0 {
+                "(positive correlation)"
+            } else {
+                "(negative correlation)"
+            }
+        );
 
-        println!("    ρ(y,z) = {:.3} {}", corr[1][2],
-                 if corr[1][2].abs() < 0.1 { "(uncorrelated)" }
-                 else if corr[1][2] > 0.0 { "(positive correlation)" }
-                 else { "(negative correlation)" });
+        println!(
+            "    ρ(y,z) = {:.3} {}",
+            corr[1][2],
+            if corr[1][2].abs() < 0.1 {
+                "(uncorrelated)"
+            } else if corr[1][2] > 0.0 {
+                "(positive correlation)"
+            } else {
+                "(negative correlation)"
+            }
+        );
         println!();
 
         // Symmetry analysis
         let symmetries = analyze_symmetries(&coords, *base);
 
         println!("  SYMMETRY ANALYSIS:");
-        println!("    All three equal (x=y=z): {}", symmetries.get("all_equal").unwrap_or(&0));
-        println!("    Two equal (e.g., x=y≠z): {}", symmetries.get("two_equal").unwrap_or(&0));
-        println!("    All different (x≠y≠z): {}", symmetries.get("all_different").unwrap_or(&0));
-        println!("    Unique permutation classes: {}", symmetries.get("unique_classes").unwrap_or(&0));
+        println!(
+            "    All three equal (x=y=z): {}",
+            symmetries.get("all_equal").unwrap_or(&0)
+        );
+        println!(
+            "    Two equal (e.g., x=y≠z): {}",
+            symmetries.get("two_equal").unwrap_or(&0)
+        );
+        println!(
+            "    All different (x≠y≠z): {}",
+            symmetries.get("all_different").unwrap_or(&0)
+        );
+        println!(
+            "    Unique permutation classes: {}",
+            symmetries.get("unique_classes").unwrap_or(&0)
+        );
         println!();
 
-        let all_diff_frac = *symmetries.get("all_different").unwrap_or(&0) as f64 / coords.len() as f64;
-        println!("    Fraction with all different: {:.1}%", all_diff_frac * 100.0);
+        let all_diff_frac =
+            *symmetries.get("all_different").unwrap_or(&0) as f64 / coords.len() as f64;
+        println!(
+            "    Fraction with all different: {:.1}%",
+            all_diff_frac * 100.0
+        );
 
         if all_diff_frac > 0.8 {
             println!("    → High diversity (coordinates rarely repeat)");
@@ -306,22 +363,67 @@ fn main() {
         let unique_z: HashSet<u32> = coords.iter().map(|c| c.z).collect();
 
         println!("  COORDINATE OCCUPANCY:");
-        println!("    Unique x values: {} (expected: φ({}) = {})",
-                 unique_x.len(), base, middle_values.len());
-        println!("    Unique y values: {} (expected: φ({}) = {})",
-                 unique_y.len(), base, middle_values.len());
-        println!("    Unique z values: {} (expected: φ({}) = {})",
-                 unique_z.len(), base, middle_values.len());
+        println!(
+            "    Unique x values: {} (expected: φ({}) = {})",
+            unique_x.len(),
+            base,
+            middle_values.len()
+        );
+        println!(
+            "    Unique y values: {} (expected: φ({}) = {})",
+            unique_y.len(),
+            base,
+            middle_values.len()
+        );
+        println!(
+            "    Unique z values: {} (expected: φ({}) = {})",
+            unique_z.len(),
+            base,
+            middle_values.len()
+        );
         println!();
 
         // Check if they match expected (all coprime to base)
-        let x_coprime: HashSet<u32> = unique_x.iter().copied().filter(|&v| is_coprime(v, *base)).collect();
-        let y_coprime: HashSet<u32> = unique_y.iter().copied().filter(|&v| is_coprime(v, *base)).collect();
-        let z_coprime: HashSet<u32> = unique_z.iter().copied().filter(|&v| is_coprime(v, *base)).collect();
+        let x_coprime: HashSet<u32> = unique_x
+            .iter()
+            .copied()
+            .filter(|&v| is_coprime(v, *base))
+            .collect();
+        let y_coprime: HashSet<u32> = unique_y
+            .iter()
+            .copied()
+            .filter(|&v| is_coprime(v, *base))
+            .collect();
+        let z_coprime: HashSet<u32> = unique_z
+            .iter()
+            .copied()
+            .filter(|&v| is_coprime(v, *base))
+            .collect();
 
-        println!("    All x coprime? {}", if x_coprime.len() == unique_x.len() { "✓ YES" } else { "✗ NO" });
-        println!("    All y coprime? {}", if y_coprime.len() == unique_y.len() { "✓ YES" } else { "✗ NO" });
-        println!("    All z coprime? {}", if z_coprime.len() == unique_z.len() { "✓ YES" } else { "✗ NO" });
+        println!(
+            "    All x coprime? {}",
+            if x_coprime.len() == unique_x.len() {
+                "✓ YES"
+            } else {
+                "✗ NO"
+            }
+        );
+        println!(
+            "    All y coprime? {}",
+            if y_coprime.len() == unique_y.len() {
+                "✓ YES"
+            } else {
+                "✗ NO"
+            }
+        );
+        println!(
+            "    All z coprime? {}",
+            if z_coprime.len() == unique_z.len() {
+                "✓ YES"
+            } else {
+                "✗ NO"
+            }
+        );
         println!();
 
         // Variance equality (isotropy)
@@ -355,12 +457,14 @@ fn main() {
             println!("    Expected: 6 vertices, isotropic spread, zero correlation");
 
             let is_isotropic = var_ratio < 2.0;
-            let is_uncorrelated = corr[0][1].abs() < 0.3
-                && corr[0][2].abs() < 0.3
-                && corr[1][2].abs() < 0.3;
+            let is_uncorrelated =
+                corr[0][1].abs() < 0.3 && corr[0][2].abs() < 0.3 && corr[1][2].abs() < 0.3;
 
             println!("    Isotropic? {}", if is_isotropic { "✓" } else { "✗" });
-            println!("    Uncorrelated? {}", if is_uncorrelated { "✓" } else { "✗" });
+            println!(
+                "    Uncorrelated? {}",
+                if is_uncorrelated { "✓" } else { "✗" }
+            );
 
             if is_isotropic && is_uncorrelated {
                 println!("    → ✓ HEXAGONAL SIGNATURE DETECTED");

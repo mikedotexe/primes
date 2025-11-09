@@ -1,4 +1,3 @@
-
 use num_bigint::BigUint;
 use prime_physics_engine::is_prime;
 use std::env;

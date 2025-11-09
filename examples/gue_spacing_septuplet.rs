@@ -9,9 +9,9 @@
 //   - GUE: P(s) = (π/2) s e^(-πs²/4)  [eigenvalue repulsion]
 //   - Poisson: P(s) = e^(-s)          [random uncorrelated]
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::f64::consts::PI;
 
 fn is_coprime(a: u32, b: u32) -> bool {
@@ -74,7 +74,10 @@ fn compute_spacings(primes: &[BigUint]) -> Vec<f64> {
 
     let mut gaps = Vec::new();
     for i in 0..primes.len() - 1 {
-        let gap = (&primes[i + 1] - &primes[i]).to_string().parse::<f64>().unwrap_or(0.0);
+        let gap = (&primes[i + 1] - &primes[i])
+            .to_string()
+            .parse::<f64>()
+            .unwrap_or(0.0);
         gaps.push(gap);
     }
 
@@ -141,10 +144,7 @@ fn main() {
     let limit = 1_000_000_000_000u64;
 
     // Use first 6 coprime middle values
-    let middle_values: Vec<u32> = (1..base)
-        .filter(|&m| is_coprime(m, base))
-        .take(6)
-        .collect();
+    let middle_values: Vec<u32> = (1..base).filter(|&m| is_coprime(m, base)).take(6).collect();
 
     println!("═══════════════════════════════════════════════════════════════");
     println!("BASE {} - HEXAGONAL STRUCTURE (φ=6)", base);
@@ -224,19 +224,35 @@ fn main() {
 
         let diff_gue = (frac - gue_pred).abs();
         let diff_poi = (frac - poi_pred).abs();
-        let winner = if diff_gue < diff_poi { "GUE ✓" } else { "Poisson" };
+        let winner = if diff_gue < diff_poi {
+            "GUE ✓"
+        } else {
+            "Poisson"
+        };
 
-        println!("   {:.2}     │  {:5.1}%  │  {:5.1}% │  {:5.1}% │  {}",
-                 thresh, frac * 100.0, gue_pred * 100.0, poi_pred * 100.0, winner);
+        println!(
+            "   {:.2}     │  {:5.1}%  │  {:5.1}% │  {:5.1}% │  {}",
+            thresh,
+            frac * 100.0,
+            gue_pred * 100.0,
+            poi_pred * 100.0,
+            winner
+        );
     }
     println!();
 
     if min_s > 0.01 {
-        println!("  ✓ STRONG REPULSION: Minimum spacing = {:.6} (no near collisions)", min_s);
+        println!(
+            "  ✓ STRONG REPULSION: Minimum spacing = {:.6} (no near collisions)",
+            min_s
+        );
     } else if min_s > 0.001 {
         println!("  ~ MODERATE REPULSION: Minimum spacing = {:.6}", min_s);
     } else {
-        println!("  ✗ WEAK REPULSION: Very small gaps exist (min = {:.6})", min_s);
+        println!(
+            "  ✗ WEAK REPULSION: Very small gaps exist (min = {:.6})",
+            min_s
+        );
     }
     println!();
 
@@ -267,8 +283,8 @@ fn main() {
 
     // Critical values for KS test (approximate, n=large)
     let n = spacings.len() as f64;
-    let ks_critical_01 = 1.63 / n.sqrt();  // α=0.01
-    let ks_critical_05 = 1.36 / n.sqrt();  // α=0.05
+    let ks_critical_01 = 1.63 / n.sqrt(); // α=0.01
+    let ks_critical_05 = 1.36 / n.sqrt(); // α=0.05
 
     println!("  Statistical significance (α = significance level):");
     println!("    Critical value (α=0.05): {:.4}", ks_critical_05);
@@ -321,8 +337,10 @@ fn main() {
         let gue_bar = "▓".repeat((gue_val * obs_density.max(0.1) * 10.0) as usize);
         let poi_bar = "░".repeat((poi_val * obs_density.max(0.1) * 10.0) as usize);
 
-        println!("   {:.3}    │  {:4} │ {:17} │ {:17} │ {}",
-                 s, count, obs_bar, gue_bar, poi_bar);
+        println!(
+            "   {:.3}    │  {:4} │ {:17} │ {:17} │ {}",
+            s, count, obs_bar, gue_bar, poi_bar
+        );
     }
     println!();
 
@@ -333,11 +351,19 @@ fn main() {
     println!();
 
     let gue_score = if ks_gue < ks_poisson { 1.0 } else { 0.0 }
-        + if var_ratio_gue < var_ratio_poi { 1.0 } else { 0.0 }
+        + if var_ratio_gue < var_ratio_poi {
+            1.0
+        } else {
+            0.0
+        }
         + if min_s > 0.01 { 1.0 } else { 0.5 };
 
     let poisson_score = if ks_poisson < ks_gue { 1.0 } else { 0.0 }
-        + if var_ratio_poi < var_ratio_gue { 1.0 } else { 0.0 };
+        + if var_ratio_poi < var_ratio_gue {
+            1.0
+        } else {
+            0.0
+        };
 
     println!("  Evidence summary:");
     println!("    GUE score: {:.1}/3.0", gue_score);

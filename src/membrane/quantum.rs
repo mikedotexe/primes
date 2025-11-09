@@ -1,9 +1,9 @@
 //! Quantum membrane construction
-//! 
+//!
 //! Orbital-like k-patterns inspired by atomic electron configurations
 
+use super::{construct_symmetric_membrane, MembraneConfig, OrbitalType};
 use crate::PhysicsResult;
-use super::{MembraneConfig, OrbitalType, construct_symmetric_membrane};
 
 /// Construct a quantum orbital membrane
 pub fn construct_quantum_membrane(
@@ -13,16 +13,19 @@ pub fn construct_quantum_membrane(
     quantum_numbers: &[u32],
 ) -> PhysicsResult<String> {
     let (outer, inner, k_outer, k_inner) = get_orbital_parameters(orbital_type, quantum_numbers);
-    
+
     // Use base configuration or orbital-specific values
     let final_outer = if outer == 0 { config.outer } else { outer };
     let final_inner = if inner == 0 { config.inner } else { inner };
-    
+
     construct_symmetric_membrane(final_outer, final_inner, middle, k_outer, k_inner)
 }
 
 /// Get k-parameters for different orbital types
-fn get_orbital_parameters(orbital_type: &OrbitalType, _quantum_numbers: &[u32]) -> (u32, u32, u32, u32) {
+fn get_orbital_parameters(
+    orbital_type: &OrbitalType,
+    _quantum_numbers: &[u32],
+) -> (u32, u32, u32, u32) {
     match orbital_type {
         OrbitalType::S => (0, 0, 0, 1), // s-orbital: spherical, minimal padding
         OrbitalType::P => (0, 0, 1, 1), // p-orbital: dumbbell shape
@@ -33,7 +36,7 @@ fn get_orbital_parameters(orbital_type: &OrbitalType, _quantum_numbers: &[u32]) 
             let k1 = k_values.first().unwrap_or(&2);
             let k2 = k_values.get(1).unwrap_or(&2);
             (0, 0, *k1, *k2)
-        },
+        }
     }
 }
 
@@ -51,11 +54,11 @@ pub struct QuantumAnalysis {
 /// Orbital shape characteristics
 #[derive(Debug, Clone)]
 pub enum OrbitalShape {
-    Spherical,      // s-orbital
-    Dumbbell,       // p-orbital  
-    Cloverleaf,     // d-orbital
-    Complex,        // f-orbital and higher
-    Hybrid,         // custom combinations
+    Spherical,  // s-orbital
+    Dumbbell,   // p-orbital
+    Cloverleaf, // d-orbital
+    Complex,    // f-orbital and higher
+    Hybrid,     // custom combinations
 }
 
 impl QuantumAnalysis {
@@ -69,9 +72,9 @@ impl QuantumAnalysis {
             OrbitalType::G => (5, 18, OrbitalShape::Complex),
             OrbitalType::Hybrid(_) => (0, 0, OrbitalShape::Hybrid),
         };
-        
+
         let probability_density = calculate_probability_density(&orbital_type, &quantum_numbers);
-        
+
         Self {
             orbital_type,
             quantum_numbers,
@@ -81,12 +84,12 @@ impl QuantumAnalysis {
             probability_density,
         }
     }
-    
+
     /// Check if this orbital can host primes (has electron density)
     pub fn can_host_primes(&self) -> bool {
         self.probability_density > 0.1
     }
-    
+
     /// Get orbital description
     pub fn description(&self) -> String {
         format!(
@@ -103,16 +106,16 @@ impl QuantumAnalysis {
 /// Calculate probability density for prime generation in this orbital
 fn calculate_probability_density(orbital_type: &OrbitalType, _quantum_numbers: &[u32]) -> f64 {
     match orbital_type {
-        OrbitalType::S => 0.8,  // High density, spherical
-        OrbitalType::P => 0.6,  // Good density, directional
-        OrbitalType::D => 0.4,  // Moderate density, complex
-        OrbitalType::F => 0.2,  // Lower density, very complex
-        OrbitalType::G => 0.1,  // Very low density, exotic
+        OrbitalType::S => 0.8, // High density, spherical
+        OrbitalType::P => 0.6, // Good density, directional
+        OrbitalType::D => 0.4, // Moderate density, complex
+        OrbitalType::F => 0.2, // Lower density, very complex
+        OrbitalType::G => 0.1, // Very low density, exotic
         OrbitalType::Hybrid(k_values) => {
             // Density based on k-value complexity
             let avg_k = k_values.iter().sum::<u32>() as f64 / k_values.len() as f64;
             (1.0 / (1.0 + avg_k * 0.2)).max(0.1)
-        },
+        }
     }
 }
 
@@ -156,33 +159,34 @@ impl QuantumMembraneBuilder {
             orbital_sequence: generate_orbital_sequence(),
         }
     }
-    
+
     /// Get next orbital configuration
     pub fn next_orbital(&mut self) -> Option<QuantumAnalysis> {
         if self.current_orbital >= self.orbital_sequence.len() {
             return None;
         }
-        
+
         let orbital_type = self.orbital_sequence[self.current_orbital].clone();
         let quantum_numbers = vec![self.current_shell, self.current_orbital as u32];
-        
+
         self.current_orbital += 1;
-        
+
         // Move to next shell based on orbital filling rules
         match orbital_type {
-            OrbitalType::S if self.current_orbital % 2 == 0 => self.current_shell += 1,
-            OrbitalType::P if self.current_orbital % 4 == 0 => self.current_shell += 1,
-            OrbitalType::D if self.current_orbital % 6 == 0 => self.current_shell += 1,
-            _ => {},
+            OrbitalType::S if self.current_orbital.is_multiple_of(2) => self.current_shell += 1,
+            OrbitalType::P if self.current_orbital.is_multiple_of(4) => self.current_shell += 1,
+            OrbitalType::D if self.current_orbital.is_multiple_of(6) => self.current_shell += 1,
+            _ => {}
         }
-        
+
         Some(QuantumAnalysis::new(orbital_type, quantum_numbers))
     }
-    
+
     /// Generate membrane configuration for current orbital
     pub fn build_quantum_config(&self, orbital: &QuantumAnalysis) -> MembraneConfig {
-        let (_, _, k_outer, k_inner) = get_orbital_parameters(&orbital.orbital_type, &orbital.quantum_numbers);
-        
+        let (_, _, k_outer, k_inner) =
+            get_orbital_parameters(&orbital.orbital_type, &orbital.quantum_numbers);
+
         MembraneConfig {
             base: self.base,
             outer: 3, // Use good defaults
@@ -208,7 +212,7 @@ mod tests {
         let (_, _, k_outer, k_inner) = get_orbital_parameters(&OrbitalType::D, &[]);
         assert_eq!((k_outer, k_inner), (2, 2)); // d-orbital should have k=2,2
     }
-    
+
     #[test]
     fn test_quantum_analysis() {
         let analysis = QuantumAnalysis::new(OrbitalType::S, vec![1, 0]);
@@ -216,13 +220,13 @@ mod tests {
         assert_eq!(analysis.electron_capacity, 2);
         assert!(analysis.can_host_primes());
     }
-    
+
     #[test]
     fn test_quantum_builder() {
         let mut builder = QuantumMembraneBuilder::new(10);
         let first_orbital = builder.next_orbital();
         assert!(first_orbital.is_some());
-        
+
         let orbital = first_orbital.unwrap();
         let config = builder.build_quantum_config(&orbital);
         assert_eq!(config.base, 10);

@@ -71,8 +71,10 @@ fn main() {
         let base = 2 * midpoint;
         let distance = gap / 2;
 
-        println!("  ({}, {}) → gap={}, midpoint={}, base={}, distance={}",
-                 p, q, gap, midpoint, base, distance);
+        println!(
+            "  ({}, {}) → gap={}, midpoint={}, base={}, distance={}",
+            p, q, gap, midpoint, base, distance
+        );
     }
     println!();
 
@@ -93,13 +95,18 @@ fn main() {
         let base = 2 * midpoint;
         let distance = gap / 2;
 
-        println!("  ({}, {}) → gap={}, midpoint={}, base={}, distance={}",
-                 p, q, gap, midpoint, base, distance);
+        println!(
+            "  ({}, {}) → gap={}, midpoint={}, base={}, distance={}",
+            p, q, gap, midpoint, base, distance
+        );
 
         // Check if this is a phase lock for the base
         let is_phase_lock = check_phase_lock(base as u32, *p as u32, *q as u32, distance as u32);
-        println!("           Phase lock for base {}? {}", base,
-                 if is_phase_lock { "✓" } else { "✗" });
+        println!(
+            "           Phase lock for base {}? {}",
+            base,
+            if is_phase_lock { "✓" } else { "✗" }
+        );
     }
     println!();
 
@@ -121,12 +128,17 @@ fn main() {
         let base = 2 * midpoint;
         let distance = gap / 2;
 
-        println!("  ({}, {}) → gap={}, midpoint={}, base={}, distance={}",
-                 p, q, gap, midpoint, base, distance);
+        println!(
+            "  ({}, {}) → gap={}, midpoint={}, base={}, distance={}",
+            p, q, gap, midpoint, base, distance
+        );
 
         let is_phase_lock = check_phase_lock(base as u32, *p as u32, *q as u32, distance as u32);
-        println!("           Phase lock for base {}? {}", base,
-                 if is_phase_lock { "✓" } else { "✗" });
+        println!(
+            "           Phase lock for base {}? {}",
+            base,
+            if is_phase_lock { "✓" } else { "✗" }
+        );
     }
     println!();
 
@@ -167,7 +179,10 @@ fn main() {
     // Test base 10 with cousin constellation
     println!("Testing (3,7) membrane in base 10...");
     let base10_results = test_constellation_membrane(10, 3, 7, 2, 50);
-    println!("  Success: {}/50 = {:.1}%", base10_results.0, base10_results.1);
+    println!(
+        "  Success: {}/50 = {:.1}%",
+        base10_results.0, base10_results.1
+    );
     println!("  (Compare to our known base 10 (3,7): 18.5% with 100 seeds)");
     println!();
 
@@ -273,8 +288,10 @@ fn construct_simple_membrane(base: u32, left: u32, right: u32, seed: u32) -> Big
     let right_str = format!("{}", right);
     let seed_str = seed.to_string();
 
-    let membrane_str = format!("{}{}{}{}{}",
-        left_str, right_str, seed_str, right_str, left_str);
+    let membrane_str = format!(
+        "{}{}{}{}{}",
+        left_str, right_str, seed_str, right_str, left_str
+    );
 
     base_string_to_biguint(&membrane_str, base)
 }
@@ -308,7 +325,11 @@ fn is_probably_prime(n: &BigUint, rounds: u32) -> bool {
 
     let mut d = n_minus_1.clone();
     let mut r = 0u32;
-    while d.to_u32_digits().first().map_or(false, |&digit| digit % 2 == 0) {
+    while d
+        .to_u32_digits()
+        .first()
+        .map_or(false, |&digit| digit % 2 == 0)
+    {
         d = d / &two;
         r += 1;
     }

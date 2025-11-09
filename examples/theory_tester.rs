@@ -4,9 +4,15 @@ use std::env;
 
 // A simple primality test for small numbers, as the main is_prime is for BigUint
 fn is_small_prime(n: u64) -> bool {
-    if n <= 1 { return false; }
-    if n <= 3 { return true; }
-    if n % 2 == 0 || n % 3 == 0 { return false; }
+    if n <= 1 {
+        return false;
+    }
+    if n <= 3 {
+        return true;
+    }
+    if n % 2 == 0 || n % 3 == 0 {
+        return false;
+    }
     let mut i = 5;
     while i * i <= n {
         if n % i == 0 || n % (i + 2) == 0 {
@@ -21,7 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
     if args.len() != 3 {
         eprintln!("Usage: cargo run --release --example theory_tester -- <body1> <body2>");
-        return Ok(())
+        return Ok(());
     }
     let body1_str = &args[1];
     let body2_str = &args[2];
@@ -49,14 +55,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n[Phase 2: Experiment]");
     let max_space_size = 30; // A quick scan to test the prediction
     let mut total_yield = 0;
-    println!("Running limited resonance scan for space_size 1 to {}...", max_space_size);
+    println!(
+        "Running limited resonance scan for space_size 1 to {}...",
+        max_space_size
+    );
 
     for space_size in 1..=max_space_size {
         let zeros = "0".repeat(space_size);
         for position in 0..space_size {
             for digit in 1..=9 {
                 let mut test_str = zeros.clone();
-                unsafe { test_str.as_bytes_mut()[position] = b'0' + digit as u8; }
+                unsafe {
+                    test_str.as_bytes_mut()[position] = b'0' + digit as u8;
+                }
                 let full_number = format!("{}{}{}", body1_str, test_str, body2_str);
                 if let Ok(num) = full_number.parse::<BigUint>() {
                     if is_prime(&num) {
@@ -66,7 +77,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     }
-    println!("Experimental Result: Total prime yield was {}.", total_yield);
+    println!(
+        "Experimental Result: Total prime yield was {}.",
+        total_yield
+    );
 
     // --- 3. Verification Step ---
     println!("\n[Phase 3: Verification]");

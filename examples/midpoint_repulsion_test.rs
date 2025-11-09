@@ -20,9 +20,9 @@
 // measure symmetry around midpoint,
 // check if successful coordinates avoid Roche zone.
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::HashMap;
 
 fn is_coprime(a: u32, b: u32) -> bool {
@@ -171,10 +171,10 @@ fn main() {
     println!();
 
     let bases_to_test = vec![
-        (6, 1),   // Base 6, φ(6)=2
-        (7, 1),   // Base 7, φ(7)=6, record holder!
-        (14, 1),  // Base 14, φ(14)=6, hexagonal
-        (18, 1),  // Base 18, φ(18)=6, hexagonal
+        (6, 1),  // Base 6, φ(6)=2
+        (7, 1),  // Base 7, φ(7)=6, record holder!
+        (14, 1), // Base 14, φ(14)=6, hexagonal
+        (18, 1), // Base 18, φ(18)=6, hexagonal
     ];
 
     let limit = 1_000_000_000_000u64;
@@ -193,18 +193,30 @@ fn main() {
         let analysis = test_midpoint_repulsion(*base, *middle, limit);
 
         println!("  Midpoint: {}", analysis.midpoint);
-        println!("  Roche radius: R = 2·{}³ = {}", analysis.midpoint, analysis.roche_radius);
+        println!(
+            "  Roche radius: R = 2·{}³ = {}",
+            analysis.midpoint, analysis.roche_radius
+        );
         println!();
 
         // Honorary zero test
         let honorary_zero = analysis.midpoint_hits == 0;
         println!("  HONORARY ZERO TEST:");
-        println!("    Primes at midpoint z={}: {}", analysis.midpoint, analysis.midpoint_hits);
-        println!("    Honorary zero holds? {}", if honorary_zero { "✓ YES" } else { "✗ NO" });
+        println!(
+            "    Primes at midpoint z={}: {}",
+            analysis.midpoint, analysis.midpoint_hits
+        );
+        println!(
+            "    Honorary zero holds? {}",
+            if honorary_zero { "✓ YES" } else { "✗ NO" }
+        );
 
         // Check if midpoint is coprime
         let midpoint_coprime = is_coprime(analysis.midpoint, *base);
-        println!("    Midpoint coprime to base? {}", if midpoint_coprime { "YES" } else { "NO" });
+        println!(
+            "    Midpoint coprime to base? {}",
+            if midpoint_coprime { "YES" } else { "NO" }
+        );
 
         if !midpoint_coprime {
             println!("    → Midpoint excluded by coprimality (φ constraint)");
@@ -213,16 +225,28 @@ fn main() {
 
         // Symmetry test
         println!("  SYMMETRY TEST:");
-        println!("    Average deviation from perfect symmetry: {:.4}", analysis.symmetry_deviation);
-        println!("    Symmetry quality: {}",
-                 if analysis.symmetry_deviation < 0.2 { "✓ EXCELLENT" }
-                 else if analysis.symmetry_deviation < 0.5 { "~ GOOD" }
-                 else { "✗ POOR" });
+        println!(
+            "    Average deviation from perfect symmetry: {:.4}",
+            analysis.symmetry_deviation
+        );
+        println!(
+            "    Symmetry quality: {}",
+            if analysis.symmetry_deviation < 0.2 {
+                "✓ EXCELLENT"
+            } else if analysis.symmetry_deviation < 0.5 {
+                "~ GOOD"
+            } else {
+                "✗ POOR"
+            }
+        );
         println!();
 
         // Roche zone test
         println!("  ROCHE ZONE TEST:");
-        println!("    Primes in Roche zone (|z-mid| < {}): {}", analysis.roche_radius, analysis.in_roche_zone);
+        println!(
+            "    Primes in Roche zone (|z-mid| < {}): {}",
+            analysis.roche_radius, analysis.in_roche_zone
+        );
         println!("    Primes outside Roche zone: {}", analysis.outside_roche);
 
         let zone_fraction = if analysis.total_primes > 0 {
@@ -232,17 +256,21 @@ fn main() {
         };
 
         println!("    Fraction in zone: {:.1}%", zone_fraction);
-        println!("    Orbital stability: {}",
-                 if zone_fraction < 10.0 { "✓ EXCELLENT (mostly stable orbitals)" }
-                 else if zone_fraction < 50.0 { "~ MODERATE" }
-                 else { "✗ POOR (unstable)" });
+        println!(
+            "    Orbital stability: {}",
+            if zone_fraction < 10.0 {
+                "✓ EXCELLENT (mostly stable orbitals)"
+            } else if zone_fraction < 50.0 {
+                "~ MODERATE"
+            } else {
+                "✗ POOR (unstable)"
+            }
+        );
         println!();
 
         // Coordinate distribution
         println!("  COORDINATE DISTRIBUTION:");
-        let coprime_coords: Vec<u32> = (1..*base)
-            .filter(|&z| is_coprime(z, *base))
-            .collect();
+        let coprime_coords: Vec<u32> = (1..*base).filter(|&z| is_coprime(z, *base)).collect();
 
         println!("    Coprime coords (expected active): {:?}", coprime_coords);
         print!("    Actually appearing coords: {{");
@@ -251,13 +279,18 @@ fn main() {
         appearing.sort();
 
         for (i, &z) in appearing.iter().enumerate() {
-            if i > 0 { print!(", "); }
+            if i > 0 {
+                print!(", ");
+            }
             print!("{}", z);
         }
         println!("}}");
 
         let all_coprime = appearing.iter().all(|&z| is_coprime(z, *base));
-        println!("    All coprime? {}", if all_coprime { "✓ YES" } else { "✗ NO" });
+        println!(
+            "    All coprime? {}",
+            if all_coprime { "✓ YES" } else { "✗ NO" }
+        );
         println!();
 
         // Show counts for each coordinate
@@ -271,8 +304,10 @@ fn main() {
             };
 
             let coprime = if is_coprime(z, *base) { "✓" } else { "✗" };
-            println!("      z={:2}: {:3} primes (dist={:2} from mid, coprime={})",
-                     z, count, dist, coprime);
+            println!(
+                "      z={:2}: {:3} primes (dist={:2} from mid, coprime={})",
+                z, count, dist, coprime
+            );
         }
         println!();
     }

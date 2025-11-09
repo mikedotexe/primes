@@ -34,12 +34,12 @@ fn is_prime_simple(n: u32) -> bool {
     if n == 2 {
         return true;
     }
-    if n % 2 == 0 {
+    if n.is_multiple_of(2) {
         return false;
     }
     let mut d = 3;
     while d * d <= n {
-        if n % d == 0 {
+        if n.is_multiple_of(d) {
             return false;
         }
         d += 2;
@@ -52,17 +52,9 @@ fn verify_phase_lock(left: u32, right: u32, base: u32) -> (bool, u32) {
     let sum_correct = (left + right) == base;
     let midpoint = base / 2;
 
-    let left_dist = if left < midpoint {
-        midpoint - left
-    } else {
-        left - midpoint
-    };
+    let left_dist = midpoint.abs_diff(left);
 
-    let right_dist = if right < midpoint {
-        midpoint - right
-    } else {
-        right - midpoint
-    };
+    let right_dist = midpoint.abs_diff(right);
 
     let symmetric = left_dist == right_dist;
     let distance = left_dist;
@@ -85,7 +77,12 @@ fn constellation_membrane(left: u32, right: u32, seed: u32, base: u32) -> BigUin
 }
 
 // Test a configuration
-fn test_config(left: u32, right: u32, base: u32, num_seeds: u32) -> (usize, usize, Vec<(u32, BigUint)>) {
+fn test_config(
+    left: u32,
+    right: u32,
+    base: u32,
+    num_seeds: u32,
+) -> (usize, usize, Vec<(u32, BigUint)>) {
     let mut primes = 0;
     let mut total = 0;
     let mut examples = Vec::new();
@@ -110,9 +107,9 @@ fn calculate_gap(base: u32) -> u32 {
     // For base = 2p + g, and distance = g/2
     // We know base is even, so let's find g
     // This is tricky without knowing p, but we can check if p is prime
-    for p in 2..base/2 {
-        let g = base - 2*p;
-        if g % 2 == 0 && g > 0 {
+    for p in 2..base / 2 {
+        let g = base - 2 * p;
+        if g.is_multiple_of(2) && g > 0 {
             // Check if this makes sense
             let distance = g / 2;
             if distance == 4 {
@@ -210,7 +207,10 @@ fn main() {
         let (primes, total, examples) = test_config(left, right, base, num_seeds);
         let success_rate = (primes as f64) / (total as f64) * 100.0;
 
-        println!("Results: {}/{} primes = {:.1}% success", primes, total, success_rate);
+        println!(
+            "Results: {}/{} primes = {:.1}% success",
+            primes, total, success_rate
+        );
         println!();
 
         if !examples.is_empty() {
@@ -218,7 +218,12 @@ fn main() {
             for (seed, prime) in &examples {
                 let prime_str = prime.to_string();
                 if prime_str.len() > 30 {
-                    println!("  Seed {}: {}... ({} digits)", seed, &prime_str[..30], prime_str.len());
+                    println!(
+                        "  Seed {}: {}... ({} digits)",
+                        seed,
+                        &prime_str[..30],
+                        prime_str.len()
+                    );
                 } else {
                     println!("  Seed {}: {}", seed, prime);
                 }
@@ -308,7 +313,10 @@ fn main() {
     } else if overall_error < 50.0 {
         println!("~ PARTIAL VALIDATION");
         println!();
-        println!("The prediction is within {:.0}%, suggesting the power law", overall_error);
+        println!(
+            "The prediction is within {:.0}%, suggesting the power law",
+            overall_error
+        );
         println!("captures the general trend but may need refinement:");
         println!("  - Include base-specific corrections");
         println!("  - Adjust coefficient k or exponent α");
@@ -316,7 +324,10 @@ fn main() {
     } else {
         println!("✗ POWER LAW FAILS AT DISTANCE 4");
         println!();
-        println!("The {:.0}% error suggests the power law doesn't extrapolate.", overall_error);
+        println!(
+            "The {:.0}% error suggests the power law doesn't extrapolate.",
+            overall_error
+        );
         println!("Possible explanations:");
         println!("  - Power law valid only for d=1-3");
         println!("  - Different scaling regime at d≥4");

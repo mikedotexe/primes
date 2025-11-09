@@ -14,9 +14,9 @@
 // 3. Verify outer coordinate constraint = 6 for all
 // 4. Look for hexagonal patterns
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::HashSet;
 
 fn totient(n: u32) -> u32 {
@@ -25,8 +25,8 @@ fn totient(n: u32) -> u32 {
     let mut p = 2;
 
     while p * p <= n_mut {
-        if n_mut % p == 0 {
-            while n_mut % p == 0 {
+        if n_mut.is_multiple_of(p) {
+            while n_mut.is_multiple_of(p) {
                 n_mut /= p;
             }
             result -= result / p;
@@ -133,7 +133,9 @@ fn main() {
         let coprime_vals: Vec<u32> = (1..base).filter(|&v| is_coprime(v, base)).collect();
         print!("  Coprime values: {{");
         for (i, &v) in coprime_vals.iter().enumerate() {
-            if i > 0 { print!(", "); }
+            if i > 0 {
+                print!(", ");
+            }
             print!("{}", v);
         }
         println!("}}");
@@ -142,11 +144,12 @@ fn main() {
         println!("  Phase lock pairs:");
         let mut found_pairs = Vec::new();
         for i in 0..coprime_vals.len() {
-            for j in i+1..coprime_vals.len() {
+            for j in i + 1..coprime_vals.len() {
                 if coprime_vals[i] + coprime_vals[j] == base {
-                    println!("    ({}, {}) → {} + {} = {}",
-                             coprime_vals[i], coprime_vals[j],
-                             coprime_vals[i], coprime_vals[j], base);
+                    println!(
+                        "    ({}, {}) → {} + {} = {}",
+                        coprime_vals[i], coprime_vals[j], coprime_vals[i], coprime_vals[j], base
+                    );
                     found_pairs.push((coprime_vals[i], coprime_vals[j]));
                 }
             }
@@ -171,15 +174,26 @@ fn main() {
         let mut sorted: Vec<_> = outer_coords.iter().collect();
         sorted.sort();
         for (i, v) in sorted.iter().enumerate() {
-            if i > 0 { print!(", "); }
+            if i > 0 {
+                print!(", ");
+            }
             print!("{}", v);
         }
         println!("}}");
 
         let all_coprime = outer_coords.iter().all(|&v| is_coprime(v, base));
-        println!("  All coprime? {}", if all_coprime { "✓ YES" } else { "✗ NO" });
-        println!("  |coords| = φ(base)? {}",
-                 if outer_coords.len() == phi as usize { "✓ YES" } else { "✗ NO" });
+        println!(
+            "  All coprime? {}",
+            if all_coprime { "✓ YES" } else { "✗ NO" }
+        );
+        println!(
+            "  |coords| = φ(base)? {}",
+            if outer_coords.len() == phi as usize {
+                "✓ YES"
+            } else {
+                "✗ NO"
+            }
+        );
         println!();
 
         results.push((base, phi, count, rate, outer_coords.len()));
@@ -195,24 +209,36 @@ fn main() {
     println!("├──────┼──────┼─────────┼──────────┼────────────┤");
 
     for (base, phi, count, rate, coords) in &results {
-        let phi_match = if *coords == *phi as usize { "✓" } else { "✗" };
-        println!("│  {:2}  │  {}  │  {:5}  │  {:6.2}% │     {} {}    │",
-                 base, phi, count, rate, coords, phi_match);
+        let phi_match = if *coords == *phi as usize {
+            "✓"
+        } else {
+            "✗"
+        };
+        println!(
+            "│  {:2}  │  {}  │  {:5}  │  {:6.2}% │     {} {}    │",
+            base, phi, count, rate, coords, phi_match
+        );
     }
 
     println!("└──────┴──────┴─────────┴──────────┴────────────┘");
     println!();
 
     // Find best performer
-    let best = results.iter().max_by(|a, b| {
-        a.3.partial_cmp(&b.3).unwrap()
-    }).unwrap();
+    let best = results
+        .iter()
+        .max_by(|a, b| a.3.partial_cmp(&b.3).unwrap())
+        .unwrap();
 
-    println!("Best performer: Base {} with {:.2}% success", best.0, best.3);
+    println!(
+        "Best performer: Base {} with {:.2}% success",
+        best.0, best.3
+    );
     println!();
 
     // Check if ALL match φ(base)=6
-    let all_match = results.iter().all(|(_, phi, _, _, coords)| *coords == *phi as usize);
+    let all_match = results
+        .iter()
+        .all(|(_, phi, _, _, coords)| *coords == *phi as usize);
 
     if all_match {
         println!("🎉 THEOREM CONFIRMED:");
@@ -270,9 +296,19 @@ fn main() {
     println!();
 
     println!("3. OPTIMAL RANGE:");
-    println!("   Success rates: {:.2}% - {:.2}%",
-             results.iter().map(|r| r.3).min_by(|a, b| a.partial_cmp(b).unwrap()).unwrap(),
-             results.iter().map(|r| r.3).max_by(|a, b| a.partial_cmp(b).unwrap()).unwrap());
+    println!(
+        "   Success rates: {:.2}% - {:.2}%",
+        results
+            .iter()
+            .map(|r| r.3)
+            .min_by(|a, b| a.partial_cmp(b).unwrap())
+            .unwrap(),
+        results
+            .iter()
+            .map(|r| r.3)
+            .max_by(|a, b| a.partial_cmp(b).unwrap())
+            .unwrap()
+    );
     println!("   Base {} performs best at {:.2}%", best.0, best.3);
     println!();
 

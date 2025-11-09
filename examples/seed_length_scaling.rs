@@ -57,10 +57,14 @@ fn main() {
 
         println!();
         println!("Results:");
-        println!("  Single membrane: {:2}/{} = {:5.1}%  (avg size: {} digits)",
-                 single_count, tests_per_length, single_pct, single_avg_size);
-        println!("  Nested membrane: {:2}/{} = {:5.1}%  (avg size: {} digits)",
-                 nested_count, tests_per_length, nested_pct, nested_avg_size);
+        println!(
+            "  Single membrane: {:2}/{} = {:5.1}%  (avg size: {} digits)",
+            single_count, tests_per_length, single_pct, single_avg_size
+        );
+        println!(
+            "  Nested membrane: {:2}/{} = {:5.1}%  (avg size: {} digits)",
+            nested_count, tests_per_length, nested_pct, nested_avg_size
+        );
 
         let diff = nested_count as i32 - single_count as i32;
         if diff > 0 {
@@ -72,7 +76,13 @@ fn main() {
         }
         println!();
 
-        results.push((seed_len, single_pct, nested_pct, single_avg_size, nested_avg_size));
+        results.push((
+            seed_len,
+            single_pct,
+            nested_pct,
+            single_avg_size,
+            nested_avg_size,
+        ));
     }
 
     println!("═══════════════════════════════════════════════════════════════");
@@ -97,8 +107,10 @@ fn main() {
             "Similar"
         };
 
-        println!("│   {:2}     │  {:5.1}%  │  {:5.1}%  │ {:+6.1} │ {:19} │",
-                 len, single, nested, delta, interpretation);
+        println!(
+            "│   {:2}     │  {:5.1}%  │  {:5.1}%  │ {:+6.1} │ {:19} │",
+            len, single, nested, delta, interpretation
+        );
     }
     println!("└──────────┴──────────┴──────────┴────────┴─────────────────────┘\n");
 
@@ -109,7 +121,7 @@ fn main() {
 
     // Check if single membrane drops
     let first_single = results[0].1;
-    let last_single = results[results.len()-1].1;
+    let last_single = results[results.len() - 1].1;
     let single_drop = first_single - last_single;
 
     println!("Single Membrane Trend:");
@@ -140,7 +152,7 @@ fn main() {
     } else {
         // Check trend
         let first_nested = results[0].2;
-        let last_nested = results[results.len()-1].2;
+        let last_nested = results[results.len() - 1].2;
         let nested_drop = first_nested - last_nested;
 
         println!("Nested Membrane Trend:");
@@ -152,8 +164,10 @@ fn main() {
         if nested_drop < single_drop {
             println!("~ PARTIAL SIGNAL");
             println!();
-            println!("Nested drops less than single ({:.1} vs {:.1} points).",
-                     nested_drop, single_drop);
+            println!(
+                "Nested drops less than single ({:.1} vs {:.1} points).",
+                nested_drop, single_drop
+            );
             println!("This suggests nested structure is MORE STABLE under scaling.");
             println!();
             println!("Hypothesis: Benefit would emerge at even longer seeds (8-10 digits).");
@@ -174,7 +188,10 @@ fn main() {
     println!("═══════════════════════════════════════════════════════════════\n");
 
     if crossover_found {
-        println!("✓ Double-membrane validated at seed length {}", crossover_len);
+        println!(
+            "✓ Double-membrane validated at seed length {}",
+            crossover_len
+        );
         println!();
         println!("Structure SCALES as hypothesized.");
         println!("Simple → Complex transition observed empirically.");
@@ -208,7 +225,11 @@ fn test_single_at_length(seed_len: u32, count: usize) -> (usize, usize) {
         }
     }
 
-    let avg_digits = if successes > 0 { total_digits / successes } else { 0 };
+    let avg_digits = if successes > 0 {
+        total_digits / successes
+    } else {
+        0
+    };
     (successes, avg_digits)
 }
 
@@ -228,7 +249,11 @@ fn test_nested_at_length(seed_len: u32, count: usize) -> (usize, usize) {
         }
     }
 
-    let avg_digits = if successes > 0 { total_digits / successes } else { 0 };
+    let avg_digits = if successes > 0 {
+        total_digits / successes
+    } else {
+        0
+    };
     (successes, avg_digits)
 }
 
@@ -237,8 +262,10 @@ fn construct_single_membrane_u64(base: u32, outer: u32, inner: u32, seed: u32) -
     let inner_str = format!("{}", inner);
     let seed_str = seed.to_string();
 
-    let membrane_str = format!("{}{}{}{}{}",
-        outer_str, inner_str, seed_str, inner_str, outer_str);
+    let membrane_str = format!(
+        "{}{}{}{}{}",
+        outer_str, inner_str, seed_str, inner_str, outer_str
+    );
 
     base_string_to_biguint(&membrane_str, base)
 }
@@ -257,8 +284,7 @@ fn construct_nested_membrane_u64(
     let ir = format!("{}", inner_right);
     let seed_str = seed.to_string();
 
-    let membrane_str = format!("{}0{}{}{}{}{}0{}",
-        ol, il, ir, seed_str, ir, il, or);
+    let membrane_str = format!("{}0{}{}{}{}{}0{}", ol, il, ir, seed_str, ir, il, or);
 
     base_string_to_biguint(&membrane_str, base)
 }
@@ -286,7 +312,7 @@ fn is_probably_prime(n: &BigUint, rounds: u32) -> bool {
     if n == &BigUint::from(2u32) || n == &BigUint::from(3u32) {
         return true;
     }
-    if n.to_u32_digits().first().map_or(false, |&d| d % 2 == 0) {
+    if n.to_u32_digits().first().is_some_and(|&d| d % 2 == 0) {
         return false;
     }
 
@@ -296,8 +322,12 @@ fn is_probably_prime(n: &BigUint, rounds: u32) -> bool {
 
     let mut d = n_minus_1.clone();
     let mut r = 0u32;
-    while d.to_u32_digits().first().map_or(false, |&digit| digit % 2 == 0) {
-        d = d / &two;
+    while d
+        .to_u32_digits()
+        .first()
+        .is_some_and(|&digit| digit % 2 == 0)
+    {
+        d /= &two;
         r += 1;
     }
 
@@ -332,7 +362,7 @@ fn random_range(min: &BigUint, max: &BigUint) -> BigUint {
     }
 
     let range = max - min;
-    let bytes_needed = ((range.bits() + 7) / 8) as usize;
+    let bytes_needed = range.bits().div_ceil(8) as usize;
 
     let mut bytes = vec![0u8; bytes_needed];
     for (i, byte) in bytes.iter_mut().enumerate() {

@@ -23,9 +23,9 @@
 // 4. Also compare to Poisson: P(s) = e^(-s)
 // 5. Use KS test and χ² test for statistical validation
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::f64::consts::PI;
 
 fn is_coprime(a: u32, b: u32) -> bool {
@@ -82,7 +82,10 @@ fn compute_spacings(primes: &[BigUint]) -> Vec<f64> {
     let mut gaps = Vec::new();
     for i in 0..primes.len() - 1 {
         // Convert gap to f64 for statistical analysis
-        let gap = (&primes[i + 1] - &primes[i]).to_string().parse::<f64>().unwrap_or(0.0);
+        let gap = (&primes[i + 1] - &primes[i])
+            .to_string()
+            .parse::<f64>()
+            .unwrap_or(0.0);
         gaps.push(gap);
     }
 
@@ -123,7 +126,12 @@ fn create_histogram(spacings: &[f64], bins: usize) -> (Vec<f64>, Vec<f64>) {
     (bin_centers, histogram)
 }
 
-fn chi_squared_test(observed: &[f64], expected_fn: fn(f64) -> f64, bin_centers: &[f64], bin_width: f64) -> f64 {
+fn chi_squared_test(
+    observed: &[f64],
+    expected_fn: fn(f64) -> f64,
+    bin_centers: &[f64],
+    bin_width: f64,
+) -> f64 {
     let mut chi2 = 0.0;
     let n_total = observed.iter().sum::<f64>() * bin_width; // Convert density back to counts
 
@@ -233,14 +241,21 @@ fn main() {
 
         // Basic statistics
         let mean = spacings.iter().sum::<f64>() / spacings.len() as f64;
-        let variance = spacings.iter().map(|s| (s - mean).powi(2)).sum::<f64>() / spacings.len() as f64;
+        let variance =
+            spacings.iter().map(|s| (s - mean).powi(2)).sum::<f64>() / spacings.len() as f64;
         let std_dev = variance.sqrt();
 
         println!("  SPACING STATISTICS:");
         println!("    Mean: {:.4} (normalized to 1.0)", mean);
         println!("    Std dev: {:.4}", std_dev);
-        println!("    Min spacing: {:.4}", spacings.iter().cloned().fold(f64::INFINITY, f64::min));
-        println!("    Max spacing: {:.4}", spacings.iter().cloned().fold(0.0f64, f64::max));
+        println!(
+            "    Min spacing: {:.4}",
+            spacings.iter().cloned().fold(f64::INFINITY, f64::min)
+        );
+        println!(
+            "    Max spacing: {:.4}",
+            spacings.iter().cloned().fold(0.0f64, f64::max)
+        );
         println!();
 
         // Count very small spacings (repulsion test)
@@ -249,9 +264,17 @@ fn main() {
         let small_fraction = small_count as f64 / spacings.len() as f64;
 
         println!("  REPULSION TEST:");
-        println!("    Spacings < {}: {} ({:.1}%)", small_threshold, small_count, small_fraction * 100.0);
+        println!(
+            "    Spacings < {}: {} ({:.1}%)",
+            small_threshold,
+            small_count,
+            small_fraction * 100.0
+        );
         println!("    GUE predicts: {:.1}%", gue_cdf(small_threshold) * 100.0);
-        println!("    Poisson predicts: {:.1}%", poisson_cdf(small_threshold) * 100.0);
+        println!(
+            "    Poisson predicts: {:.1}%",
+            poisson_cdf(small_threshold) * 100.0
+        );
         println!();
 
         if small_fraction < 0.1 {
@@ -266,7 +289,11 @@ fn main() {
         // Create histogram
         let bins = 20;
         let (bin_centers, histogram) = create_histogram(&spacings, bins);
-        let bin_width = if bin_centers.len() > 1 { bin_centers[1] - bin_centers[0] } else { 1.0 };
+        let bin_width = if bin_centers.len() > 1 {
+            bin_centers[1] - bin_centers[0]
+        } else {
+            1.0
+        };
 
         // Chi-squared tests
         let chi2_gue = chi_squared_test(&histogram, gue_pdf, &bin_centers, bin_width);
@@ -277,9 +304,15 @@ fn main() {
         println!("    χ² statistic vs Poisson: {:.2}", chi2_poisson);
 
         if chi2_gue < chi2_poisson {
-            println!("    → Better fit to GUE (ratio: {:.2})", chi2_poisson / chi2_gue);
+            println!(
+                "    → Better fit to GUE (ratio: {:.2})",
+                chi2_poisson / chi2_gue
+            );
         } else {
-            println!("    → Better fit to Poisson (ratio: {:.2})", chi2_gue / chi2_poisson);
+            println!(
+                "    → Better fit to Poisson (ratio: {:.2})",
+                chi2_gue / chi2_poisson
+            );
         }
         println!();
 
@@ -303,7 +336,8 @@ fn main() {
         println!();
         println!("   s     Obs   GUE  Poi");
 
-        for i in 0..bins.min(15) {  // Show first 15 bins
+        for i in 0..bins.min(15) {
+            // Show first 15 bins
             let s = bin_centers[i];
             let obs = histogram[i];
             let gue = gue_pdf(s);

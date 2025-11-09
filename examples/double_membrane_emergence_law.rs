@@ -75,7 +75,10 @@ fn main() {
 
         for test_base in &[6, 10, 22, 26, 30] {
             let predicted = k * (*test_base as f64).powf(*alpha);
-            println!("      Base {}: crossover at length {:.1}", test_base, predicted);
+            println!(
+                "      Base {}: crossover at length {:.1}",
+                test_base, predicted
+            );
         }
         println!();
     }
@@ -121,8 +124,10 @@ fn main() {
     for base in &[6, 10, 14, 22, 26] {
         let p = base / 2;
         let predicted_crossover = (2.0 / p as f64) * (*base as f64);
-        println!("  Base {} (p={}): predicted crossover = {:.1}",
-                 base, p, predicted_crossover);
+        println!(
+            "  Base {} (p={}): predicted crossover = {:.1}",
+            base, p, predicted_crossover
+        );
     }
     println!();
 
@@ -130,8 +135,10 @@ fn main() {
     for base in &[6, 10, 14, 22, 26] {
         let p = base / 2;
         let predicted_crossover = (*base as f64) / (p as f64);
-        println!("  Base {} (p={}): predicted crossover = {:.1}",
-                 base, p, predicted_crossover);
+        println!(
+            "  Base {} (p={}): predicted crossover = {:.1}",
+            base, p, predicted_crossover
+        );
     }
     println!();
 
@@ -254,7 +261,14 @@ fn main() {
     let predicted_14 = phi * (density_14 * base_14.powf(alpha));
     println!("  φ × (0.571 × 14^0.5) = {:.1}", predicted_14);
     println!("  Observed: 4");
-    println!("  Match? {}", if (predicted_14 - 4.0).abs() < 1.0 { "✓" } else { "~" });
+    println!(
+        "  Match? {}",
+        if (predicted_14 - 4.0).abs() < 1.0 {
+            "✓"
+        } else {
+            "~"
+        }
+    );
     println!();
 
     println!("═══════════════════════════════════════════════════════════════");
@@ -274,8 +288,10 @@ fn main() {
 
     for (base, density) in &bases_and_densities {
         let predicted = phi * density * (*base as f64).powf(0.5);
-        println!("  Base {}: crossover at length {:.1} (density={:.3})",
-                 base, predicted, density);
+        println!(
+            "  Base {}: crossover at length {:.1} (density={:.3})",
+            base, predicted, density
+        );
     }
     println!();
 

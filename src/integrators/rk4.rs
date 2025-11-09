@@ -1,12 +1,12 @@
 //! Fourth-Order Runge-Kutta Integration
 //! ====================================
-//! 
+//!
 //! Classic RK4 integration for comparison with symplectic methods.
 //! Good accuracy but doesn't preserve symplectic structure.
 
 use super::Integrator;
-use crate::PhysicsResult;
 use crate::gravity::PrimeParticle;
+use crate::PhysicsResult;
 
 /// Standard RK4 integrator
 pub struct RK4Integrator {
@@ -34,32 +34,32 @@ impl Integrator for RK4Integrator {
         time: f64,
     ) -> PhysicsResult<()> {
         self.dt = dt;
-        
+
         // For now, just do simple Euler integration
         // Full RK4 would require force recalculation at intermediate steps
         for (particle, force) in particles.iter_mut().zip(forces.iter()) {
             let ax = force[0] / particle.mass;
             let ay = force[1] / particle.mass;
-            
+
             // Update velocity
             particle.velocity[0] += ax * dt;
             particle.velocity[1] += ay * dt;
-            
+
             // Update position
             particle.position[0] += particle.velocity[0] * dt;
             particle.position[1] += particle.velocity[1] * dt;
-            
+
             // Record trajectory
             particle.record_trajectory(time, [ax, ay]);
         }
-        
+
         Ok(())
     }
-    
+
     fn get_last_dt(&self) -> f64 {
         self.dt
     }
-    
+
     fn reset(&mut self) {
         // Nothing to reset for basic RK4
     }

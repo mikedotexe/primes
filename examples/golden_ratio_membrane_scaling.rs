@@ -27,9 +27,9 @@
 use num_bigint::BigUint;
 use num_traits::{One, Zero};
 
-const PHI: f64 = 1.618033988749;  // Golden ratio
-const PHI_SQUARED: f64 = 2.618033988749;  // φ²
-const PHI_INV: f64 = 0.618033988749;  // 1/φ
+const PHI: f64 = 1.618033988749; // Golden ratio
+const PHI_SQUARED: f64 = 2.618033988749; // φ²
+const PHI_INV: f64 = 0.618033988749; // 1/φ
 
 fn main() {
     println!("╔════════════════════════════════════════════════════════════════╗");
@@ -58,25 +58,39 @@ fn main() {
     println!("│  n  │ F(n) │ F(n+1)/F(n) │  Error from φ  │");
     println!("├─────┼──────┼─────────────┼────────────────┤");
 
-    for i in 0..fib.len()-1 {
-        let ratio = fib[i+1] as f64 / fib[i] as f64;
+    for i in 0..fib.len() - 1 {
+        let ratio = fib[i + 1] as f64 / fib[i] as f64;
         let error = (ratio - PHI).abs();
         let converging = if i > 0 {
-            let prev_error = (fib[i] as f64 / fib[i-1] as f64 - PHI).abs();
-            if error < prev_error { "→ φ" } else { "   " }
-        } else { "   " };
+            let prev_error = (fib[i] as f64 / fib[i - 1] as f64 - PHI).abs();
+            if error < prev_error {
+                "→ φ"
+            } else {
+                "   "
+            }
+        } else {
+            "   "
+        };
 
-        let special = if fib[i] == 3 && fib[i+1] == 5 {
+        let special = if fib[i] == 3 && fib[i + 1] == 5 {
             "  ← Observed in base 14!"
-        } else { "" };
+        } else {
+            ""
+        };
 
-        println!("│ {:3} │ {:4} │   {:.6}    │     {:.6}     │ {}{}",
-                 i, fib[i], ratio, error, converging, special);
+        println!(
+            "│ {:3} │ {:4} │   {:.6}    │     {:.6}     │ {}{}",
+            i, fib[i], ratio, error, converging, special
+        );
     }
     println!("└─────┴──────┴─────────────┴────────────────┘\n");
 
     println!("Key observation:");
-    println!("  5/3 = {:.6} (error: {:.6})", 5.0/3.0, (5.0/3.0 - PHI).abs());
+    println!(
+        "  5/3 = {:.6} (error: {:.6})",
+        5.0 / 3.0,
+        (5.0 / 3.0 - PHI).abs()
+    );
     println!("  This is the ratio we observed: nested/single ≈ 15/9 = 5/3");
     println!();
 
@@ -88,10 +102,10 @@ fn main() {
     println!();
 
     let base14_data = vec![
-        (1, 14, 12, 8, 13),   // (seed_len, single_%, nested_%, single_size, nested_size)
+        (1, 14, 12, 8, 13), // (seed_len, single_%, nested_%, single_size, nested_size)
         (2, 16, 6, 9, 14),
         (3, 16, 12, 10, 15),
-        (4, 2, 8, 11, 17),     // ← Crossover!
+        (4, 2, 8, 11, 17), // ← Crossover!
         (5, 10, 10, 12, 18),
         (6, 8, 10, 14, 19),
         (7, 12, 10, 15, 20),
@@ -103,34 +117,44 @@ fn main() {
 
     for (len, single_pct, nested_pct, single_size, nested_size) in &base14_data {
         let ratio = *nested_size as f64 / *single_size as f64;
-        let winner = if nested_pct > single_pct { "Nested" }
-                     else if single_pct > nested_pct { "Single" }
-                     else { "Tie   " };
+        let winner = if nested_pct > single_pct {
+            "Nested"
+        } else if single_pct > nested_pct {
+            "Single"
+        } else {
+            "Tie   "
+        };
 
         let special = if *len == 4 { "  ← Crossover" } else { "" };
 
-        println!("│  {}   │  {:2}%   │  {:2}%   │   {}   │   {}   │  {:.3}  │ {}{}",
-                 len, single_pct, nested_pct, single_size, nested_size,
-                 ratio, winner, special);
+        println!(
+            "│  {}   │  {:2}%   │  {:2}%   │   {}   │   {}   │  {:.3}  │ {}{}",
+            len, single_pct, nested_pct, single_size, nested_size, ratio, winner, special
+        );
     }
     println!("└──────┴────────┴────────┴────────┴────────┴─────────┘\n");
 
     println!("Analysis:");
     println!("  At crossover (length 4):");
-    println!("    Nested size / Single size = 17 / 11 = {:.6}", 17.0/11.0);
+    println!(
+        "    Nested size / Single size = 17 / 11 = {:.6}",
+        17.0 / 11.0
+    );
     println!("    Average ratio = {:.6}", 1.545);
     println!();
     println!("  Overall average:");
-    let avg_ratio = base14_data.iter()
+    let avg_ratio = base14_data
+        .iter()
         .map(|(_, _, _, s, n)| *n as f64 / *s as f64)
-        .sum::<f64>() / base14_data.len() as f64;
+        .sum::<f64>()
+        / base14_data.len() as f64;
     println!("    Mean size ratio = {:.6}", avg_ratio);
     println!("    φ = {:.6}", PHI);
     println!("    Error: {:.6}", (avg_ratio - PHI).abs());
     println!();
 
     println!("  Fibonacci approximation:");
-    println!("    15/9 = 5/3 = {:.6}", 5.0/3.0);
+    println!("    15/9 = 5/3 = {:.6}", 5.0 / 3.0);
     println!("    This is F₅/F₄ (Fibonacci ratio before φ convergence)");
     println!();
 
@@ -142,9 +166,9 @@ fn main() {
     println!();
 
     let bases_and_data = vec![
-        (6,  0.667, 4.0),  // (base, density, observed_crossover_or_unknown)
-        (10, 0.400, 0.0),  // 0.0 = not yet tested
-        (14, 0.571, 4.0),  // Known!
+        (6, 0.667, 4.0),  // (base, density, observed_crossover_or_unknown)
+        (10, 0.400, 0.0), // 0.0 = not yet tested
+        (14, 0.571, 4.0), // Known!
         (22, 0.364, 0.0),
         (26, 0.308, 0.0),
         (30, 0.333, 0.0),
@@ -174,8 +198,10 @@ fn main() {
             "Test".to_string()
         };
 
-        println!("│  {}  │  {:.3}  │  {:.3}  │      {:.2}       │   {}   │  {}",
-                 base, density, sqrt_base, predicted, obs_str, status);
+        println!(
+            "│  {}  │  {:.3}  │  {:.3}  │      {:.2}       │   {}   │  {}",
+            base, density, sqrt_base, predicted, obs_str, status
+        );
     }
     println!("└──────┴─────────┴─────────┴─────────────────┴──────────┴────────┘\n");
 
@@ -211,13 +237,18 @@ fn main() {
         let formula = if n == 1 {
             "√14          ".to_string()
         } else {
-            format!("φ^{} × √14    ", n-1)
+            format!("φ^{} × √14    ", n - 1)
         };
 
-        let emergence = if n == 1 { "  -  " }
-                       else if n == 2 { " ~4  " }
-                       else if n == 3 { " ~7? " }
-                       else { "  ?  " };
+        let emergence = if n == 1 {
+            "  -  "
+        } else if n == 2 {
+            " ~4  "
+        } else if n == 3 {
+            " ~7? "
+        } else {
+            "  ?  "
+        };
 
         let shell_name = match n {
             1 => "Single",
@@ -228,7 +259,10 @@ fn main() {
             _ => "N     ",
         };
 
-        println!("│  {} │ {} │   {:.2}   │    {}   │", shell_name, formula, capacity, emergence);
+        println!(
+            "│  {} │ {} │   {:.2}   │    {}   │",
+            shell_name, formula, capacity, emergence
+        );
     }
     println!("└────────┴────────────────┴──────────┴───────────┘\n");
 
@@ -288,9 +322,16 @@ fn main() {
     let b6_l2_nested = test_nested_membrane(6, 1, 5, 10, 2, 2);
     println!("    Single: {}/10 = {}%", b6_l2_single, b6_l2_single * 10);
     println!("    Nested: {}/10 = {}%", b6_l2_nested, b6_l2_nested * 10);
-    println!("    Winner: {}", if b6_l2_nested > b6_l2_single { "Nested" }
-                                 else if b6_l2_single > b6_l2_nested { "Single" }
-                                 else { "Tie" });
+    println!(
+        "    Winner: {}",
+        if b6_l2_nested > b6_l2_single {
+            "Nested"
+        } else if b6_l2_single > b6_l2_nested {
+            "Single"
+        } else {
+            "Tie"
+        }
+    );
     println!();
 
     println!("  Length 3:");
@@ -298,9 +339,16 @@ fn main() {
     let b6_l3_nested = test_nested_membrane(6, 1, 5, 10, 3, 3);
     println!("    Single: {}/10 = {}%", b6_l3_single, b6_l3_single * 10);
     println!("    Nested: {}/10 = {}%", b6_l3_nested, b6_l3_nested * 10);
-    println!("    Winner: {}", if b6_l3_nested > b6_l3_single { "Nested" }
-                                 else if b6_l3_single > b6_l3_nested { "Single" }
-                                 else { "Tie" });
+    println!(
+        "    Winner: {}",
+        if b6_l3_nested > b6_l3_single {
+            "Nested"
+        } else if b6_l3_single > b6_l3_nested {
+            "Single"
+        } else {
+            "Tie"
+        }
+    );
     println!();
 
     println!("═══════════════════════════════════════════════════════════════");
@@ -441,9 +489,10 @@ fn construct_membrane(
     let zeros1 = "0".repeat(k1);
     let zeros2 = "0".repeat(k2);
 
-    let membrane_str = format!("{}{}{}{}{}{}{}{}{}",
-        outer_str, zeros1, inner_str, zeros2, seed_str,
-        zeros2, inner_str, zeros1, outer_str);
+    let membrane_str = format!(
+        "{}{}{}{}{}{}{}{}{}",
+        outer_str, zeros1, inner_str, zeros2, seed_str, zeros2, inner_str, zeros1, outer_str
+    );
 
     base_string_to_biguint(&membrane_str, base)
 }
@@ -454,9 +503,10 @@ fn construct_nested(base: u32, outer: u32, inner: u32, seed: u32) -> BigUint {
     let inner_str = format!("{}", inner);
     let seed_str = seed.to_string();
 
-    let membrane_str = format!("{}0{}0{}{}{}0{}0{}",
-        outer_str, inner_str, outer_str, seed_str,
-        outer_str, inner_str, outer_str);
+    let membrane_str = format!(
+        "{}0{}0{}{}{}0{}0{}",
+        outer_str, inner_str, outer_str, seed_str, outer_str, inner_str, outer_str
+    );
 
     base_string_to_biguint(&membrane_str, base)
 }
@@ -490,7 +540,11 @@ fn is_probably_prime(n: &BigUint, rounds: u32) -> bool {
 
     let mut d = n_minus_1.clone();
     let mut r = 0u32;
-    while d.to_u32_digits().first().map_or(false, |&digit| digit % 2 == 0) {
+    while d
+        .to_u32_digits()
+        .first()
+        .map_or(false, |&digit| digit % 2 == 0)
+    {
         d = d / &two;
         r += 1;
     }

@@ -25,8 +25,8 @@ use prime_physics_engine::is_prime;
 #[derive(Debug, Clone)]
 struct TripletPattern {
     name: &'static str,
-    gaps: &'static [u32],  // Gaps from first prime
-    base_multiplier: u32,  // How to compute base from p
+    gaps: &'static [u32], // Gaps from first prime
+    base_multiplier: u32, // How to compute base from p
 }
 
 // Standard admissible triplet patterns

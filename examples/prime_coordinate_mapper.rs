@@ -80,10 +80,10 @@
 //!
 //! The bridge: **Not all coordinates are created equal. Some favor primality.**
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
-use std::collections::HashMap;
+use prime_physics_engine::is_prime;
 use rand::Rng;
+use std::collections::HashMap;
 
 // ============================================================================
 // N× TRANSFORM DECOMPOSITION
@@ -124,14 +124,16 @@ fn decompose_prime(p: u64, base: u64, n: u64) -> Vec<NTransformDecomposition> {
         assert_eq!((r + k * base) / n, p);
 
         // Compute residues for all k values
-        let residues: Vec<u64> = (0..n)
-            .map(|ki| (r + ki * base) % n)
-            .collect();
+        let residues: Vec<u64> = (0..n).map(|ki| (r + ki * base) % n).collect();
 
         // Check trio universality (N=3, gcd(B,N)=1 → residues are {0,1,2})
         let trio = n == 3
-                   && gcd_bn == 1
-                   && residues.iter().collect::<std::collections::HashSet<_>>().len() == 3;
+            && gcd_bn == 1
+            && residues
+                .iter()
+                .collect::<std::collections::HashSet<_>>()
+                .len()
+                == 3;
 
         decompositions.push(NTransformDecomposition {
             prime: p,
@@ -166,7 +168,7 @@ fn check_membrane_favorability(decomp: &NTransformDecomposition) -> MembraneChec
 
     // 1. Coprimality check: should be coprime to 2,3,5,7,11
     let small_primes = [2u64, 3, 5, 7, 11];
-    let coprime = small_primes.iter().all(|&sp| p % sp != 0);
+    let coprime = small_primes.iter().all(|&sp| !p.is_multiple_of(sp));
 
     // 2. Boundary digit match check
     let boundary_match = match decomp.base {
@@ -299,7 +301,10 @@ fn batch_analyze(source: &str, count: usize, bases: &[u64]) -> BatchResults {
     let mut total_favorable: HashMap<u64, usize> = HashMap::new();
     let mut primes_analyzed = 0;
 
-    println!("Generating {} {} primes for batch analysis...", count, source);
+    println!(
+        "Generating {} {} primes for batch analysis...",
+        count, source
+    );
 
     for i in 0..count {
         let prime = match source {
@@ -321,7 +326,8 @@ fn batch_analyze(source: &str, count: usize, bases: &[u64]) -> BatchResults {
         // Analyze in each base
         for &base in bases {
             let decomps = decompose_prime(prime, base, 3);
-            let favorable_count = decomps.iter()
+            let favorable_count = decomps
+                .iter()
                 .filter(|d| check_membrane_favorability(d).favorable)
                 .count();
 
@@ -338,10 +344,9 @@ fn batch_analyze(source: &str, count: usize, bases: &[u64]) -> BatchResults {
     println!();
 
     // Calculate averages
-    let avg_favorable: HashMap<u64, f64> = total_favorable.iter()
-        .map(|(&base, &total)| {
-            (base, total as f64 / primes_analyzed as f64)
-        })
+    let avg_favorable: HashMap<u64, f64> = total_favorable
+        .iter()
+        .map(|(&base, &total)| (base, total as f64 / primes_analyzed as f64))
         .collect();
 
     BatchResults {
@@ -377,9 +382,11 @@ fn main() {
 
     let batch_mode = args.iter().any(|a| a == "--batch");
 
-    let bases_str = parse_arg(&args, "--bases")
-        .unwrap_or_else(|| "6,10,30".to_string());
-    let bases: Vec<u64> = bases_str.split(',').filter_map(|s| s.trim().parse().ok()).collect();
+    let bases_str = parse_arg(&args, "--bases").unwrap_or_else(|| "6,10,30".to_string());
+    let bases: Vec<u64> = bases_str
+        .split(',')
+        .filter_map(|s| s.trim().parse().ok())
+        .collect();
 
     if batch_mode {
         // BATCH MODE
@@ -387,8 +394,7 @@ fn main() {
             .and_then(|s| s.parse().ok())
             .unwrap_or(100);
 
-        let source = parse_arg(&args, "--source")
-            .unwrap_or_else(|| "both".to_string());
+        let source = parse_arg(&args, "--source").unwrap_or_else(|| "both".to_string());
 
         println!("Running batch analysis: {} primes", count);
         println!("Bases: {:?}", bases);
@@ -411,7 +417,10 @@ fn main() {
         println!();
 
         for result in &results {
-            println!("SOURCE: {} ({} primes analyzed)", result.source, result.primes_analyzed);
+            println!(
+                "SOURCE: {} ({} primes analyzed)",
+                result.source, result.primes_analyzed
+            );
             println!("Average favorable coordinates per base (out of 3 total):");
             for &base in &bases {
                 let avg = result.avg_favorable_coords.get(&base).unwrap_or(&0.0);
@@ -435,7 +444,6 @@ fn main() {
                 println!("  Base {}: membrane/random ratio = {:.2}x", base, ratio);
             }
         }
-
     } else {
         // SINGLE PRIME MODE
         let prime = parse_arg(&args, "--prime")
@@ -449,14 +457,18 @@ fn main() {
 
         for &base in &bases {
             println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-            println!("BASE {} ANALYSIS (gcd({},{})={})", base, base, 3, gcd(base, 3));
+            println!(
+                "BASE {} ANALYSIS (gcd({},{})={})",
+                base,
+                base,
+                3,
+                gcd(base, 3)
+            );
             println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             println!();
 
             let decomps = decompose_prime(prime, base, 3);
-            let scored: Vec<CoordinateScore> = decomps.into_iter()
-                .map(score_coordinate)
-                .collect();
+            let scored: Vec<CoordinateScore> = decomps.into_iter().map(score_coordinate).collect();
 
             for cs in &scored {
                 let d = &cs.decomposition;
@@ -464,19 +476,35 @@ fn main() {
 
                 println!("  k={}: r={}", d.k, d.r);
                 println!("    Residues: {:?}", d.residues);
-                println!("    Trio universal: {}", if d.trio_universal { "YES" } else { "NO" });
-                println!("    Coprime to {{2,3,5,7,11}}: {}", if check.coprime_to_small { "YES" } else { "NO" });
+                println!(
+                    "    Trio universal: {}",
+                    if d.trio_universal { "YES" } else { "NO" }
+                );
+                println!(
+                    "    Coprime to {{2,3,5,7,11}}: {}",
+                    if check.coprime_to_small { "YES" } else { "NO" }
+                );
                 if let Some(ref pattern) = check.boundary_match {
                     println!("    Membrane pattern match: {}", pattern);
                 }
                 println!("    Symmetry score: {:.1}", check.symmetry_score);
-                println!("    FAVORABLE: {} (score: {:.1}/100)", if check.favorable { "YES" } else { "NO" }, cs.score);
+                println!(
+                    "    FAVORABLE: {} (score: {:.1}/100)",
+                    if check.favorable { "YES" } else { "NO" },
+                    cs.score
+                );
                 println!();
             }
 
-            let favorable_count = scored.iter().filter(|cs| cs.membrane_check.favorable).count();
+            let favorable_count = scored
+                .iter()
+                .filter(|cs| cs.membrane_check.favorable)
+                .count();
             let pct = (favorable_count as f64 / 3.0) * 100.0;
-            println!("  Favorable coordinates: {}/3 ({:.1}%)", favorable_count, pct);
+            println!(
+                "  Favorable coordinates: {}/3 ({:.1}%)",
+                favorable_count, pct
+            );
             println!();
         }
 
@@ -492,8 +520,14 @@ fn main() {
             all_scored.extend(decomps.into_iter().map(score_coordinate));
         }
 
-        if let Some(best) = all_scored.iter().max_by(|a, b| a.score.partial_cmp(&b.score).unwrap()) {
-            println!("Base {}, k={}, r={}", best.decomposition.base, best.decomposition.k, best.decomposition.r);
+        if let Some(best) = all_scored
+            .iter()
+            .max_by(|a, b| a.score.partial_cmp(&b.score).unwrap())
+        {
+            println!(
+                "Base {}, k={}, r={}",
+                best.decomposition.base, best.decomposition.k, best.decomposition.r
+            );
             println!("  Trio universal: {}", best.decomposition.trio_universal);
             println!("  Coprime: {}", best.membrane_check.coprime_to_small);
             if let Some(ref pattern) = best.membrane_check.boundary_match {

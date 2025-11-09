@@ -269,10 +269,7 @@ fn main() {
     let r2_pow = r_squared(&successes, &predicted_pow);
 
     println!("H4: Power Law Model");
-    println!(
-        "  Formula: success(d) = {:.2} × d^(-{:.2})",
-        a_pow, -b_pow
-    );
+    println!("  Formula: success(d) = {:.2} × d^(-{:.2})", a_pow, -b_pow);
     println!("  R² = {:.4}", r2_pow);
     println!("  Predictions:");
     for (i, &d) in distances.iter().enumerate() {
@@ -335,14 +332,32 @@ fn main() {
         println!("Interpretation:");
         println!("  - Base success rate: ~{:.1}% (intercept)", a_lin);
         println!("  - Each unit of distance costs ~{:.1}% success", b_lin);
-        println!("  - At distance 1 (twin): {:.1}%", linear_model(1.0, a_lin, b_lin));
-        println!("  - At distance 2 (cousin): {:.1}%", linear_model(2.0, a_lin, b_lin));
-        println!("  - At distance 3 (sexy): {:.1}%", linear_model(3.0, a_lin, b_lin));
+        println!(
+            "  - At distance 1 (twin): {:.1}%",
+            linear_model(1.0, a_lin, b_lin)
+        );
+        println!(
+            "  - At distance 2 (cousin): {:.1}%",
+            linear_model(2.0, a_lin, b_lin)
+        );
+        println!(
+            "  - At distance 3 (sexy): {:.1}%",
+            linear_model(3.0, a_lin, b_lin)
+        );
         println!();
         println!("Extrapolation to larger gaps:");
-        println!("  - Distance 4 (gap 8): {:.1}%", linear_model(4.0, a_lin, b_lin));
-        println!("  - Distance 5 (gap 10): {:.1}%", linear_model(5.0, a_lin, b_lin));
-        println!("  - Distance 6 (gap 12): {:.1}%", linear_model(6.0, a_lin, b_lin));
+        println!(
+            "  - Distance 4 (gap 8): {:.1}%",
+            linear_model(4.0, a_lin, b_lin)
+        );
+        println!(
+            "  - Distance 5 (gap 10): {:.1}%",
+            linear_model(5.0, a_lin, b_lin)
+        );
+        println!(
+            "  - Distance 6 (gap 12): {:.1}%",
+            linear_model(6.0, a_lin, b_lin)
+        );
     } else if best_model == "Inverse" {
         println!("The INVERSE model best describes the data:");
         println!("  success(d) = {:.2}/d", k_inv);
@@ -364,9 +379,18 @@ fn main() {
         println!("  - Half-life: {:.2} units", 0.693 / b_exp);
         println!();
         println!("Extrapolation:");
-        println!("  - Distance 4: {:.1}%", exponential_model(4.0, a_exp, b_exp));
-        println!("  - Distance 5: {:.1}%", exponential_model(5.0, a_exp, b_exp));
-        println!("  - Distance 6: {:.1}%", exponential_model(6.0, a_exp, b_exp));
+        println!(
+            "  - Distance 4: {:.1}%",
+            exponential_model(4.0, a_exp, b_exp)
+        );
+        println!(
+            "  - Distance 5: {:.1}%",
+            exponential_model(5.0, a_exp, b_exp)
+        );
+        println!(
+            "  - Distance 6: {:.1}%",
+            exponential_model(6.0, a_exp, b_exp)
+        );
     } else {
         println!("The POWER LAW model best describes the data:");
         println!("  success(d) = {:.2} × d^(-{:.2})", a_pow, -b_pow);
@@ -376,9 +400,18 @@ fn main() {
         println!("  - Exponent {:.2} indicates decay rate", -b_pow);
         println!();
         println!("Extrapolation:");
-        println!("  - Distance 4: {:.1}%", power_law_model(4.0, a_pow, -b_pow));
-        println!("  - Distance 5: {:.1}%", power_law_model(5.0, a_pow, -b_pow));
-        println!("  - Distance 6: {:.1}%", power_law_model(6.0, a_pow, -b_pow));
+        println!(
+            "  - Distance 4: {:.1}%",
+            power_law_model(4.0, a_pow, -b_pow)
+        );
+        println!(
+            "  - Distance 5: {:.1}%",
+            power_law_model(5.0, a_pow, -b_pow)
+        );
+        println!(
+            "  - Distance 6: {:.1}%",
+            power_law_model(6.0, a_pow, -b_pow)
+        );
     }
 
     println!();
@@ -387,7 +420,10 @@ fn main() {
     println!("═══════════════════════════════════════════════════════════════");
     println!();
 
-    println!("To validate the {} model, test constellations at:", best_model);
+    println!(
+        "To validate the {} model, test constellations at:",
+        best_model
+    );
     println!();
     println!("  Distance 4 (gap 8):");
     println!("    Example: (3, 11) in base 22");
@@ -398,5 +434,8 @@ fn main() {
     println!("    Example: (7, 17) in base 34");
     println!();
     println!("If predictions match observations (within ~20%), the");
-    println!("{} law is validated for constellation success rates.", best_model);
+    println!(
+        "{} law is validated for constellation success rates.",
+        best_model
+    );
 }

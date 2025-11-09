@@ -1,12 +1,12 @@
 // src/optimization/telemetry.rs
 //! Real-time telemetry and performance monitoring
 
-use std::sync::{Arc, Mutex};
-use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
-use std::time::{Duration, Instant};
-use std::collections::{HashMap, VecDeque};
+use super::{Architecture, CacheSizes, CpuInfo, SystemContext};
 use crate::PhysicsError;
-use super::{SystemContext, CpuInfo, Architecture, CacheSizes};
+use std::collections::{HashMap, VecDeque};
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 /// Comprehensive telemetry system
 pub struct TelemetrySystem {
@@ -15,10 +15,10 @@ pub struct TelemetrySystem {
     cache_monitor: CacheMonitor,
     memory_monitor: MemoryMonitor,
     thermal_monitor: ThermalMonitor,
-    
+
     /// Performance tracking
     perf_history: Arc<Mutex<PerformanceHistory>>,
-    
+
     /// Anomaly detection
     anomaly_detector: AnomalyDetector,
 }
@@ -40,7 +40,7 @@ impl TelemetrySystem {
             anomaly_detector: AnomalyDetector::new(),
         }
     }
-    
+
     /// Capture current system context
     pub fn capture_context(&self) -> SystemContext {
         SystemContext {
@@ -52,7 +52,7 @@ impl TelemetrySystem {
             cache_sizes: self.cache_monitor.get_sizes(),
         }
     }
-    
+
     /// Take a performance snapshot
     pub fn snapshot(&self) -> Snapshot {
         Snapshot {
@@ -65,31 +65,31 @@ impl TelemetrySystem {
             power: self.get_power_estimate(),
         }
     }
-    
+
     /// Record optimization success
     pub fn record_optimization_success(&self, strategy: &str, feedback: &super::Feedback) {
         let mut history = self.perf_history.lock().unwrap();
         history.record_success(strategy, feedback);
     }
-    
+
     /// Record optimization failure
     pub fn record_optimization_failure(&self, strategy: &str, error: &PhysicsError) {
         let mut history = self.perf_history.lock().unwrap();
         history.record_failure(strategy, error);
     }
-    
+
     /// Get current throughput estimate
     fn get_current_throughput(&self) -> f64 {
         // Simplified - would read from actual monitoring
         500_000_000.0
     }
-    
+
     /// Get current latency estimate
     fn get_current_latency(&self) -> Duration {
         // Simplified - would read from actual monitoring
         Duration::from_micros(100)
     }
-    
+
     /// Get power consumption estimate
     fn get_power_estimate(&self) -> f64 {
         // Simplified - would integrate with platform power APIs
@@ -122,7 +122,7 @@ impl CpuMonitor {
             load_samples: Arc::new(Mutex::new(VecDeque::with_capacity(100))),
         }
     }
-    
+
     fn get_info(&self) -> CpuInfo {
         CpuInfo {
             arch: Self::detect_architecture(),
@@ -133,7 +133,7 @@ impl CpuMonitor {
             has_sve: Self::detect_sve(),
         }
     }
-    
+
     fn get_frequency(&self) -> f64 {
         let samples = self.frequency_samples.lock().unwrap();
         if samples.is_empty() {
@@ -142,7 +142,7 @@ impl CpuMonitor {
             samples.iter().sum::<f64>() / samples.len() as f64
         }
     }
-    
+
     fn get_load(&self) -> f64 {
         let samples = self.load_samples.lock().unwrap();
         if samples.is_empty() {
@@ -151,55 +151,77 @@ impl CpuMonitor {
             samples.iter().sum::<f64>() / samples.len() as f64
         }
     }
-    
+
     #[cfg(target_arch = "x86_64")]
-    fn detect_architecture() -> Architecture { Architecture::X86_64 }
-    
+    fn detect_architecture() -> Architecture {
+        Architecture::X86_64
+    }
+
     #[cfg(target_arch = "aarch64")]
-    fn detect_architecture() -> Architecture { Architecture::AArch64 }
-    
+    fn detect_architecture() -> Architecture {
+        Architecture::AArch64
+    }
+
     #[cfg(target_arch = "wasm32")]
-    fn detect_architecture() -> Architecture { Architecture::Wasm32 }
-    
-    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "wasm32")))]
-    fn detect_architecture() -> Architecture { Architecture::Other }
-    
+    fn detect_architecture() -> Architecture {
+        Architecture::Wasm32
+    }
+
+    #[cfg(not(any(
+        target_arch = "x86_64",
+        target_arch = "aarch64",
+        target_arch = "wasm32"
+    )))]
+    fn detect_architecture() -> Architecture {
+        Architecture::Other
+    }
+
     fn detect_core_count() -> usize {
         std::thread::available_parallelism()
             .map(|p| p.get())
             .unwrap_or(1)
     }
-    
+
     #[cfg(target_arch = "x86_64")]
     fn detect_avx2() -> bool {
         std::is_x86_feature_detected!("avx2")
     }
-    
+
     #[cfg(not(target_arch = "x86_64"))]
-    fn detect_avx2() -> bool { false }
-    
+    fn detect_avx2() -> bool {
+        false
+    }
+
     #[cfg(target_arch = "x86_64")]
     fn detect_avx512() -> bool {
         std::is_x86_feature_detected!("avx512f")
     }
-    
+
     #[cfg(not(target_arch = "x86_64"))]
-    fn detect_avx512() -> bool { false }
-    
+    fn detect_avx512() -> bool {
+        false
+    }
+
     #[cfg(target_arch = "aarch64")]
-    fn detect_neon() -> bool { true } // NEON is mandatory on AArch64
-    
+    fn detect_neon() -> bool {
+        true
+    } // NEON is mandatory on AArch64
+
     #[cfg(not(target_arch = "aarch64"))]
-    fn detect_neon() -> bool { false }
-    
+    fn detect_neon() -> bool {
+        false
+    }
+
     #[cfg(target_arch = "aarch64")]
     fn detect_sve() -> bool {
         // Would need runtime detection - simplified for now
         false
     }
-    
+
     #[cfg(not(target_arch = "aarch64"))]
-    fn detect_sve() -> bool { false }
+    fn detect_sve() -> bool {
+        false
+    }
 }
 
 /// Cache monitoring subsystem
@@ -215,36 +237,36 @@ impl CacheMonitor {
             misses: AtomicU64::new(0),
         }
     }
-    
+
     fn get_sizes(&self) -> CacheSizes {
         // Platform-specific cache detection
         #[cfg(target_os = "macos")]
         {
             CacheSizes {
-                l1d: 128 * 1024,  // 128 KB on M1/M2
-                l2: 12 * 1024 * 1024,  // 12 MB shared
-                l3: 0,  // No L3 on Apple Silicon
+                l1d: 128 * 1024,      // 128 KB on M1/M2
+                l2: 12 * 1024 * 1024, // 12 MB shared
+                l3: 0,                // No L3 on Apple Silicon
             }
         }
-        
+
         #[cfg(not(target_os = "macos"))]
         {
             CacheSizes {
-                l1d: 32 * 1024,   // Typical L1D
-                l2: 256 * 1024,   // Typical L2
-                l3: 8 * 1024 * 1024,  // Typical L3
+                l1d: 32 * 1024,      // Typical L1D
+                l2: 256 * 1024,      // Typical L2
+                l3: 8 * 1024 * 1024, // Typical L3
             }
         }
     }
-    
+
     fn get_hits(&self) -> u64 {
         self.hits.load(Ordering::Relaxed)
     }
-    
+
     fn get_misses(&self) -> u64 {
         self.misses.load(Ordering::Relaxed)
     }
-    
+
     pub fn record_access(&self, hit: bool) {
         if hit {
             self.hits.fetch_add(1, Ordering::Relaxed);
@@ -267,25 +289,25 @@ impl MemoryMonitor {
             peak: AtomicUsize::new(0),
         }
     }
-    
+
     fn get_available(&self) -> usize {
         // Simplified - would use system APIs
         #[cfg(target_arch = "wasm32")]
         const MEMORY_LIMIT: usize = 2_147_483_648; // 2 GB max for WASM
         #[cfg(not(target_arch = "wasm32"))]
         const MEMORY_LIMIT: usize = 8 * 1024 * 1024 * 1024; // 8 GB
-        
+
         MEMORY_LIMIT
     }
-    
+
     fn get_used(&self) -> usize {
         self.used.load(Ordering::Relaxed)
     }
-    
+
     pub fn record_allocation(&self, bytes: usize) {
         let new_used = self.used.fetch_add(bytes, Ordering::Relaxed) + bytes;
         let mut peak = self.peak.load(Ordering::Relaxed);
-        
+
         while new_used > peak {
             match self.peak.compare_exchange_weak(
                 peak,
@@ -298,7 +320,7 @@ impl MemoryMonitor {
             }
         }
     }
-    
+
     pub fn record_deallocation(&self, bytes: usize) {
         self.used.fetch_sub(bytes, Ordering::Relaxed);
     }
@@ -315,7 +337,7 @@ impl ThermalMonitor {
             temperature_samples: Arc::new(Mutex::new(VecDeque::with_capacity(100))),
         }
     }
-    
+
     fn get_pressure(&self) -> f64 {
         let samples = self.temperature_samples.lock().unwrap();
         if samples.is_empty() {
@@ -326,7 +348,7 @@ impl ThermalMonitor {
             ((avg_temp - 40.0) / 60.0).clamp(0.0, 1.0)
         }
     }
-    
+
     pub fn record_temperature(&self, temp_celsius: f64) {
         let mut samples = self.temperature_samples.lock().unwrap();
         if samples.len() >= 100 {
@@ -365,33 +387,33 @@ impl PerformanceHistory {
             max_history: 1000,
         }
     }
-    
+
     fn record_success(&mut self, strategy: &str, feedback: &super::Feedback) {
         let record = SuccessRecord {
             timestamp: Instant::now(),
             improvement: feedback.metrics_delta.throughput_change,
             context: format!("{:?}", feedback.metrics_delta),
         };
-        
+
         let entries = self.successes.entry(strategy.to_string()).or_default();
         entries.push(record);
-        
+
         // Limit history size
         if entries.len() > self.max_history {
             entries.remove(0);
         }
     }
-    
+
     fn record_failure(&mut self, strategy: &str, error: &PhysicsError) {
         let record = FailureRecord {
             timestamp: Instant::now(),
             error: error.to_string(),
             context: String::new(),
         };
-        
+
         let entries = self.failures.entry(strategy.to_string()).or_default();
         entries.push(record);
-        
+
         // Limit history size
         if entries.len() > self.max_history {
             entries.remove(0);
@@ -442,18 +464,18 @@ impl AnomalyDetector {
     fn new() -> Self {
         Self {
             thresholds: AnomalyThresholds {
-                throughput_drop: 0.3,  // 30% drop
-                latency_spike: 2.0,    // 2x increase
-                memory_spike: 1.5,     // 50% increase
-                cache_miss_rate: 0.5,  // 50% misses
+                throughput_drop: 0.3, // 30% drop
+                latency_spike: 2.0,   // 2x increase
+                memory_spike: 1.5,    // 50% increase
+                cache_miss_rate: 0.5, // 50% misses
             },
             recent_anomalies: Arc::new(Mutex::new(VecDeque::with_capacity(100))),
         }
     }
-    
+
     pub fn check(&self, before: &Snapshot, after: &Snapshot) -> Vec<Anomaly> {
         let mut anomalies = Vec::new();
-        
+
         // Check throughput drop
         let throughput_ratio = after.throughput / before.throughput;
         if throughput_ratio < (1.0 - self.thresholds.throughput_drop) {
@@ -461,10 +483,13 @@ impl AnomalyDetector {
                 timestamp: Instant::now(),
                 anomaly_type: AnomalyType::PerformanceDrop,
                 severity: Severity::High,
-                description: format!("Throughput dropped by {:.1}%", (1.0 - throughput_ratio) * 100.0),
+                description: format!(
+                    "Throughput dropped by {:.1}%",
+                    (1.0 - throughput_ratio) * 100.0
+                ),
             });
         }
-        
+
         // Check latency spike
         let latency_ratio = after.latency.as_secs_f64() / before.latency.as_secs_f64();
         if latency_ratio > self.thresholds.latency_spike {
@@ -475,9 +500,10 @@ impl AnomalyDetector {
                 description: format!("Latency increased by {latency_ratio:.1}x"),
             });
         }
-        
+
         // Check cache performance
-        let after_miss_rate = after.cache_misses as f64 / (after.cache_hits + after.cache_misses) as f64;
+        let after_miss_rate =
+            after.cache_misses as f64 / (after.cache_hits + after.cache_misses) as f64;
         if after_miss_rate > self.thresholds.cache_miss_rate {
             anomalies.push(Anomaly {
                 timestamp: Instant::now(),
@@ -486,7 +512,7 @@ impl AnomalyDetector {
                 description: format!("Cache miss rate: {:.1}%", after_miss_rate * 100.0),
             });
         }
-        
+
         // Record anomalies
         if !anomalies.is_empty() {
             let mut recent = self.recent_anomalies.lock().unwrap();
@@ -497,7 +523,7 @@ impl AnomalyDetector {
                 }
             }
         }
-        
+
         anomalies
     }
 }

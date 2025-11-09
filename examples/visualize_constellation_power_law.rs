@@ -52,8 +52,8 @@ fn fit_power_law(data: &[DataPoint]) -> (f64, f64, f64) {
         .map(|p| p.distance.ln() * p.success_rate.ln())
         .sum();
 
-    let b = (n * sum_log_x_log_y - sum_log_x * sum_log_y)
-        / (n * sum_log_x_sq - sum_log_x * sum_log_x);
+    let b =
+        (n * sum_log_x_log_y - sum_log_x * sum_log_y) / (n * sum_log_x_sq - sum_log_x * sum_log_x);
     let log_a = (sum_log_y - b * sum_log_x) / n;
     let a = log_a.exp();
 
@@ -75,7 +75,10 @@ fn fit_power_law(data: &[DataPoint]) -> (f64, f64, f64) {
 // Fit constrained inverse sqrt
 fn fit_inverse_sqrt(data: &[DataPoint]) -> (f64, f64) {
     // Minimize (y - k/√x)² → k = mean(y*√x)
-    let sum: f64 = data.iter().map(|p| p.success_rate * p.distance.sqrt()).sum();
+    let sum: f64 = data
+        .iter()
+        .map(|p| p.success_rate * p.distance.sqrt())
+        .sum();
     let k = sum / data.len() as f64;
 
     // Compute R²
@@ -163,11 +166,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     // Create visualization
-    let root = BitMapBackend::new(
-        "visualizations/constellation_power_law.png",
-        (1600, 1200),
-    )
-    .into_drawing_area();
+    let root = BitMapBackend::new("visualizations/constellation_power_law.png", (1600, 1200))
+        .into_drawing_area();
     root.fill(&WHITE)?;
 
     let root = root.titled("Constellation Power Law Analysis", ("sans-serif", 40))?;
@@ -230,7 +230,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Power law (free exponent)
         chart
             .draw_series(LineSeries::new(
-                d_values.iter().map(|&d| (d, power_law(d, a_power, b_power))),
+                d_values
+                    .iter()
+                    .map(|&d| (d, power_law(d, a_power, b_power))),
                 &RED,
             ))?
             .label(format!("Power: d^{:.3} (R²={:.3})", b_power, r2_power))
@@ -264,10 +266,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             })
             .collect();
 
-        let max_residual = residuals
-            .iter()
-            .map(|(_, r)| r.abs())
-            .fold(0.0, f64::max);
+        let max_residual = residuals.iter().map(|(_, r)| r.abs()).fold(0.0, f64::max);
 
         let mut chart = ChartBuilder::on(&upper_right)
             .caption("Residuals (Obs - Pred)", ("sans-serif", 20))
@@ -400,7 +399,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             extrap_points
                 .iter()
                 .map(|(d, pred, ci)| (*d, pred + ci))
-                .chain(extrap_points.iter().rev().map(|(d, pred, ci)| (*d, pred - ci))),
+                .chain(
+                    extrap_points
+                        .iter()
+                        .rev()
+                        .map(|(d, pred, ci)| (*d, pred - ci)),
+                ),
             0.0,
             BLUE.mix(0.2).filled(),
         ))?;

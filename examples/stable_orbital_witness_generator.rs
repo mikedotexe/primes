@@ -9,9 +9,9 @@
 //
 // This is the dynamic complement to static honorary zero verification.
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::{HashMap, HashSet};
 
 fn is_coprime(a: u32, b: u32) -> bool {
@@ -51,22 +51,28 @@ struct ResidueData {
 fn collect_residue_distribution(base: u32, limit: u64) -> Vec<ResidueData> {
     let midpoint = base / 2;
 
-    let middle_values: Vec<u32> = (1..base)
-        .filter(|&m| is_coprime(m, base))
-        .collect();
+    let middle_values: Vec<u32> = (1..base).filter(|&m| is_coprime(m, base)).collect();
 
     let mut residue_counts: HashMap<u32, usize> = HashMap::new();
 
     for &middle in &middle_values {
         for z in 1..base {
-            if !is_coprime(z, base) { continue; }
+            if !is_coprime(z, base) {
+                continue;
+            }
             for y in 1..base {
-                if !is_coprime(y, base) { continue; }
+                if !is_coprime(y, base) {
+                    continue;
+                }
                 for x in 1..base {
-                    if !is_coprime(x, base) { continue; }
+                    if !is_coprime(x, base) {
+                        continue;
+                    }
 
                     let candidate = septuplet_membrane(middle, x, y, z, base);
-                    if candidate > BigUint::from(limit) { continue; }
+                    if candidate > BigUint::from(limit) {
+                        continue;
+                    }
 
                     if is_prime(&candidate) {
                         // Track residues of x, y, z coordinates
@@ -103,10 +109,7 @@ fn generate_agda_witness(base: u32, data: &[ResidueData]) -> String {
     let midpoint = base / 2;
 
     // Find minimum distance (this becomes our exclusion radius R)
-    let min_dist = data.iter()
-        .map(|d| d.distance_from_mid)
-        .min()
-        .unwrap_or(0);
+    let min_dist = data.iter().map(|d| d.distance_from_mid).min().unwrap_or(0);
 
     // Verify all residues maintain minimum distance
     let all_safe = data.iter().all(|d| d.distance_from_mid >= min_dist);
@@ -123,27 +126,36 @@ fn generate_agda_witness(base: u32, data: &[ResidueData]) -> String {
     agda_code.push_str(&format!("-- Base {} Stable Orbital Witness\n", base));
     agda_code.push_str(&format!("-- Midpoint: {}\n", midpoint));
     agda_code.push_str(&format!("-- Exclusion radius R: {}\n", min_dist));
-    agda_code.push_str(&format!("-- Honorary zero: {}\n", if midpoint_present { "VIOLATED!" } else { "✓" }));
+    agda_code.push_str(&format!(
+        "-- Honorary zero: {}\n",
+        if midpoint_present { "VIOLATED!" } else { "✓" }
+    ));
     agda_code.push_str(&format!("-- Unique residues: {}\n\n", data.len()));
 
     // Generate the residue list
     let residues: Vec<u32> = data.iter().map(|d| d.residue).collect();
 
     agda_code.push_str(&format!("base{}-residues : List Nat\n", base));
-    agda_code.push_str(&format!("base{}-residues = {}\n\n", base,
+    agda_code.push_str(&format!(
+        "base{}-residues = {}\n\n",
+        base,
         if residues.is_empty() {
             "[]".to_string()
         } else {
-            residues.iter()
+            residues
+                .iter()
                 .map(|r| format!("{}", r))
                 .collect::<Vec<_>>()
-                .join(" ∷ ") + " ∷ []"
+                .join(" ∷ ")
+                + " ∷ []"
         }
     ));
 
     // Generate the stable orbital witness
-    agda_code.push_str(&format!("base{}-stable : StableOrbital {} {} base{}-residues\n",
-        base, min_dist, midpoint, base));
+    agda_code.push_str(&format!(
+        "base{}-stable : StableOrbital {} {} base{}-residues\n",
+        base, min_dist, midpoint, base
+    ));
     agda_code.push_str(&format!("base{}-stable = ", base));
 
     // Construct nested stableCons
@@ -151,12 +163,18 @@ fn generate_agda_witness(base: u32, data: &[ResidueData]) -> String {
         agda_code.push_str("stableNil\n");
     } else {
         for (i, &r) in residues.iter().enumerate() {
-            let dist = if r > midpoint { r - midpoint } else { midpoint - r };
+            let dist = if r > midpoint {
+                r - midpoint
+            } else {
+                midpoint - r
+            };
 
             // Generate the proof term (simplified - would need full ≤ proofs)
             agda_code.push_str("stableCons\n");
-            agda_code.push_str(&format!("  {! Proof: {} ≤ |{} - {}| = {} !}\n",
-                min_dist, r, midpoint, dist));
+            agda_code.push_str(&format!(
+                "  {! Proof: {} ≤ |{} - {}| = {} !}\n",
+                min_dist, r, midpoint, dist
+            ));
 
             if i == residues.len() - 1 {
                 agda_code.push_str("  stableNil");
@@ -176,13 +194,22 @@ fn generate_agda_witness(base: u32, data: &[ResidueData]) -> String {
     // Generate distance verification table
     agda_code.push_str(&format!("-- Distance verification:\n"));
     for d in data {
-        agda_code.push_str(&format!("--   Residue {:2}: |{:2} - {:2}| = {:2} {} {}\n",
+        agda_code.push_str(&format!(
+            "--   Residue {:2}: |{:2} - {:2}| = {:2} {} {}\n",
             d.residue,
             d.residue,
             midpoint,
             d.distance_from_mid,
-            if d.distance_from_mid >= min_dist { "✓" } else { "✗" },
-            if d.residue == midpoint { "(MIDPOINT!)" } else { "" }
+            if d.distance_from_mid >= min_dist {
+                "✓"
+            } else {
+                "✗"
+            },
+            if d.residue == midpoint {
+                "(MIDPOINT!)"
+            } else {
+                ""
+            }
         ));
     }
 
@@ -218,7 +245,14 @@ fn main() {
         println!("  Base: {}", base);
         println!("  φ({}): {}", base, phi);
         println!("  Midpoint: {}", midpoint);
-        println!("  Midpoint coprime: {}", if mid_coprime { "YES (exception!)" } else { "NO (honorary zero expected)" });
+        println!(
+            "  Midpoint coprime: {}",
+            if mid_coprime {
+                "YES (exception!)"
+            } else {
+                "NO (honorary zero expected)"
+            }
+        );
         println!();
 
         println!("  Collecting coordinate constellation primes...");
@@ -232,26 +266,28 @@ fn main() {
         }
 
         // Static invariant check
-        let midpoint_count = data.iter()
+        let midpoint_count = data
+            .iter()
             .find(|d| d.residue == midpoint)
             .map(|d| d.count)
             .unwrap_or(0);
 
         println!("  STATIC INVARIANT (Honorary Zero):");
         println!("    Count at midpoint {}: {}", midpoint, midpoint_count);
-        println!("    Honorary zero: {}", if midpoint_count == 0 { "✓ HOLDS" } else { "✗ VIOLATED" });
+        println!(
+            "    Honorary zero: {}",
+            if midpoint_count == 0 {
+                "✓ HOLDS"
+            } else {
+                "✗ VIOLATED"
+            }
+        );
         println!();
 
         // Dynamic invariant analysis
-        let min_dist = data.iter()
-            .map(|d| d.distance_from_mid)
-            .min()
-            .unwrap_or(0);
+        let min_dist = data.iter().map(|d| d.distance_from_mid).min().unwrap_or(0);
 
-        let max_dist = data.iter()
-            .map(|d| d.distance_from_mid)
-            .max()
-            .unwrap_or(0);
+        let max_dist = data.iter().map(|d| d.distance_from_mid).max().unwrap_or(0);
 
         println!("  DYNAMIC INVARIANT (Stable Orbital):");
         println!("    Minimum distance from mid: {}", min_dist);
@@ -261,12 +297,18 @@ fn main() {
 
         // Check if all residues satisfy SafePos
         let all_safe = data.iter().all(|d| d.distance_from_mid >= min_dist);
-        println!("    All residues maintain R ≤ |r - mid|: {}", if all_safe { "✓" } else { "✗" });
+        println!(
+            "    All residues maintain R ≤ |r - mid|: {}",
+            if all_safe { "✓" } else { "✗" }
+        );
         println!();
 
         // Generate Agda witness
         println!("  AGDA WITNESS CODE:");
-        println!("{}", "  " + &generate_agda_witness(base, &data).replace("\n", "\n  "));
+        println!(
+            "{}",
+            "  " + &generate_agda_witness(base, &data).replace("\n", "\n  ")
+        );
         println!();
     }
 

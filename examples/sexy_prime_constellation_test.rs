@@ -20,12 +20,12 @@ use prime_physics_engine::is_prime;
 
 // Sexy prime pairs and their corresponding bases
 const SEXY_PRIME_PAIRS: &[(u32, u32, u32)] = &[
-    (5, 11, 16),   // base = 2×5 + 6 = 16
-    (7, 13, 20),   // base = 2×7 + 6 = 20
-    (11, 17, 28),  // base = 2×11 + 6 = 28
-    (13, 19, 32),  // base = 2×13 + 6 = 32
-    (17, 23, 40),  // base = 2×17 + 6 = 40
-    (23, 29, 52),  // base = 2×23 + 6 = 52
+    (5, 11, 16),  // base = 2×5 + 6 = 16
+    (7, 13, 20),  // base = 2×7 + 6 = 20
+    (11, 17, 28), // base = 2×11 + 6 = 28
+    (13, 19, 32), // base = 2×13 + 6 = 32
+    (17, 23, 40), // base = 2×17 + 6 = 40
+    (23, 29, 52), // base = 2×23 + 6 = 52
 ];
 
 // Generate simple membrane using sexy prime constellation
@@ -168,7 +168,10 @@ fn main() {
         let (primes, total, examples) = test_sexy_prime_config(left, right, base, num_seeds);
         let success_rate = (primes as f64) / (total as f64) * 100.0;
 
-        println!("Results: {}/{} primes = {:.1}% success", primes, total, success_rate);
+        println!(
+            "Results: {}/{} primes = {:.1}% success",
+            primes, total, success_rate
+        );
         println!();
 
         if !examples.is_empty() {
@@ -219,8 +222,10 @@ fn main() {
 
     println!("├──────────┴──────┴──────────┼─────────────┼────────────┤");
     let overall_rate = (total_primes as f64) / (total_tested as f64) * 100.0;
-    println!("│         OVERALL            │ {:3}/{:3} {:5.1}% │            │",
-             total_primes, total_tested, overall_rate);
+    println!(
+        "│         OVERALL            │ {:3}/{:3} {:5.1}% │            │",
+        total_primes, total_tested, overall_rate
+    );
     println!("└────────────────────────────┴─────────────┴────────────┘");
     println!();
 
@@ -235,7 +240,10 @@ fn main() {
     println!("├────────────────┼─────┼──────────┼───────────────────┤");
     println!("│ Twin           │  2  │    1     │ ~40%+ (expected)  │");
     println!("│ Cousin         │  4  │    2     │ 18-22% (validated)│");
-    println!("│ Sexy           │  6  │    3     │ {:.1}% (THIS TEST) │", overall_rate);
+    println!(
+        "│ Sexy           │  6  │    3     │ {:.1}% (THIS TEST) │",
+        overall_rate
+    );
     println!("└────────────────┴─────┴──────────┴───────────────────┘");
     println!();
 
@@ -257,19 +265,28 @@ fn main() {
         println!();
         println!("The sexy prime constellation follows the gap-midpoint theory:");
         println!("  - Phase locks with distance 3 from midpoint");
-        println!("  - Success rate {:.1}% (within expected 15-20% range)", overall_rate);
+        println!(
+            "  - Success rate {:.1}% (within expected 15-20% range)",
+            overall_rate
+        );
         println!("  - Monotonic decrease: twin > cousin > sexy");
         println!();
         println!("This confirms the constellation unification framework!");
     } else if overall_rate >= 5.0 && overall_rate <= 10.0 {
         println!("~ PARTIAL VALIDATION");
         println!();
-        println!("Sexy primes show lower success ({:.1}%) than predicted", overall_rate);
+        println!(
+            "Sexy primes show lower success ({:.1}%) than predicted",
+            overall_rate
+        );
         println!("but still demonstrate constellation membrane behavior.");
     } else {
         println!("? UNEXPECTED RESULT");
         println!();
-        println!("Success rate {:.1}% differs significantly from prediction.", overall_rate);
+        println!(
+            "Success rate {:.1}% differs significantly from prediction.",
+            overall_rate
+        );
         println!("May indicate:");
         println!("  - Larger gaps require different membrane structures");
         println!("  - Distance-3 phase locks have unique properties");

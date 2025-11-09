@@ -77,19 +77,28 @@ fn main() {
     println!();
 
     println!("═══════════════════════════════════════════════════════════════");
-    println!("EMPIRICAL RESULTS (Base {}, {} middle values)", base, middle_values);
+    println!(
+        "EMPIRICAL RESULTS (Base {}, {} middle values)",
+        base, middle_values
+    );
     println!("═══════════════════════════════════════════════════════════════");
     println!();
 
     println!("┌──────────┬────────────┬────────────┬────────────┬─────────────┐");
     println!("│    k     │   Configs  │   Primes   │    Rate    │  Structure  │");
     println!("├──────────┼────────────┼────────────┼────────────┼─────────────┤");
-    println!("│    3     │    {:6}    │     {:3}    │  {:6.2}%  │  a-M-a      │",
-             triplet_configs, triplet_primes, triplet_rate);
-    println!("│    5     │    {:6}    │     {:3}    │  {:6.2}%  │  y-x-M-x-y  │",
-             quintuplet_configs, quintuplet_primes, quintuplet_rate);
-    println!("│    7     │   {:6}    │     {:3}    │  {:6.2}%  │ z-y-x-M-x-y-z│",
-             septuplet_configs, septuplet_primes, septuplet_rate);
+    println!(
+        "│    3     │    {:6}    │     {:3}    │  {:6.2}%  │  a-M-a      │",
+        triplet_configs, triplet_primes, triplet_rate
+    );
+    println!(
+        "│    5     │    {:6}    │     {:3}    │  {:6.2}%  │  y-x-M-x-y  │",
+        quintuplet_configs, quintuplet_primes, quintuplet_rate
+    );
+    println!(
+        "│    7     │   {:6}    │     {:3}    │  {:6.2}%  │ z-y-x-M-x-y-z│",
+        septuplet_configs, septuplet_primes, septuplet_rate
+    );
     println!("└──────────┴────────────┴────────────┴────────────┴─────────────┘");
     println!();
 
@@ -109,8 +118,16 @@ fn main() {
 
     println!("HL Scaling (relative to k=3):");
     println!("  k=3: 1.000 (baseline)");
-    println!("  k=5: {:.4} (~{:.1}x rarer)", hl_quintuplet/hl_triplet, hl_triplet/hl_quintuplet);
-    println!("  k=7: {:.4} (~{:.1}x rarer)", hl_septuplet/hl_triplet, hl_triplet/hl_septuplet);
+    println!(
+        "  k=5: {:.4} (~{:.1}x rarer)",
+        hl_quintuplet / hl_triplet,
+        hl_triplet / hl_quintuplet
+    );
+    println!(
+        "  k=7: {:.4} (~{:.1}x rarer)",
+        hl_septuplet / hl_triplet,
+        hl_triplet / hl_septuplet
+    );
     println!();
 
     // Observed ratios
@@ -141,12 +158,18 @@ fn main() {
     println!("┌─────────────────┬──────────┬──────────┬─────────────┐");
     println!("│   Transition    │ Observed │ Predicted│    Error    │");
     println!("├─────────────────┼──────────┼──────────┼─────────────┤");
-    println!("│  k=3 → k=5      │  {:5.2}x  │  {:5.2}x  │   {:5.1}%    │",
-             obs_3_to_5, pred_3_to_5, error_3_5);
-    println!("│  k=5 → k=7      │  {:5.2}x  │  {:5.2}x  │   {:5.1}%    │",
-             obs_5_to_7, pred_5_to_7, error_5_7);
-    println!("│  k=3 → k=7      │  {:5.2}x  │  {:5.2}x  │   {:5.1}%    │",
-             obs_3_to_7, pred_3_to_7, error_3_7);
+    println!(
+        "│  k=3 → k=5      │  {:5.2}x  │  {:5.2}x  │   {:5.1}%    │",
+        obs_3_to_5, pred_3_to_5, error_3_5
+    );
+    println!(
+        "│  k=5 → k=7      │  {:5.2}x  │  {:5.2}x  │   {:5.1}%    │",
+        obs_5_to_7, pred_5_to_7, error_5_7
+    );
+    println!(
+        "│  k=3 → k=7      │  {:5.2}x  │  {:5.2}x  │   {:5.1}%    │",
+        obs_3_to_7, pred_3_to_7, error_3_7
+    );
     println!("└─────────────────┴──────────┴──────────┴─────────────┘");
     println!();
 
@@ -161,27 +184,42 @@ fn main() {
 
     println!("Observed decay pattern:");
     println!("  k=3: {:.2}%  (baseline)", triplet_rate);
-    println!("  k=5: {:.2}%  ({:.1}% decrease)", quintuplet_rate, triplet_rate - quintuplet_rate);
-    println!("  k=7: {:.2}%  ({:.1}% decrease)", septuplet_rate, quintuplet_rate - septuplet_rate);
+    println!(
+        "  k=5: {:.2}%  ({:.1}% decrease)",
+        quintuplet_rate,
+        triplet_rate - quintuplet_rate
+    );
+    println!(
+        "  k=7: {:.2}%  ({:.1}% decrease)",
+        septuplet_rate,
+        quintuplet_rate - septuplet_rate
+    );
     println!();
 
     // Fit linear model: rate = A - B*(k-3)
     let a_linear = triplet_rate;
     let b_linear = (triplet_rate - septuplet_rate) / 4.0; // (k=7) - (k=3) = 4
 
-    println!("LINEAR Model: rate = {:.2}% - {:.2}% × (k-3)", a_linear, b_linear);
+    println!(
+        "LINEAR Model: rate = {:.2}% - {:.2}% × (k-3)",
+        a_linear, b_linear
+    );
     let pred_k5_linear = a_linear - b_linear * 2.0;
     let pred_k7_linear = a_linear - b_linear * 4.0;
-    println!("  Predicts k=5: {:.2}% (observed: {:.2}%)", pred_k5_linear, quintuplet_rate);
-    println!("  Predicts k=7: {:.2}% (observed: {:.2}%)", pred_k7_linear, septuplet_rate);
-
-    let r2_linear = 1.0 - (
-        (quintuplet_rate - pred_k5_linear).powi(2) +
-        (septuplet_rate - pred_k7_linear).powi(2)
-    ) / (
-        (quintuplet_rate - (triplet_rate + quintuplet_rate + septuplet_rate)/3.0).powi(2) +
-        (septuplet_rate - (triplet_rate + quintuplet_rate + septuplet_rate)/3.0).powi(2)
+    println!(
+        "  Predicts k=5: {:.2}% (observed: {:.2}%)",
+        pred_k5_linear, quintuplet_rate
     );
+    println!(
+        "  Predicts k=7: {:.2}% (observed: {:.2}%)",
+        pred_k7_linear, septuplet_rate
+    );
+
+    let r2_linear = 1.0
+        - ((quintuplet_rate - pred_k5_linear).powi(2) + (septuplet_rate - pred_k7_linear).powi(2))
+            / ((quintuplet_rate - (triplet_rate + quintuplet_rate + septuplet_rate) / 3.0).powi(2)
+                + (septuplet_rate - (triplet_rate + quintuplet_rate + septuplet_rate) / 3.0)
+                    .powi(2));
     println!("  R² = {:.4}  ✓ EXCELLENT FIT", r2_linear);
     println!();
 
@@ -189,21 +227,31 @@ fn main() {
     let scale_factor = triplet_rate / hl_triplet;
     let pred_k5_exp = hl_quintuplet * scale_factor;
     let pred_k7_exp = hl_septuplet * scale_factor;
-    println!("  Predicts k=5: {:.2}% (observed: {:.2}%)", pred_k5_exp, quintuplet_rate);
-    println!("  Predicts k=7: {:.2}% (observed: {:.2}%)", pred_k7_exp, septuplet_rate);
-
-    let r2_exp = 1.0 - (
-        (quintuplet_rate - pred_k5_exp).powi(2) +
-        (septuplet_rate - pred_k7_exp).powi(2)
-    ) / (
-        (quintuplet_rate - (triplet_rate + quintuplet_rate + septuplet_rate)/3.0).powi(2) +
-        (septuplet_rate - (triplet_rate + quintuplet_rate + septuplet_rate)/3.0).powi(2)
+    println!(
+        "  Predicts k=5: {:.2}% (observed: {:.2}%)",
+        pred_k5_exp, quintuplet_rate
     );
+    println!(
+        "  Predicts k=7: {:.2}% (observed: {:.2}%)",
+        pred_k7_exp, septuplet_rate
+    );
+
+    let r2_exp = 1.0
+        - ((quintuplet_rate - pred_k5_exp).powi(2) + (septuplet_rate - pred_k7_exp).powi(2))
+            / ((quintuplet_rate - (triplet_rate + quintuplet_rate + septuplet_rate) / 3.0).powi(2)
+                + (septuplet_rate - (triplet_rate + quintuplet_rate + septuplet_rate) / 3.0)
+                    .powi(2));
     println!("  R² = {:.4}  ✗ POOR FIT", r2_exp);
     println!();
 
-    println!("VERDICT: Linear decay fits {:.1}x better than exponential!",
-             if r2_linear > r2_exp { r2_linear / r2_exp.max(0.01) } else { 1.0 });
+    println!(
+        "VERDICT: Linear decay fits {:.1}x better than exponential!",
+        if r2_linear > r2_exp {
+            r2_linear / r2_exp.max(0.01)
+        } else {
+            1.0
+        }
+    );
     println!();
 
     // Outer coordinate constraint
@@ -212,19 +260,23 @@ fn main() {
     println!("═══════════════════════════════════════════════════════════════");
     println!();
 
-    println!("For base {}, possible coordinate values: 1-{}", base, base-1);
+    println!(
+        "For base {}, possible coordinate values: 1-{}",
+        base,
+        base - 1
+    );
     println!();
 
     println!("k=5 QUINTUPLETS:");
     println!("  Outer coord (y) appearing values:");
-    println!("    {{1, 3, 5, 9, 11, 13}} → 6 out of {} values", base-1);
+    println!("    {{1, 3, 5, 9, 11, 13}} → 6 out of {} values", base - 1);
     println!("  Missing values:");
     println!("    {{2, 4, 6, 7, 8, 10, 12}} → All share factors with base");
     println!();
 
     println!("k=7 SEPTUPLETS:");
     println!("  Outer coord (z) appearing values:");
-    println!("    {{1, 3, 5, 9, 11, 13}} → 6 out of {} values", base-1);
+    println!("    {{1, 3, 5, 9, 11, 13}} → 6 out of {} values", base - 1);
     println!("  Missing values:");
     println!("    {{2, 4, 6, 7, 8, 10, 12}} → All share factors with base");
     println!();

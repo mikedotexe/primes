@@ -111,13 +111,16 @@ fn phase_lock_distance_gcd(base: u32) -> u32 {
     }
 
     let midpoint = base / 2;
-    let distances: Vec<u32> = locks.iter().map(|(left, _right)| {
-        if *left < midpoint {
-            midpoint - left
-        } else {
-            left - midpoint
-        }
-    }).collect();
+    let distances: Vec<u32> = locks
+        .iter()
+        .map(|(left, _right)| {
+            if *left < midpoint {
+                midpoint - left
+            } else {
+                left - midpoint
+            }
+        })
+        .collect();
 
     if distances.is_empty() {
         return 0;
@@ -299,13 +302,20 @@ fn main() {
         // Coprimality
         let phi = euler_phi(base);
         let coprime_fraction = (phi as f64) / (base as f64);
-        println!("  φ({}) = {} ({:.1}% coprime)", base, phi, coprime_fraction * 100.0);
+        println!(
+            "  φ({}) = {} ({:.1}% coprime)",
+            base,
+            phi,
+            coprime_fraction * 100.0
+        );
 
         // Density and prediction
         println!("  Phase lock density: {:.3}", props.density);
         println!("  Predicted crossover: {:.2}", props.predicted_crossover);
         if let Some(observed) = props.observed_crossover {
-            let error = ((observed as f64 - props.predicted_crossover) / props.predicted_crossover * 100.0).abs();
+            let error = ((observed as f64 - props.predicted_crossover) / props.predicted_crossover
+                * 100.0)
+                .abs();
             println!("  Observed crossover:  {}", observed);
             println!("  Prediction error:    {:.1}%", error);
         } else {
@@ -327,12 +337,18 @@ fn main() {
 
     for &base in &bases {
         let props = &properties_map[&base];
-        let is_2p = if is_2p_base(base).is_some() { "YES" } else { "NO " };
+        let is_2p = if is_2p_base(base).is_some() {
+            "YES"
+        } else {
+            "NO "
+        };
         let dist_gcd = phase_lock_distance_gcd(base);
         let phi_ratio = (euler_phi(base) as f64) / (base as f64);
 
         let prediction_status = if let Some(observed) = props.observed_crossover {
-            let error = ((observed as f64 - props.predicted_crossover) / props.predicted_crossover * 100.0).abs();
+            let error = ((observed as f64 - props.predicted_crossover) / props.predicted_crossover
+                * 100.0)
+                .abs();
             if error < 20.0 {
                 "✓ Good    "
             } else {

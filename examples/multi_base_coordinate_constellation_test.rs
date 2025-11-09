@@ -19,9 +19,9 @@
 // COMPARISON WITH BASE 14:
 // - Base 14: φ(14) = 6  (our reference, 2×7)
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::{HashMap, HashSet};
 
 /// Compute Euler's totient function φ(n)
@@ -197,10 +197,7 @@ fn main() {
         println!();
 
         // Choose 3 coprime middle values
-        let middle_values: Vec<u32> = (1..base)
-            .filter(|&v| is_coprime(v, base))
-            .take(3)
-            .collect();
+        let middle_values: Vec<u32> = (1..base).filter(|&v| is_coprime(v, base)).take(3).collect();
 
         println!("Testing with middle values: {:?}", middle_values);
         println!();
@@ -219,16 +216,27 @@ fn main() {
         let mut sorted: Vec<_> = quint_coords.iter().collect();
         sorted.sort();
         for (i, v) in sorted.iter().enumerate() {
-            if i > 0 { print!(", "); }
+            if i > 0 {
+                print!(", ");
+            }
             print!("{}", v);
         }
         println!("}}");
 
         // Check coprimality
         let all_coprime = quint_coords.iter().all(|&v| is_coprime(v, base));
-        println!("  All coprime to base? {}", if all_coprime { "✓ YES" } else { "✗ NO" });
-        println!("  |coords| = φ(base)? {}",
-                 if quint_coords.len() == phi as usize { "✓ YES" } else { "✗ NO" });
+        println!(
+            "  All coprime to base? {}",
+            if all_coprime { "✓ YES" } else { "✗ NO" }
+        );
+        println!(
+            "  |coords| = φ(base)? {}",
+            if quint_coords.len() == phi as usize {
+                "✓ YES"
+            } else {
+                "✗ NO"
+            }
+        );
         println!();
 
         // Test septuplets (k=7)
@@ -245,16 +253,27 @@ fn main() {
         let mut sorted: Vec<_> = sept_coords.iter().collect();
         sorted.sort();
         for (i, v) in sorted.iter().enumerate() {
-            if i > 0 { print!(", "); }
+            if i > 0 {
+                print!(", ");
+            }
             print!("{}", v);
         }
         println!("}}");
 
         // Check coprimality
         let all_coprime = sept_coords.iter().all(|&v| is_coprime(v, base));
-        println!("  All coprime to base? {}", if all_coprime { "✓ YES" } else { "✗ NO" });
-        println!("  |coords| = φ(base)? {}",
-                 if sept_coords.len() == phi as usize { "✓ YES" } else { "✗ NO" });
+        println!(
+            "  All coprime to base? {}",
+            if all_coprime { "✓ YES" } else { "✗ NO" }
+        );
+        println!(
+            "  |coords| = φ(base)? {}",
+            if sept_coords.len() == phi as usize {
+                "✓ YES"
+            } else {
+                "✗ NO"
+            }
+        );
         println!();
 
         // Store results
@@ -300,20 +319,48 @@ fn main() {
         let k5_match = *q_coords == *phi as usize;
         let k7_match = *s_coords == *phi as usize;
 
-        if k5_match { k5_matches += 1; }
-        if k7_match { k7_matches += 1; }
+        if k5_match {
+            k5_matches += 1;
+        }
+        if k7_match {
+            k7_matches += 1;
+        }
 
         println!("Base {:2}:", base);
-        println!("  k=5: |coords| = {}, φ(base) = {} → {}",
-                 q_coords, phi, if k5_match { "✓ MATCH" } else { "✗ MISMATCH" });
-        println!("  k=7: |coords| = {}, φ(base) = {} → {}",
-                 s_coords, phi, if k7_match { "✓ MATCH" } else { "✗ MISMATCH" });
+        println!(
+            "  k=5: |coords| = {}, φ(base) = {} → {}",
+            q_coords,
+            phi,
+            if k5_match {
+                "✓ MATCH"
+            } else {
+                "✗ MISMATCH"
+            }
+        );
+        println!(
+            "  k=7: |coords| = {}, φ(base) = {} → {}",
+            s_coords,
+            phi,
+            if k7_match {
+                "✓ MATCH"
+            } else {
+                "✗ MISMATCH"
+            }
+        );
         println!();
     }
 
     println!("SUMMARY:");
-    println!("  k=5 (quintuplets): {}/{} bases match φ(base)", k5_matches, results.len());
-    println!("  k=7 (septuplets):  {}/{} bases match φ(base)", k7_matches, results.len());
+    println!(
+        "  k=5 (quintuplets): {}/{} bases match φ(base)",
+        k5_matches,
+        results.len()
+    );
+    println!(
+        "  k=7 (septuplets):  {}/{} bases match φ(base)",
+        k7_matches,
+        results.len()
+    );
     println!();
 
     if k5_matches == results.len() && k7_matches == results.len() {
@@ -331,15 +378,16 @@ fn main() {
 
     println!("Success rate vs φ(base):");
     for (base, phi, _, q_rate, _, _, s_rate, _) in &results {
-        println!("  φ({:2}) = {:2}: k=5 {:.2}%, k=7 {:.2}%",
-                 base, phi, q_rate, s_rate);
+        println!(
+            "  φ({:2}) = {:2}: k=5 {:.2}%, k=7 {:.2}%",
+            base, phi, q_rate, s_rate
+        );
     }
     println!();
 
     println!("Success rate vs base size:");
     for (base, _, _, q_rate, _, _, s_rate, _) in &results {
-        println!("  Base {:2}: k=5 {:.2}%, k=7 {:.2}%",
-                 base, q_rate, s_rate);
+        println!("  Base {:2}: k=5 {:.2}%, k=7 {:.2}%", base, q_rate, s_rate);
     }
     println!();
 

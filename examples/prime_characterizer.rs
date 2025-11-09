@@ -1,4 +1,3 @@
-
 use num_bigint::BigUint;
 use num_traits::{One, Zero};
 use prime_physics_engine::is_prime;
@@ -33,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if let Ok(num) = full_number_str.parse::<BigUint>() {
                 if is_prime(&num) {
                     let sum_of_digits = digit_sum(&num);
-                    
+
                     let six = BigUint::from(6u32);
                     let one = BigUint::one();
 
@@ -45,7 +44,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         "other" // Should only be 2 or 3, not possible here
                     };
 
-                    println!("{},{},{},{},{}", space_size, position, digit, sum_of_digits, form);
+                    println!(
+                        "{},{},{},{},{}",
+                        space_size, position, digit, sum_of_digits, form
+                    );
                 }
             }
         }

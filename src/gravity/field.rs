@@ -1,8 +1,8 @@
 //! Gravitational field management
 
+use super::{ForceCalculator, PrimeParticle};
+use crate::{PhysicalConstants, PhysicsResult};
 use std::collections::HashMap;
-use crate::{PhysicsResult, PhysicalConstants};
-use super::{PrimeParticle, ForceCalculator};
 
 /// Gravitational field that manages all prime interactions
 #[derive(Debug, Clone)]
@@ -24,20 +24,21 @@ impl GravitationalField {
             _field_cache: HashMap::new(),
         }
     }
-    
+
     pub fn add_source(&mut self, _particle: &PrimeParticle) {
         // Update field sources
     }
-    
+
     pub fn update(&mut self, _particles: &[PrimeParticle]) {
         // Update field state
     }
-    
+
     pub fn calculate_forces(
         &mut self,
         particles: &[PrimeParticle],
-        constants: &PhysicalConstants
+        constants: &PhysicalConstants,
     ) -> PhysicsResult<Vec<[f64; 2]>> {
-        self.force_calculator.calculate_all_forces(particles, constants, 0.0)
+        self.force_calculator
+            .calculate_all_forces(particles, constants, 0.0)
     }
 }

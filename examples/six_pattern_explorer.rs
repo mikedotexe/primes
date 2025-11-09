@@ -99,7 +99,9 @@ fn main() {
 
         print!("  {} = ", base);
         for (i, &f) in factors.iter().enumerate() {
-            if i > 0 { print!("×"); }
+            if i > 0 {
+                print!("×");
+            }
             print!("{}", f);
         }
         if is_square_free {
@@ -179,7 +181,7 @@ fn main() {
     let mut is_prime = true;
     for d in 2..=(6157f64.sqrt() as u32) {
         if 6157 % d == 0 {
-            println!("  6157 = {} × {}", d, 6157/d);
+            println!("  6157 = {} × {}", d, 6157 / d);
             is_prime = false;
             break;
         }

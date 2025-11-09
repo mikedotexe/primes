@@ -10,9 +10,9 @@
 //
 // Usage: cargo run --example delta3_spectral_rigidity --release
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::HashMap;
 
 fn is_coprime(a: u32, b: u32) -> bool {
@@ -221,13 +221,11 @@ fn main() {
     println!("    - Poisson: β ≈ 0 (no repulsion)");
     println!();
 
-    let base = 14u32;  // Hexagonal base (φ=6)
+    let base = 14u32; // Hexagonal base (φ=6)
     let limit = 1_000_000_000_000u64;
     let scale = 1_000_000u64;
 
-    let middle_values: Vec<u32> = (1..base)
-        .filter(|&m| is_coprime(m, base))
-        .collect();
+    let middle_values: Vec<u32> = (1..base).filter(|&m| is_coprime(m, base)).collect();
 
     println!("═══════════════════════════════════════════════════════════════");
     println!("COORDINATE CONSTELLATION ANALYSIS");
@@ -296,8 +294,18 @@ fn main() {
     println!("═══════════════════════════════════════════════════════════════");
     println!();
     println!("metric,group,val_num,val_den,count");
-    println!("delta3,constellation,{},{},{}", d3_num, d3_den, normalized.len());
-    println!("beta,constellation,{},{},{}", beta_num, beta_den, normalized.len());
+    println!(
+        "delta3,constellation,{},{},{}",
+        d3_num,
+        d3_den,
+        normalized.len()
+    );
+    println!(
+        "beta,constellation,{},{},{}",
+        beta_num,
+        beta_den,
+        normalized.len()
+    );
     println!();
 
     println!("═══════════════════════════════════════════════════════════════");

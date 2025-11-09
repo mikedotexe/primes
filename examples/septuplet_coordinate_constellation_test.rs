@@ -33,9 +33,9 @@
 // 3. HL predictions hold at k=7 scale
 // 4. Coordinate interpretation reveals geometric structure
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::HashMap;
 
 /// Build triplet membrane: a-MIDDLE-a
@@ -137,22 +137,30 @@ fn analyze_coordinate_patterns(successes: &[((u32, u32, u32), BigUint)]) -> Hash
 
         // Arithmetic progression?
         if y - x == z - y {
-            *patterns.entry("arithmetic_sequence".to_string()).or_insert(0) += 1;
+            *patterns
+                .entry("arithmetic_sequence".to_string())
+                .or_insert(0) += 1;
         }
 
         // Geometric progression?
         if x * z == y * y {
-            *patterns.entry("geometric_sequence".to_string()).or_insert(0) += 1;
+            *patterns
+                .entry("geometric_sequence".to_string())
+                .or_insert(0) += 1;
         }
 
         // Monotonic increasing?
         if x < y && y < z {
-            *patterns.entry("monotonic_increasing".to_string()).or_insert(0) += 1;
+            *patterns
+                .entry("monotonic_increasing".to_string())
+                .or_insert(0) += 1;
         }
 
         // Symmetric around y?
         if x + z == 2 * y {
-            *patterns.entry("symmetric_around_y".to_string()).or_insert(0) += 1;
+            *patterns
+                .entry("symmetric_around_y".to_string())
+                .or_insert(0) += 1;
         }
 
         // Small coordinates (all ≤ 3)?
@@ -207,7 +215,10 @@ fn main() {
     println!("Septuplet scaling: 1/(ln b)⁷ ≈ {:.6}", septuplet_scaling);
     println!();
     println!("Ratio: {:.1}x", rarity_ratio);
-    println!("  → Septuplets are ~{:.0}x rarer than triplets!", rarity_ratio);
+    println!(
+        "  → Septuplets are ~{:.0}x rarer than triplets!",
+        rarity_ratio
+    );
     println!();
 
     // Test a selection of middle values
@@ -236,8 +247,15 @@ fn main() {
             println!("  No prime triplets found");
         } else {
             for (i, (a, prime)) in triplet_results.iter().enumerate() {
-                println!("  [{:2}] a={:2} → {}-{}-{} = {}",
-                         i+1, a, a, middle, a, prime);
+                println!(
+                    "  [{:2}] a={:2} → {}-{}-{} = {}",
+                    i + 1,
+                    a,
+                    a,
+                    middle,
+                    a,
+                    prime
+                );
                 total_triplet_successes += 1;
             }
         }
@@ -252,8 +270,21 @@ fn main() {
             println!("  No prime septuplets found");
         } else {
             for (i, ((x, y, z), prime)) in septuplet_results.iter().enumerate() {
-                println!("  [{:2}] (x,y,z)=({},{},{}) → {}-{}-{}-{}-{}-{}-{} = {}",
-                         i+1, x, y, z, z, y, x, middle, x, y, z, prime);
+                println!(
+                    "  [{:2}] (x,y,z)=({},{},{}) → {}-{}-{}-{}-{}-{}-{} = {}",
+                    i + 1,
+                    x,
+                    y,
+                    z,
+                    z,
+                    y,
+                    x,
+                    middle,
+                    x,
+                    y,
+                    z,
+                    prime
+                );
                 total_septuplet_successes += 1;
                 all_septuplet_successes.push(((*x, *y, *z), prime.clone()));
             }
@@ -272,8 +303,14 @@ fn main() {
     let septuplet_search_space = (base - 1).pow(3) * total_middle_values as u32; // (x,y,z) ∈ [1,base-1]³
 
     println!("Search Space:");
-    println!("  Triplets tested:   {} configurations", triplet_search_space);
-    println!("  Septuplets tested: {} configurations", septuplet_search_space);
+    println!(
+        "  Triplets tested:   {} configurations",
+        triplet_search_space
+    );
+    println!(
+        "  Septuplets tested: {} configurations",
+        septuplet_search_space
+    );
     println!();
 
     println!("Successes:");
@@ -292,7 +329,10 @@ fn main() {
     if total_septuplet_successes > 0 {
         let observed_ratio = triplet_rate / septuplet_rate;
         println!("Observed rarity ratio: {:.1}x", observed_ratio);
-        println!("  (Septuplets are {:.1}x rarer than triplets)", observed_ratio);
+        println!(
+            "  (Septuplets are {:.1}x rarer than triplets)",
+            observed_ratio
+        );
         println!();
         println!("HL predicted: {:.1}x", rarity_ratio);
         let error = ((observed_ratio - rarity_ratio) / rarity_ratio * 100.0).abs();
@@ -316,13 +356,21 @@ fn main() {
         if patterns.is_empty() {
             println!("No special patterns detected");
         } else {
-            println!("Detected patterns in {} successful septuplets:", all_septuplet_successes.len());
+            println!(
+                "Detected patterns in {} successful septuplets:",
+                all_septuplet_successes.len()
+            );
             println!();
 
             for (pattern_name, count) in patterns.iter() {
                 let percentage = *count as f64 / all_septuplet_successes.len() as f64 * 100.0;
-                println!("  {:25} : {:3} / {} ({:5.1}%)",
-                         pattern_name, count, all_septuplet_successes.len(), percentage);
+                println!(
+                    "  {:25} : {:3} / {} ({:5.1}%)",
+                    pattern_name,
+                    count,
+                    all_septuplet_successes.len(),
+                    percentage
+                );
             }
         }
         println!();
@@ -365,7 +413,10 @@ fn main() {
         println!("FINDINGS:");
         println!("  → No septuplets found in search space");
         println!("  → Consistent with HL prediction of extreme rarity");
-        println!("  → Would need ~{:.0}x larger sample to observe", rarity_ratio);
+        println!(
+            "  → Would need ~{:.0}x larger sample to observe",
+            rarity_ratio
+        );
     }
     println!();
 

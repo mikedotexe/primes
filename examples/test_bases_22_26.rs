@@ -67,8 +67,10 @@ fn main() {
     let base22_results = test_membrane(22, 5, 17, 0, 0, 100);
 
     println!("Results:");
-    println!("  Successes: {}/100 = {:.1}%",
-             base22_results.0, base22_results.1);
+    println!(
+        "  Successes: {}/100 = {:.1}%",
+        base22_results.0, base22_results.1
+    );
     println!("  Average prime size: {} digits", base22_results.2);
     println!();
 
@@ -108,8 +110,10 @@ fn main() {
     let base26_results = test_membrane(26, 7, 19, 0, 0, 100);
 
     println!("Results:");
-    println!("  Successes: {}/100 = {:.1}%",
-             base26_results.0, base26_results.1);
+    println!(
+        "  Successes: {}/100 = {:.1}%",
+        base26_results.0, base26_results.1
+    );
     println!("  Average prime size: {} digits", base26_results.2);
     println!();
 
@@ -139,10 +143,14 @@ fn main() {
     println!("│   6  │ (1,5)     │  0.667  │   33.3%   │   33.0%  │   ✓    │");
     println!("│  10  │ (3,7)     │  0.400  │   20.0%   │   18.5%  │   ✓    │");
     println!("│  14  │ (3,11)    │  0.571  │   28.6%   │   27.0%  │   ✓    │");
-    println!("│  22  │ (5,17)    │  0.364  │   18.2%   │   {:.1}%  │   ?    │",
-             base22_results.1);
-    println!("│  26  │ (7,19)    │  0.308  │   15.4%   │   {:.1}%  │   ?    │",
-             base26_results.1);
+    println!(
+        "│  22  │ (5,17)    │  0.364  │   18.2%   │   {:.1}%  │   ?    │",
+        base22_results.1
+    );
+    println!(
+        "│  26  │ (7,19)    │  0.308  │   15.4%   │   {:.1}%  │   ?    │",
+        base26_results.1
+    );
     println!("└──────┴───────────┴─────────┴───────────┴──────────┴────────┘\n");
 
     // Compute correlation
@@ -151,11 +159,13 @@ fn main() {
     let new_densities = vec![0.364, 0.308];
     let new_observed = vec![base22_results.1, base26_results.1];
 
-    let all_densities: Vec<f64> = known_densities.iter()
+    let all_densities: Vec<f64> = known_densities
+        .iter()
         .chain(new_densities.iter())
         .copied()
         .collect();
-    let all_observed: Vec<f64> = known_observed.iter()
+    let all_observed: Vec<f64> = known_observed
+        .iter()
         .chain(new_observed.iter())
         .copied()
         .collect();
@@ -185,7 +195,7 @@ fn main() {
     println!("═══════════════════════════════════════════════════════════════\n");
 
     let both_close = (base22_results.1 - prediction_22).abs() < 5.0
-                  && (base26_results.1 - prediction_26).abs() < 5.0;
+        && (base26_results.1 - prediction_26).abs() < 5.0;
 
     if both_close {
         println!("✓ Phase lock density model VALIDATED");
@@ -230,7 +240,11 @@ fn test_membrane(
     }
 
     let percentage = (successes as f64 / num_seeds as f64) * 100.0;
-    let avg_digits = if successes > 0 { total_digits / successes } else { 0 };
+    let avg_digits = if successes > 0 {
+        total_digits / successes
+    } else {
+        0
+    };
 
     (successes, percentage, avg_digits)
 }
@@ -249,9 +263,10 @@ fn construct_membrane(
     let zeros1 = "0".repeat(k1);
     let zeros2 = "0".repeat(k2);
 
-    let membrane_str = format!("{}{}{}{}{}{}{}{}{}",
-        outer_str, zeros1, inner_str, zeros2, seed_str,
-        zeros2, inner_str, zeros1, outer_str);
+    let membrane_str = format!(
+        "{}{}{}{}{}{}{}{}{}",
+        outer_str, zeros1, inner_str, zeros2, seed_str, zeros2, inner_str, zeros1, outer_str
+    );
 
     base_string_to_biguint(&membrane_str, base)
 }
@@ -289,7 +304,11 @@ fn is_probably_prime(n: &BigUint, rounds: u32) -> bool {
 
     let mut d = n_minus_1.clone();
     let mut r = 0u32;
-    while d.to_u32_digits().first().map_or(false, |&digit| digit % 2 == 0) {
+    while d
+        .to_u32_digits()
+        .first()
+        .map_or(false, |&digit| digit % 2 == 0)
+    {
         d = d / &two;
         r += 1;
     }

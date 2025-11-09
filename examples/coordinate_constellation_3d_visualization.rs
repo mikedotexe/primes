@@ -14,9 +14,9 @@
 // - Base 18 also has φ(18) = 6
 // - Is there clustering at specific coordinate values related to 6?
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::HashMap;
 
 fn septuplet_membrane(middle: u32, x: u32, y: u32, z: u32, base: u32) -> BigUint {
@@ -74,8 +74,15 @@ fn visualize_z_slice(coords: &[(u32, u32, u32)], z_value: u32, base: u32) {
     println!("═══════════════════════════════════════════════════════════════");
     println!();
 
-    let coprime_mark = if is_coprime(z_value, base) { "✓" } else { "✗" };
-    println!("  z={} is {} coprime to base {}", z_value, coprime_mark, base);
+    let coprime_mark = if is_coprime(z_value, base) {
+        "✓"
+    } else {
+        "✗"
+    };
+    println!(
+        "  z={} is {} coprime to base {}",
+        z_value, coprime_mark, base
+    );
     println!();
 
     // Build frequency map for this z-slice
@@ -231,42 +238,85 @@ fn analyze_sixes(coords: &[(u32, u32, u32)], base: u32) {
     let sixes_z = coords.iter().filter(|(_, _, z)| *z == 6).count();
 
     println!("Coordinate value 6 appearances:");
-    println!("  x=6: {} primes ({:.1}%)", sixes_x, sixes_x as f64 / coords.len() as f64 * 100.0);
-    println!("  y=6: {} primes ({:.1}%)", sixes_y, sixes_y as f64 / coords.len() as f64 * 100.0);
-    println!("  z=6: {} primes ({:.1}%)", sixes_z, sixes_z as f64 / coords.len() as f64 * 100.0);
+    println!(
+        "  x=6: {} primes ({:.1}%)",
+        sixes_x,
+        sixes_x as f64 / coords.len() as f64 * 100.0
+    );
+    println!(
+        "  y=6: {} primes ({:.1}%)",
+        sixes_y,
+        sixes_y as f64 / coords.len() as f64 * 100.0
+    );
+    println!(
+        "  z=6: {} primes ({:.1}%)",
+        sixes_z,
+        sixes_z as f64 / coords.len() as f64 * 100.0
+    );
     println!();
 
     // Sum to 6?
     let sum_to_6 = coords.iter().filter(|(x, y, z)| x + y + z == 6).count();
-    println!("Coordinates summing to 6 (x+y+z=6): {} primes ({:.1}%)",
-             sum_to_6, sum_to_6 as f64 / coords.len() as f64 * 100.0);
+    println!(
+        "Coordinates summing to 6 (x+y+z=6): {} primes ({:.1}%)",
+        sum_to_6,
+        sum_to_6 as f64 / coords.len() as f64 * 100.0
+    );
     println!();
 
     // Multiples of 6?
-    let x_mult_6 = coords.iter().filter(|(x, _, _)| *x % 6 == 0 && *x > 0).count();
-    let y_mult_6 = coords.iter().filter(|(_, y, _)| *y % 6 == 0 && *y > 0).count();
-    let z_mult_6 = coords.iter().filter(|(_, _, z)| *z % 6 == 0 && *z > 0).count();
+    let x_mult_6 = coords
+        .iter()
+        .filter(|(x, _, _)| *x % 6 == 0 && *x > 0)
+        .count();
+    let y_mult_6 = coords
+        .iter()
+        .filter(|(_, y, _)| *y % 6 == 0 && *y > 0)
+        .count();
+    let z_mult_6 = coords
+        .iter()
+        .filter(|(_, _, z)| *z % 6 == 0 && *z > 0)
+        .count();
 
     println!("Multiples of 6:");
-    println!("  x divisible by 6: {} primes ({:.1}%)", x_mult_6, x_mult_6 as f64 / coords.len() as f64 * 100.0);
-    println!("  y divisible by 6: {} primes ({:.1}%)", y_mult_6, y_mult_6 as f64 / coords.len() as f64 * 100.0);
-    println!("  z divisible by 6: {} primes ({:.1}%)", z_mult_6, z_mult_6 as f64 / coords.len() as f64 * 100.0);
+    println!(
+        "  x divisible by 6: {} primes ({:.1}%)",
+        x_mult_6,
+        x_mult_6 as f64 / coords.len() as f64 * 100.0
+    );
+    println!(
+        "  y divisible by 6: {} primes ({:.1}%)",
+        y_mult_6,
+        y_mult_6 as f64 / coords.len() as f64 * 100.0
+    );
+    println!(
+        "  z divisible by 6: {} primes ({:.1}%)",
+        z_mult_6,
+        z_mult_6 as f64 / coords.len() as f64 * 100.0
+    );
     println!();
 
     // Distance from origin (1,1,1) = 6?
-    let manhattan_6 = coords.iter().filter(|(x, y, z)|
-        (x.abs_diff(1) + y.abs_diff(1) + z.abs_diff(1)) == 6
-    ).count();
-    println!("Manhattan distance 6 from (1,1,1): {} primes ({:.1}%)",
-             manhattan_6, manhattan_6 as f64 / coords.len() as f64 * 100.0);
+    let manhattan_6 = coords
+        .iter()
+        .filter(|(x, y, z)| (x.abs_diff(1) + y.abs_diff(1) + z.abs_diff(1)) == 6)
+        .count();
+    println!(
+        "Manhattan distance 6 from (1,1,1): {} primes ({:.1}%)",
+        manhattan_6,
+        manhattan_6 as f64 / coords.len() as f64 * 100.0
+    );
     println!();
 
     // Perfect number connection? (6 = 1+2+3)
-    let perfect_combo = coords.iter().filter(|(x, y, z)| {
-        let mut vals = vec![*x, *y, *z];
-        vals.sort();
-        vals == vec![1, 2, 3]
-    }).count();
+    let perfect_combo = coords
+        .iter()
+        .filter(|(x, y, z)| {
+            let mut vals = vec![*x, *y, *z];
+            vals.sort();
+            vals == vec![1, 2, 3]
+        })
+        .count();
     println!("Coordinates (1,2,3) in any order: {} primes", perfect_combo);
     println!();
 }
@@ -297,16 +347,18 @@ fn main() {
     analyze_sixes(&coords, base);
 
     // Show z-slices for coprime values (the constrained outer coords)
-    let coprime_z_values: Vec<u32> = (1..base)
-        .filter(|&z| is_coprime(z, base))
-        .collect();
+    let coprime_z_values: Vec<u32> = (1..base).filter(|&z| is_coprime(z, base)).collect();
 
     println!("═══════════════════════════════════════════════════════════════");
     println!("Z-SLICE VISUALIZATIONS (Coprime z-values only)");
     println!("═══════════════════════════════════════════════════════════════");
     println!();
-    println!("Showing z ∈ {:?} (φ({}) = {} coprime values)",
-             coprime_z_values, base, coprime_z_values.len());
+    println!(
+        "Showing z ∈ {:?} (φ({}) = {} coprime values)",
+        coprime_z_values,
+        base,
+        coprime_z_values.len()
+    );
     println!();
 
     for &z_val in &coprime_z_values {

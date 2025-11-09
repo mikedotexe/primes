@@ -32,9 +32,9 @@
 // If the violation is gradual, we expect quintuplets to show intermediate
 // behavior. If it's dimension-specific, k=5 may show different patterns.
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
 use num_traits::Zero;
+use prime_physics_engine::is_prime;
 use std::collections::HashMap;
 
 /// Build quintuplet membrane: y-x-MIDDLE-x-y
@@ -91,7 +91,9 @@ fn analyze_patterns(successes: &[((u32, u32), BigUint)]) -> HashMap<String, usiz
 
         // Monotonic (x < y)?
         if x < y {
-            *patterns.entry("monotonic_increasing".to_string()).or_insert(0) += 1;
+            *patterns
+                .entry("monotonic_increasing".to_string())
+                .or_insert(0) += 1;
         }
 
         // Small coordinates (both ≤ 3)?
@@ -107,7 +109,8 @@ fn analyze_patterns(successes: &[((u32, u32), BigUint)]) -> HashMap<String, usiz
 
         // Sum to specific values?
         let sum = x + y;
-        if sum == 14 {  // base
+        if sum == 14 {
+            // base
             *patterns.entry("sum_to_base".to_string()).or_insert(0) += 1;
         }
         if sum % 2 == 0 {
@@ -208,13 +211,28 @@ fn main() {
     println!();
     println!("For base {}: ln({}) ≈ {:.3}", base, base, log_base);
     println!();
-    println!("Triplet scaling (k=3):     1/(ln b)³ ≈ {:.6}", triplet_scaling);
-    println!("Quintuplet scaling (k=5):  1/(ln b)⁵ ≈ {:.6}", quintuplet_scaling);
-    println!("Septuplet scaling (k=7):   1/(ln b)⁷ ≈ {:.6}", septuplet_scaling);
+    println!(
+        "Triplet scaling (k=3):     1/(ln b)³ ≈ {:.6}",
+        triplet_scaling
+    );
+    println!(
+        "Quintuplet scaling (k=5):  1/(ln b)⁵ ≈ {:.6}",
+        quintuplet_scaling
+    );
+    println!(
+        "Septuplet scaling (k=7):   1/(ln b)⁷ ≈ {:.6}",
+        septuplet_scaling
+    );
     println!();
     println!("Predicted ratios:");
-    println!("  Triplet → Quintuplet:    {:.1}x rarer", triplet_to_quintuplet);
-    println!("  Quintuplet → Septuplet:  {:.1}x rarer", quintuplet_to_septuplet);
+    println!(
+        "  Triplet → Quintuplet:    {:.1}x rarer",
+        triplet_to_quintuplet
+    );
+    println!(
+        "  Quintuplet → Septuplet:  {:.1}x rarer",
+        quintuplet_to_septuplet
+    );
     println!();
     println!("OBSERVED (from previous tests):");
     println!("  Triplet → Septuplet:     1.9x rarer (predicted: 48.5x)");
@@ -248,8 +266,18 @@ fn main() {
         } else {
             // Show first 10 examples
             for (i, ((x, y), prime)) in quintuplet_results.iter().take(10).enumerate() {
-                println!("  [{:2}] (x,y)=({},{}) → {}-{}-{}-{}-{} = {}",
-                         i+1, x, y, y, x, middle, x, y, prime);
+                println!(
+                    "  [{:2}] (x,y)=({},{}) → {}-{}-{}-{}-{} = {}",
+                    i + 1,
+                    x,
+                    y,
+                    y,
+                    x,
+                    middle,
+                    x,
+                    y,
+                    prime
+                );
             }
             if quintuplet_results.len() > 10 {
                 println!("  ... and {} more", quintuplet_results.len() - 10);
@@ -317,8 +345,10 @@ fn main() {
         println!("  Quintuplet → Septuplet:  {:.2}x", quintuplet_to_septuplet);
         println!();
 
-        let error_trip_quint = ((triplet_to_quint_obs - triplet_to_quintuplet) / triplet_to_quintuplet * 100.0).abs();
-        let error_quint_sept = ((quint_to_sept_obs - quintuplet_to_septuplet) / quintuplet_to_septuplet * 100.0).abs();
+        let error_trip_quint =
+            ((triplet_to_quint_obs - triplet_to_quintuplet) / triplet_to_quintuplet * 100.0).abs();
+        let error_quint_sept =
+            ((quint_to_sept_obs - quintuplet_to_septuplet) / quintuplet_to_septuplet * 100.0).abs();
 
         println!("HL Prediction Errors:");
         println!("  Triplet → Quintuplet:    {:.1}%", error_trip_quint);
@@ -335,13 +365,21 @@ fn main() {
 
         let patterns = analyze_patterns(&all_quintuplet_successes);
 
-        println!("Detected patterns in {} quintuplets:", all_quintuplet_successes.len());
+        println!(
+            "Detected patterns in {} quintuplets:",
+            all_quintuplet_successes.len()
+        );
         println!();
 
         for (pattern_name, count) in patterns.iter() {
             let percentage = *count as f64 / all_quintuplet_successes.len() as f64 * 100.0;
-            println!("  {:25} : {:4} / {} ({:5.1}%)",
-                     pattern_name, count, all_quintuplet_successes.len(), percentage);
+            println!(
+                "  {:25} : {:4} / {} ({:5.1}%)",
+                pattern_name,
+                count,
+                all_quintuplet_successes.len(),
+                percentage
+            );
         }
         println!();
 

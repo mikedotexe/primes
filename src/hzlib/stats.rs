@@ -62,7 +62,11 @@ pub fn linreg(xs: &[f64], ys: &[f64]) -> (f64, f64, f64) {
 
     let ss_tot = syy - sy * sy / nf;
     let ss_res = ss_tot - slope * (sxy - sx * sy / nf);
-    let r2 = if ss_tot <= 0.0 { 0.0 } else { 1.0 - ss_res / ss_tot };
+    let r2 = if ss_tot <= 0.0 {
+        0.0
+    } else {
+        1.0 - ss_res / ss_tot
+    };
 
     (slope, intercept, r2)
 }
@@ -164,7 +168,7 @@ fn t_critical_value(df: f64, alpha_half: f64) -> f64 {
         a if (a - 0.025).abs() < 0.001 => 1.96,  // 95% CI
         a if (a - 0.005).abs() < 0.001 => 2.576, // 99% CI
         a if (a - 0.05).abs() < 0.001 => 1.645,  // 90% CI
-        _ => 1.96, // default to 95%
+        _ => 1.96,                               // default to 95%
     };
 
     // Adjust for finite df using approximation
@@ -637,13 +641,15 @@ mod tests {
         assert!(r2_2 < r2, "R² should be lower with noise");
 
         // 99% CI should be wider than 95%
-        let (_s3, _i3, _r3, slope_ci3, _ici3, _se3) =
-            linreg_with_ci(&xs, &ys_noisy, 0.99);
+        let (_s3, _i3, _r3, slope_ci3, _ici3, _se3) = linreg_with_ci(&xs, &ys_noisy, 0.99);
         assert!(slope_ci3 > slope_ci2, "99% CI should be wider than 95%");
 
         // Insufficient data
         let (s, i, r, sci, ici, se) = linreg_with_ci(&vec![1.0, 2.0], &vec![2.0, 4.0], 0.95);
-        assert!(s.is_nan() && i.is_nan() && r.is_nan(), "Should return NaN for n<3");
+        assert!(
+            s.is_nan() && i.is_nan() && r.is_nan(),
+            "Should return NaN for n<3"
+        );
     }
 
     #[test]
@@ -735,12 +741,18 @@ mod tests {
         let xs = vec![1.0, 2.0, 3.0, 4.0, 5.0];
         let ys = vec![2.0, 4.0, 6.0, 8.0, 10.0];
         let rho = spearman_rho(&xs, &ys);
-        assert!((rho - 1.0).abs() < 0.01, "Perfect increase should give ρ ≈ 1");
+        assert!(
+            (rho - 1.0).abs() < 0.01,
+            "Perfect increase should give ρ ≈ 1"
+        );
 
         // Perfect monotonic decrease
         let ys_dec = vec![10.0, 8.0, 6.0, 4.0, 2.0];
         let rho_dec = spearman_rho(&xs, &ys_dec);
-        assert!((rho_dec + 1.0).abs() < 0.01, "Perfect decrease should give ρ ≈ -1");
+        assert!(
+            (rho_dec + 1.0).abs() < 0.01,
+            "Perfect decrease should give ρ ≈ -1"
+        );
 
         // No correlation
         let ys_rand = vec![3.0, 1.0, 4.0, 2.0, 5.0];
@@ -764,7 +776,10 @@ mod tests {
         assert!(adjusted[1] < 0.05, "p=0.01 should remain significant");
 
         // Larger p-values should be adjusted upward
-        assert!(adjusted[3] >= pvalues[3], "p=0.10 should be adjusted up or stay same");
+        assert!(
+            adjusted[3] >= pvalues[3],
+            "p=0.10 should be adjusted up or stay same"
+        );
 
         // Length should match
         assert_eq!(adjusted.len(), pvalues.len());
@@ -772,13 +787,18 @@ mod tests {
         // Monotonicity: adjusted[i] <= adjusted[j] if pvalues[i] <= pvalues[j]
         let mut sorted_p = pvalues.clone();
         sorted_p.sort_by(|a, b| a.partial_cmp(b).unwrap());
-        let mut sorted_adj: Vec<(f64, f64)> = pvalues.iter().zip(adjusted.iter())
-            .map(|(p, a)| (*p, *a)).collect();
+        let mut sorted_adj: Vec<(f64, f64)> = pvalues
+            .iter()
+            .zip(adjusted.iter())
+            .map(|(p, a)| (*p, *a))
+            .collect();
         sorted_adj.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
 
         for i in 1..sorted_adj.len() {
-            assert!(sorted_adj[i].1 >= sorted_adj[i-1].1,
-                "BH adjusted p-values should be monotonic");
+            assert!(
+                sorted_adj[i].1 >= sorted_adj[i - 1].1,
+                "BH adjusted p-values should be monotonic"
+            );
         }
 
         // Empty input

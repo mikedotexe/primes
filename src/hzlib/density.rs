@@ -79,25 +79,28 @@ impl Band {
         let dmax = s / 2;
 
         // Compute exact denominators for each bin
-        for i in 0..bins {
+        for (i, denom_val) in denom.iter_mut().enumerate().take(bins) {
             let a = i as f64 / bins as f64;
             let bb = (i + 1) as f64 / bins as f64;
             let d_min = ((a * (s as f64) * 0.5).ceil()) as usize;
             let mut d_max_bin = (bb * (s as f64) * 0.5 - 1e-12).floor() as usize;
-            if d_max_bin > dmax { d_max_bin = dmax; }
-            if d_min > d_max_bin { denom[i] = 0; continue; }
+            if d_max_bin > dmax {
+                d_max_bin = dmax;
+            }
+            if d_min > d_max_bin {
+                *denom_val = 0;
+                continue;
+            }
 
             let mut residues = 0u64;
             for d in d_min..=d_max_bin {
-                if d == 0 {
-                    residues += 1;
-                } else if s % 2 == 0 && d * 2 == s {
+                if d == 0 || (s.is_multiple_of(2) && d * 2 == s) {
                     residues += 1;
                 } else {
                     residues += 2; // Both mid+d and mid-d
                 }
             }
-            denom[i] = residues * (b as u64 - 1);
+            *denom_val = residues * (b as u64 - 1);
         }
 
         Self {
@@ -116,10 +119,12 @@ impl Band {
     #[inline]
     pub fn add_prime(&mut self, p: usize) {
         let r = p % self.s;
-        let d = if r > self.mid { r - self.mid } else { self.mid - r };
+        let d = r.abs_diff(self.mid);
         let delta = (2.0 * d as f64) / self.s as f64;
         let mut idx = (delta * self.bins as f64) as usize;
-        if idx >= self.bins { idx = self.bins - 1; }
+        if idx >= self.bins {
+            idx = self.bins - 1;
+        }
         self.counts[idx] += 1;
     }
 
@@ -131,7 +136,11 @@ impl Band {
     /// Density at bin i (primes / possible_residues)
     pub fn density_at(&self, i: usize) -> f64 {
         let den = self.denom[i] as f64;
-        if den <= 0.0 { 0.0 } else { (self.counts[i] as f64) / den }
+        if den <= 0.0 {
+            0.0
+        } else {
+            (self.counts[i] as f64) / den
+        }
     }
 
     /// Find peak delta using smoothed density
@@ -144,7 +153,11 @@ impl Band {
         for i in 0..self.bins {
             let y0 = self.density_at(i);
             let yl = if i > 0 { self.density_at(i - 1) } else { y0 };
-            let yr = if i + 1 < self.bins { self.density_at(i + 1) } else { y0 };
+            let yr = if i + 1 < self.bins {
+                self.density_at(i + 1)
+            } else {
+                y0
+            };
 
             // Smoothed density (weighted average)
             let y = 0.25 * yl + 0.5 * y0 + 0.25 * yr;
@@ -200,7 +213,9 @@ impl BaseAccum {
 
         while s <= limit as u128 {
             let s_next = s * (b as u128);
-            if s_next > limit as u128 { break; } // Incomplete band
+            if s_next > limit as u128 {
+                break;
+            } // Incomplete band
 
             bands.push(Band::new(b, k, s as usize, s_next as usize, bins));
             k += 1;
@@ -237,7 +252,9 @@ impl BaseAccum {
             }
         }
 
-        if lo == 0 { return None; }
+        if lo == 0 {
+            return None;
+        }
 
         let idx = lo - 1;
         let bd = &self.bands[idx];

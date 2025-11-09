@@ -10,7 +10,7 @@ fn is_prime(n: &BigUint) -> bool {
     if n.bit(0) == false {
         return false;
     }
-    
+
     // Simple trial division for verification
     let mut i = BigUint::from(3u32);
     let sqrt = n.sqrt();
@@ -29,8 +29,16 @@ fn main() {
     // The two membrane primes from LAGRANGE_PROOF.md
     let prime1 = BigUint::from(303050303u64);
     let prime2 = BigUint::from(307050703u64);
-    println!("Membrane Prime 1: {} (verified: {})", prime1, is_prime(&prime1));
-    println!("Membrane Prime 2: {} (verified: {})", prime2, is_prime(&prime2));
+    println!(
+        "Membrane Prime 1: {} (verified: {})",
+        prime1,
+        is_prime(&prime1)
+    );
+    println!(
+        "Membrane Prime 2: {} (verified: {})",
+        prime2,
+        is_prime(&prime2)
+    );
     // Calculate L1 (midpoint)
     let l1 = (&prime1 + &prime2) / 2u32;
     println!("\nL1 Point (midpoint): {}", l1);
@@ -59,7 +67,7 @@ fn main() {
     for (prime, dist) in primes_found.iter().take(10) {
         println!("  {} at distance {}", prime, dist);
     }
-    
+
     // Now let's understand the "desert" concept
     println!("\n🏜️ Understanding Prime Deserts in Membrane Structure");
     println!("===================================================");
@@ -85,7 +93,7 @@ fn main() {
         }
         current += 1u32;
     }
-    
+
     // Region 2: Around L1 point
     let region2_primes = primes_found.len();
     // Region 3: Around membrane prime 2
@@ -99,7 +107,7 @@ fn main() {
         }
         current += 1u32;
     }
-    
+
     println!("\nPrime count in 1000-unit windows:");
     println!("  Around Membrane 1: {} primes", region1_primes);
     println!("  Around L1 (oasis): {} primes", region2_primes);
@@ -136,7 +144,7 @@ fn main() {
         } else {
             &prime2 - point
         };
-        
+
         // Field strength as inverse of minimum distance
         let min_dist = std::cmp::min(dist1, dist2);
         let field_strength = if min_dist == BigUint::from(0u32) {
@@ -146,7 +154,7 @@ fn main() {
         };
         println!("  {}: field strength = {:.3}", label, field_strength);
     }
-    
+
     println!("\n🎯 Better Metaphor Than 'Gravity':");
     println!("==================================");
     println!("Instead of 'gravitational fields', think of:");

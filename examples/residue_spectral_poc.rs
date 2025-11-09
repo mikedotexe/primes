@@ -52,9 +52,18 @@ fn main() {
         let metrics = compute_spectral_metrics(&freqs, base, divisor);
 
         println!("\n  Spectral Analysis:");
-        println!("    Spectral Flatness:  {:.4} (0=regular, 1=noise)", metrics.flatness);
-        println!("    Spectral Entropy:   {:.4} (0=regular, high=noise)", metrics.entropy);
-        println!("    Regularity Score:   {:.4} (0-1, higher=better)", metrics.regularity);
+        println!(
+            "    Spectral Flatness:  {:.4} (0=regular, 1=noise)",
+            metrics.flatness
+        );
+        println!(
+            "    Spectral Entropy:   {:.4} (0=regular, high=noise)",
+            metrics.entropy
+        );
+        println!(
+            "    Regularity Score:   {:.4} (0-1, higher=better)",
+            metrics.regularity
+        );
         println!("    DC Component:       {:.1}", metrics.dc_component);
         println!("    Max Harmonic:       {:.4}", metrics.max_harmonic_power);
 
@@ -63,10 +72,19 @@ fn main() {
         println!("\n  Prediction:");
         println!("    Predicted success:  {:.1}%", predicted_success);
         println!("    Actual success:     {:.1}%", prime_success);
-        println!("    Prediction error:   {:.1}%", (predicted_success - prime_success).abs());
+        println!(
+            "    Prediction error:   {:.1}%",
+            (predicted_success - prime_success).abs()
+        );
         println!();
 
-        results.push((base, divisor, metrics.regularity, predicted_success, prime_success));
+        results.push((
+            base,
+            divisor,
+            metrics.regularity,
+            predicted_success,
+            prime_success,
+        ));
     }
 
     // Summary statistics
@@ -85,8 +103,10 @@ fn main() {
         total_error += error;
         total_squared_error += error * error;
 
-        println!("│ {:4} │ {:3} │   {:.4}   │  {:5.1}%  │ {:5.1}% │ {:5.1}% │",
-                 base, div, reg, pred, actual, error);
+        println!(
+            "│ {:4} │ {:3} │   {:.4}   │  {:5.1}%  │ {:5.1}% │ {:5.1}% │",
+            base, div, reg, pred, actual, error
+        );
     }
 
     println!("└──────┴─────┴────────────┴───────────┴────────┴───────┘\n");
@@ -103,7 +123,10 @@ fn main() {
     let actuals: Vec<f64> = results.iter().map(|(_, _, _, _, a)| *a).collect();
 
     let correlation = compute_correlation(&regularities, &actuals);
-    println!("\nCorrelation (regularity ↔ prime success): {:.3}", correlation);
+    println!(
+        "\nCorrelation (regularity ↔ prime success): {:.3}",
+        correlation
+    );
 
     if correlation > 0.7 {
         println!("  ✓ STRONG positive correlation detected!");
@@ -183,9 +206,7 @@ fn compute_spectral_metrics(freqs: &[f64], base: u32, divisor: u32) -> SpectralM
     {
         // Fallback: use variance-based metrics
         let mean = freqs.iter().sum::<f64>() / freqs.len() as f64;
-        let variance = freqs.iter()
-            .map(|&f| (f - mean).powi(2))
-            .sum::<f64>() / freqs.len() as f64;
+        let variance = freqs.iter().map(|&f| (f - mean).powi(2)).sum::<f64>() / freqs.len() as f64;
 
         let std_dev = variance.sqrt();
         let cv = if mean > 0.0 { std_dev / mean } else { 0.0 };
@@ -215,9 +236,7 @@ fn compute_spectral_flatness(power: &[f64]) -> f64 {
 
     // Geometric mean (handle zeros by adding epsilon)
     let epsilon = 1e-10;
-    let log_sum: f64 = harmonics.iter()
-        .map(|&p| (p + epsilon).ln())
-        .sum();
+    let log_sum: f64 = harmonics.iter().map(|&p| (p + epsilon).ln()).sum();
     let geometric_mean = (log_sum / harmonics.len() as f64).exp();
 
     // Arithmetic mean
@@ -238,12 +257,11 @@ fn compute_spectral_entropy(power: &[f64]) -> f64 {
         return 0.0;
     }
 
-    let probs: Vec<f64> = power.iter()
-        .map(|&p| p / total_power)
-        .collect();
+    let probs: Vec<f64> = power.iter().map(|&p| p / total_power).collect();
 
     // Shannon entropy: H = -Σ p_i log(p_i)
-    let entropy: f64 = probs.iter()
+    let entropy: f64 = probs
+        .iter()
         .filter(|&&p| p > 1e-10)
         .map(|&p| -p * p.ln())
         .sum();
@@ -271,9 +289,9 @@ fn compute_regularity_score(flatness: f64, entropy: f64, harmonic_ratio: f64) ->
     let entropy_component = 1.0 - entropy.min(1.0);
     let harmonic_component = 1.0 - harmonic_ratio.min(1.0);
 
-    w_flatness * flatness_component +
-    w_entropy * entropy_component +
-    w_harmonic * harmonic_component
+    w_flatness * flatness_component
+        + w_entropy * entropy_component
+        + w_harmonic * harmonic_component
 }
 
 fn predict_prime_success(regularity: f64) -> f64 {
@@ -329,10 +347,16 @@ mod tests {
         let freqs = vec![2.0, 2.0, 2.0];
         let metrics = compute_spectral_metrics(&freqs, 6, 3);
 
-        assert!(metrics.regularity > 0.95,
-                "Perfect regularity should score >0.95, got {}", metrics.regularity);
-        assert!(metrics.flatness < 0.1,
-                "Flatness should be low, got {}", metrics.flatness);
+        assert!(
+            metrics.regularity > 0.95,
+            "Perfect regularity should score >0.95, got {}",
+            metrics.regularity
+        );
+        assert!(
+            metrics.flatness < 0.1,
+            "Flatness should be low, got {}",
+            metrics.flatness
+        );
     }
 
     #[test]
@@ -341,23 +365,35 @@ mod tests {
         let freqs = vec![4.0, 3.0, 3.0];
         let metrics = compute_spectral_metrics(&freqs, 10, 3);
 
-        assert!(metrics.regularity < 0.95,
-                "Irregular distribution should score <0.95, got {}", metrics.regularity);
-        assert!(metrics.regularity > 0.5,
-                "Should still be somewhat regular, got {}", metrics.regularity);
+        assert!(
+            metrics.regularity < 0.95,
+            "Irregular distribution should score <0.95, got {}",
+            metrics.regularity
+        );
+        assert!(
+            metrics.regularity > 0.5,
+            "Should still be somewhat regular, got {}",
+            metrics.regularity
+        );
     }
 
     #[test]
     fn test_prediction_accuracy() {
         // Base 6: regularity ~1.0 should predict ~33%
         let predicted = predict_prime_success(1.0);
-        assert!((predicted - 33.0).abs() < 2.0,
-                "Should predict ~33% for perfect regularity, got {:.1}%", predicted);
+        assert!(
+            (predicted - 33.0).abs() < 2.0,
+            "Should predict ~33% for perfect regularity, got {:.1}%",
+            predicted
+        );
 
         // Base 10: regularity ~0.75 should predict ~18%
         let predicted = predict_prime_success(0.75);
-        assert!((predicted - 26.0).abs() < 5.0,
-                "Should predict ~21% for 0.75 regularity, got {:.1}%", predicted);
+        assert!(
+            (predicted - 26.0).abs() < 5.0,
+            "Should predict ~21% for 0.75 regularity, got {:.1}%",
+            predicted
+        );
     }
 
     #[test]

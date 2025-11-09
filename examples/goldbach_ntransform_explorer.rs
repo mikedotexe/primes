@@ -64,8 +64,8 @@
 //!
 //! If successful, this transforms prime generation from probabilistic to constructive.
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
+use prime_physics_engine::is_prime;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -103,7 +103,7 @@ fn residues_after_transform(b: u64, n: u64, r: u64) -> Vec<u64> {
 /// Find k ∈ [0, N-1] where (r + k·B) ≡ 0 (mod N) - the integer vertex
 fn vertex_integer_k(b: u64, n: u64, r: u64) -> Option<u64> {
     let g = gcd(b % n, n);
-    if r % g != 0 {
+    if !r.is_multiple_of(g) {
         return None;
     }
     if g == n {
@@ -163,7 +163,13 @@ fn try_decompose(p: u64, b: u64, n: u64) -> Option<NTransformDecomposition> {
             if k_vertex == k {
                 let residues = residues_after_transform(b, n, r);
                 let gcd_bn = gcd(b, n);
-                let trio_universal = n == 3 && gcd_bn == 1 && residues.iter().collect::<std::collections::HashSet<_>>().len() == 3;
+                let trio_universal = n == 3
+                    && gcd_bn == 1
+                    && residues
+                        .iter()
+                        .collect::<std::collections::HashSet<_>>()
+                        .len()
+                        == 3;
 
                 return Some(NTransformDecomposition {
                     prime: p,
@@ -188,7 +194,7 @@ fn try_decompose(p: u64, b: u64, n: u64) -> Option<NTransformDecomposition> {
 
 /// Find all Goldbach pairs for target T
 fn find_goldbach_pairs(target: u64) -> Vec<(u64, u64)> {
-    if target < 4 || target % 2 != 0 {
+    if target < 4 || !target.is_multiple_of(2) {
         return vec![];
     }
 
@@ -218,7 +224,7 @@ struct ResonancePattern {
     n: u64,
     decomp1: NTransformDecomposition,
     decomp2: NTransformDecomposition,
-    r_correlation: f64, // Simple correlation measure
+    r_correlation: f64,     // Simple correlation measure
     k_relationship: String, // e.g., "k1 = k2", "k1 + k2 = N", etc.
 }
 
@@ -232,7 +238,11 @@ fn analyze_resonance(
     // Simple r correlation: how similar are the residue patterns?
     let r_corr = if decomp1.residues == decomp2.residues {
         1.0
-    } else if decomp1.residues.iter().all(|&r| decomp2.residues.contains(&r)) {
+    } else if decomp1
+        .residues
+        .iter()
+        .all(|&r| decomp2.residues.contains(&r))
+    {
         0.5
     } else {
         0.0
@@ -241,7 +251,7 @@ fn analyze_resonance(
     // k_int relationship
     let k_rel = if decomp1.k_int == decomp2.k_int {
         "equal".to_string()
-    } else if (decomp1.k_int + decomp2.k_int) % decomp1.n == 0 {
+    } else if (decomp1.k_int + decomp2.k_int).is_multiple_of(decomp1.n) {
         format!("sum≡0(mod{})", decomp1.n)
     } else if decomp1.k_int + decomp2.k_int == decomp1.n {
         format!("sum={}", decomp1.n)
@@ -274,7 +284,10 @@ fn print_summary(
     bases: &[u64],
 ) {
     println!("┌──────────────────────────────────────────────────────────────────┐");
-    println!("│ SUMMARY for T={} ({})                                      ", target, label);
+    println!(
+        "│ SUMMARY for T={} ({})                                      ",
+        target, label
+    );
     println!("└──────────────────────────────────────────────────────────────────┘");
     println!();
     println!("Total Goldbach pairs: {}", pairs.len());
@@ -286,7 +299,13 @@ fn print_summary(
         for &b in bases {
             let count = base_success_counts.get(&b).unwrap_or(&0);
             let rate = (*count as f64) / (pairs.len() as f64) * 100.0;
-            println!("  Base {:3}: {:4}/{} pairs ({:5.1}%)", b, count, pairs.len(), rate);
+            println!(
+                "  Base {:3}: {:4}/{} pairs ({:5.1}%)",
+                b,
+                count,
+                pairs.len(),
+                rate
+            );
         }
     }
 }
@@ -312,11 +331,9 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     // Parse arguments with both --flag=value and --flag value support
-    let target_arg = parse_arg(&args, "--target")
-        .and_then(|s| s.parse::<u64>().ok());
+    let target_arg = parse_arg(&args, "--target").and_then(|s| s.parse::<u64>().ok());
 
-    let bases_str = parse_arg(&args, "--bases")
-        .unwrap_or_else(|| "6,10,30,106".to_string());
+    let bases_str = parse_arg(&args, "--bases").unwrap_or_else(|| "6,10,30,106".to_string());
 
     let bases: Vec<u64> = bases_str
         .split(',')
@@ -328,8 +345,7 @@ fn main() {
         .unwrap_or(3);
 
     // NEW: Scale mode for base-proportional analysis
-    let scale_mode = parse_arg(&args, "--scale-mode")
-        .unwrap_or_else(|| "fixed".to_string());
+    let scale_mode = parse_arg(&args, "--scale-mode").unwrap_or_else(|| "fixed".to_string());
 
     let scale_mode = scale_mode.as_str();
 
@@ -355,7 +371,7 @@ fn main() {
                 targets.push((if b3 % 2 == 0 { b3 } else { 2 * b3 }, format!("B³={}", b)));
             }
             targets
-        },
+        }
         "both" => {
             let mut targets = Vec::new();
             // Fixed mode
@@ -370,15 +386,17 @@ fn main() {
                 targets.push((if b2 % 2 == 0 { b2 } else { 2 * b2 }, format!("B²={}", b)));
             }
             targets
-        },
-        _ => { // "fixed" or default
+        }
+        _ => {
+            // "fixed" or default
             let t = target_arg.unwrap_or(100);
             vec![(t, "fixed".to_string())]
         }
     };
 
     // Run analysis for each target
-    let mut all_results: HashMap<u64, (Vec<ResonancePattern>, HashMap<u64, usize>)> = HashMap::new();
+    let mut all_results: HashMap<u64, (Vec<ResonancePattern>, HashMap<u64, usize>)> =
+        HashMap::new();
 
     for (target, label) in &targets_to_test {
         println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -418,12 +436,19 @@ fn main() {
 
                         if verbose {
                             println!("  ✨ RESONANCE in base {}", b);
-                            println!("     p₁={}: r₁={}, k_int={}, residues={:?}",
-                                     p1, d1.r, d1.k_int, d1.residues);
-                            println!("     p₂={}: r₂={}, k_int={}, residues={:?}",
-                                     p2, d2.r, d2.k_int, d2.residues);
+                            println!(
+                                "     p₁={}: r₁={}, k_int={}, residues={:?}",
+                                p1, d1.r, d1.k_int, d1.residues
+                            );
+                            println!(
+                                "     p₂={}: r₂={}, k_int={}, residues={:?}",
+                                p2, d2.r, d2.k_int, d2.residues
+                            );
                             println!("     k relationship: {}", resonance.k_relationship);
-                            println!("     Trio universal: {} & {}", d1.trio_universal, d2.trio_universal);
+                            println!(
+                                "     Trio universal: {} & {}",
+                                d1.trio_universal, d2.trio_universal
+                            );
                         }
 
                         *base_success_counts.entry(b).or_insert(0) += 1;
@@ -439,7 +464,14 @@ fn main() {
         all_results.insert(*target, (resonances.clone(), base_success_counts.clone()));
 
         // Show summary for this target
-        print_summary(*target, label, &pairs, &resonances, &base_success_counts, &bases);
+        print_summary(
+            *target,
+            label,
+            &pairs,
+            &resonances,
+            &base_success_counts,
+            &bases,
+        );
         println!();
     }
 
@@ -461,13 +493,17 @@ fn main() {
                     if pairs_count > 0 {
                         let count = base_counts.get(&b).unwrap_or(&0);
                         let rate = (*count as f64) / (pairs_count as f64) * 100.0;
-                        let indicator = if label.contains(&format!("B²={}", b)) || label.contains(&format!("B³={}", b)) {
+                        let indicator = if label.contains(&format!("B²={}", b))
+                            || label.contains(&format!("B³={}", b))
+                        {
                             "★" // Star for base-proportional
                         } else {
                             " "
                         };
-                        println!("  {} T={:6} ({:12}): {:4}/{} pairs ({:5.1}%)",
-                                 indicator, target, label, count, pairs_count, rate);
+                        println!(
+                            "  {} T={:6} ({:12}): {:4}/{} pairs ({:5.1}%)",
+                            indicator, target, label, count, pairs_count, rate
+                        );
                     }
                 }
             }

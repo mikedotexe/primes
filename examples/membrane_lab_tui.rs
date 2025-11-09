@@ -1,5 +1,5 @@
 //! Interactive Membrane Laboratory - TUI Interface
-//! 
+//!
 //! A real-time, interactive terminal interface for exploring membrane prime generation.
 //! Researchers can adjust parameters and see immediate results with visual feedback.
 
@@ -8,25 +8,23 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use num_bigint::BigUint;
+use prime_physics_engine::{
+    is_prime,
+    membrane::{MembraneBuilder, MembraneConfig},
+};
 use ratatui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span},
-    widgets::{
-        Block, Borders, List, ListItem, Paragraph, Tabs, Wrap,
-    },
+    widgets::{Block, Borders, List, ListItem, Paragraph, Tabs, Wrap},
     Frame, Terminal,
 };
 use std::{
     io,
     time::{Duration, Instant},
 };
-use prime_physics_engine::{
-    is_prime,
-    membrane::{MembraneConfig, MembraneBuilder},
-};
-use num_bigint::BigUint;
 
 #[derive(Debug, Clone)]
 struct GenerationResult {
@@ -46,19 +44,19 @@ struct LabState {
     inner: u32,
     k_outer: u32,
     k_inner: u32,
-    
+
     // UI state
     selected_param: usize,
     tab_index: usize,
     current_results: Vec<GenerationResult>,
     is_generating: bool,
     generation_progress: f64,
-    
+
     // Statistics
     total_generated: usize,
     total_primes: usize,
     session_start: Instant,
-    
+
     // Seeds to test
     test_seeds: Vec<String>,
     #[allow(dead_code)]
@@ -106,10 +104,10 @@ impl LabState {
         self.current_results.clear();
         self.is_generating = true;
         self.generation_progress = 0.0;
-        
+
         for (i, seed) in self.test_seeds.iter().enumerate() {
             let start = Instant::now();
-            
+
             let config = MembraneConfig::new(
                 self.base,
                 self.outer,
@@ -117,28 +115,26 @@ impl LabState {
                 self.k_outer,
                 self.k_inner,
             );
-            
+
             // Convert string seed to u8 (use first digit or default to 1)
-            let seed_u8 = seed.chars()
+            let seed_u8 = seed
+                .chars()
                 .next()
                 .and_then(|c| c.to_digit(10))
                 .map(|d| d as u8)
                 .unwrap_or(1);
-            
-            if let Ok(particle) = MembraneBuilder::new(config)
-                .with_seed(seed_u8)
-                .build() {
-                
+
+            if let Ok(particle) = MembraneBuilder::new(config).with_seed(seed_u8).build() {
                 let number = particle.value;
-                
+
                 let is_prime = is_prime(&number);
                 let generation_time = start.elapsed();
-                
+
                 let wolfram_url = format!(
                     "https://www.wolframalpha.com/input?i=isPrime%28{}%29",
                     number
                 );
-                
+
                 self.current_results.push(GenerationResult {
                     number,
                     is_prime,
@@ -146,7 +142,7 @@ impl LabState {
                     generation_time,
                     wolfram_url,
                 });
-                
+
                 self.total_generated += 1;
                 if is_prime {
                     self.total_primes += 1;
@@ -154,13 +150,13 @@ impl LabState {
                     self.flash_timer = Instant::now();
                 }
             }
-            
+
             self.generation_progress = (i + 1) as f64 / self.test_seeds.len() as f64;
         }
-        
+
         self.is_generating = false;
     }
-    
+
     fn success_rate(&self) -> f64 {
         if self.total_generated == 0 {
             0.0
@@ -177,16 +173,16 @@ fn main() -> Result<(), io::Error> {
     execute!(stdout, EnterAlternateScreen)?;
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
-    
+
     // Create app state
     let mut state = LabState::default();
     let mut last_tick = Instant::now();
     let tick_rate = Duration::from_millis(100);
-    
+
     loop {
         // Draw UI
         terminal.draw(|f| draw_ui(f, &mut state))?;
-        
+
         // Handle input
         if crossterm::event::poll(Duration::from_millis(50))? {
             if let Event::Key(key) = event::read()? {
@@ -211,21 +207,18 @@ fn main() -> Result<(), io::Error> {
                 }
             }
         }
-        
+
         // Update tick
         if last_tick.elapsed() >= tick_rate {
             last_tick = Instant::now();
         }
     }
-    
+
     // Restore terminal
     disable_raw_mode()?;
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-    )?;
+    execute!(terminal.backend_mut(), LeaveAlternateScreen,)?;
     terminal.show_cursor()?;
-    
+
     Ok(())
 }
 
@@ -239,18 +232,26 @@ fn draw_ui(f: &mut Frame, state: &mut LabState) {
             Constraint::Length(3),
         ])
         .split(f.size());
-    
+
     // Header
     let header = Paragraph::new(Line::from(vec![
         Span::styled("🧪 ", Style::default().fg(Color::Cyan)),
-        Span::styled("Membrane Laboratory", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            "Membrane Laboratory",
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        ),
         Span::raw(" - "),
-        Span::styled("Interactive Prime Generator", Style::default().fg(Color::Gray)),
+        Span::styled(
+            "Interactive Prime Generator",
+            Style::default().fg(Color::Gray),
+        ),
     ]))
     .block(Block::default().borders(Borders::ALL))
     .alignment(Alignment::Center);
     f.render_widget(header, chunks[0]);
-    
+
     // Main content area with tabs
     let tab_titles = vec!["Parameters", "Results", "Statistics"];
     let tabs = Tabs::new(tab_titles)
@@ -258,28 +259,32 @@ fn draw_ui(f: &mut Frame, state: &mut LabState) {
         .style(Style::default().fg(Color::White))
         .highlight_style(Style::default().fg(Color::Yellow))
         .select(state.tab_index);
-    
+
     let main_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(3), Constraint::Min(0)])
         .split(chunks[1]);
-    
+
     f.render_widget(tabs, main_chunks[0]);
-    
+
     match state.tab_index {
         0 => draw_parameters_tab(f, state, main_chunks[1]),
         1 => draw_results_tab(f, state, main_chunks[1]),
         2 => draw_statistics_tab(f, state, main_chunks[1]),
         _ => {}
     }
-    
+
     // Status bar
-    let status_style = if state.flash_timer.elapsed() < Duration::from_millis(500) && state.last_generation_success {
-        Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)
+    let status_style = if state.flash_timer.elapsed() < Duration::from_millis(500)
+        && state.last_generation_success
+    {
+        Style::default()
+            .fg(Color::Green)
+            .add_modifier(Modifier::BOLD)
     } else {
         Style::default().fg(Color::Gray)
     };
-    
+
     let status = Paragraph::new(Line::from(vec![
         Span::raw("Press "),
         Span::styled("Space", Style::default().fg(Color::Cyan)),
@@ -302,13 +307,15 @@ fn draw_parameters_tab(f: &mut Frame, state: &mut LabState, area: Rect) {
         ("K Outer", state.k_outer),
         ("K Inner", state.k_inner),
     ];
-    
+
     let items: Vec<ListItem> = params
         .iter()
         .enumerate()
         .map(|(i, (name, value))| {
             let style = if i == state.selected_param {
-                Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD)
             } else {
                 Style::default()
             };
@@ -319,16 +326,17 @@ fn draw_parameters_tab(f: &mut Frame, state: &mut LabState, area: Rect) {
             ]))
         })
         .collect();
-    
+
     let list = List::new(items)
         .block(Block::default().borders(Borders::ALL).title("Parameters"))
         .highlight_style(Style::default().add_modifier(Modifier::REVERSED));
-    
+
     f.render_widget(list, area);
 }
 
 fn draw_results_tab(f: &mut Frame, state: &mut LabState, area: Rect) {
-    let items: Vec<ListItem> = state.current_results
+    let items: Vec<ListItem> = state
+        .current_results
         .iter()
         .map(|result| {
             let style = if result.is_prime {
@@ -341,14 +349,20 @@ fn draw_results_tab(f: &mut Frame, state: &mut LabState, area: Rect) {
                 Span::styled(&result.seed, Style::default().fg(Color::Cyan)),
                 Span::raw(" → "),
                 Span::styled(result.number.to_string(), style),
-                Span::raw(format!(" ({:.1}ms)", result.generation_time.as_secs_f64() * 1000.0)),
+                Span::raw(format!(
+                    " ({:.1}ms)",
+                    result.generation_time.as_secs_f64() * 1000.0
+                )),
             ]))
         })
         .collect();
-    
-    let list = List::new(items)
-        .block(Block::default().borders(Borders::ALL).title("Generation Results"));
-    
+
+    let list = List::new(items).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .title("Generation Results"),
+    );
+
     f.render_widget(list, area);
 }
 
@@ -357,34 +371,49 @@ fn draw_statistics_tab(f: &mut Frame, state: &mut LabState, area: Rect) {
     let stats_text = vec![
         Line::from(vec![
             Span::raw("Session Runtime: "),
-            Span::styled(format!("{:.1}s", runtime.as_secs_f64()), Style::default().fg(Color::Cyan)),
+            Span::styled(
+                format!("{:.1}s", runtime.as_secs_f64()),
+                Style::default().fg(Color::Cyan),
+            ),
         ]),
         Line::from(vec![
             Span::raw("Total Generated: "),
-            Span::styled(state.total_generated.to_string(), Style::default().fg(Color::Yellow)),
+            Span::styled(
+                state.total_generated.to_string(),
+                Style::default().fg(Color::Yellow),
+            ),
         ]),
         Line::from(vec![
             Span::raw("Total Primes: "),
-            Span::styled(state.total_primes.to_string(), Style::default().fg(Color::Green)),
+            Span::styled(
+                state.total_primes.to_string(),
+                Style::default().fg(Color::Green),
+            ),
         ]),
         Line::from(vec![
             Span::raw("Success Rate: "),
-            Span::styled(format!("{:.1}%", state.success_rate()), Style::default().fg(Color::Magenta)),
+            Span::styled(
+                format!("{:.1}%", state.success_rate()),
+                Style::default().fg(Color::Magenta),
+            ),
         ]),
         Line::from(""),
         Line::from(vec![
             Span::raw("Current Config: "),
             Span::styled(
-                format!("({},{}) k=({},{})", state.outer, state.inner, state.k_outer, state.k_inner),
-                Style::default().fg(Color::Blue)
+                format!(
+                    "({},{}) k=({},{})",
+                    state.outer, state.inner, state.k_outer, state.k_inner
+                ),
+                Style::default().fg(Color::Blue),
             ),
         ]),
     ];
-    
+
     let paragraph = Paragraph::new(stats_text)
         .block(Block::default().borders(Borders::ALL).title("Statistics"))
         .wrap(Wrap { trim: true });
-    
+
     f.render_widget(paragraph, area);
 }
 

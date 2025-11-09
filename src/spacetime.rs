@@ -1,6 +1,5 @@
 //! Spacetime and base-dependent metrics
 
-
 /// Base-dependent spacetime metric
 #[derive(Debug, Clone)]
 pub struct BaseMetric {
@@ -15,7 +14,7 @@ impl BaseMetric {
             p if p % 2 == 0 => 0.5,
             _ => 1.0,
         };
-        
+
         Self { base, curvature }
     }
 }
@@ -45,12 +44,20 @@ impl PhaseSpace {
 }
 
 fn is_prime(n: u32) -> bool {
-    if n < 2 { return false; }
-    if n == 2 { return true; }
-    if n % 2 == 0 { return false; }
-    
+    if n < 2 {
+        return false;
+    }
+    if n == 2 {
+        return true;
+    }
+    if n.is_multiple_of(2) {
+        return false;
+    }
+
     for i in (3..=(n as f64).sqrt() as u32).step_by(2) {
-        if n % i == 0 { return false; }
+        if n.is_multiple_of(i) {
+            return false;
+        }
     }
     true
 }

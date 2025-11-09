@@ -1,7 +1,6 @@
-
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
 use plotters::prelude::*;
+use prime_physics_engine::is_prime;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let body1 = "7";
@@ -12,13 +11,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new(out_file_name, (1024, 768)).into_drawing_area();
     root.fill(&BLACK)?;
 
-    let mut chart = ChartBuilder::on(&root)
-        .margin(20)
-        .build_cartesian_3d(
-            0..max_space_size, 
-            1..10, 
-            0..max_space_size
-        )?;
+    let mut chart = ChartBuilder::on(&root).margin(20).build_cartesian_3d(
+        0..max_space_size,
+        1..10,
+        0..max_space_size,
+    )?;
 
     chart.configure_axes().draw()?;
 
@@ -48,13 +45,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         2, // size of the point
         &WHITE.mix(0.8),
         &|c, s, st| {
-            return EmptyElement::at(c)
-            + Circle::new((0,0),s,st.filled());
-        }
+            return EmptyElement::at(c) + Circle::new((0, 0), s, st.filled());
+        },
     ))?;
 
     root.present()?;
-    println!("3D Lagrange landscape visualization saved to {}", out_file_name);
+    println!(
+        "3D Lagrange landscape visualization saved to {}",
+        out_file_name
+    );
 
     Ok(())
 }

@@ -1,7 +1,6 @@
-
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
 use plotters::prelude::*;
+use prime_physics_engine::is_prime;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let body1 = "7";
@@ -18,7 +17,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .margin(5)
         .build_cartesian_2d(0..space_size, 1..10)?;
 
-    chart.configure_mesh()
+    chart
+        .configure_mesh()
         .x_desc("Position")
         .y_desc("Digit")
         .draw()?;
@@ -47,21 +47,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 ))?;
             } else {
-                 chart.draw_series(PointSeries::of_element(
+                chart.draw_series(PointSeries::of_element(
                     [(position, digit)],
                     1,
                     &BLUE.mix(0.2),
                     &|c, s, st| {
                         return EmptyElement::at(c)    // We want to construct a composed element on-the-fly
                         + Circle::new((0,0),s,st.filled()); // At backend position c, draw a circle with radius s
-                    }
+                    },
                 ))?;
             }
         }
     }
 
     root.present()?;
-    println!("Lagrange landscape visualization saved to {}", out_file_name);
+    println!(
+        "Lagrange landscape visualization saved to {}",
+        out_file_name
+    );
 
     Ok(())
 }
