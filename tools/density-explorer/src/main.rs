@@ -364,6 +364,16 @@ fn wilson_ci(primes: usize, n: usize, z: f64) -> (f64, f64) {
     (lo.max(0.0), hi.min(1.0))
 }
 
+/// Calculate expected prime density from Prime Number Theorem.
+/// For L-digit numbers in base b, typical magnitude is b^(L-0.5),
+/// so expected density ≈ 1/ln(b^(L-0.5)) = 1/((L-0.5)*ln(b))
+fn expected_density_pnt(total_len: usize, base: u32) -> f64 {
+    if total_len == 0 { return 0.0; }
+    let ln_base = (base as f64).ln();
+    let effective_len = (total_len as f64) - 0.5;
+    1.0 / (effective_len * ln_base)
+}
+
 fn format_pattern(p: &Pattern) -> String {
     let mid = match p.midpoint { Midpoint::Free(l) => format!("free:{l}"), Midpoint::Zeros(l) => format!("zeros:{l}") };
     let layers = p.layers.iter().map(|L| format!("{}:{}", L.zero, L.slot)).collect::<Vec<_>>().join(",");
@@ -388,6 +398,8 @@ struct SampleReport {
     prime_density: f64,
     ci_lo: f64,
     ci_hi: f64,
+    expected_density_pnt: f64,
+    enrichment_factor: f64,
     elapsed_ms: u128,
     tracked_primes: Vec<u32>,
     divisible_counts: Vec<usize>,
@@ -468,6 +480,8 @@ fn do_sample(p: &Pattern, samples: usize, seed: u64, parallel: bool, track: &[u3
     let elapsed = start.elapsed().as_millis();
     let density = primes as f64 / samples as f64;
     let (lo, hi) = wilson_ci(primes, samples, 1.96);
+    let expected = expected_density_pnt(total_len, p.base);
+    let enrichment = if expected > 0.0 { density / expected } else { 0.0 };
     SampleReport {
         pattern: format_pattern(p),
         base: p.base,
@@ -479,6 +493,8 @@ fn do_sample(p: &Pattern, samples: usize, seed: u64, parallel: bool, track: &[u3
         prime_density: density,
         ci_lo: lo,
         ci_hi: hi,
+        expected_density_pnt: expected,
+        enrichment_factor: enrichment,
         elapsed_ms: elapsed,
         tracked_primes: track.to_vec(),
         divisible_counts: counts,
@@ -486,12 +502,13 @@ fn do_sample(p: &Pattern, samples: usize, seed: u64, parallel: bool, track: &[u3
 }
 
 fn write_csv_header(w: &mut dyn Write) {
-    writeln!(w, "pattern,base,total_len,mid_len,inner_zero,samples,primes,prime_density,ci_lo,ci_hi,elapsed_ms,tracked_primes,divisible_counts").unwrap();
+    writeln!(w, "pattern,base,total_len,mid_len,inner_zero,samples,primes,prime_density,ci_lo,ci_hi,expected_density_pnt,enrichment_factor,elapsed_ms,tracked_primes,divisible_counts").unwrap();
 }
 
 fn write_csv_row(w: &mut dyn Write, r: &SampleReport) {
-    writeln!(w, "{},{},{},{},{},{},{},{:.8},{:.8},{:.8},{},{:?},{:?}",
-        r.pattern, r.base, r.total_len, r.mid_len, r.inner_zero, r.samples, r.primes, r.prime_density, r.ci_lo, r.ci_hi, r.elapsed_ms,
+    writeln!(w, "{},{},{},{},{},{},{},{:.8},{:.8},{:.8},{:.8},{:.4},{},{:?},{:?}",
+        r.pattern, r.base, r.total_len, r.mid_len, r.inner_zero, r.samples, r.primes, r.prime_density, r.ci_lo, r.ci_hi,
+        r.expected_density_pnt, r.enrichment_factor, r.elapsed_ms,
         r.tracked_primes, r.divisible_counts
     ).unwrap();
 }
