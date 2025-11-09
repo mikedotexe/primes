@@ -4,7 +4,9 @@ This directory contains rigorous mathematical formalizations of the empirically 
 
 ## Files
 
-### `PrimeConcepts.agda`
+### Core Formalizations
+
+#### `PrimeConcepts.agda`
 Core mathematical structures and theorems:
 
 1. **Membrane Structure Formalization**
@@ -32,7 +34,7 @@ Core mathematical structures and theorems:
    - Complementary pattern enhancement
    - Coverage probability via Poisson approximation
 
-### `EmpiricalEvidence.agda`
+#### `EmpiricalEvidence.agda`
 Data-rich encoding of experimental results:
 
 1. **Resonance Data** (bodies 7 and 11)
@@ -65,6 +67,47 @@ Data-rich encoding of experimental results:
    - k=(0,0) consistently outperforms all padded variants
    - Tighter structure = better filtering
 
+### Proof Skeletons (Lightweight Foundations)
+
+#### `PalindromeEvenDivides.agda`
+Formal proof skeleton for palindrome divisibility property:
+
+- **Main Theorem**: Even-length palindromes in base b ≥ 2 are divisible by (b+1)
+- **Method**: Pairing argument on symmetric digit positions
+- **Key Insight**: For palindrome of length 2k, each pair contributes d·(b^i + b^j) where j-i is odd
+- **Factorization**: Uses x^odd + 1 = (x+1)·Q(x) property (postulated)
+- **Status**: Skeleton with postulated algebraic identities (to be filled with ring reasoning)
+
+**Type signature**:
+```agda
+evenPalindromeDividesBPlusOne
+  : ∀ {k} (b : ℕ) → b ≥2 → (ds : Vec ℕ (2*k))
+  → Palindrome ds → (b + 1) ∣ eval b ds
+```
+
+#### `DigitSumMod3.agda`
+Formal proof skeleton for digit-sum divisibility rules modulo 3:
+
+- **Lemma 1**: If b ≡ 1 (mod 3), then eval(b,ds) ≡ sum(ds) (mod 3)
+- **Lemma 2**: If b ≡ 0 (mod 3), then eval(b,ds) ≡ head(ds) (mod 3) (LSB-first encoding)
+- **Lemma 3**: If b ≡ 2 (mod 3), then eval(b,ds) ≡ alternating-sum(ds) (mod 3)
+- **Key Insight**: Base congruence class determines which sum invariant holds
+- **Status**: Skeleton with postulated modular arithmetic lemmas
+
+**Type signatures**:
+```agda
+digitSumMod3-base≡1 : ∀ {n} (b : ℕ) (ds : Vec ℕ n)
+  → b ≡₃ 1 → eval b ds ≡₃ sumDigits ds
+
+digitSumMod3-base≡0 : ∀ {n} (b : ℕ) (ds : Vec ℕ n)
+  → b ≡₃ 0 → eval b ds ≡₃ head ds
+
+digitSumMod3-base≡2 : ∀ {n} (b : ℕ) (ds : Vec ℕ n)
+  → b ≡₃ 2 → eval b ds ≡₃ altSum ds
+```
+
+**Usage**: These skeletons provide a lightweight foundation that can be gradually refined into complete proofs using the Agda standard library's ring solver and modular arithmetic facilities.
+
 ## Verification Standards
 
 All claims in these formalizations are:
@@ -80,11 +123,27 @@ All claims in these formalizations are:
 - Total checks: 286,200 across all verifications
 
 ### Reproducibility Commands
+
+**Rust examples**:
 ```bash
 cargo run --example resonance_analyzer --release
 cargo run --example perturbation_analyzer --release
 cargo run --example gcd_paradox_resolver --release -- --quick
 cargo run --example goldbach_hl_analysis -- --min-base 60 --max-base 80
+```
+
+**Agda type-checking** (requires Agda + standard library):
+```bash
+# Navigate to agda directory
+cd agda/
+
+# Type-check proof skeletons
+agda --library standard-library PalindromeEvenDivides.agda
+agda --library standard-library DigitSumMod3.agda
+
+# Type-check core formalizations
+agda --library standard-library PrimeConcepts.agda
+agda --library standard-library EmpiricalEvidence.agda
 ```
 
 ## Key Theorems (To Be Proven)
