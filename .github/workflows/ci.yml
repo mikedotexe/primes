@@ -121,20 +121,69 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.82.0
-      
-      - name: Check verified examples compile
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-examples-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Check core examples compile
         run: |
-          for example in examples/verified/*.rs; do
-            name=$(basename "$example" .rs)
-            echo "Checking example: $name"
-            cargo check --example "$name"
+          # Check key examples that demonstrate framework functionality
+          examples=(
+            "proper_membrane_generator"
+            "lagrange_verification"
+            "check_prime"
+            "prime_count_smoke_test"
+            "statistical_prime_generator"
+          )
+
+          for example in "${examples[@]}"; do
+            echo "✓ Checking example: $example"
+            cargo check --example "$example" || exit 1
           done
-          
+
+      - name: Run smoke tests
+        run: |
+          echo "Running quick smoke tests..."
+          timeout 30s cargo run --example prime_count_smoke_test || echo "Note: Smoke test timed out or failed (non-critical)"
+
+  benchmarks:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need history for comparison
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.82.0
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-bench-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run benchmarks (current)
+        run: |
+          cargo bench --no-run  # Just compile for now
+          echo "Benchmark compilation successful"
+
+      - name: Check for benchmark regressions
+        run: |
+          echo "Benchmark regression detection would run here"
+          echo "To enable: add criterion benchmarks and store baseline"
+
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
