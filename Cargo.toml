@@ -1,15 +1,14 @@
 [package]
-name = "prime-physics-engine"
+name = "primes"
 version = "1.0.0"
 edition = "2021"
-authors = ["Mike Purvis <mike@purvis.org>", "Prime Physics Research Team"]
-description = "Revolutionary prime number generation through symmetric membrane constructions with 3-7x performance over random methods"
+authors = ["Mike Purvis", "Research-grade AI"]
+description = "Prime number research through symmetric means"
 license = "MIT"
-keywords = ["prime-numbers", "number-theory", "cryptography", "membrane-physics", "high-performance"]
-categories = ["mathematics", "algorithms", "science", "cryptography"]
-repository = "https://github.com/mikepurvis/prime-physics-engine"
-documentation = "https://docs.rs/prime-physics-engine"
-homepage = "https://github.com/mikepurvis/prime-physics-engine"
+keywords = ["prime-numbers", "number-theory", "cryptography"]
+categories = ["mathematics", "primes", "science", "cryptography"]
+repository = "https://github.com/mikedotexe/primes"
+homepage = "https://github.com/mikedotexe/primes"
 readme = "README.md"
 
 [lib]
