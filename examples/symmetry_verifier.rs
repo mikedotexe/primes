@@ -17,35 +17,43 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             // Construct and test Number A
             let mut test_str_a = "0".repeat(space_size);
-            unsafe { test_str_a.as_bytes_mut()[pos_a] = b'0' + digit as u8; }
+            unsafe {
+                test_str_a.as_bytes_mut()[pos_a] = b'0' + digit as u8;
+            }
             let full_number_a = format!("{}{}{}", body1, test_str_a, body2);
-            let is_prime_a = full_number_a.parse::<BigUint>().map_or(false, |num| is_prime(&num));
+            let is_prime_a = full_number_a
+                .parse::<BigUint>()
+                .map_or(false, |num| is_prime(&num));
 
             // Construct and test Number B
             let mut test_str_b = "0".repeat(space_size);
-            unsafe { test_str_b.as_bytes_mut()[pos_b] = b'0' + digit as u8; }
+            unsafe {
+                test_str_b.as_bytes_mut()[pos_b] = b'0' + digit as u8;
+            }
             let full_number_b = format!("{}{}{}", body1, test_str_b, body2);
-            let is_prime_b = full_number_b.parse::<BigUint>().map_or(false, |num| is_prime(&num));
+            let is_prime_b = full_number_b
+                .parse::<BigUint>()
+                .map_or(false, |num| is_prime(&num));
 
             match (is_prime_a, is_prime_b) {
                 (true, true) => {
                     // If pos_a is its own reflection (middle point in odd space_size), count it once.
-                    if pos_a == pos_b { 
-                        total_primes += 1; 
+                    if pos_a == pos_b {
+                        total_primes += 1;
                     } else {
                         both_prime += 1;
                         total_primes += 2;
                     }
-                },
+                }
                 (true, false) => {
                     a_only += 1;
                     total_primes += 1;
-                },
+                }
                 (false, true) => {
                     b_only += 1;
                     total_primes += 1;
-                },
-                (false, false) => {},
+                }
+                (false, false) => {}
             }
         }
     }
@@ -66,9 +74,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("------------------------------------",);
     println!("Total Primes Found: {}", total_primes);
     println!("Symmetric Pairs (A and B prime): {}", symmetric_pairs);
-    println!("Asymmetric Primes (A or B, but not both): {}", asymmetric_primes);
+    println!(
+        "Asymmetric Primes (A or B, but not both): {}",
+        asymmetric_primes
+    );
     println!("\n--- Analysis ---");
-    println!("Symmetry Strength: {:.2}% of primes found were part of a symmetric pair.", symmetry_strength);
+    println!(
+        "Symmetry Strength: {:.2}% of primes found were part of a symmetric pair.",
+        symmetry_strength
+    );
     println!("Symmetry Correlation Factor: {:.4}", correlation_factor);
     println!("\nInterpretation:");
     println!("A correlation factor of 0.0 would indicate no correlation (randomness).");

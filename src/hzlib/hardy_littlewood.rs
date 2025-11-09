@@ -149,7 +149,9 @@ pub fn singular_series_goldbach(n: usize, spf: &[usize]) -> f64 {
 /// assert_eq!(pairs, 2);
 /// ```
 pub fn count_pairs_for_n(n: usize, base: usize, is_prime: &[bool]) -> usize {
-    if n < 2 * base { return 0; }
+    if n < 2 * base {
+        return 0;
+    }
 
     let start = std::cmp::max(base, 2);
     let end = n / 2;
@@ -256,12 +258,7 @@ pub fn hl_goldbach_lambda(n: usize, spf: &[usize], pairing: PairCount) -> f64 {
 /// let lambda = hl_goldbach_lambda_truncated(1000, 100, &spf, PairCount::Unordered);
 /// assert!(lambda > 0.0);
 /// ```
-pub fn hl_goldbach_lambda_truncated(
-    n: usize,
-    lo: usize,
-    spf: &[usize],
-    pairing: PairCount,
-) -> f64 {
+pub fn hl_goldbach_lambda_truncated(n: usize, lo: usize, spf: &[usize], pairing: PairCount) -> f64 {
     if n % 2 == 1 || n < 2 * lo || lo < 2 {
         return 0.0;
     }
@@ -329,7 +326,7 @@ pub fn goldbach_coverage(expected_pairs: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::hzlib::sieve::{sieve_spf, sieve_bool};
+    use crate::hzlib::sieve::{sieve_bool, sieve_spf};
 
     #[test]
     fn test_constants() {
@@ -352,7 +349,10 @@ mod tests {
 
         // S₂(30) = (3-1)/(3-2) × (5-1)/(5-2) = 2 × 4/3 = 8/3
         let s30 = singular_series_goldbach_multiplicative(30, &spf);
-        assert!((s30 - 8.0/3.0).abs() < 1e-12, "S₂(30) should be exactly 8/3");
+        assert!(
+            (s30 - 8.0 / 3.0).abs() < 1e-12,
+            "S₂(30) should be exactly 8/3"
+        );
 
         // S₂(6) = (3-1)/(3-2) = 2
         let s6 = singular_series_goldbach_multiplicative(6, &spf);
@@ -360,7 +360,7 @@ mod tests {
 
         // S₂(10) = (5-1)/(5-2) = 4/3
         let s10 = singular_series_goldbach_multiplicative(10, &spf);
-        assert!((s10 - 4.0/3.0).abs() < 1e-12);
+        assert!((s10 - 4.0 / 3.0).abs() < 1e-12);
 
         // Odd n should return 0
         assert_eq!(singular_series_goldbach_multiplicative(15, &spf), 0.0);
@@ -390,8 +390,12 @@ mod tests {
 
             // Ratio should be very close to 2.0
             let ratio = lambda_ord / lambda_uno;
-            assert!((ratio - 2.0).abs() < 0.01,
-                "Ordered/Unordered ratio at n={} is {}, expected ~2.0", n, ratio);
+            assert!(
+                (ratio - 2.0).abs() < 0.01,
+                "Ordered/Unordered ratio at n={} is {}, expected ~2.0",
+                n,
+                ratio
+            );
         }
     }
 
@@ -408,8 +412,12 @@ mod tests {
         let ln_n = (n as f64).ln();
         let expected = C2 * s2 * (n as f64) / (ln_n * ln_n);
 
-        assert!((lambda - expected).abs() < 1e-10,
-            "Lambda mismatch: got {}, expected {}", lambda, expected);
+        assert!(
+            (lambda - expected).abs() < 1e-10,
+            "Lambda mismatch: got {}, expected {}",
+            lambda,
+            expected
+        );
     }
 
     #[test]
@@ -422,10 +430,18 @@ mod tests {
         let lambda_50 = hl_goldbach_lambda_truncated(n, 50, &spf, PairCount::Unordered);
         let lambda_100 = hl_goldbach_lambda_truncated(n, 100, &spf, PairCount::Unordered);
 
-        assert!(lambda_10 >= lambda_50,
-            "λ(1000, 10) = {} should be ≥ λ(1000, 50) = {}", lambda_10, lambda_50);
-        assert!(lambda_50 >= lambda_100,
-            "λ(1000, 50) = {} should be ≥ λ(1000, 100) = {}", lambda_50, lambda_100);
+        assert!(
+            lambda_10 >= lambda_50,
+            "λ(1000, 10) = {} should be ≥ λ(1000, 50) = {}",
+            lambda_10,
+            lambda_50
+        );
+        assert!(
+            lambda_50 >= lambda_100,
+            "λ(1000, 50) = {} should be ≥ λ(1000, 100) = {}",
+            lambda_50,
+            lambda_100
+        );
     }
 
     #[test]
@@ -441,8 +457,12 @@ mod tests {
         assert!(lambda_truncated > 0.0);
         assert!(lambda_unrestricted > 0.0);
         // Truncated sum is usually smaller than asymptotic formula
-        assert!(lambda_truncated <= lambda_unrestricted * 1.5,
-            "Truncated {} too large vs unrestricted {}", lambda_truncated, lambda_unrestricted);
+        assert!(
+            lambda_truncated <= lambda_unrestricted * 1.5,
+            "Truncated {} too large vs unrestricted {}",
+            lambda_truncated,
+            lambda_unrestricted
+        );
     }
 
     #[test]
@@ -450,13 +470,22 @@ mod tests {
         let spf = sieve_spf(1000);
 
         // n < 2*lo should return 0
-        assert_eq!(hl_goldbach_lambda_truncated(100, 100, &spf, PairCount::Unordered), 0.0);
+        assert_eq!(
+            hl_goldbach_lambda_truncated(100, 100, &spf, PairCount::Unordered),
+            0.0
+        );
 
         // Odd n should return 0
-        assert_eq!(hl_goldbach_lambda_truncated(101, 10, &spf, PairCount::Unordered), 0.0);
+        assert_eq!(
+            hl_goldbach_lambda_truncated(101, 10, &spf, PairCount::Unordered),
+            0.0
+        );
 
         // lo < 2 should return 0
-        assert_eq!(hl_goldbach_lambda_truncated(100, 1, &spf, PairCount::Unordered), 0.0);
+        assert_eq!(
+            hl_goldbach_lambda_truncated(100, 1, &spf, PairCount::Unordered),
+            0.0
+        );
     }
 
     #[test]

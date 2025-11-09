@@ -72,8 +72,8 @@
 //! cargo run --example factorization_landscape_mapper -- --seeds=10 --range=2:30
 //! ```
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
+use prime_physics_engine::is_prime;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -83,22 +83,22 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 struct BaseFactorization {
     base: u64,
-    prime_factors: Vec<u64>,          // List of prime factors with multiplicity
-    distinct_factors: Vec<u64>,       // Unique prime factors
-    omega: usize,                      // ω(n): count of distinct prime factors
-    big_omega: usize,                  // Ω(n): count with multiplicity
-    tau: usize,                        // τ(n): count of divisors
+    prime_factors: Vec<u64>,    // List of prime factors with multiplicity
+    distinct_factors: Vec<u64>, // Unique prime factors
+    omega: usize,               // ω(n): count of distinct prime factors
+    big_omega: usize,           // Ω(n): count with multiplicity
+    tau: usize,                 // τ(n): count of divisors
     largest_prime_factor: u64,
     is_prime: bool,
-    is_semiprime: bool,                // Exactly two prime factors (counted with multiplicity)
-    is_prime_power: bool,              // p^k for some prime p
+    is_semiprime: bool,   // Exactly two prime factors (counted with multiplicity)
+    is_prime_power: bool, // p^k for some prime p
 }
 
 fn prime_factorize(mut n: u64) -> Vec<u64> {
     let mut factors = Vec::new();
 
     // Handle 2
-    while n % 2 == 0 {
+    while n.is_multiple_of(2) {
         factors.push(2);
         n /= 2;
     }
@@ -106,7 +106,7 @@ fn prime_factorize(mut n: u64) -> Vec<u64> {
     // Handle odd factors
     let mut d = 3;
     while d * d <= n {
-        while n % d == 0 {
+        while n.is_multiple_of(d) {
             factors.push(d);
             n /= d;
         }
@@ -122,8 +122,12 @@ fn prime_factorize(mut n: u64) -> Vec<u64> {
 }
 
 fn count_divisors(n: u64) -> usize {
-    if n == 0 { return 0; }
-    if n == 1 { return 1; }
+    if n == 0 {
+        return 0;
+    }
+    if n == 1 {
+        return 1;
+    }
 
     let factors = prime_factorize(n);
     let mut exponent_map: HashMap<u64, usize> = HashMap::new();
@@ -179,7 +183,9 @@ fn gcd(mut a: u64, mut b: u64) -> u64 {
 }
 
 fn to_base_digits(mut n: u64, base: u64) -> Vec<u64> {
-    if n == 0 { return vec![0]; }
+    if n == 0 {
+        return vec![0];
+    }
 
     let mut digits = Vec::new();
     while n > 0 {
@@ -194,7 +200,14 @@ fn from_base_digits(digits: &[u64], base: u64) -> u64 {
     digits.iter().fold(0u64, |acc, &d| acc * base + d)
 }
 
-fn generate_membrane(base: u64, outer: u64, inner: u64, seed: u64, k1: usize, k2: usize) -> Option<u64> {
+fn generate_membrane(
+    base: u64,
+    outer: u64,
+    inner: u64,
+    seed: u64,
+    k1: usize,
+    k2: usize,
+) -> Option<u64> {
     if outer >= base || inner >= base || seed >= base {
         return None;
     }
@@ -238,7 +251,11 @@ struct MembraneConfig {
 
 impl std::fmt::Display for MembraneConfig {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({},{}) k=({},{})", self.outer, self.inner, self.k1, self.k2)
+        write!(
+            f,
+            "({},{}) k=({},{})",
+            self.outer, self.inner, self.k1, self.k2
+        )
     }
 }
 
@@ -247,7 +264,9 @@ fn test_membrane_config(base: u64, config: &MembraneConfig, num_seeds: usize) ->
     let mut total = 0;
 
     for seed in 1..=num_seeds as u64 {
-        if let Some(n) = generate_membrane(base, config.outer, config.inner, seed, config.k1, config.k2) {
+        if let Some(n) =
+            generate_membrane(base, config.outer, config.inner, seed, config.k1, config.k2)
+        {
             if n > 1 && is_prime(&BigUint::from(n)) {
                 successes += 1;
             }
@@ -259,21 +278,37 @@ fn test_membrane_config(base: u64, config: &MembraneConfig, num_seeds: usize) ->
 }
 
 fn find_best_config_for_base(base: u64, num_seeds: usize) -> (MembraneConfig, f64) {
-    let mut best_config = MembraneConfig { outer: 1, inner: 1, k1: 0, k2: 0 };
+    let mut best_config = MembraneConfig {
+        outer: 1,
+        inner: 1,
+        k1: 0,
+        k2: 0,
+    };
     let mut best_rate = 0.0;
 
     // Test coprime digit pairs with minimal padding
     for outer in 1..base.min(15) {
-        if gcd(outer, base) != 1 { continue; }
+        if gcd(outer, base) != 1 {
+            continue;
+        }
 
         for inner in 1..base.min(15) {
-            if gcd(inner, base) != 1 { continue; }
-            if inner == outer { continue; }
+            if gcd(inner, base) != 1 {
+                continue;
+            }
+            if inner == outer {
+                continue;
+            }
 
             // Focus on k=(0,0) as we know it's optimal
             for k1 in 0..=1 {
                 for k2 in 0..=1 {
-                    let config = MembraneConfig { outer, inner, k1, k2 };
+                    let config = MembraneConfig {
+                        outer,
+                        inner,
+                        k1,
+                        k2,
+                    };
                     let (succ, tot) = test_membrane_config(base, &config, num_seeds);
 
                     if tot > 0 {
@@ -306,10 +341,15 @@ struct LandscapeEntry {
 fn scan_landscape(start_base: u64, end_base: u64, seeds_per_base: usize) -> Vec<LandscapeEntry> {
     let mut entries = Vec::new();
 
-    println!("Scanning bases {} to {} with {} seeds each...\n", start_base, end_base, seeds_per_base);
+    println!(
+        "Scanning bases {} to {} with {} seeds each...\n",
+        start_base, end_base, seeds_per_base
+    );
 
     for base in start_base..=end_base {
-        if base < 2 { continue; }
+        if base < 2 {
+            continue;
+        }
 
         print!("Base {:2}: ", base);
         use std::io::Write;
@@ -340,9 +380,12 @@ fn compute_correlation(x: &[f64], y: &[f64]) -> f64 {
     let mean_x: f64 = x.iter().sum::<f64>() / n;
     let mean_y: f64 = y.iter().sum::<f64>() / n;
 
-    let cov: f64 = x.iter().zip(y.iter())
+    let cov: f64 = x
+        .iter()
+        .zip(y.iter())
         .map(|(xi, yi)| (xi - mean_x) * (yi - mean_y))
-        .sum::<f64>() / n;
+        .sum::<f64>()
+        / n;
 
     let std_x: f64 = (x.iter().map(|xi| (xi - mean_x).powi(2)).sum::<f64>() / n).sqrt();
     let std_y: f64 = (y.iter().map(|yi| (yi - mean_y).powi(2)).sum::<f64>() / n).sqrt();
@@ -362,14 +405,23 @@ fn analyze_correlations(entries: &[LandscapeEntry]) {
     let success_rates: Vec<f64> = entries.iter().map(|e| e.success_rate).collect();
 
     // ω(n) correlation
-    let omega_values: Vec<f64> = entries.iter().map(|e| e.factorization.omega as f64).collect();
+    let omega_values: Vec<f64> = entries
+        .iter()
+        .map(|e| e.factorization.omega as f64)
+        .collect();
     let r_omega = compute_correlation(&omega_values, &success_rates);
     println!("ω(n) (distinct factors) vs success:  r = {:+.3}", r_omega);
 
     // Ω(n) correlation
-    let big_omega_values: Vec<f64> = entries.iter().map(|e| e.factorization.big_omega as f64).collect();
+    let big_omega_values: Vec<f64> = entries
+        .iter()
+        .map(|e| e.factorization.big_omega as f64)
+        .collect();
     let r_big_omega = compute_correlation(&big_omega_values, &success_rates);
-    println!("Ω(n) (total factors)    vs success:  r = {:+.3}", r_big_omega);
+    println!(
+        "Ω(n) (total factors)    vs success:  r = {:+.3}",
+        r_big_omega
+    );
 
     // τ(n) correlation
     let tau_values: Vec<f64> = entries.iter().map(|e| e.factorization.tau as f64).collect();
@@ -377,39 +429,60 @@ fn analyze_correlations(entries: &[LandscapeEntry]) {
     println!("τ(n) (divisor count)    vs success:  r = {:+.3}", r_tau);
 
     // Largest prime factor correlation
-    let lpf_values: Vec<f64> = entries.iter().map(|e| e.factorization.largest_prime_factor as f64).collect();
+    let lpf_values: Vec<f64> = entries
+        .iter()
+        .map(|e| e.factorization.largest_prime_factor as f64)
+        .collect();
     let r_lpf = compute_correlation(&lpf_values, &success_rates);
     println!("Largest prime factor    vs success:  r = {:+.3}", r_lpf);
 
     println!();
 
     // Category analysis
-    let semiprimes: Vec<&LandscapeEntry> = entries.iter()
+    let semiprimes: Vec<&LandscapeEntry> = entries
+        .iter()
         .filter(|e| e.factorization.is_semiprime)
         .collect();
 
-    let non_semiprimes: Vec<&LandscapeEntry> = entries.iter()
+    let non_semiprimes: Vec<&LandscapeEntry> = entries
+        .iter()
         .filter(|e| !e.factorization.is_semiprime)
         .collect();
 
     if !semiprimes.is_empty() {
-        let semiprime_avg = semiprimes.iter().map(|e| e.success_rate).sum::<f64>() / semiprimes.len() as f64;
-        println!("Semiprime bases (ω=2): avg = {:.1}%  (n={})", semiprime_avg * 100.0, semiprimes.len());
+        let semiprime_avg =
+            semiprimes.iter().map(|e| e.success_rate).sum::<f64>() / semiprimes.len() as f64;
+        println!(
+            "Semiprime bases (ω=2): avg = {:.1}%  (n={})",
+            semiprime_avg * 100.0,
+            semiprimes.len()
+        );
     }
 
     if !non_semiprimes.is_empty() {
-        let non_semiprime_avg = non_semiprimes.iter().map(|e| e.success_rate).sum::<f64>() / non_semiprimes.len() as f64;
-        println!("Non-semiprime bases:   avg = {:.1}%  (n={})", non_semiprime_avg * 100.0, non_semiprimes.len());
+        let non_semiprime_avg = non_semiprimes.iter().map(|e| e.success_rate).sum::<f64>()
+            / non_semiprimes.len() as f64;
+        println!(
+            "Non-semiprime bases:   avg = {:.1}%  (n={})",
+            non_semiprime_avg * 100.0,
+            non_semiprimes.len()
+        );
     }
 
     // Prime power analysis
-    let prime_powers: Vec<&LandscapeEntry> = entries.iter()
+    let prime_powers: Vec<&LandscapeEntry> = entries
+        .iter()
         .filter(|e| e.factorization.is_prime_power && !e.factorization.is_prime)
         .collect();
 
     if !prime_powers.is_empty() {
-        let pp_avg = prime_powers.iter().map(|e| e.success_rate).sum::<f64>() / prime_powers.len() as f64;
-        println!("Prime power bases:     avg = {:.1}%  (n={})", pp_avg * 100.0, prime_powers.len());
+        let pp_avg =
+            prime_powers.iter().map(|e| e.success_rate).sum::<f64>() / prime_powers.len() as f64;
+        println!(
+            "Prime power bases:     avg = {:.1}%  (n={})",
+            pp_avg * 100.0,
+            prime_powers.len()
+        );
     }
 }
 
@@ -436,7 +509,8 @@ fn print_summary_table(entries: &[LandscapeEntry]) {
         let mut factors_sorted: Vec<_> = factor_counts.iter().collect();
         factors_sorted.sort_by_key(|&(p, _)| p);
 
-        let factor_str: String = factors_sorted.iter()
+        let factor_str: String = factors_sorted
+            .iter()
             .map(|(p, count)| {
                 if **count == 1 {
                     format!("{}", p)
@@ -447,17 +521,23 @@ fn print_summary_table(entries: &[LandscapeEntry]) {
             .collect::<Vec<_>>()
             .join("×");
 
-        let trophy = if entry.success_rate > 0.30 { "🏆" } else { "" };
+        let trophy = if entry.success_rate > 0.30 {
+            "🏆"
+        } else {
+            ""
+        };
 
-        println!("{:4}  {:16}  {:2} {:2} {:3}   {:5.1}%   {}  {}",
-                 fact.base,
-                 factor_str,
-                 fact.omega,
-                 fact.big_omega,
-                 fact.tau,
-                 entry.success_rate * 100.0,
-                 entry.best_config,
-                 trophy);
+        println!(
+            "{:4}  {:16}  {:2} {:2} {:3}   {:5.1}%   {}  {}",
+            fact.base,
+            factor_str,
+            fact.omega,
+            fact.big_omega,
+            fact.tau,
+            entry.success_rate * 100.0,
+            entry.best_config,
+            trophy
+        );
     }
 }
 

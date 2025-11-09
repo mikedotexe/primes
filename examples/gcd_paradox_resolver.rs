@@ -70,9 +70,8 @@
 //!   CONCLUSION: GCD collapse SIGNIFICANTLY improves success!
 //! ```
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
-use std::collections::HashMap;
+use prime_physics_engine::is_prime;
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -88,12 +87,18 @@ fn gcd(mut a: u64, mut b: u64) -> u64 {
 }
 
 fn mean(xs: &[f64]) -> f64 {
-    if xs.is_empty() { 0.0 } else { xs.iter().sum::<f64>() / xs.len() as f64 }
+    if xs.is_empty() {
+        0.0
+    } else {
+        xs.iter().sum::<f64>() / xs.len() as f64
+    }
 }
 
 fn std_dev(xs: &[f64]) -> f64 {
     let n = xs.len();
-    if n <= 1 { return 0.0; }
+    if n <= 1 {
+        return 0.0;
+    }
     let m = mean(xs);
     let variance = xs.iter().map(|&x| (x - m) * (x - m)).sum::<f64>() / ((n - 1) as f64);
     variance.sqrt()
@@ -101,14 +106,18 @@ fn std_dev(xs: &[f64]) -> f64 {
 
 fn correlation(x: &[f64], y: &[f64]) -> f64 {
     let n = x.len();
-    if n == 0 || n != y.len() { return 0.0; }
+    if n == 0 || n != y.len() {
+        return 0.0;
+    }
 
     let mx = mean(x);
     let my = mean(y);
     let sx = std_dev(x);
     let sy = std_dev(y);
 
-    if sx == 0.0 || sy == 0.0 { return 0.0; }
+    if sx == 0.0 || sy == 0.0 {
+        return 0.0;
+    }
 
     let mut cov = 0.0;
     for i in 0..n {
@@ -164,10 +173,16 @@ fn find_coprime_pairs(base: u64) -> Vec<(u32, u32)> {
     let mut pairs = Vec::new();
 
     for outer in 1..=max_digit {
-        if gcd(outer as u64, base) != 1 { continue; }
+        if gcd(outer as u64, base) != 1 {
+            continue;
+        }
         for inner in 1..=max_digit {
-            if inner == outer { continue; }
-            if gcd(inner as u64, base) != 1 { continue; }
+            if inner == outer {
+                continue;
+            }
+            if gcd(inner as u64, base) != 1 {
+                continue;
+            }
             pairs.push((outer, inner));
         }
     }
@@ -180,10 +195,10 @@ fn generate_membrane(base: u64, outer: u32, inner: u32, seed: u32) -> Option<u64
     // Simple membrane: outer + inner + seed + inner + outer
     // Convert to decimal
     let membrane_value = outer as u64 * base.pow(4)
-                       + inner as u64 * base.pow(3)
-                       + seed as u64 * base.pow(2)
-                       + inner as u64 * base
-                       + outer as u64;
+        + inner as u64 * base.pow(3)
+        + seed as u64 * base.pow(2)
+        + inner as u64 * base
+        + outer as u64;
 
     if membrane_value > 1 && is_prime(&BigUint::from(membrane_value)) {
         Some(membrane_value)
@@ -220,12 +235,18 @@ fn find_best_config(base: u64, num_seeds: usize) -> (MembraneConfig, f64) {
         return (MembraneConfig { outer: 1, inner: 1 }, 0.0);
     }
 
-    let mut best_config = MembraneConfig { outer: pairs[0].0, inner: pairs[0].1 };
+    let mut best_config = MembraneConfig {
+        outer: pairs[0].0,
+        inner: pairs[0].1,
+    };
     let mut best_success = 0.0;
 
     // Test a subset of configs (top 10 or all if fewer)
     for (outer, inner) in pairs.iter().take(10) {
-        let config = MembraneConfig { outer: *outer, inner: *inner };
+        let config = MembraneConfig {
+            outer: *outer,
+            inner: *inner,
+        };
         let success = test_membrane_config(base, &config, num_seeds);
 
         if success > best_success {
@@ -293,10 +314,24 @@ fn print_correlation_analysis(results: &[BaseProperties]) {
     let r_gcd = correlation(&gcd_values, &success_values);
     let r_entropy = correlation(&entropy_values, &success_values);
 
-    println!("gcd(B,3) vs membrane_success:     r = {:+.3}  {}",
-             r_gcd, if r_gcd > 0.0 { "(POSITIVE!)" } else { "(negative)" });
-    println!("k_int_entropy vs success:         r = {:+.3}  {}",
-             r_entropy, if r_entropy < 0.0 { "(NEGATIVE!)" } else { "(positive)" });
+    println!(
+        "gcd(B,3) vs membrane_success:     r = {:+.3}  {}",
+        r_gcd,
+        if r_gcd > 0.0 {
+            "(POSITIVE!)"
+        } else {
+            "(negative)"
+        }
+    );
+    println!(
+        "k_int_entropy vs success:         r = {:+.3}  {}",
+        r_entropy,
+        if r_entropy < 0.0 {
+            "(NEGATIVE!)"
+        } else {
+            "(positive)"
+        }
+    );
     println!();
 }
 
@@ -310,12 +345,14 @@ fn print_hypothesis_test(results: &[BaseProperties]) {
     println!();
 
     // Group by GCD
-    let gcd1_success: Vec<f64> = results.iter()
+    let gcd1_success: Vec<f64> = results
+        .iter()
         .filter(|r| r.gcd_bn == 1)
         .map(|r| r.membrane_success_rate)
         .collect();
 
-    let gcd3_success: Vec<f64> = results.iter()
+    let gcd3_success: Vec<f64> = results
+        .iter()
         .filter(|r| r.gcd_bn == 3)
         .map(|r| r.membrane_success_rate)
         .collect();
@@ -328,12 +365,20 @@ fn print_hypothesis_test(results: &[BaseProperties]) {
 
         println!("gcd=1 bases (trio universal):");
         println!("  Count: {}", gcd1_success.len());
-        println!("  Average success: {:.1}% ± {:.1}%", mean1 * 100.0, std1 * 100.0);
+        println!(
+            "  Average success: {:.1}% ± {:.1}%",
+            mean1 * 100.0,
+            std1 * 100.0
+        );
         println!();
 
         println!("gcd=3 bases (collapse):");
         println!("  Count: {}", gcd3_success.len());
-        println!("  Average success: {:.1}% ± {:.1}%", mean3 * 100.0, std3 * 100.0);
+        println!(
+            "  Average success: {:.1}% ± {:.1}%",
+            mean3 * 100.0,
+            std3 * 100.0
+        );
         println!();
 
         let diff = mean3 - mean1;
@@ -343,7 +388,7 @@ fn print_hypothesis_test(results: &[BaseProperties]) {
         let n1 = gcd1_success.len() as f64;
         let n3 = gcd3_success.len() as f64;
         let pooled_var = ((n1 - 1.0) * std1 * std1 + (n3 - 1.0) * std3 * std3) / (n1 + n3 - 2.0);
-        let t_stat = (mean3 - mean1) / (pooled_var.sqrt() * (1.0/n1 + 1.0/n3).sqrt());
+        let t_stat = (mean3 - mean1) / (pooled_var.sqrt() * (1.0 / n1 + 1.0 / n3).sqrt());
 
         println!("t-statistic: {:.2}", t_stat);
 
@@ -408,10 +453,19 @@ fn main() {
         (bases, 100)
     } else {
         println!("Mode: STANDARD (20 bases, 50 seeds each)");
-        (vec![2, 3, 4, 5, 6, 8, 10, 12, 14, 15, 16, 18, 20, 21, 22, 24, 26, 28, 30, 32], 50)
+        (
+            vec![
+                2, 3, 4, 5, 6, 8, 10, 12, 14, 15, 16, 18, 20, 21, 22, 24, 26, 28, 30, 32,
+            ],
+            50,
+        )
     };
 
-    println!("Testing {} bases with {} seeds each", bases_to_test.len(), seeds_per_base);
+    println!(
+        "Testing {} bases with {} seeds each",
+        bases_to_test.len(),
+        seeds_per_base
+    );
     println!();
 
     println!("Analyzing bases");
@@ -432,15 +486,17 @@ fn main() {
 
     for r in &results {
         let indicator = if r.gcd_bn > 1 { " *" } else { "  " };
-        println!("│ {:4} │ {:3} │ {:6} │  {:5.2}  │  {:5.1}%  │ ({},{}) {}",
-                 r.base,
-                 r.gcd_bn,
-                 if r.trio_universal { "YES" } else { "NO" },
-                 r.k_int_entropy,
-                 r.membrane_success_rate * 100.0,
-                 r.optimal_config.outer,
-                 r.optimal_config.inner,
-                 indicator);
+        println!(
+            "│ {:4} │ {:3} │ {:6} │  {:5.2}  │  {:5.1}%  │ ({},{}) {}",
+            r.base,
+            r.gcd_bn,
+            if r.trio_universal { "YES" } else { "NO" },
+            r.k_int_entropy,
+            r.membrane_success_rate * 100.0,
+            r.optimal_config.outer,
+            r.optimal_config.inner,
+            indicator
+        );
     }
 
     println!("└──────┴─────┴────────┴─────────┴──────────┴──────────────────────┘");

@@ -81,8 +81,8 @@
 //! cargo run --example prime_placement_predictor -- --range=100000:101000 --base=12
 //! ```
 
-use prime_physics_engine::is_prime;
 use num_bigint::BigUint;
+use prime_physics_engine::is_prime;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -99,7 +99,9 @@ fn gcd(mut a: u64, mut b: u64) -> u64 {
 }
 
 fn to_base_digits(mut n: u64, base: u64) -> Vec<u64> {
-    if n == 0 { return vec![0]; }
+    if n == 0 {
+        return vec![0];
+    }
 
     let mut digits = Vec::new();
     while n > 0 {
@@ -289,9 +291,12 @@ fn compute_correlation(x: &[f64], y: &[f64]) -> f64 {
     let mean_x: f64 = x.iter().sum::<f64>() / n;
     let mean_y: f64 = y.iter().sum::<f64>() / n;
 
-    let cov: f64 = x.iter().zip(y.iter())
+    let cov: f64 = x
+        .iter()
+        .zip(y.iter())
         .map(|(xi, yi)| (xi - mean_x) * (yi - mean_y))
-        .sum::<f64>() / n;
+        .sum::<f64>()
+        / n;
 
     let std_x: f64 = (x.iter().map(|xi| (xi - mean_x).powi(2)).sum::<f64>() / n).sqrt();
     let std_y: f64 = (y.iter().map(|yi| (yi - mean_y).powi(2)).sum::<f64>() / n).sqrt();
@@ -353,8 +358,16 @@ fn analyze_residue_classes(data: &[NumberAnalysis]) {
                 " "
             };
 
-            println!("  {:^6}   {:^5}  {:^6}  {:5.1}%     {}       {:.2}× {}",
-                     residue, count, primes, density * 100.0, marker, enrichment, enrichment_marker);
+            println!(
+                "  {:^6}   {:^5}  {:^6}  {:5.1}%     {}       {:.2}× {}",
+                residue,
+                count,
+                primes,
+                density * 100.0,
+                marker,
+                enrichment,
+                enrichment_marker
+            );
         }
         println!();
     }
@@ -366,7 +379,10 @@ fn analyze_membrane_correlation(data: &[NumberAnalysis]) {
     println!("╚══════════════════════════════════════════════════════════════════╝");
     println!();
 
-    let primality: Vec<f64> = data.iter().map(|e| if e.is_prime { 1.0 } else { 0.0 }).collect();
+    let primality: Vec<f64> = data
+        .iter()
+        .map(|e| if e.is_prime { 1.0 } else { 0.0 })
+        .collect();
 
     let scores_6: Vec<f64> = data.iter().map(|e| e.membrane_score_6).collect();
     let scores_10: Vec<f64> = data.iter().map(|e| e.membrane_score_10).collect();
@@ -380,21 +396,35 @@ fn analyze_membrane_correlation(data: &[NumberAnalysis]) {
 
     println!("Correlation between membrane similarity score and primality:");
     println!();
-    println!("  Base  6:  r = {:+.3}  {}", r6, if r6.abs() > 0.3 { "SIGNIFICANT" } else { "" });
-    println!("  Base 10:  r = {:+.3}  {}", r10, if r10.abs() > 0.3 { "SIGNIFICANT" } else { "" });
-    println!("  Base 12:  r = {:+.3}  {}", r12, if r12.abs() > 0.3 { "SIGNIFICANT" } else { "" });
-    println!("  Base 30:  r = {:+.3}  {}", r30, if r30.abs() > 0.3 { "SIGNIFICANT" } else { "" });
+    println!(
+        "  Base  6:  r = {:+.3}  {}",
+        r6,
+        if r6.abs() > 0.3 { "SIGNIFICANT" } else { "" }
+    );
+    println!(
+        "  Base 10:  r = {:+.3}  {}",
+        r10,
+        if r10.abs() > 0.3 { "SIGNIFICANT" } else { "" }
+    );
+    println!(
+        "  Base 12:  r = {:+.3}  {}",
+        r12,
+        if r12.abs() > 0.3 { "SIGNIFICANT" } else { "" }
+    );
+    println!(
+        "  Base 30:  r = {:+.3}  {}",
+        r30,
+        if r30.abs() > 0.3 { "SIGNIFICANT" } else { "" }
+    );
     println!();
 
     // Find strongest predictor
-    let correlations = vec![
-        (6, r6),
-        (10, r10),
-        (12, r12),
-        (30, r30),
-    ];
+    let correlations = vec![(6, r6), (10, r10), (12, r12), (30, r30)];
 
-    let best = correlations.iter().max_by(|a, b| a.1.abs().partial_cmp(&b.1.abs()).unwrap()).unwrap();
+    let best = correlations
+        .iter()
+        .max_by(|a, b| a.1.abs().partial_cmp(&b.1.abs()).unwrap())
+        .unwrap();
     println!("STRONGEST PREDICTOR: Base {} (r = {:+.3})", best.0, best.1);
     println!();
 }
@@ -413,7 +443,11 @@ fn analyze_prediction_performance(data: &[NumberAnalysis]) {
 
     // Test base 12 scores (strongest predictor based on our landscape analysis)
     let mut sorted_by_score: Vec<_> = data.iter().collect();
-    sorted_by_score.sort_by(|a, b| b.membrane_score_12.partial_cmp(&a.membrane_score_12).unwrap());
+    sorted_by_score.sort_by(|a, b| {
+        b.membrane_score_12
+            .partial_cmp(&a.membrane_score_12)
+            .unwrap()
+    });
 
     let top_10_pct = sorted_by_score.len() / 10;
     let bottom_10_pct = sorted_by_score.len() / 10;
@@ -432,10 +466,20 @@ fn analyze_prediction_performance(data: &[NumberAnalysis]) {
     let bottom_rate = bottom_10_primes as f64 / bottom_10_pct as f64;
 
     println!("Using BASE 12 membrane similarity scores:");
-    println!("  Top 10% scores:    {}/{} prime ({:.2}%) - {:.2}× baseline",
-             top_10_primes, top_10_pct, top_rate * 100.0, top_rate / baseline_rate);
-    println!("  Bottom 10% scores: {}/{} prime ({:.2}%) - {:.2}× baseline",
-             bottom_10_primes, bottom_10_pct, bottom_rate * 100.0, bottom_rate / baseline_rate);
+    println!(
+        "  Top 10% scores:    {}/{} prime ({:.2}%) - {:.2}× baseline",
+        top_10_primes,
+        top_10_pct,
+        top_rate * 100.0,
+        top_rate / baseline_rate
+    );
+    println!(
+        "  Bottom 10% scores: {}/{} prime ({:.2}%) - {:.2}× baseline",
+        bottom_10_primes,
+        bottom_10_pct,
+        bottom_rate * 100.0,
+        bottom_rate / baseline_rate
+    );
     println!();
 
     if top_rate > baseline_rate * 1.5 {
@@ -454,7 +498,11 @@ fn print_sample_predictions(data: &[NumberAnalysis], count: usize) {
     println!();
 
     let mut sorted: Vec<_> = data.iter().collect();
-    sorted.sort_by(|a, b| b.membrane_score_12.partial_cmp(&a.membrane_score_12).unwrap());
+    sorted.sort_by(|a, b| {
+        b.membrane_score_12
+            .partial_cmp(&a.membrane_score_12)
+            .unwrap()
+    });
 
     println!("Top {} numbers by membrane similarity (base 12):", count);
     println!("  Number    Score   Prime?  Base-12 Representation");
@@ -465,10 +513,16 @@ fn print_sample_predictions(data: &[NumberAnalysis], count: usize) {
         let digit_str: Vec<String> = digits.iter().map(|d| format!("{}", d)).collect();
         let representation = digit_str.join("-");
 
-        let prime_marker = if entry.is_prime { "✓ PRIME" } else { "composite" };
+        let prime_marker = if entry.is_prime {
+            "✓ PRIME"
+        } else {
+            "composite"
+        };
 
-        println!("  {:^8}  {:.3}   {:^9}  {}",
-                 entry.number, entry.membrane_score_12, prime_marker, representation);
+        println!(
+            "  {:^8}  {:.3}   {:^9}  {}",
+            entry.number, entry.membrane_score_12, prime_marker, representation
+        );
     }
     println!();
 }

@@ -3,13 +3,13 @@
 
 #![allow(dead_code)] // Framework designed for future extensibility
 
+use crate::PhysicsError;
 use std::sync::Arc;
 use std::time::Duration;
-use crate::PhysicsError;
 
+pub mod prediction;
 pub mod strategies;
 pub mod telemetry;
-pub mod prediction;
 
 /// System context captures current runtime environment
 #[derive(Debug, Clone)]
@@ -65,10 +65,10 @@ pub struct Workload {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Priority {
-    Latency,     // Minimize time to first result
-    Throughput,  // Maximize results per second
-    Efficiency,  // Minimize power consumption
-    Balanced,    // Balance all objectives
+    Latency,    // Minimize time to first result
+    Throughput, // Maximize results per second
+    Efficiency, // Minimize power consumption
+    Balanced,   // Balance all objectives
 }
 
 /// Performance metrics from optimization
@@ -102,16 +102,20 @@ pub struct MetricsDelta {
 pub trait OptimizationStrategy: Send + Sync {
     /// Strategy identifier
     fn name(&self) -> &str;
-    
+
     /// How applicable is this strategy to the current context? (0.0-1.0)
     fn applicability(&self, context: &SystemContext, workload: &Workload) -> f64;
-    
+
     /// Apply the optimization
-    fn apply(&self, workload: &mut Workload, context: &SystemContext) -> Result<Metrics, PhysicsError>;
-    
+    fn apply(
+        &self,
+        workload: &mut Workload,
+        context: &SystemContext,
+    ) -> Result<Metrics, PhysicsError>;
+
     /// Learn from feedback to improve future decisions
     fn learn(&mut self, feedback: &Feedback);
-    
+
     /// Get current effectiveness score
     fn effectiveness(&self) -> f64;
 }
@@ -131,35 +135,42 @@ impl OptimizationPipeline {
             predictor: None,
         }
     }
-    
+
     /// Add an optimization strategy to the pipeline
     pub fn add_strategy(&mut self, strategy: Box<dyn OptimizationStrategy>) {
         self.strategies.push(strategy);
     }
-    
+
     /// Enable machine learning predictor
     pub fn enable_ml_predictor(&mut self) {
         self.predictor = Some(prediction::OptimizationPredictor::new());
     }
-    
+
     /// Rank strategies by predicted effectiveness (returns indices)
     fn rank_strategies(&self, context: &SystemContext, workload: &Workload) -> Vec<usize> {
         let mut indices: Vec<_> = (0..self.strategies.len()).collect();
-        
+
         indices.sort_by(|&i, &j| {
-            let score_i = self.strategies[i].applicability(context, workload) * self.strategies[i].effectiveness();
-            let score_j = self.strategies[j].applicability(context, workload) * self.strategies[j].effectiveness();
-            score_j.partial_cmp(&score_i).unwrap_or(std::cmp::Ordering::Equal)
+            let score_i = self.strategies[i].applicability(context, workload)
+                * self.strategies[i].effectiveness();
+            let score_j = self.strategies[j].applicability(context, workload)
+                * self.strategies[j].effectiveness();
+            score_j
+                .partial_cmp(&score_i)
+                .unwrap_or(std::cmp::Ordering::Equal)
         });
-        
+
         indices
     }
-    
+
     /// Automatically optimize a workload
-    pub fn auto_optimize(&mut self, mut workload: Workload) -> Result<OptimizedWorkload, PhysicsError> {
+    pub fn auto_optimize(
+        &mut self,
+        mut workload: Workload,
+    ) -> Result<OptimizedWorkload, PhysicsError> {
         let context = self.telemetry.capture_context();
         let ranked_indices = self.rank_strategies(&context, &workload);
-        
+
         let mut total_metrics = Metrics {
             throughput: 0.0,
             latency_p50: Duration::ZERO,
@@ -168,51 +179,53 @@ impl OptimizationPipeline {
             cache_hit_rate: 0.0,
             power_estimate: 0.0,
         };
-        
+
         let mut applied_strategies = Vec::new();
-        
+
         for &idx in &ranked_indices {
             // Skip if applicability is too low
             if self.strategies[idx].applicability(&context, &workload) < 0.3 {
                 continue;
             }
-            
+
             let before = self.telemetry.snapshot();
             let strategy_name = self.strategies[idx].name().to_string();
-            
+
             match self.strategies[idx].apply(&mut workload, &context) {
                 Ok(metrics) => {
                     let after = self.telemetry.snapshot();
                     let feedback = Feedback::from_snapshots(before, after, &metrics);
-                    
+
                     // Let strategy learn from this application
                     self.strategies[idx].learn(&feedback);
-                    
+
                     // Update ML predictor if available
                     if let Some(predictor) = &mut self.predictor {
                         predictor.record_outcome(&context, &strategy_name, &feedback);
                     }
-                    
+
                     // Accumulate metrics
                     total_metrics = Self::combine_metrics(total_metrics, metrics);
                     applied_strategies.push(strategy_name.clone());
-                    
+
                     // Log success
-                    self.telemetry.record_optimization_success(&strategy_name, &feedback);
+                    self.telemetry
+                        .record_optimization_success(&strategy_name, &feedback);
                 }
                 Err(e) => {
-                    self.telemetry.record_optimization_failure(&strategy_name, &e);
+                    self.telemetry
+                        .record_optimization_failure(&strategy_name, &e);
                 }
             }
         }
-        
+
         Ok(OptimizedWorkload {
             workload,
             metrics: total_metrics,
             applied_strategies,
         })
     }
-    
+
     /// Combine metrics from multiple optimizations
     fn combine_metrics(a: Metrics, b: Metrics) -> Metrics {
         Metrics {
@@ -243,15 +256,17 @@ impl Feedback {
     ) -> Self {
         let metrics_delta = MetricsDelta {
             throughput_change: (after.throughput - before.throughput) / before.throughput,
-            latency_change: (after.latency - before.latency).as_secs_f64() / before.latency.as_secs_f64(),
-            memory_change: (after.memory_used as f64 - before.memory_used as f64) / before.memory_used as f64,
+            latency_change: (after.latency - before.latency).as_secs_f64()
+                / before.latency.as_secs_f64(),
+            memory_change: (after.memory_used as f64 - before.memory_used as f64)
+                / before.memory_used as f64,
             power_change: (after.power - before.power) / before.power,
         };
-        
+
         let success = metrics_delta.throughput_change > 0.0 || metrics_delta.latency_change < 0.0;
-        
+
         let mut unexpected_behavior = Vec::new();
-        
+
         // Detect unexpected behavior
         if metrics_delta.memory_change > 0.5 {
             unexpected_behavior.push("Memory usage increased by >50%".to_string());
@@ -262,7 +277,7 @@ impl Feedback {
         if metrics.cache_hit_rate < 0.5 {
             unexpected_behavior.push("Cache hit rate below 50%".to_string());
         }
-        
+
         Self {
             metrics_delta,
             success,
@@ -287,7 +302,7 @@ impl PerformancePoint {
     pub fn holistic_score(&self, weights: &Weights) -> f64 {
         let normalized_throughput = (self.throughput / 1_000_000_000.0).min(1.0);
         let normalized_latency = 1.0 - (self.latency_p99.as_secs_f64() / 0.001).min(1.0);
-        
+
         weights.throughput * normalized_throughput
             + weights.latency * normalized_latency
             + weights.memory * self.memory_efficiency
@@ -324,7 +339,7 @@ impl Default for Weights {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_performance_point_scoring() {
         let point = PerformancePoint {
@@ -335,10 +350,10 @@ mod tests {
             power_efficiency: 0.7,
             thermal_headroom: 0.6,
         };
-        
+
         let weights = Weights::default();
         let score = point.holistic_score(&weights);
-        
+
         assert!(score > 0.0 && score <= 1.0);
     }
 }

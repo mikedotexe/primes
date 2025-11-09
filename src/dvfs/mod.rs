@@ -21,7 +21,7 @@ pub fn refresh() {
         let bits = f64::to_bits(ghz);
         GHZ_FP_BITS.store(bits, Ordering::Relaxed);
     }
-    
+
     #[cfg(not(target_arch = "aarch64"))]
     {
         // x86_64: Could use CPUID or MSR reads, but for safety use fixed 3.0 GHz
@@ -40,20 +40,20 @@ pub fn refresh() {
 fn estimate_current_frequency() -> f64 {
     // Conservative frequency estimation for Apple Silicon
     // TODO: Use kpc/sysctl for actual P‑core frequency measurement
-    
-    // Read cycle counter frequency (fixed at 24 MHz on Apple Silicon)  
+
+    // Read cycle counter frequency (fixed at 24 MHz on Apple Silicon)
     let _cntfrq: u64;
     // SAFETY: mrs instruction is read-only and available on aarch64
     unsafe {
         std::arch::asm!("mrs {0}, cntfrq_el0", out(reg) _cntfrq);
     }
-    
+
     // Apple M1/M2 typically run 3.0-3.2 GHz under load
     // Use thermal-aware estimate
     match std::env::var("THERMAL_STATE") {
-        Ok(state) if state == "hot" => 2.8, // Throttled
+        Ok(state) if state == "hot" => 2.8,  // Throttled
         Ok(state) if state == "warm" => 3.0, // Nominal
-        _ => 3.2, // Cool/optimal
+        _ => 3.2,                            // Cool/optimal
     }
 }
 
@@ -83,7 +83,10 @@ mod tests {
     #[test]
     fn test_cpu_freq_reasonable() {
         let freq = cpu_freq_ghz();
-        assert!(freq > 1.0 && freq < 6.0, "CPU frequency {freq} GHz seems unreasonable");
+        assert!(
+            freq > 1.0 && freq < 6.0,
+            "CPU frequency {freq} GHz seems unreasonable"
+        );
     }
 
     #[test]

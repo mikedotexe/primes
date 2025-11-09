@@ -1,5 +1,5 @@
 //! Harmonic analysis module for prime patterns
-//! 
+//!
 //! Enabled with the `prime-harmonics` feature flag.
 
 #[cfg(feature = "prime-harmonics")]
@@ -12,7 +12,7 @@ use std::f64::consts::PI;
 pub fn fourier_transform(signal: &[f64]) -> Vec<Complex64> {
     let n = signal.len();
     let mut spectrum = vec![Complex64::new(0.0, 0.0); n];
-    
+
     for (k, freq_bin) in spectrum.iter_mut().enumerate().take(n) {
         for (t, &sample) in signal.iter().enumerate() {
             let angle = -2.0 * PI * k as f64 * t as f64 / n as f64;
@@ -20,7 +20,7 @@ pub fn fourier_transform(signal: &[f64]) -> Vec<Complex64> {
         }
         *freq_bin /= n as f64;
     }
-    
+
     spectrum
 }
 
@@ -38,7 +38,7 @@ pub fn power_spectrum(signal: &[f64]) -> Vec<f64> {
 pub fn find_dominant_frequencies(signal: &[f64], threshold: f64) -> Vec<(usize, f64)> {
     let spectrum = power_spectrum(signal);
     let max_power = spectrum.iter().copied().fold(0.0_f64, f64::max);
-    
+
     spectrum
         .iter()
         .enumerate()
@@ -56,20 +56,20 @@ impl HarmonicAnalyzer {
     pub fn new(sample_size: usize) -> Self {
         Self { sample_size }
     }
-    
+
     /// Analyze a sequence of prime indicators (1.0 for prime, 0.0 for composite)
     #[cfg(feature = "prime-harmonics")]
     pub fn analyze(&self, prime_sequence: &[f64]) -> HarmonicAnalysis {
         let dominant = find_dominant_frequencies(prime_sequence, 0.1);
         let spectrum = power_spectrum(prime_sequence);
-        
+
         HarmonicAnalysis {
             dominant_frequencies: dominant,
             total_harmonics: spectrum.len(),
             harmonic_purity: calculate_purity(&spectrum),
         }
     }
-    
+
     /// Stub implementation when harmonics feature is disabled
     #[cfg(not(feature = "prime-harmonics"))]
     pub fn analyze(&self, _prime_sequence: &[f64]) -> HarmonicAnalysis {
@@ -92,10 +92,10 @@ fn calculate_purity(spectrum: &[f64]) -> f64 {
     if spectrum.is_empty() {
         return 0.0;
     }
-    
+
     let max_power = spectrum.iter().copied().fold(0.0_f64, f64::max);
     let total_power: f64 = spectrum.iter().sum();
-    
+
     if total_power > 0.0 {
         max_power / total_power
     } else {

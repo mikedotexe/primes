@@ -27,7 +27,9 @@ use std::cmp::min;
 pub fn sieve_bool(n: usize) -> Vec<bool> {
     let mut a = vec![true; n + 1];
     a[0] = false;
-    if n >= 1 { a[1] = false; }
+    if n >= 1 {
+        a[1] = false;
+    }
     let r = (n as f64).sqrt() as usize;
     for i in 2..=r {
         if a[i] {
@@ -70,7 +72,9 @@ pub fn sieve_primes(n: usize) -> Vec<usize> {
 /// assert_eq!(count, 78498); // π(10^6)
 /// ```
 pub fn segmented_sieve(limit: usize, mut on_prime: impl FnMut(usize)) {
-    if limit < 2 { return; }
+    if limit < 2 {
+        return;
+    }
     let base = sieve_primes((limit as f64).sqrt() as usize);
     let seg: usize = 1 << 20; // 1MB segment
     let mut low = 0usize;
@@ -82,15 +86,25 @@ pub fn segmented_sieve(limit: usize, mut on_prime: impl FnMut(usize)) {
 
         // Handle 0 and 1
         if low == 0 {
-            if len > 0 { mark[0] = false; }
-            if len > 1 { mark[1] = false; }
+            if len > 0 {
+                mark[0] = false;
+            }
+            if len > 1 {
+                mark[1] = false;
+            }
         }
 
         // Sieve with base primes
         for &p in &base {
             let p2 = p * p;
-            if p2 > high { break; }
-            let mut m = if p2 > low { p2 } else { ((low + p - 1) / p) * p };
+            if p2 > high {
+                break;
+            }
+            let mut m = if p2 > low {
+                p2
+            } else {
+                low.div_ceil(p) * p
+            };
             while m <= high {
                 mark[m - low] = false;
                 m += p;
@@ -98,11 +112,15 @@ pub fn segmented_sieve(limit: usize, mut on_prime: impl FnMut(usize)) {
         }
 
         // Emit primes in this segment
-        for i in 0..len {
-            if mark[i] { on_prime(low + i); }
+        for (i, &is_prime) in mark.iter().enumerate().take(len) {
+            if is_prime {
+                on_prime(low + i);
+            }
         }
 
-        if high == limit { break; }
+        if high == limit {
+            break;
+        }
         low = high + 1;
     }
 }
@@ -133,10 +151,13 @@ pub fn sieve_spf(n: usize) -> Vec<usize> {
     let r = (n as f64).sqrt() as usize;
 
     for i in 2..=r {
-        if spf[i] == i { // i is prime
+        if spf[i] == i {
+            // i is prime
             let mut j = i * i;
             while j <= n {
-                if spf[j] == j { spf[j] = i; }
+                if spf[j] == j {
+                    spf[j] = i;
+                }
                 j += i;
             }
         }

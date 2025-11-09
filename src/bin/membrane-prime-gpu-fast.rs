@@ -5,7 +5,6 @@ use num_bigint::BigUint;
 use rayon::prelude::*;
 use std::time::Instant;
 
-
 /// CLI --------------------------------------------------------------------
 #[derive(Parser, Debug)]
 #[command(author, version, about = "GPU-accelerated membrane prime generator")]
@@ -35,8 +34,15 @@ fn main() {
         (d[0], d[1])
     };
 
-    println!("\n🚀 MEMBRANE PRIME  —  base-{}, boundary=({},{})", args.base, l, r);
-    println!("{} candidates, mode: {}", args.count, if args.gpu { "GPU" } else { "CPU" });
+    println!(
+        "\n🚀 MEMBRANE PRIME  —  base-{}, boundary=({},{})",
+        args.base, l, r
+    );
+    println!(
+        "{} candidates, mode: {}",
+        args.count,
+        if args.gpu { "GPU" } else { "CPU" }
+    );
     println!("============================================================\n");
 
     let t0 = Instant::now();
@@ -48,9 +54,13 @@ fn main() {
     let wall = t0.elapsed();
 
     // ---------------------------------------------------------------------
-    let density    = primes.len() as f64 / args.count as f64 * 100.0;
+    let density = primes.len() as f64 / args.count as f64 * 100.0;
     let throughput = args.count as f64 / wall.as_secs_f64();
-    println!("\nFinished in {:.3}s  ⇒  {:.1} M c/s", wall.as_secs_f64(), throughput / 1e6);
+    println!(
+        "\nFinished in {:.3}s  ⇒  {:.1} M c/s",
+        wall.as_secs_f64(),
+        throughput / 1e6
+    );
     println!("Found {} primes ({:.1} % density)\n", primes.len(), density);
 
     for (i, p) in primes.iter().take(10).enumerate() {
@@ -129,8 +139,11 @@ fn run_gpu_pipeline(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
         .map(|c| compute_membrane_u32(base, 3, l, r, 0, 0, c))
         .collect();
     let pre_ms = pre_t0.elapsed().as_secs_f64() * 1e3;
-    println!("membrane[]  {:>6.1} ms   ({:.1} M/s)",
-             pre_ms, count as f64 / pre_ms / 1e3);
+    println!(
+        "membrane[]  {:>6.1} ms   ({:.1} M/s)",
+        pre_ms,
+        count as f64 / pre_ms / 1e3
+    );
 
     // --------------------------- GPU sieve -------------------------------
     let gpu = GpuSieve::new().expect("GPU init");
@@ -138,8 +151,11 @@ fn run_gpu_pipeline(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
     let survivors = gpu.sieve(&values, base).expect("GPU sieve");
     let gpu_ms = gpu_t0.elapsed().as_secs_f64() * 1e3;
     let gpu_secs = gpu_t0.elapsed().as_secs_f64();
-    println!("GPU sieve   {:>6.1} ms   ({:.1} M c/s)",
-             gpu_ms, count as f64 / gpu_secs / 1e6);
+    println!(
+        "GPU sieve   {:>6.1} ms   ({:.1} M c/s)",
+        gpu_ms,
+        count as f64 / gpu_secs / 1e6
+    );
     println!("survivors   {}\n", survivors.len());
 
     // --------- Miller-Rabin on survivors (parallel, 32-bit) --------------
@@ -153,9 +169,12 @@ fn run_gpu_pipeline(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
         })
         .collect();
     let mr_ms = mr_t0.elapsed().as_secs_f64() * 1e3;
-    println!("MR-filter   {:>6.1} ms   ({:.1} M/s)",
-             mr_ms, survivor_count as f64 / mr_ms / 1e3);
-    
+    println!(
+        "MR-filter   {:>6.1} ms   ({:.1} M/s)",
+        mr_ms,
+        survivor_count as f64 / mr_ms / 1e3
+    );
+
     primes
 }
 
@@ -166,19 +185,11 @@ fn run_gpu_pipeline(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
 }
 
 /// ------------------------------------------------------------------------
-fn compute_membrane_u32(
-    base: u32,
-    _w:   u32,
-    l:    u32,
-    r:    u32,
-    r1:   u32,
-    r2:   u32,
-    c:    u32,
-) -> u32 {
+fn compute_membrane_u32(base: u32, _w: u32, l: u32, r: u32, r1: u32, r2: u32, c: u32) -> u32 {
     let b2 = base.wrapping_mul(base); // base²
-    l.wrapping_mul(b2)                                   // l·b²
-        .wrapping_add(r.wrapping_mul(base.pow(1 - r1)))   // r·b^{1-r1}
-        .wrapping_add(c.wrapping_mul(base))               // c·b^{w/2}; w=3 ⇒ b¹
-        .wrapping_add(r.wrapping_mul(base.pow(r2 + 1)))   // r·b^{r2+1}
+    l.wrapping_mul(b2) // l·b²
+        .wrapping_add(r.wrapping_mul(base.pow(1 - r1))) // r·b^{1-r1}
+        .wrapping_add(c.wrapping_mul(base)) // c·b^{w/2}; w=3 ⇒ b¹
+        .wrapping_add(r.wrapping_mul(base.pow(r2 + 1))) // r·b^{r2+1}
         .wrapping_add(l)
 }

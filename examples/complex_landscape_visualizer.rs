@@ -1,7 +1,6 @@
-
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
 use plotters::prelude::*;
+use prime_physics_engine::is_prime;
 use std::f64::consts::PI;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -13,8 +12,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new(out_file_name, (800, 800)).into_drawing_area();
     root.fill(&BLACK)?;
 
-    let mut chart = ChartBuilder::on(&root)
-        .build_cartesian_2d(-10.0..10.0, -10.0..10.0)?;
+    let mut chart = ChartBuilder::on(&root).build_cartesian_2d(-10.0..10.0, -10.0..10.0)?;
 
     chart.configure_mesh().draw()?;
 
@@ -46,9 +44,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         2, // size of the point
         &WHITE.mix(0.8),
         &|c, s, st| {
-            return EmptyElement::at(c)
-            + Circle::new((0,0),s,st.filled());
-        }
+            return EmptyElement::at(c) + Circle::new((0, 0), s, st.filled());
+        },
     ))?;
 
     root.present()?;

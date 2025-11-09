@@ -1,11 +1,11 @@
 //! # Educational Module: Understanding Prime Atoms
-//! 
+//!
 //! This module explains the "nuts and bolts" of prime construction through
 //! membrane patterns, making it accessible to audiences from moderate to
 //! graduate-level physics and mathematics backgrounds.
 //!
 //! ## Core Concepts
-//! 
+//!
 //! 1. **Middle Nucleus**: The central digit(s) that form the core
 //! 2. **Membranes**: Boundary layers with specific digit patterns
 //! 3. **Zero Padding**: "Empty space" between membranes (like electron shells)
@@ -13,12 +13,12 @@
 
 pub mod base_metrics;
 
-use std::fmt;
-use num_bigint::BigUint;
-use serde::{Serialize, Deserialize};
 use crate::membrane::MembraneConfig;
+use num_bigint::BigUint;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-pub use base_metrics::{BaseMetricEducation, MetricFieldType, MeasuredEffect};
+pub use base_metrics::{BaseMetricEducation, MeasuredEffect, MetricFieldType};
 
 /// Education level for explanations
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -34,12 +34,12 @@ pub enum EducationLevel {
 }
 
 /// # The Prime Atom: A Complete Description
-/// 
+///
 /// Just as physical atoms have:
 /// - Nucleus (protons/neutrons)
 /// - Electron shells at specific energy levels
 /// - Quantum numbers describing states
-/// 
+///
 /// Prime atoms have:
 /// - Middle nucleus (the seed digit(s))
 /// - Membrane shells (boundary digits)
@@ -49,16 +49,16 @@ pub enum EducationLevel {
 pub struct PrimeAtom {
     /// The base number system (like which element on periodic table)
     pub base: u32,
-    
+
     /// The atomic structure
     pub structure: AtomicStructure,
-    
+
     /// Physical properties
     pub properties: AtomicProperties,
-    
+
     /// Discovered prime examples
     pub examples: Vec<DiscoveredPrime>,
-    
+
     /// Educational metadata
     pub education_level: EducationLevel,
 }
@@ -68,13 +68,13 @@ pub struct PrimeAtom {
 pub struct AtomicStructure {
     /// Nuclear configuration
     pub nucleus: Nucleus,
-    
+
     /// Membrane shells (like electron shells)
     pub shells: Vec<MembraneShell>,
-    
+
     /// Total zero count (empty space volume)
     pub total_zeros: u32,
-    
+
     /// Symmetry type
     pub symmetry: SymmetryType,
 }
@@ -84,13 +84,13 @@ pub struct AtomicStructure {
 pub struct Nucleus {
     /// For single-digit nuclei
     pub seed: Option<u32>,
-    
+
     /// For multi-digit nuclei
     pub pattern: Option<String>,
-    
+
     /// Nuclear "spin" (based on digit properties)
     pub spin: NuclearSpin,
-    
+
     /// Resonance frequency (how often it produces primes)
     pub resonance_frequency: f64,
 }
@@ -100,13 +100,13 @@ pub struct Nucleus {
 pub struct MembraneShell {
     /// Shell level (1 = innermost, 2 = next, etc.)
     pub level: u32,
-    
+
     /// The boundary digit for this shell
     pub digit: u32,
-    
+
     /// Distance from previous shell (zero count)
     pub orbital_radius: u32,
-    
+
     /// Shell type (s, p, d, f orbital analogy)
     pub orbital_type: OrbitalDesignation,
 }
@@ -116,16 +116,16 @@ pub struct MembraneShell {
 pub struct AtomicProperties {
     /// Expected prime density for this configuration
     pub prime_density: f64,
-    
+
     /// Gravitational mass in prime space
     pub mass: f64,
-    
+
     /// Charge (prime digit coupling)
     pub charge: f64,
-    
+
     /// Stability score (resistance to perturbation)
     pub stability: f64,
-    
+
     /// Interaction affinity with other atoms
     pub binding_affinity: f64,
 }
@@ -135,13 +135,13 @@ pub struct AtomicProperties {
 pub struct DiscoveredPrime {
     /// The actual prime number
     pub value: BigUint,
-    
+
     /// When it was discovered
     pub discovery_context: String,
-    
+
     /// Special properties it exhibits
     pub notable_features: Vec<String>,
-    
+
     /// Visual representation
     pub structure_diagram: String,
 }
@@ -151,21 +151,15 @@ pub struct DiscoveredPrime {
 pub enum SymmetryType {
     /// Perfect mirror symmetry
     Symmetric,
-    
+
     /// Different left/right padding
-    Breathing { 
-        inhale_exhale_ratio: f64 
-    },
-    
+    Breathing { inhale_exhale_ratio: f64 },
+
     /// Multiple nested symmetries
-    Fractal { 
-        depth: u32 
-    },
-    
+    Fractal { depth: u32 },
+
     /// Rotating/spiral patterns
-    Chiral { 
-        handedness: Chirality 
-    },
+    Chiral { handedness: Chirality },
 }
 
 /// Handedness for chiral structures
@@ -180,13 +174,13 @@ pub enum Chirality {
 pub enum NuclearSpin {
     /// No spin (seed 0, 5)
     Zero,
-    
+
     /// Half-integer spin (seeds 1, 3, 7, 9)
     HalfInteger { value: f64 },
-    
+
     /// Integer spin (seeds 2, 4, 6, 8)
     Integer { value: i32 },
-    
+
     /// Exotic spin (patterns like 37, 73)
     Exotic { pattern: String },
 }
@@ -196,16 +190,16 @@ pub enum NuclearSpin {
 pub enum OrbitalDesignation {
     /// Spherical (k = 0 or 1)
     S,
-    
+
     /// Dumbbell (k = 2)
     P,
-    
+
     /// Cloverleaf (k = 3-4)
     D,
-    
+
     /// Complex (k = 5+)
     F,
-    
+
     /// Exotic high-k orbitals
     G { k_value: u32 },
 }
@@ -237,7 +231,7 @@ impl PrimeAtom {
             total_zeros: 2 * (config.k_inner + config.k_outer),
             symmetry: SymmetryType::Symmetric,
         };
-        
+
         let properties = AtomicProperties {
             prime_density: config.expected_density,
             mass: 10.0, // Placeholder
@@ -245,7 +239,7 @@ impl PrimeAtom {
             stability: 0.8,
             binding_affinity: 0.5,
         };
-        
+
         PrimeAtom {
             base: config.base,
             structure,
@@ -254,7 +248,7 @@ impl PrimeAtom {
             education_level: EducationLevel::Moderate,
         }
     }
-    
+
     /// Get a human-readable explanation at the specified education level
     pub fn explain(&self, level: EducationLevel) -> String {
         match level {
@@ -264,7 +258,7 @@ impl PrimeAtom {
             EducationLevel::Expert => self.explain_expert(),
         }
     }
-    
+
     fn explain_introductory(&self) -> String {
         format!(
             "Imagine a prime number as an atom in base {}!\n\n\
@@ -281,14 +275,24 @@ impl PrimeAtom {
             self.properties.prime_density * 100.0
         )
     }
-    
+
     fn explain_moderate(&self) -> String {
-        let shells_desc = self.structure.shells.iter()
-            .map(|s| format!("Level {}: digit {} at radius {} ({})", 
-                s.level, s.digit, s.orbital_radius, s.orbital_type.symbol()))
+        let shells_desc = self
+            .structure
+            .shells
+            .iter()
+            .map(|s| {
+                format!(
+                    "Level {}: digit {} at radius {} ({})",
+                    s.level,
+                    s.digit,
+                    s.orbital_radius,
+                    s.orbital_type.symbol()
+                )
+            })
             .collect::<Vec<_>>()
             .join("\n  ");
-        
+
         format!(
             "Prime Atom Structure (Base {}):\n\n\
              Nucleus: {:?}\n\
@@ -309,7 +313,7 @@ impl PrimeAtom {
             1.0 / self.properties.prime_density
         )
     }
-    
+
     fn explain_advanced(&self) -> String {
         format!(
             "Prime Atom Analysis (Base {}):\n\n\
@@ -332,7 +336,12 @@ impl PrimeAtom {
              • Conservation of parity under base transformation",
             self.base,
             self.structure.shells.len(),
-            self.structure.shells.iter().map(|s| s.orbital_type.symbol()).collect::<Vec<_>>().join(","),
+            self.structure
+                .shells
+                .iter()
+                .map(|s| s.orbital_type.symbol())
+                .collect::<Vec<_>>()
+                .join(","),
             match &self.structure.symmetry {
                 SymmetryType::Symmetric => 0,
                 SymmetryType::Breathing { .. } => 1,
@@ -341,7 +350,7 @@ impl PrimeAtom {
             self.structure.nucleus.spin
         )
     }
-    
+
     fn explain_expert(&self) -> String {
         format!(
             "Topological Prime Field Theory (Base {}):\n\n\
@@ -371,12 +380,12 @@ impl PrimeAtom {
             self.base % 4
         )
     }
-    
+
     /// Add a discovered prime example
     pub fn add_example(&mut self, prime: BigUint, context: String) {
         let structure_diagram = self.visualize_structure(&prime);
         let features = self.analyze_features(&prime);
-        
+
         self.examples.push(DiscoveredPrime {
             value: prime,
             discovery_context: context,
@@ -384,150 +393,165 @@ impl PrimeAtom {
             structure_diagram,
         });
     }
-    
+
     /// Create ASCII art visualization of the atomic structure
     pub fn visualize(&self) -> String {
         let mut vis = String::new();
-        
+
         // Header
-        vis.push_str(&format!("\n{:^50}\n", format!("Prime Atom (Base {})", self.base)));
+        vis.push_str(&format!(
+            "\n{:^50}\n",
+            format!("Prime Atom (Base {})", self.base)
+        ));
         vis.push_str(&"=".repeat(50));
         vis.push_str("\n\n");
-        
+
         // Orbital diagram
-        let max_radius = self.structure.shells.iter()
+        let max_radius = self
+            .structure
+            .shells
+            .iter()
             .map(|s| s.orbital_radius)
             .max()
             .unwrap_or(5) as usize;
-        
+
         let size = 15 + 4 * max_radius;
         let center = size / 2;
-        
+
         // Create grid
         let mut grid = vec![vec![' '; size]; size];
-        
+
         // Draw nucleus
         let nucleus_char = match &self.structure.nucleus.seed {
             Some(s) => char::from_digit(*s, 10).unwrap_or('*'),
             None => '*',
         };
         grid[center][center] = nucleus_char;
-        
+
         // Draw shells
         for shell in &self.structure.shells {
             let radius = 3 + 2 * shell.orbital_radius as usize;
             let shell_char = char::from_digit(shell.digit, 10).unwrap_or('#');
-            
+
             // Draw circle (simplified)
             for angle in 0..360 {
                 let theta = angle as f64 * std::f64::consts::PI / 180.0;
                 let x = center as i32 + (radius as f64 * theta.cos()) as i32;
                 let y = center as i32 + (radius as f64 * theta.sin()) as i32;
-                
-                if x >= 0 && x < size as i32 && y >= 0 && y < size as i32
-                    && angle % 45 == 0 { // Draw at 8 points
-                        grid[y as usize][x as usize] = shell_char;
-                    }
+
+                if x >= 0 && x < size as i32 && y >= 0 && y < size as i32 && angle % 45 == 0 {
+                    // Draw at 8 points
+                    grid[y as usize][x as usize] = shell_char;
+                }
             }
         }
-        
+
         // Draw zero padding as dots
         for shell in &self.structure.shells {
-            let inner_radius = if shell.level == 1 { 
-                1 
-            } else { 
-                3 + 2 * self.structure.shells[shell.level as usize - 2].orbital_radius as usize 
+            let inner_radius = if shell.level == 1 {
+                1
+            } else {
+                3 + 2 * self.structure.shells[shell.level as usize - 2].orbital_radius as usize
             };
             let outer_radius = 3 + 2 * shell.orbital_radius as usize;
-            
+
             for r in inner_radius..outer_radius {
                 if r % 2 == 0 {
                     for angle in (0..360).step_by(60) {
                         let theta = angle as f64 * std::f64::consts::PI / 180.0;
                         let x = center as i32 + (r as f64 * theta.cos()) as i32;
                         let y = center as i32 + (r as f64 * theta.sin()) as i32;
-                        
-                        if x >= 0 && x < size as i32 && y >= 0 && y < size as i32
-                            && grid[y as usize][x as usize] == ' ' {
-                                grid[y as usize][x as usize] = '·';
-                            }
+
+                        if x >= 0
+                            && x < size as i32
+                            && y >= 0
+                            && y < size as i32
+                            && grid[y as usize][x as usize] == ' '
+                        {
+                            grid[y as usize][x as usize] = '·';
+                        }
                     }
                 }
             }
         }
-        
+
         // Convert grid to string
         for row in &grid {
             vis.push_str(&row.iter().collect::<String>());
             vis.push('\n');
         }
-        
+
         // Add legend
         vis.push_str("\nLegend:\n");
         vis.push_str(&format!("  {nucleus_char} = Nucleus (seed/pattern)\n"));
         for shell in &self.structure.shells {
             let shell_char = char::from_digit(shell.digit, 10).unwrap_or('#');
-            vis.push_str(&format!("  {} = Shell {} (digit {}, {} orbital)\n", 
-                shell_char, shell.level, shell.digit, shell.orbital_type.symbol()));
+            vis.push_str(&format!(
+                "  {} = Shell {} (digit {}, {} orbital)\n",
+                shell_char,
+                shell.level,
+                shell.digit,
+                shell.orbital_type.symbol()
+            ));
         }
         vis.push_str("  · = Zero padding (empty space)\n");
-        
+
         vis
     }
-    
+
     /// Visualize a specific prime's structure
     fn visualize_structure(&self, prime: &BigUint) -> String {
         let prime_str = prime.to_string();
         let mut diagram = String::new();
-        
+
         // Try to parse the structure
         diagram.push_str(&format!("Structure of {prime_str}:\n"));
         diagram.push_str(&format!("Length: {} digits\n\n", prime_str.len()));
-        
+
         // Simple linear representation
         let chars: Vec<char> = prime_str.chars().collect();
         if chars.len() >= 5 {
             diagram.push_str("Possible membrane structure:\n");
             diagram.push_str(&format!("{} ", chars[0])); // outer
-            
+
             let mut i = 1;
             while i < chars.len() && chars[i] == '0' {
                 diagram.push('0');
                 i += 1;
             }
-            
+
             if i < chars.len() {
                 diagram.push_str(&format!(" {} ", chars[i])); // inner
                 i += 1;
-                
+
                 while i < chars.len() && chars[i] == '0' {
                     diagram.push('0');
                     i += 1;
                 }
-                
+
                 diagram.push_str(" [");
                 while i < chars.len() - 3 {
                     diagram.push(chars[i]);
                     i += 1;
                 }
                 diagram.push_str("] ");
-                
+
                 // Right side (abbreviated)
                 diagram.push_str("... ");
-                diagram.push(chars[chars.len()-1]);
+                diagram.push(chars[chars.len() - 1]);
             }
         } else {
             diagram.push_str(&prime_str);
         }
-        
+
         diagram
     }
-    
+
     /// Analyze special features of a prime
     fn analyze_features(&self, prime: &BigUint) -> Vec<String> {
         let mut features = Vec::new();
         let prime_str = prime.to_string();
-        
+
         // Check for 37/73 patterns
         if prime_str.contains("37") {
             features.push("Contains magical 37 pattern".to_string());
@@ -535,19 +559,20 @@ impl PrimeAtom {
         if prime_str.contains("73") {
             features.push("Contains mirror 73 pattern".to_string());
         }
-        
+
         // Check prime digit density
-        let prime_digits = prime_str.chars()
+        let prime_digits = prime_str
+            .chars()
             .filter(|&c| matches!(c, '2' | '3' | '5' | '7'))
             .count();
         let density = prime_digits as f64 / prime_str.len() as f64;
         features.push(format!("Prime digit density: {:.1}%", density * 100.0));
-        
+
         // Check for palindromes
         if prime_str == prime_str.chars().rev().collect::<String>() {
             features.push("Perfect palindrome!".to_string());
         }
-        
+
         // Length category
         match prime_str.len() {
             1..=10 => features.push("Small prime (high quantum effects)".to_string()),
@@ -555,7 +580,7 @@ impl PrimeAtom {
             21..=50 => features.push("Large prime (classical behavior)".to_string()),
             _ => features.push("Massive prime (gravitational dominance)".to_string()),
         }
-        
+
         features
     }
 }
@@ -586,7 +611,7 @@ impl OrbitalDesignation {
     fn symbol(&self) -> &str {
         match self {
             OrbitalDesignation::S => "s",
-            OrbitalDesignation::P => "p", 
+            OrbitalDesignation::P => "p",
             OrbitalDesignation::D => "d",
             OrbitalDesignation::F => "f",
             OrbitalDesignation::G { .. } => "g",
@@ -596,7 +621,9 @@ impl OrbitalDesignation {
 
 impl fmt::Display for PrimeAtom {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "PrimeAtom[Base {}, {} shells, {:.1}% density]",
+        write!(
+            f,
+            "PrimeAtom[Base {}, {} shells, {:.1}% density]",
             self.base,
             self.structure.shells.len(),
             self.properties.prime_density * 100.0
@@ -605,7 +632,7 @@ impl fmt::Display for PrimeAtom {
 }
 
 /// # Cross-Base Interactions
-/// 
+///
 /// When atoms from different bases interact, special phenomena occur
 pub struct CrossBaseInteraction {
     pub atom1: PrimeAtom,
@@ -619,16 +646,16 @@ pub struct CrossBaseInteraction {
 pub enum InteractionType {
     /// Atoms attract (same parity bases)
     Attractive { force: f64 },
-    
+
     /// Atoms repel (even vs odd bases)
     Repulsive { force: f64 },
-    
+
     /// Form a stable molecule
     Bonding { bond_order: f64 },
-    
+
     /// Exchange properties
     Resonant { frequency: f64 },
-    
+
     /// Chaotic interaction
     Chaotic { lyapunov_exponent: f64 },
 }
@@ -637,13 +664,13 @@ pub enum InteractionType {
 pub enum InteractionProduct {
     /// A new prime is catalyzed
     NewPrime { value: BigUint },
-    
+
     /// Energy is released
     Energy { amount: f64 },
-    
+
     /// Pattern propagates
     Wave { wavelength: f64, amplitude: f64 },
-    
+
     /// Stable compound forms
     Molecule { components: Vec<u32> },
 }
@@ -652,7 +679,7 @@ pub enum InteractionProduct {
 pub struct PrimePeriodicTable {
     /// Atoms organized by base and configuration
     pub elements: Vec<Vec<PrimeAtom>>,
-    
+
     /// Discovered interactions
     pub reactions: Vec<CrossBaseInteraction>,
 }
@@ -665,10 +692,8 @@ impl PrimePeriodicTable {
             10 => vec![
                 // The magical (3,7) - our "hydrogen"
                 PrimeAtom::from_config(&MembraneConfig::new(10, 3, 7, 2, 2)),
-                
                 // High-density breathing patterns - "helium"
                 PrimeAtom::from_config(&MembraneConfig::breathing(10, 3, 7, 0, 1, 3, 2)),
-                
                 // Twin boundaries - "lithium"
                 PrimeAtom::from_config(&MembraneConfig::new(10, 3, 3, 1, 1)),
             ],
@@ -682,7 +707,7 @@ impl PrimePeriodicTable {
             ],
             _ => vec![
                 // Generic configuration
-                PrimeAtom::from_config(&MembraneConfig::new(base, 1, base-1, 1, 1)),
+                PrimeAtom::from_config(&MembraneConfig::new(base, 1, base - 1, 1, 1)),
             ],
         }
     }
@@ -691,55 +716,51 @@ impl PrimePeriodicTable {
 /// Educational examples with increasing complexity
 pub mod examples {
     use super::*;
-    
+
     /// Example 1: The simplest prime atom (Base 10)
     pub fn hydrogen_prime() -> PrimeAtom {
         let mut atom = PrimeAtom::from_config(&MembraneConfig::new(10, 3, 7, 2, 2));
-        
+
         // Add discovered examples
         atom.add_example(
             "30070070003".parse().unwrap(),
-            "First discovered symmetric (3,7) prime".to_string()
+            "First discovered symmetric (3,7) prime".to_string(),
         );
-        
+
         atom.add_example(
-            "300700070003".parse().unwrap(), 
-            "Extra zero in middle maintains primality".to_string()
+            "300700070003".parse().unwrap(),
+            "Extra zero in middle maintains primality".to_string(),
         );
-        
+
         atom
     }
-    
+
     /// Example 2: A breathing prime atom
     pub fn helium_prime() -> PrimeAtom {
-        let mut atom = PrimeAtom::from_config(
-            &MembraneConfig::breathing(10, 3, 3, 1, 0, 0, 1)
-        );
-        
+        let mut atom = PrimeAtom::from_config(&MembraneConfig::breathing(10, 3, 3, 1, 0, 0, 1));
+
         atom.add_example(
             "31303".parse().unwrap(),
-            "Asymmetric breathing pattern with 25% density".to_string()
+            "Asymmetric breathing pattern with 25% density".to_string(),
         );
-        
+
         atom
     }
-    
+
     /// Example 3: Cross-base interaction
     pub fn demonstrate_interaction() -> CrossBaseInteraction {
         let atom_10 = hydrogen_prime();
         let atom_11 = PrimeAtom::from_config(&MembraneConfig::new(11, 3, 8, 2, 2));
-        
+
         CrossBaseInteraction {
             atom1: atom_10,
             atom2: atom_11,
             interaction_type: InteractionType::Attractive { force: 2.5 },
             binding_energy: -15.3, // Negative = bound state
-            products: vec![
-                InteractionProduct::Wave { 
-                    wavelength: 37.0, 
-                    amplitude: 0.73 
-                },
-            ],
+            products: vec![InteractionProduct::Wave {
+                wavelength: 37.0,
+                amplitude: 0.73,
+            }],
         }
     }
 }

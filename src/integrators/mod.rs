@@ -1,21 +1,21 @@
 //! Numerical Integration Methods for Prime Dynamics
 //! ================================================
-//! 
+//!
 //! Provides various integration schemes optimized for different scenarios:
 //! - Symplectic integrators for energy conservation
 //! - Adaptive methods for handling close encounters
 //! - High-order methods for precision studies
 
-use crate::PhysicsResult;
 use crate::gravity::PrimeParticle;
+use crate::PhysicsResult;
 
-pub mod symplectic;
 pub mod adaptive;
 pub mod rk4;
+pub mod symplectic;
 
-pub use symplectic::SymplecticIntegrator;
 pub use adaptive::AdaptiveIntegrator;
 pub use rk4::RK4Integrator;
+pub use symplectic::SymplecticIntegrator;
 
 /// Common interface for all integrators
 pub trait Integrator {
@@ -27,10 +27,10 @@ pub trait Integrator {
         dt: f64,
         time: f64,
     ) -> PhysicsResult<()>;
-    
+
     /// Get the actual timestep used (for adaptive integrators)
     fn get_last_dt(&self) -> f64;
-    
+
     /// Reset internal state
     fn reset(&mut self);
 }

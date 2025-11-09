@@ -35,7 +35,7 @@ pub fn zero_pattern(base: usize, small: &[usize]) -> (Vec<usize>, usize, String,
     let mut z = Vec::new();
 
     for &m in small {
-        if p % m == 0 {
+        if p.is_multiple_of(m) {
             z.push(m);
         }
     }
@@ -49,7 +49,11 @@ pub fn zero_pattern(base: usize, small: &[usize]) -> (Vec<usize>, usize, String,
         0 => "none".to_string(),
         1 => format!("only_{}", z[0]),
         2 => format!("{}_and_{}", z[0], z[1]),
-        _ => z.iter().map(|w| w.to_string()).collect::<Vec<_>>().join("_"),
+        _ => z
+            .iter()
+            .map(|w| w.to_string())
+            .collect::<Vec<_>>()
+            .join("_"),
     };
 
     (z, len, tag, comp)
@@ -74,7 +78,7 @@ pub fn zero_pattern(base: usize, small: &[usize]) -> (Vec<usize>, usize, String,
 /// assert!(!is_double_prime_base(12)); // 12 = 2×6 (6 not prime)
 /// ```
 pub fn is_double_prime_base(b: usize) -> bool {
-    if b % 2 != 0 {
+    if !b.is_multiple_of(2) {
         return false;
     }
 
@@ -94,7 +98,7 @@ fn is_prime_simple(n: usize) -> bool {
     if n == 2 {
         return true;
     }
-    if n % 2 == 0 {
+    if n.is_multiple_of(2) {
         return false;
     }
 
@@ -102,7 +106,7 @@ fn is_prime_simple(n: usize) -> bool {
     let mut d = 3usize;
 
     while d <= r {
-        if n % d == 0 {
+        if n.is_multiple_of(d) {
             return false;
         }
         d += 2;
@@ -115,7 +119,7 @@ fn is_prime_simple(n: usize) -> bool {
 ///
 /// Returns a human-readable classification for analysis purposes
 pub fn classify_base(base: usize, small_primes: &[usize]) -> String {
-    if base % 2 != 0 {
+    if !base.is_multiple_of(2) {
         return "odd_base".to_string();
     }
 
@@ -173,14 +177,14 @@ mod tests {
 
     #[test]
     fn test_double_prime() {
-        assert!(is_double_prime_base(6));   // 2×3
-        assert!(is_double_prime_base(10));  // 2×5
-        assert!(is_double_prime_base(14));  // 2×7
-        assert!(is_double_prime_base(22));  // 2×11
+        assert!(is_double_prime_base(6)); // 2×3
+        assert!(is_double_prime_base(10)); // 2×5
+        assert!(is_double_prime_base(14)); // 2×7
+        assert!(is_double_prime_base(22)); // 2×11
 
         assert!(!is_double_prime_base(12)); // 2×6 (6 not prime)
         assert!(!is_double_prime_base(30)); // 2×15 (15 not prime)
-        assert!(!is_double_prime_base(7));  // odd
+        assert!(!is_double_prime_base(7)); // odd
     }
 
     #[test]

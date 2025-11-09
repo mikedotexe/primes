@@ -19,7 +19,7 @@ fn mod_mul_u32_fast(a: u32, b: u32, m: u32) -> u32 {
         let low = _mulx_u32(a, b, &mut high);
         ((high as u64) << 32 | low as u64) % (m as u64) as u32
     }
-    
+
     #[cfg(not(target_arch = "x86_64"))]
     {
         ((a as u64 * b as u64) % m as u64) as u32
@@ -30,7 +30,7 @@ fn mod_mul_u32_fast(a: u32, b: u32, m: u32) -> u32 {
 fn mod_pow_u32_fast(mut base: u32, mut exp: u32, modulus: u32) -> u32 {
     let mut result = 1u32;
     base %= modulus;
-    
+
     while exp > 0 {
         if exp & 1 != 0 {
             result = mod_mul_u32_fast(result, base, modulus);
@@ -45,21 +45,29 @@ fn mod_pow_u32_fast(mut base: u32, mut exp: u32, modulus: u32) -> u32 {
 #[inline(always)]
 fn is_u32_prime_ultra(n: u32) -> bool {
     const BASES: [u32; 3] = [2, 7, 61];
-    
-    if n < 2 || (n & 1 == 0 && n != 2) { return false; }
-    if n <= 3 { return true; }
-    
+
+    if n < 2 || (n & 1 == 0 && n != 2) {
+        return false;
+    }
+    if n <= 3 {
+        return true;
+    }
+
     let d = n - 1;
     let r = d.trailing_zeros();
     let d = d >> r;
-    
+
     'outer: for &a in &BASES {
         let mut x = mod_pow_u32_fast(a % n, d, n);
-        if x == 1 || x == n - 1 { continue; }
-        
+        if x == 1 || x == n - 1 {
+            continue;
+        }
+
         for _ in 1..r {
             x = mod_mul_u32_fast(x, x, n);
-            if x == n - 1 { continue 'outer; }
+            if x == n - 1 {
+                continue 'outer;
+            }
         }
         return false;
     }
@@ -71,16 +79,16 @@ fn is_u32_prime_ultra(n: u32) -> bool {
 struct Args {
     #[arg(short, long, default_value_t = 6)]
     base: u32,
-    
+
     #[arg(short, long, default_value = "5,5")]
     digits: String,
-    
+
     #[arg(short, long, default_value_t = 4_000_000)]
     count: usize,
-    
+
     #[arg(long)]
     gpu: bool,
-    
+
     #[arg(long)]
     benchmark: bool,
 }
@@ -88,11 +96,22 @@ struct Args {
 fn main() {
     let args = Args::parse();
     let (l, r) = parse_digits(&args.digits);
-    
-    println!("\n🚀 MEMBRANE PRIME ULTRA — base-{}, boundary=({},{})", args.base, l, r);
-    println!("{} candidates, mode: {}", args.count, if args.gpu { "GPU-OPTIMIZED" } else { "CPU-PARALLEL" });
+
+    println!(
+        "\n🚀 MEMBRANE PRIME ULTRA — base-{}, boundary=({},{})",
+        args.base, l, r
+    );
+    println!(
+        "{} candidates, mode: {}",
+        args.count,
+        if args.gpu {
+            "GPU-OPTIMIZED"
+        } else {
+            "CPU-PARALLEL"
+        }
+    );
     println!("{}", "=".repeat(60));
-    
+
     let start = Instant::now();
     let primes = if args.gpu {
         run_gpu_ultra(args.base, l, r, args.count)
@@ -100,19 +119,23 @@ fn main() {
         run_cpu_ultra(args.base, l, r, args.count)
     };
     let elapsed = start.elapsed();
-    
+
     // Results
     let density = primes.len() as f64 / args.count as f64 * 100.0;
     let throughput = args.count as f64 / elapsed.as_secs_f64() / 1e6;
-    
-    println!("\nFinished in {:.3}s → {:.1} M c/s", elapsed.as_secs_f64(), throughput);
+
+    println!(
+        "\nFinished in {:.3}s → {:.1} M c/s",
+        elapsed.as_secs_f64(),
+        throughput
+    );
     println!("Found {} primes ({:.1}% density)\n", primes.len(), density);
-    
+
     // Show examples
     for (i, p) in primes.iter().take(10).enumerate() {
         println!("  [{}] {}", i, p);
     }
-    
+
     if args.benchmark {
         benchmark_improvements();
     }
@@ -129,9 +152,10 @@ fn run_cpu_ultra(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
         .into_par_iter()
         .map(|c| compute_membrane_u32(base, 3, l, r, 0, 0, c))
         .collect();
-    
+
     // Parallel ultra-fast Miller-Rabin
-    values.into_par_iter()
+    values
+        .into_par_iter()
         .filter(|&v| is_u32_prime_ultra(v))
         .map(BigUint::from)
         .collect()
@@ -140,23 +164,30 @@ fn run_cpu_ultra(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
 #[cfg(feature = "metal")]
 fn run_gpu_ultra(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
     use prime_physics_engine::gpu_optimized::GpuSieveOptimized;
-    
+
     println!("\nGPU Pipeline Breakdown:");
     println!("{}", "-".repeat(40));
-    
+
     let gpu = GpuSieveOptimized::new().expect("GPU init");
-    
+
     // Direct GPU computation (membrane + sieve + Fermat)
     let gpu_start = Instant::now();
-    let survivor_indices = gpu.sieve_direct(base, l, r, 3, count as u32).expect("GPU sieve");
+    let survivor_indices = gpu
+        .sieve_direct(base, l, r, 3, count as u32)
+        .expect("GPU sieve");
     let gpu_ms = gpu_start.elapsed().as_millis();
-    
-    println!("GPU total:     {:>6} ms ({:.1} M c/s)", 
-        gpu_ms, count as f64 / gpu_ms as f64 / 1e3);
-    println!("Survivors:     {} ({:.1}% passed)", 
-        survivor_indices.len(), 
-        survivor_indices.len() as f64 / count as f64 * 100.0);
-    
+
+    println!(
+        "GPU total:     {:>6} ms ({:.1} M c/s)",
+        gpu_ms,
+        count as f64 / gpu_ms as f64 / 1e3
+    );
+    println!(
+        "Survivors:     {} ({:.1}% passed)",
+        survivor_indices.len(),
+        survivor_indices.len() as f64 / count as f64 * 100.0
+    );
+
     // Final Miller-Rabin on survivors
     let mr_start = Instant::now();
     let primes: Vec<BigUint> = survivor_indices
@@ -168,10 +199,10 @@ fn run_gpu_ultra(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
         })
         .collect();
     let mr_ms = mr_start.elapsed().as_millis();
-    
+
     println!("Miller-Rabin:  {:>6} ms", mr_ms);
     println!("{}", "-".repeat(40));
-    
+
     primes
 }
 
@@ -193,15 +224,16 @@ fn compute_membrane_u32(base: u32, _w: u32, l: u32, r: u32, _r1: u32, _r2: u32, 
 fn benchmark_improvements() {
     println!("\n\n=== OPTIMIZATION IMPACT BENCHMARK ===");
     println!("{}", "-".repeat(60));
-    
+
     let test_size = 100_000;
     let test_values: Vec<u32> = (0..test_size)
-        .map(|i| 1_000_000 + i * 2 + 1)  // Odd numbers
+        .map(|i| 1_000_000 + i * 2 + 1) // Odd numbers
         .collect();
-    
+
     // Benchmark original Miller-Rabin
     let start = Instant::now();
-    let count1 = test_values.iter()
+    let count1 = test_values
+        .iter()
         .filter(|&&n| {
             // Simple version
             let big = BigUint::from(n);
@@ -209,16 +241,28 @@ fn benchmark_improvements() {
         })
         .count();
     let time1 = start.elapsed();
-    
+
     // Benchmark optimized Miller-Rabin
     let start = Instant::now();
-    let count2 = test_values.iter()
+    let count2 = test_values
+        .iter()
         .filter(|&&n| is_u32_prime_ultra(n))
         .count();
     let time2 = start.elapsed();
-    
+
     println!("Miller-Rabin comparison ({} numbers):", test_size);
-    println!("  Original:  {:.3}s ({} primes)", time1.as_secs_f64(), count1);
-    println!("  Optimized: {:.3}s ({} primes)", time2.as_secs_f64(), count2);
-    println!("  Speedup:   {:.1}x", time1.as_secs_f64() / time2.as_secs_f64());
+    println!(
+        "  Original:  {:.3}s ({} primes)",
+        time1.as_secs_f64(),
+        count1
+    );
+    println!(
+        "  Optimized: {:.3}s ({} primes)",
+        time2.as_secs_f64(),
+        count2
+    );
+    println!(
+        "  Speedup:   {:.1}x",
+        time1.as_secs_f64() / time2.as_secs_f64()
+    );
 }
