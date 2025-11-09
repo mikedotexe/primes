@@ -37,13 +37,13 @@ record BalancedBuckets {ℓ} {B : Set ℓ} {n : Nat}
   : Set ℓ where
   field
     -- Each residue appears exactly as often as its symmetric partner
-    balanced : ∀ r → count r ≡ count (SymmetryData.inv S r)
+    balanced : (r : B) → count r ≡ count (SymmetryData.inv S r)
 
     -- Sum of all counts equals total occurrences
     total : Σ Nat (λ sum → sum ≡ n)
 
     -- All counts are positive (no empty buckets)
-    positive : ∀ r → 0 Nat.< count r ∨ count r ≡ 0
+    positive : (r : B) → 0 Nat.< count r ∨ count r ≡ 0
 
   _∨_ : Set → Set → Set
   P ∨ Q = Σ _ (λ b → if b then P else Q)
@@ -117,7 +117,7 @@ postulate
     → (f : Fin n → B)
     → (count : B → Nat)
     → (bb : BalancedBuckets S f count)
-    → ∀ i → auto-mate S f count bb (auto-mate S f count bb i) ≡ i
+    → (i : Fin n) → auto-mate S f count bb (auto-mate S f count bb i) ≡ i
 
   auto-mate-no-fixed
     : ∀ {ℓ} {B : Set ℓ} {n : Nat}
@@ -125,7 +125,7 @@ postulate
     → (f : Fin n → B)
     → (count : B → Nat)
     → (bb : BalancedBuckets S f count)
-    → ∀ i → auto-mate S f count bb i ≢ i
+    → (i : Fin n) → auto-mate S f count bb i ≢ i
 
   auto-mate-equivariant
     : ∀ {ℓ} {B : Set ℓ} {n : Nat}
@@ -133,7 +133,7 @@ postulate
     → (f : Fin n → B)
     → (count : B → Nat)
     → (bb : BalancedBuckets S f count)
-    → ∀ i → SymmetryData.inv S (f i) ≡ f (auto-mate S f count bb i)
+    → (i : Fin n) → SymmetryData.inv S (f i) ≡ f (auto-mate S f count bb i)
 
   auto-mate-residue-distinct
     : ∀ {ℓ} {B : Set ℓ} {n : Nat}
@@ -141,7 +141,7 @@ postulate
     → (f : Fin n → B)
     → (count : B → Nat)
     → (bb : BalancedBuckets S f count)
-    → ∀ i → f (auto-mate S f count bb i) ≢ f i
+    → (i : Fin n) → f (auto-mate S f count bb i) ≢ f i
 
 perfectFromBalanced
   : ∀ {ℓ} {B : Set ℓ} {n : Nat}

@@ -73,7 +73,7 @@ inv-fn f5 = f1
 
 -- PROOF: inv is involutive (inv(inv(r)) = r)
 -- Proven by case analysis (6 cases)
-inv-involutive-proof : ∀ r → inv-fn (inv-fn r) ≡ r
+inv-involutive-proof : (r : Fin6) → inv-fn (inv-fn r) ≡ r
 inv-involutive-proof f0 = refl
 inv-involutive-proof f1 = refl
 inv-involutive-proof f2 = refl
@@ -146,14 +146,14 @@ mate-fn i3 = i2
 -- These are the KEY VERIFICATION OBLIGATIONS that certify the pairing!
 
 -- PROOF 1: mate is involutive (mate(mate(i)) = i)
-involutive-mate : ∀ i → mate-fn (mate-fn i) ≡ i
+involutive-mate : (i : Fin4) → mate-fn (mate-fn i) ≡ i
 involutive-mate i0 = refl
 involutive-mate i1 = refl
 involutive-mate i2 = refl
 involutive-mate i3 = refl
 
 -- PROOF 2: mate has no fixed points (mate(i) ≠ i)
-no-fixed-mate : ∀ i → mate-fn i ≢ i
+no-fixed-mate : (i : Fin4) → mate-fn i ≢ i
 no-fixed-mate i0 ()
 no-fixed-mate i1 ()
 no-fixed-mate i2 ()
@@ -161,14 +161,14 @@ no-fixed-mate i3 ()
 
 -- PROOF 3: equivariant (inv(res(i)) = res(mate(i)))
 -- This is the CORE GEOMETRIC PROPERTY!
-equivariant-res : ∀ i → inv-fn (res-list i) ≡ res-list (mate-fn i)
+equivariant-res : (i : Fin4) → inv-fn (res-list i) ≡ res-list (mate-fn i)
 equivariant-res i0 = refl     -- inv(1) = 5 ✓
 equivariant-res i1 = refl     -- inv(5) = 1 ✓
 equivariant-res i2 = refl     -- inv(2) = 4 ✓
 equivariant-res i3 = refl     -- inv(4) = 2 ✓
 
 -- PROOF 4: residues are distinct (res(mate(i)) ≠ res(i))
-residue-distinct : ∀ i → res-list (mate-fn i) ≢ res-list i
+residue-distinct : (i : Fin4) → res-list (mate-fn i) ≢ res-list i
 residue-distinct i0 ()        -- 5 ≢ 1
 residue-distinct i1 ()        -- 1 ≢ 5
 residue-distinct i2 ()        -- 4 ≢ 2

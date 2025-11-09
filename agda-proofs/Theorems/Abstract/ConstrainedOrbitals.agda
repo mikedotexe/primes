@@ -26,13 +26,13 @@ data List (A : Set) : Set where
 -- Order on ℕ
 
 data _≤_ : Nat → Nat → Set where
-  z≤n : ∀ n → zero ≤ n
+  z≤n : (n : Nat) → zero ≤ n
   s≤s : ∀ {m n} → m ≤ n → suc m ≤ suc n
 
 _<_ : Nat → Nat → Set
 m < n = suc m ≤ n
 
-≤-refl : ∀ n → n ≤ n
+≤-refl : (n : Nat) → n ≤ n
 ≤-refl zero    = z≤n 0
 ≤-refl (suc n) = s≤s (≤-refl n)
 
@@ -40,7 +40,7 @@ m < n = suc m ≤ n
 ≤-trans (z≤n _)  q       = z≤n _
 ≤-trans (s≤s p) (s≤s q)  = s≤s (≤-trans p q)
 
-not-s≤n : ∀ n → ¬ (suc n ≤ n)
+not-s≤n : (n : Nat) → ¬ (suc n ≤ n)
 not-s≤n zero      ()
 not-s≤n (suc n) (s≤s p) = not-s≤n n p
 

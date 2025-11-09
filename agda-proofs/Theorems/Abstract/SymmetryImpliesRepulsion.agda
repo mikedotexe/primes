@@ -44,7 +44,7 @@ record SymmetryData (B : Set) : Set where
   field
     mid            : B
     inv            : B → B
-    inv-involutive : ∀ r → inv (inv r) ≡ r
+    inv-involutive : (r : B) → inv (inv r) ≡ r
     inv-mid        : inv mid ≡ mid
 
 ------------------------------------------------------------------------
@@ -75,10 +75,10 @@ record Pairing {B : Set} (S : SymmetryData B) (M : MS B) : Set where
   open MS           M using (X; res)
   field
     π               : X → X
-    involutive      : ∀ x → π (π x) ≡ x
-    no-fixed        : ∀ x → π x ≢ x
-    residue-distinct: ∀ x → res (π x) ≢ res x
-    equivariant     : ∀ x → inv (res x) ≡ res (π x)
+    involutive      : (x : X) → π (π x) ≡ x
+    no-fixed        : (x : X) → π x ≢ x
+    residue-distinct: (x : X) → res (π x) ≢ res x
+    equivariant     : (x : X) → inv (res x) ≡ res (π x)
 
 ------------------------------------------------------------------------
 -- HONORARY ZERO: The midpoint void

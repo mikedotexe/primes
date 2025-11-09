@@ -72,8 +72,8 @@ postulate
     : ∀ {m n}
     → (S : SymmetryData (Fin m))
     → (f : Fin n → Fin m)
-    → (midVoid  : ∀ i → f i ≢ SymmetryData.mid S)
-    → (balanced : ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
+    → (midVoid  : (i : Fin n) → f i ≢ SymmetryData.mid S)
+    → (balanced : (b : Fin m) → countResid f b ≡ countResid f (SymmetryData.inv S b))
     → PerfectBuckets S f
 
 ------------------------------------------------------------------------

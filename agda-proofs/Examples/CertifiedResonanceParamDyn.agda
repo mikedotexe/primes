@@ -96,9 +96,9 @@ certifyWithDynamicsFromResid
   : ∀ {m n}
   → (mid : Fin m)
   → (f   : Fin n → Fin m)
-  → (midVoid  : ∀ i → f i ≢ mid)
+  → (midVoid  : (i : Fin n) → f i ≢ mid)
   → (balanced : (S : SymmetryData (Fin m))
-               → ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
+               → (b : Fin m) → countResid f b ≡ countResid f (SymmetryData.inv S b))
   → ResonanceCertificateDyn mid f
 certifyWithDynamicsFromResid {m} {n} mid f midVoid balanced =
   let S*  = mkSymReflect mid
@@ -121,9 +121,9 @@ certifyWithDynamicsFromVec
   : ∀ {m n}
   → (mid : Fin m)
   → (xs  : Vec (Fin m) n)
-  → (midVoid  : ∀ i → indexer xs i ≢ mid)
+  → (midVoid  : (i : Fin n) → indexer xs i ≢ mid)
   → (balanced : (S : SymmetryData (Fin m))
-               → ∀ b → countResid (indexer xs) b
+               → (b : Fin m) → countResid (indexer xs) b
                        ≡ countResid (indexer xs) (SymmetryData.inv S b))
   → ResonanceCertificateDyn mid (indexer xs)
 certifyWithDynamicsFromVec mid xs midVoid balanced =
@@ -261,10 +261,10 @@ module Example-Base6-Dual where
 
   -- Witnesses (would be auto-generated for real windows)
   postulate
-    proof-midVoid : ∀ i → indexer example-residues i ≢ example-mid
+    proof-midVoid : (i : Fin 4) → indexer example-residues i ≢ example-mid
 
     proof-balanced : (S : SymmetryData (Fin 6))
-                   → ∀ b → countResid (indexer example-residues) b
+                   → (b : Fin 6) → countResid (indexer example-residues) b
                           ≡ countResid (indexer example-residues) (SymmetryData.inv S b)
 
     proof-stable : ∀ {R} → StableOrbital R (toℕ example-mid) (mapFin example-positions)

@@ -58,10 +58,10 @@ record PerfectBuckets {ℓ} {B : Set ℓ} {n : Nat}
   : Set where
   field
     mate            : Fin n → Fin n
-    involutive      : ∀ i → mate (mate i) ≡ i
-    no-fixed        : ∀ i → mate i ≢ i
-    equivariant     : ∀ i → SymmetryData.inv S (f i) ≡ f (mate i)
-    residue-distinct: ∀ i → f (mate i) ≢ f i
+    involutive      : (i : Fin n) → mate (mate i) ≡ i
+    no-fixed        : (i : Fin n) → mate i ≢ i
+    equivariant     : (i : Fin n) → SymmetryData.inv S (f i) ≡ f (mate i)
+    residue-distinct: (i : Fin n) → f (mate i) ≢ f i
 
 ------------------------------------------------------------------------
 -- CONVERT PERFECT BUCKETS TO PAIRING
