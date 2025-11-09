@@ -11,41 +11,24 @@ from pathlib import Path
 def analyze_csv(filepath):
     """Analyze enrichment data from CSV file."""
     with open(filepath) as f:
-        lines = f.readlines()
-
-    # Parse header
-    header = lines[0].strip().split(',')
-
-    # Extract data (accounting for array fields that break CSV parsing)
-    data = []
-    for line in lines[1:]:
-        parts = line.strip().split(',')
-        try:
-            total_len = int(parts[2])
-            mid_len = int(parts[3])
-            inner_zero = int(parts[4])
-            samples = int(parts[6])
-            primes = int(parts[7])
-            density = float(parts[8])
-            ci_lo = float(parts[9])
-            ci_hi = float(parts[10])
-            expected = float(parts[11])
-            enrichment = float(parts[12])
-
-            data.append({
-                'total_len': total_len,
-                'mid_len': mid_len,
-                'inner_zero': inner_zero,
-                'samples': samples,
-                'primes': primes,
-                'density': density,
-                'ci_lo': ci_lo,
-                'ci_hi': ci_hi,
-                'expected': expected,
-                'enrichment': enrichment
-            })
-        except (ValueError, IndexError):
-            continue
+        reader = csv.DictReader(f)
+        data = []
+        for row in reader:
+            try:
+                data.append({
+                    'total_len': int(row['total_len']),
+                    'mid_len': int(row['mid_len']),
+                    'inner_zero': int(row['inner_zero']),
+                    'samples': int(row['samples']),
+                    'primes': int(row['primes']),
+                    'density': float(row['prime_density']),
+                    'ci_lo': float(row['ci_lo']),
+                    'ci_hi': float(row['ci_hi']),
+                    'expected': float(row['expected_density_pnt_cond']),
+                    'enrichment': float(row['enrichment_factor'])
+                })
+            except (ValueError, KeyError):
+                continue
 
     if not data:
         print(f"No valid data found in {filepath}")
