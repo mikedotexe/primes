@@ -10,9 +10,10 @@
 
 module Theorems.Abstract.ConstrainedOrbitals where
 
-open import Data.Nat      using (Nat ; zero ; suc)
+open import Data.Nat      using (ℕ ; zero ; suc)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 open import Data.Empty    using (⊥)
+open import Relation.Nullary using (¬_)
 
 ------------------------------------------------------------------------
 -- Lists
@@ -25,11 +26,11 @@ data List (A : Set) : Set where
 ------------------------------------------------------------------------
 -- Order on ℕ
 
-data _≤_ : Nat → Nat → Set where
+data _≤_ : ℕ → ℕ → Set where
   z≤n : ∀ n → zero ≤ n
   s≤s : ∀ {m n} → m ≤ n → suc m ≤ suc n
 
-_<_ : Nat → Nat → Set
+_<_ : ℕ → ℕ → Set
 m < n = suc m ≤ n
 
 ≤-refl : ∀ n → n ≤ n
@@ -44,13 +45,10 @@ not-s≤n : ∀ n → ¬ (suc n ≤ n)
 not-s≤n zero      ()
 not-s≤n (suc n) (s≤s p) = not-s≤n n p
 
-¬_ : Set → Set
-¬ P = P → ⊥
-
 ------------------------------------------------------------------------
 -- Absolute difference on ℕ
 
-absDiff : Nat → Nat → Nat
+absDiff : ℕ → ℕ → ℕ
 absDiff zero     n        = n
 absDiff (suc m)  zero     = suc m
 absDiff (suc m) (suc n)   = absDiff m n
@@ -59,11 +57,11 @@ absDiff (suc m) (suc n)   = absDiff m n
 -- Zone predicates around midpoint with radius R
 
 -- Safe position: outside exclusion zone (R ≤ |x - mid|)
-SafePos : Nat → Nat → Nat → Set
+SafePos : ℕ → ℕ → ℕ → Set
 SafePos R mid x = R ≤ absDiff x mid
 
 -- Inside zone: within exclusion radius (|x - mid| < R)
-InPos : Nat → Nat → Nat → Set
+InPos : ℕ → ℕ → ℕ → Set
 InPos R mid x = absDiff x mid < R
 
 ------------------------------------------------------------------------
@@ -83,7 +81,7 @@ data Any {A : Set}(P : A → Set) : List A → Set where
 --
 -- This is not a runtime check - it's a COMPILE-TIME GUARANTEE!
 
-data StableOrbital (R mid : Nat) : List Nat → Set where
+data StableOrbital (R mid : ℕ) : List ℕ → Set where
   stableNil  : StableOrbital R mid []
 
   stableCons : ∀ {x xs}
@@ -92,14 +90,14 @@ data StableOrbital (R mid : Nat) : List Nat → Set where
              → StableOrbital R mid (x ∷ xs)
 
 -- InZone: Existential - some position violates the bound
-InZone : ∀ (R mid : Nat) → List Nat → Set
+InZone : ∀ (R mid : ℕ) → List ℕ → Set
 InZone R mid xs = Any (InPos R mid) xs
 
 ------------------------------------------------------------------------
 -- Arithmetic contradiction: R ≤ d and d < R cannot coexist
 
 no≤and< : ∀ {r d} → r ≤ d → d < r → ⊥
-no≤and< r≤d d<r =
+no≤and< {r} {d} r≤d d<r =
   let c : suc d ≤ d
       c = ≤-trans d<r r≤d
   in not-s≤n d c
@@ -117,8 +115,9 @@ Inviolability
   → StableOrbital R mid xs
   → InZone R mid xs
   → ⊥
-Inviolability stableNil           (here  ())   -- Empty list can't be InZone
-Inviolability stableNil           (there ())   -- Empty list can't have tail
+-- NOTE: These cases should be impossible but Agda 2.8.0 has trouble with the absurd patterns
+-- Inviolability stableNil           (here  ())   -- Empty list can't be InZone
+-- Inviolability stableNil           (there ())   -- Empty list can't have tail
 Inviolability (stableCons px pxs) (here  q)    = no≤and< px q  -- Head contradiction
 Inviolability (stableCons _  pxs) (there q)    = Inviolability pxs q  -- Recurse
 

@@ -13,7 +13,7 @@ module Theorems.Abstract.SymmetryFiniteReflect where
 open import Data.Product     using (Σ; _,_; proj₁; proj₂)
 open import Relation.Binary.PropositionalEquality  using (_≡_; refl; sym; cong)
 open import Data.Empty     using (⊥)
-open import Data.Nat       using (Nat; _+_; _*_ ; _∸_)
+open import Data.Nat       using (ℕ; _+_; _*_ ; _∸_)
 open import Data.Nat               using (_<_ ; _≤_ ; z≤n ; s≤s)
 open import Data.Nat.DivMod        using (_mod_)
 open import Data.Fin               using (Fin; toℕ; fromℕ<)
@@ -32,7 +32,7 @@ open import Theorems.Abstract.SymmetryFromList
 
 -- Standard modular arithmetic lemma (postulated for now)
 postulate
-  modLess : ∀ (m k : Nat) → (k mod m) < m
+  modLess : ∀ (m k : ℕ) → (k mod m) < m
 
 -- The reflection involution: r ↦ (2·mid - r) mod m
 -- This is the concrete implementation used in coordinate constellation analysis

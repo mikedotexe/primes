@@ -12,7 +12,7 @@
 
 module Theorems.Abstract.WindowCertificate where
 
-open import Data.Nat       using (Nat; zero; suc; _+_; _*_; _∸_)
+open import Data.Nat       using (ℕ; zero; suc; _+_; _*_; _∸_)
 open import Data.Product     using (Σ; _,_; proj₁; proj₂)
 open import Relation.Binary.PropositionalEquality  using (_≡_; refl)
 open import Data.Empty     using (⊥)
@@ -50,7 +50,7 @@ record WindowData (base : Nat) (n : Nat) : Set where
 ------------------------------------------------------------------------
 -- STATIC CERTIFICATE: Honorary zero witness
 
-record StaticCertificate {base n : Nat}
+record StaticCertificate {base n : ℕ}
   (S : SymmetryData (Fin base))
   (W : WindowData base n)
   : Set where
@@ -60,17 +60,13 @@ record StaticCertificate {base n : Nat}
                          (WindowData.residues W)
                          (WindowData.count W)
 
-    -- Certificate: Honorary zero (auto-generated from balanced witness)
+    -- Certificate: Honorary zero (must be provided, typically from honoraryZeroFromBalanced)
     honorary-zero : HonoraryZero S (MS-fromResid (WindowData.residues W))
-    honorary-zero = honoraryZeroFromBalanced S
-                      (WindowData.residues W)
-                      (WindowData.count W)
-                      balanced-witness
 
 ------------------------------------------------------------------------
 -- DYNAMIC CERTIFICATE: Inviolability witness
 
-record DynamicCertificate {base n : Nat}
+record DynamicCertificate {base n : ℕ}
   (W : WindowData base n)
   : Set where
   field
@@ -80,18 +76,17 @@ record DynamicCertificate {base n : Nat}
                        (WindowData.window-mid W)
                        (WindowData.positions W)
 
-    -- Certificate: Impossibility of zone violation (already proven!)
+    -- Certificate: Impossibility of zone violation (must be provided, typically from Inviolability)
     inviolability : InZone
                       (WindowData.radius W)
                       (WindowData.window-mid W)
                       (WindowData.positions W)
                     → ⊥
-    inviolability = Inviolability stable-witness
 
 ------------------------------------------------------------------------
 -- COMPLETE DUAL CERTIFICATE: Static + Dynamic
 
-record DualCertificate {base n : Nat}
+record DualCertificate {base n : ℕ}
   (S : SymmetryData (Fin base))
   (W : WindowData base n)
   : Set where

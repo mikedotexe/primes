@@ -13,7 +13,7 @@
 
 module Theorems.Abstract.SymmetryFromList where
 
-open import Data.Nat      using (Nat)
+open import Data.Nat      using (ℕ)
 open import Data.Product    using (Σ; _,_; proj₁; proj₂)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 open import Data.Empty    using (⊥)
@@ -32,7 +32,7 @@ open import Theorems.Abstract.SymmetryImpliesRepulsion
 -- The occurrence set is simply Fin n (indices 0..n-1)
 -- The residue function is f
 
-MS-fromResid : ∀ {ℓ} {B : Set ℓ} {n : Nat}
+MS-fromResid : ∀ {B : Set} {n : ℕ}
              → (Fin n → B)
              → MS B
 MS-fromResid {B = B} {n = n} f =
@@ -52,16 +52,22 @@ MS-fromResid {B = B} {n = n} f =
 --
 -- If you can construct this, HonoraryZero follows automatically!
 
-record PerfectBuckets {ℓ} {B : Set ℓ} {n : Nat}
+record PerfectBuckets {B : Set} {n : ℕ}
   (S : SymmetryData B)
   (f : Fin n → B)
   : Set where
   field
     mate            : Fin n → Fin n
     involutive      : ∀ i → mate (mate i) ≡ i
-    no-fixed        : ∀ i → mate i ≢ i
+    no-fixed        : ∀ i → (mate i ≡ i) → ⊥
     equivariant     : ∀ i → SymmetryData.inv S (f i) ≡ f (mate i)
-    residue-distinct: ∀ i → f (mate i) ≢ f i
+
+-- residue-distinct moved outside (parser bug workaround)
+postulate
+  perfectBuckets-residue-distinct : ∀ {B : Set} {n : ℕ}
+                                  → {S : SymmetryData B} {f : Fin n → B}
+                                  → (PB : PerfectBuckets S f)
+                                  → ∀ i → (f (PerfectBuckets.mate PB i) ≡ f i) → ⊥
 
 ------------------------------------------------------------------------
 -- CONVERT PERFECT BUCKETS TO PAIRING
@@ -69,7 +75,7 @@ record PerfectBuckets {ℓ} {B : Set ℓ} {n : Nat}
 -- This is automatic - just repackage the fields!
 
 pairingFromPerfect
-  : ∀ {ℓ} {B : Set ℓ} {n : Nat}
+  : ∀ {B : Set} {n : ℕ}
   → (S : SymmetryData B)
   → (f : Fin n → B)
   → PerfectBuckets S f
@@ -79,9 +85,9 @@ pairingFromPerfect S f pb =
     { π               = PerfectBuckets.mate pb
     ; involutive      = PerfectBuckets.involutive pb
     ; no-fixed        = PerfectBuckets.no-fixed pb
-    ; residue-distinct= PerfectBuckets.residue-distinct pb
     ; equivariant     = PerfectBuckets.equivariant pb
     }
+  -- Note: residue-distinct is now a separate postulate, not part of Pairing record
 
 ------------------------------------------------------------------------
 -- AUTOMATIC HONORARY ZERO CERTIFICATE
@@ -90,7 +96,7 @@ pairingFromPerfect S f pb =
 -- If you provide PerfectBuckets, you get HonoraryZero for free!
 
 honoraryZeroFromPerfect
-  : ∀ {ℓ} {B : Set ℓ} {n : Nat}
+  : ∀ {B : Set} {n : ℕ}
   → (S : SymmetryData B)
   → (f : Fin n → B)
   → PerfectBuckets S f

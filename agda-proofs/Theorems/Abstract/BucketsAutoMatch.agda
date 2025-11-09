@@ -14,9 +14,11 @@ module Theorems.Abstract.BucketsAutoMatch where
 open import Data.Product     using (Σ; _,_; proj₁; proj₂)
 open import Relation.Binary.PropositionalEquality  using (_≡_; refl; sym; trans; cong)
 open import Data.Empty     using (⊥)
-open import Data.Nat       using (Nat; zero; suc; _+_; _*_)
+open import Data.Nat       using (ℕ; zero; suc; _+_; _*_; _<_)
 open import Data.Fin               using (Fin; toℕ; fromℕ<)
 open import Relation.Nullary       using (Dec; yes; no; ¬_)
+open import Data.Bool              using (Bool; true; false; if_then_else_)
+open import Data.List              using (List; []; _∷_)
 
 -- Import abstract framework
 open import Theorems.Abstract.SymmetryImpliesRepulsion
@@ -25,31 +27,31 @@ open import Theorems.Abstract.SymmetryFromList
   using ( MS-fromResid ; PerfectBuckets ; honoraryZeroFromPerfect )
 
 ------------------------------------------------------------------------
+-- Helper: Disjunction type
+
+_∨_ : Set → Set → Set
+P ∨ Q = Σ Bool (λ b → if b then P else Q)
+
+------------------------------------------------------------------------
 -- BALANCED BUCKETS: Witness structure for bucket counts
 --
 -- This is weaker than PerfectBuckets but often easier to verify!
 -- Just count how many times each residue appears.
 
-record BalancedBuckets {ℓ} {B : Set ℓ} {n : Nat}
+record BalancedBuckets {ℓ} {B : Set ℓ} {n : ℕ}
   (S : SymmetryData B)
   (f : Fin n → B)
-  (count : B → Nat)  -- Count function (from empirical data)
+  (count : B → ℕ)  -- Count function (from empirical data)
   : Set ℓ where
   field
     -- Each residue appears exactly as often as its symmetric partner
     balanced : ∀ r → count r ≡ count (SymmetryData.inv S r)
 
     -- Sum of all counts equals total occurrences
-    total : Σ Nat (λ sum → sum ≡ n)
+    total : Σ ℕ (λ sum → sum ≡ n)
 
     -- All counts are positive (no empty buckets)
-    positive : ∀ r → 0 Nat.< count r ∨ count r ≡ 0
-
-  _∨_ : Set → Set → Set
-  P ∨ Q = Σ _ (λ b → if b then P else Q)
-    where
-      postulate if_then_else_ : ∀ {A : Set} → Bool → A → A → A
-      postulate Bool : Set
+    positive : ∀ r → (0 < count r) ∨ (count r ≡ 0)
 
 ------------------------------------------------------------------------
 -- AUTO-MATCHING: Build PerfectBuckets from BalancedBuckets
@@ -84,10 +86,10 @@ zip-pair (x ∷ xs) (y ∷ ys) = λ i →
     postulate [] : ∀ {A : Set} → List A
 
 -- Auto-construct mate function from balanced buckets
-auto-mate : ∀ {ℓ} {B : Set ℓ} {n : Nat}
+auto-mate : ∀ {ℓ} {B : Set ℓ} {n : ℕ}
           → (S : SymmetryData B)
           → (f : Fin n → B)
-          → (count : B → Nat)
+          → (count : B → ℕ)
           → BalancedBuckets S f count
           → (Fin n → Fin n)
 auto-mate S f count bb = construct-pairing
@@ -112,42 +114,42 @@ auto-mate S f count bb = construct-pairing
 
 postulate
   auto-mate-involutive
-    : ∀ {ℓ} {B : Set ℓ} {n : Nat}
+    : ∀ {ℓ} {B : Set ℓ} {n : ℕ}
     → (S : SymmetryData B)
     → (f : Fin n → B)
-    → (count : B → Nat)
+    → (count : B → ℕ)
     → (bb : BalancedBuckets S f count)
     → ∀ i → auto-mate S f count bb (auto-mate S f count bb i) ≡ i
 
   auto-mate-no-fixed
-    : ∀ {ℓ} {B : Set ℓ} {n : Nat}
+    : ∀ {ℓ} {B : Set ℓ} {n : ℕ}
     → (S : SymmetryData B)
     → (f : Fin n → B)
-    → (count : B → Nat)
+    → (count : B → ℕ)
     → (bb : BalancedBuckets S f count)
     → ∀ i → auto-mate S f count bb i ≢ i
 
   auto-mate-equivariant
-    : ∀ {ℓ} {B : Set ℓ} {n : Nat}
+    : ∀ {ℓ} {B : Set ℓ} {n : ℕ}
     → (S : SymmetryData B)
     → (f : Fin n → B)
-    → (count : B → Nat)
+    → (count : B → ℕ)
     → (bb : BalancedBuckets S f count)
     → ∀ i → SymmetryData.inv S (f i) ≡ f (auto-mate S f count bb i)
 
   auto-mate-residue-distinct
-    : ∀ {ℓ} {B : Set ℓ} {n : Nat}
+    : ∀ {ℓ} {B : Set ℓ} {n : ℕ}
     → (S : SymmetryData B)
     → (f : Fin n → B)
-    → (count : B → Nat)
+    → (count : B → ℕ)
     → (bb : BalancedBuckets S f count)
     → ∀ i → f (auto-mate S f count bb i) ≢ f i
 
 perfectFromBalanced
-  : ∀ {ℓ} {B : Set ℓ} {n : Nat}
+  : ∀ {ℓ} {B : Set ℓ} {n : ℕ}
   → (S : SymmetryData B)
   → (f : Fin n → B)
-  → (count : B → Nat)
+  → (count : B → ℕ)
   → BalancedBuckets S f count
   → PerfectBuckets S f
 perfectFromBalanced S f count bb = record
@@ -164,10 +166,10 @@ perfectFromBalanced S f count bb = record
 -- ONE-SHOT CERTIFICATION: Balanced counts → Honorary zero!
 
 honoraryZeroFromBalanced
-  : ∀ {ℓ} {B : Set ℓ} {n : Nat}
+  : ∀ {ℓ} {B : Set ℓ} {n : ℕ}
   → (S : SymmetryData B)
   → (f : Fin n → B)
-  → (count : B → Nat)
+  → (count : B → ℕ)
   → BalancedBuckets S f count
   → HonoraryZero S (MS-fromResid f)
 honoraryZeroFromBalanced S f count bb =
@@ -192,7 +194,7 @@ OLD WORKFLOW (manual):
 
 NEW WORKFLOW (automatic):
   1. Extract residues: f : Fin n → Fin base
-  2. Count buckets: count : Fin base → Nat
+  2. Count buckets: count : Fin base → ℕ
   3. Prove balanced: ∀ r → count r ≡ count (inv r)
   4. Get HonoraryZero automatically!
 

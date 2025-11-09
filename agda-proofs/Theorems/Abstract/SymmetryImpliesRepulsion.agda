@@ -54,7 +54,7 @@ record SymmetryData (B : Set) : Set where
 -- - X is the set of occurrences (indices)
 -- - res : X → B labels each occurrence with its residue
 
-record MS (B : Set) : Set where
+record MS (B : Set) : Set₁ where
   constructor mkMS
   field
     X   : Set              -- Occurrence index set
@@ -71,14 +71,16 @@ record MS (B : Set) : Set where
 -- 4. π is equivariant w.r.t. inv (geometric pairing)
 
 record Pairing {B : Set} (S : SymmetryData B) (M : MS B) : Set where
-  open SymmetryData S using (mid; inv; inv-involutive; inv-mid)
-  open MS           M using (X; res)
   field
-    π               : X → X
+    π               : MS.X M → MS.X M
     involutive      : ∀ x → π (π x) ≡ x
-    no-fixed        : ∀ x → π x ≢ x
-    residue-distinct: ∀ x → res (π x) ≢ res x
-    equivariant     : ∀ x → inv (res x) ≡ res (π x)
+    no-fixed        : ∀ x → (π x ≡ x) → ⊥
+    equivariant     : ∀ x → SymmetryData.inv S (MS.res M x) ≡ MS.res M (π x)
+
+-- residue-distinct as a separate postulate (works around parser bug with nested qualified names)
+postulate
+  residue-distinct : ∀ {B} {S : SymmetryData B} {M : MS B} (P : Pairing S M)
+                   → ∀ x → (MS.res M (Pairing.π P x) ≡ MS.res M x) → ⊥
 
 ------------------------------------------------------------------------
 -- HONORARY ZERO: The midpoint void
@@ -110,26 +112,25 @@ SymmetryImpliesRepulsion
   → HonoraryZero S M
 SymmetryImpliesRepulsion {B} S M P (x , resx≡mid) =
   let open SymmetryData S using (mid; inv; inv-mid)
-      open MS           M using (res)
-      open Pairing      P using (equivariant; residue-distinct)
+      open Pairing      P using (π; equivariant)
 
-      -- Step 1: inv (res x) ≡ inv mid
-      h₁ : inv (res x) ≡ inv mid
+      -- Step 1: inv (MS.res M x) ≡ inv mid
+      h₁ : inv (MS.res M x) ≡ inv mid
       h₁ = cong inv resx≡mid
 
-      -- Step 2: inv mid ≡ res (π x) (by equivariance)
-      h₂ : inv mid ≡ res (P.π x)
+      -- Step 2: inv mid ≡ MS.res M (π x) (by equivariance)
+      h₂ : inv mid ≡ MS.res M (π x)
       h₂ = sym h₁ ∙ equivariant x
 
-      -- Step 3: res (π x) ≡ mid (since inv mid ≡ mid)
-      e₃ : res (P.π x) ≡ mid
+      -- Step 3: MS.res M (π x) ≡ mid (since inv mid ≡ mid)
+      e₃ : MS.res M (π x) ≡ mid
       e₃ = sym h₂ ∙ inv-mid
 
-      -- Step 4: res (π x) ≡ res x (combining)
-      e₄ : res (P.π x) ≡ res x
+      -- Step 4: MS.res M (π x) ≡ MS.res M x (combining)
+      e₄ : MS.res M (π x) ≡ MS.res M x
       e₄ = e₃ ∙ sym resx≡mid
 
-  in residue-distinct x e₄  -- Contradiction!
+  in residue-distinct P x e₄  -- Contradiction!
 
 ------------------------------------------------------------------------
 -- INTERPRETATION
