@@ -53,13 +53,16 @@ Mathematical foundations and connections to classical number theory:
 
 Machine-checked proofs using dependent type theory:
 
-- [agda/CERTIFICATION_COMPLETE.md](agda/CERTIFICATION_COMPLETE.md) - Framework overview
-- [agda/COMPLETE_CERTIFICATION_ARCHITECTURE.md](agda/COMPLETE_CERTIFICATION_ARCHITECTURE.md) - Complete architecture
-- [agda/COMPLETE_VERIFICATION_FRAMEWORK.md](agda/COMPLETE_VERIFICATION_FRAMEWORK.md) - Pipeline guide
-- [agda/ABSTRACT_FRAMEWORK_INTEGRATION.md](agda/ABSTRACT_FRAMEWORK_INTEGRATION.md) - Abstract theory
-- [agda/STATIC_TO_DYNAMIC_INVARIANTS.md](agda/STATIC_TO_DYNAMIC_INVARIANTS.md) - Pedagogical guide
+**In root directory (CI-verified)**:
+- [../CERTIFICATION_COMPLETE.md](../CERTIFICATION_COMPLETE.md) - Framework overview
+- [../COMPLETE_CERTIFICATION_ARCHITECTURE.md](../COMPLETE_CERTIFICATION_ARCHITECTURE.md) - Complete architecture
+- [../COMPLETE_VERIFICATION_FRAMEWORK.md](../COMPLETE_VERIFICATION_FRAMEWORK.md) - Pipeline guide
+- [../ABSTRACT_FRAMEWORK_INTEGRATION.md](../ABSTRACT_FRAMEWORK_INTEGRATION.md) - Abstract theory
+- [../STATIC_TO_DYNAMIC_INVARIANTS.md](../STATIC_TO_DYNAMIC_INVARIANTS.md) - Pedagogical guide
+- [../QUICK_START_VERIFICATION.md](../QUICK_START_VERIFICATION.md) - 10-minute verification
+
+**Additional resources**:
 - [agda/AGDA_QUICKSTART.md](agda/AGDA_QUICKSTART.md) - Quick commands
-- [agda/QUICK_START_VERIFICATION.md](agda/QUICK_START_VERIFICATION.md) - 10-minute verification
 
 ---
 
