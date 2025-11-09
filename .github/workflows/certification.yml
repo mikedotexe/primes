@@ -8,59 +8,7 @@ on:
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
-  agda-typecheck:
-    name: Agda Type-Checking
-    runs-on: ubuntu-latest
-    continue-on-error: true  # Don't fail the whole build if Agda isn't available
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Check if Agda files exist
-        id: check_agda
-        run: |
-          if [ -d "agda-proofs" ] && [ "$(find agda-proofs -name '*.agda' | wc -l)" -gt 0 ]; then
-            echo "has_agda=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_agda=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Skip Agda checks
-        if: steps.check_agda.outputs.has_agda == 'false'
-        run: echo "No Agda files found, skipping type-checking"
-
-      - name: Report Agda unavailable
-        if: steps.check_agda.outputs.has_agda == 'true'
-        run: |
-          echo "⚠️  Agda type-checking skipped (requires manual Agda installation)"
-          echo "To enable: Install Agda locally or use agda/agda Docker image"
-          echo ""
-          echo "Manual verification command:"
-          echo "  agda --safe agda-proofs/Theorems/Abstract/SymmetryImpliesRepulsion.agda"
-
-      - name: Generate Type-Check Report
-        if: always()
-        run: |
-          echo "# Agda Type-Check Report" > agda-report.md
-          echo "" >> agda-report.md
-          echo "**Date**: $(date)" >> agda-report.md
-          echo "" >> agda-report.md
-          echo "## Results" >> agda-report.md
-          echo "" >> agda-report.md
-
-          # Count compiled modules
-          module_count=$(find agda-proofs -name "*.agdai" | wc -l)
-          echo "- **Modules compiled**: $module_count / 10" >> agda-report.md
-          echo "- **Status**: ${{ job.status }}" >> agda-report.md
-
-          cat agda-report.md
-
-      - name: Upload Type-Check Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: agda-typecheck-report
-          path: agda-report.md
-          retention-days: 30
+  # Note: Agda type-checking is handled by agda-verification.yml workflow
 
   framework-validation:
     name: Framework Structure Validation
@@ -149,12 +97,10 @@ jobs:
   documentation-links:
     name: Documentation Link Checking
     runs-on: ubuntu-latest
-    continue-on-error: true  # Don't fail build on link issues
     steps:
       - uses: actions/checkout@v4
 
       - name: Check for broken internal links
-        continue-on-error: true
         run: |
           echo "Checking internal documentation links..."
           # Simple check for obviously broken local links

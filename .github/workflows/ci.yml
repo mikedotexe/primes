@@ -17,14 +17,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo test
+
+      - name: Format check
+        run: cargo fmt -- --check
+
+      - name: Clippy lints
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Run tests
+        run: cargo test
 
   examples:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: |
-          for ex in proper_membrane_generator lagrange_verification check_prime prime_count_smoke_test statistical_prime_generator; do
-            cargo check --example $ex
+
+      - name: Check verified production examples
+        run: |
+          echo "Testing production-ready verified examples..."
+          count=0
+          for example in examples/verified/*.rs; do
+            if [ -f "$example" ]; then
+              name=$(basename "$example" .rs)
+              echo "[$((count + 1))] Checking: $name"
+              cargo check --example "$name"
+              count=$((count + 1))
+            fi
           done
+          echo "✓ Verified $count production examples"

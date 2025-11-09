@@ -120,8 +120,8 @@ jobs:
       - name: Verify All Modules
         working-directory: agda-proofs
         run: |
-          echo "🔍 Discovering all Agda modules..."
-          find . -name "*.agda" -not -path "./Tests/*" | sort > /tmp/agda-modules.txt
+          echo "🔍 Discovering all Agda modules (including test specs)..."
+          find . -name "*.agda" | sort > /tmp/agda-modules.txt
 
           total=$(wc -l < /tmp/agda-modules.txt)
           echo "📊 Verifying $total modules..."
