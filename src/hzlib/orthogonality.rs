@@ -54,7 +54,6 @@ pub fn prime_factors_small(mut n: usize) -> Vec<(usize, usize)> {
     let mut d = 2;
 
     while d * d <= n {
-
         if n.is_multiple_of(d) {
             let mut e = 0;
             while n.is_multiple_of(d) {
@@ -372,16 +371,8 @@ pub fn weighted_corr(x: &[f64], y: &[f64], w: &[f64]) -> f64 {
         return f64::NAN;
     }
 
-    let mx = x.iter()
-        .zip(w)
-        .map(|(xi, wi)| xi * wi)
-        .sum::<f64>()
-        / ws;
-    let my = y.iter()
-        .zip(w)
-        .map(|(yi, wi)| yi * wi)
-        .sum::<f64>()
-        / ws;
+    let mx = x.iter().zip(w).map(|(xi, wi)| xi * wi).sum::<f64>() / ws;
+    let my = y.iter().zip(w).map(|(yi, wi)| yi * wi).sum::<f64>() / ws;
 
     let mut num = 0.0;
     let mut vx = 0.0;
@@ -448,9 +439,7 @@ impl XorShift64 {
     ///
     /// Seed must be non-zero (uses max(seed, 1)).
     pub fn new(seed: u64) -> Self {
-        Self {
-            state: seed.max(1),
-        }
+        Self { state: seed.max(1) }
     }
 
     /// Generate next u64.

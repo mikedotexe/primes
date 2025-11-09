@@ -102,7 +102,11 @@ impl BitSieve {
         while seg_lo <= self.limit {
             let mut seg = Segment::new(seg_lo);
             let seg_hi = usize::min(seg_lo + (SEG_ODDS << 1) - 2, self.limit);
-            let seg_hi = if seg_hi.is_multiple_of(2) { seg_hi - 1 } else { seg_hi };
+            let seg_hi = if seg_hi.is_multiple_of(2) {
+                seg_hi - 1
+            } else {
+                seg_hi
+            };
 
             // cross‑off composites using pre‑computed base primes
             for &p in &self.base_primes {

@@ -190,7 +190,8 @@ impl LagrangeUIState {
 
     /// Cycle through different configurations
     pub fn cycle_configuration(&mut self) {
-        let configs = [(MembraneConfig::new(10, 3, 3, 1, 1), "(3,3) k=(1,1) base 10"),
+        let configs = [
+            (MembraneConfig::new(10, 3, 3, 1, 1), "(3,3) k=(1,1) base 10"),
             (
                 MembraneConfig::new(10, 3, 7, 1, 1),
                 "(3,7) k=(1,1) base 10 - Exclusive!",
@@ -203,7 +204,8 @@ impl LagrangeUIState {
             (
                 MembraneConfig::new(6, 1, 5, 0, 0),
                 "(1,5) k=(0,0) base 6 - Champion",
-            )];
+            ),
+        ];
 
         let current_idx = configs
             .iter()

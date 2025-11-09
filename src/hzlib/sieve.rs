@@ -100,11 +100,7 @@ pub fn segmented_sieve(limit: usize, mut on_prime: impl FnMut(usize)) {
             if p2 > high {
                 break;
             }
-            let mut m = if p2 > low {
-                p2
-            } else {
-                low.div_ceil(p) * p
-            };
+            let mut m = if p2 > low { p2 } else { low.div_ceil(p) * p };
             while m <= high {
                 mark[m - low] = false;
                 m += p;

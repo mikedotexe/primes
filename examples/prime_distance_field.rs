@@ -159,7 +159,10 @@ fn compute_coprime_distance(n: u64) -> u64 {
     }
 
     let small_primes = [2u64, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
-    small_primes.iter().filter(|&&p| n.is_multiple_of(p)).count() as u64
+    small_primes
+        .iter()
+        .filter(|&&p| n.is_multiple_of(p))
+        .count() as u64
 }
 
 /// Check if a number fits a membrane pattern
