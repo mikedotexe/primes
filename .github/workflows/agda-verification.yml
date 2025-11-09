@@ -18,25 +18,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache Agda installation
-        id: cache-agda
+      - name: Cache Agda stdlib
+        id: cache-agda-stdlib
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.agda
-            ~/.cabal
-            ~/.ghcup
-          key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+          path: ~/.agda
+          key: agda-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
 
       - name: Install Agda
-        if: steps.cache-agda.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y agda
           agda --version
 
       - name: Setup Agda Standard Library
-        if: steps.cache-agda.outputs.cache-hit != 'true'
+        if: steps.cache-agda-stdlib.outputs.cache-hit != 'true'
         run: |
           git clone --depth 1 --branch ${{ env.AGDA_STDLIB_VERSION }} \
             https://github.com/agda/agda-stdlib.git ~/.agda/agda-stdlib
@@ -75,25 +71,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache Agda installation
-        id: cache-agda
+      - name: Cache Agda stdlib
+        id: cache-agda-stdlib
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.agda
-            ~/.cabal
-            ~/.ghcup
-          key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+          path: ~/.agda
+          key: agda-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
 
       - name: Install Agda
-        if: steps.cache-agda.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y agda
           agda --version
 
       - name: Setup Agda Standard Library
-        if: steps.cache-agda.outputs.cache-hit != 'true'
+        if: steps.cache-agda-stdlib.outputs.cache-hit != 'true'
         run: |
           git clone --depth 1 --branch ${{ env.AGDA_STDLIB_VERSION }} \
             https://github.com/agda/agda-stdlib.git ~/.agda/agda-stdlib
@@ -123,25 +115,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache Agda installation
-        id: cache-agda
+      - name: Cache Agda stdlib
+        id: cache-agda-stdlib
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.agda
-            ~/.cabal
-            ~/.ghcup
-          key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+          path: ~/.agda
+          key: agda-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
 
       - name: Install Agda
-        if: steps.cache-agda.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y agda
           agda --version
 
       - name: Setup Agda Standard Library
-        if: steps.cache-agda.outputs.cache-hit != 'true'
+        if: steps.cache-agda-stdlib.outputs.cache-hit != 'true'
         run: |
           git clone --depth 1 --branch ${{ env.AGDA_STDLIB_VERSION }} \
             https://github.com/agda/agda-stdlib.git ~/.agda/agda-stdlib
@@ -183,25 +171,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache Agda installation
-        id: cache-agda
+      - name: Cache Agda stdlib
+        id: cache-agda-stdlib
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.agda
-            ~/.cabal
-            ~/.ghcup
-          key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+          path: ~/.agda
+          key: agda-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
 
       - name: Install Agda
-        if: steps.cache-agda.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y agda
           agda --version
 
       - name: Setup Agda Standard Library
-        if: steps.cache-agda.outputs.cache-hit != 'true'
+        if: steps.cache-agda-stdlib.outputs.cache-hit != 'true'
         run: |
           git clone --depth 1 --branch ${{ env.AGDA_STDLIB_VERSION }} \
             https://github.com/agda/agda-stdlib.git ~/.agda/agda-stdlib
