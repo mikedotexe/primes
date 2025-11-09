@@ -58,7 +58,52 @@ cargo run --release -- grid \
   --out_csv grid.csv
 ```
 
-Open `../viz/index.html` in your browser and drop `grid.csv` to see the heatmap.
+Open `../viz/index.html` in your browser and drop `grid.csv` to see the interactive heatmap.
+
+## Interactive Visualization 🎯
+
+The enhanced heatmap (`tools/viz/index.html`) makes **enrichment factor the star of the show**:
+
+### Features
+
+**📊 Metric Toggle**
+- **Enrichment Factor (default)**: See how many times better than random (2×, 3×, 4×!)
+- **Prime Density**: Raw percentage of primes
+- **Total Length**: Number of digits
+
+**🔥 Smart Color Scales**
+- Enrichment uses a heat map (red gradient) where darker = better performance
+- 1× baseline marker shows where "random chance" sits
+- Exceptional configs (3×+) stand out visually
+
+**📈 Auto-Summary Dashboard**
+- **Peak Enrichment**: Best factor achieved across all configs
+- **Best Configuration**: Exactly which parameters gave peak results
+- **Quick Stats**: Density ranges, sample counts
+
+**💬 Rich Tooltips**
+Hover any cell to see:
+```
+Configuration: mid_len=2, inner_zero=1
+Total Length: 8 digits
+
+📊 ENRICHMENT: ✨ 2.31× (STRONG)
+   Beating random by 131%!
+
+Prime Density: 13.36%
+Expected (PNT): 5.79%
+95% CI: [11.34%, 15.41%]
+
+Samples: 10,000
+Primes Found: 1,336
+```
+
+### Visual Impact
+
+**Before**: "Here's a grid of numbers, good luck."
+**After**: "This config beats random by 2.5×—exceptional performance!" 🎯
+
+The enrichment-first view immediately answers: **"How much better is this than random chance?"**
 
 ## Notes
 
