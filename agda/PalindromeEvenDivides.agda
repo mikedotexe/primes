@@ -1,5 +1,20 @@
 {-# OPTIONS --safe #-}
 
+------------------------------------------------------------------------
+-- Palindrome Divisibility Property
+--
+-- ⚠️  SCOPE: This module formalizes properties of TRUE PALINDROMES
+--            (digit-value mirroring), which only applies to:
+--
+--     • Optional --mirror mode in density-explorer
+--     • Theoretical exploration of (b+1) divisibility wall
+--
+-- ⚠️  NOT APPLICABLE to the default spacing-symmetric construction,
+--     where open slots are sampled independently.
+--
+-- For the default construction, see SpacingResidueModel.agda
+------------------------------------------------------------------------
+
 module PalindromeEvenDivides where
 
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _≤_; _∸_; _≤?_; _≟_)

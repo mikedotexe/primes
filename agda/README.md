@@ -69,13 +69,51 @@ Data-rich encoding of experimental results:
 
 ### Proof Skeletons (Lightweight Foundations)
 
-#### `PalindromeEvenDivides.agda`
+#### `SpacingResidueModel.agda` ⭐ DEFAULT CONSTRUCTION
+Formal proof skeleton for spacing-based residue filtering (the core discovery):
+
+- **Scope**: DEFAULT construction with symmetric spacing + independent digit sampling
+- **Main Insight**: Exponent patterns in base expansion create modular traps that shift with midpoint length
+- **Key Property**: Residue distribution P(n ≡ r mod m) determined by positions of open slots, not digit values
+- **Flexibility**: Can avoid (b+1) divisibility wall while targeting specific moduli
+- **Status**: Skeleton with concrete counterexamples showing spacing ≠ palindrome
+
+**Example counterexamples**:
+```agda
+-- Base 6, layout [d₁] 0 0 [d₂] (spacing symmetric)
+-- Palindrome: 1001₆ = 217₁₀ divisible by 7 = (6+1) ✓
+-- Independent: 1002₆ = 218₁₀ NOT divisible by 7 ✗
+--              2001₆ = 433₁₀ NOT divisible by 7 ✗
+
+-- Same spacing, different divisibility behavior!
+```
+
+**Core theorems**:
+```agda
+-- Spacing creates non-uniform residue distributions
+spacing-creates-bias
+  : ∀ pattern modulus → ¬ (P(n≡0 mod m) = 1/m)
+
+-- GCD amplifies spacing-driven traps
+gcd-amplifies-spacing-bias
+  : ∀ base modulus → gcd(base,m) > 1
+  → ∃ exponentPattern bias
+
+-- Midpoint length shifts which moduli are filtered
+midpoint-shifts-traps
+  : ∀ pattern₁ pattern₂ → diffMidpoint
+  → ∃ modulus → P₀(pattern₁) ≠ P₀(pattern₂)
+```
+
+**Implementation**: Directly corresponds to `residue_null_probability()` DP model in `tools/density-explorer/src/main.rs`
+
+#### `PalindromeEvenDivides.agda` ⚠️ MIRROR MODE ONLY
 Formal proof skeleton for palindrome divisibility property:
 
-- **Main Theorem**: Even-length palindromes in base b ≥ 2 are divisible by (b+1)
-- **Method**: Pairing argument on symmetric digit positions
-- **Key Insight**: For palindrome of length 2k, each pair contributes d·(b^i + b^j) where j-i is odd
-- **Factorization**: Uses x^odd + 1 = (x+1)·Q(x) property (postulated)
+- **Scope**: TRUE PALINDROMES (digit-value mirroring) - only applies to optional `--mirror` mode
+- **Main Theorem**: Even-length palindromes in base b ≥ 2 are ALWAYS divisible by (b+1)
+- **Method**: Pairing argument requires d_i = d_j (mirroring constraint)
+- **Key Limitation**: Universal (b+1) divisibility creates systematic filtering wall
 - **Status**: Skeleton with postulated algebraic identities (to be filled with ring reasoning)
 
 **Type signature**:
@@ -84,6 +122,8 @@ evenPalindromeDividesBPlusOne
   : ∀ {k} (b : ℕ) → b ≥2 → (ds : Vec ℕ (2*k))
   → Palindrome ds → (b + 1) ∣ eval b ds
 ```
+
+**Why this matters**: Shows the *difference* between palindromic and spacing-symmetric constructions. The palindrome constraint is too rigid; spacing-symmetry with independence offers flexible filtering.
 
 #### `DigitSumMod3.agda`
 Formal proof skeleton for digit-sum divisibility rules modulo 3:
@@ -107,6 +147,78 @@ digitSumMod3-base≡2 : ∀ {n} (b : ℕ) (ds : Vec ℕ n)
 ```
 
 **Usage**: These skeletons provide a lightweight foundation that can be gradually refined into complete proofs using the Agda standard library's ring solver and modular arithmetic facilities.
+
+---
+
+### Visual Comparison: Palindrome vs Spacing-Symmetric
+
+Understanding the difference is crucial:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    PALINDROME (--mirror mode)                       │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  Layout:  [d₁] [d₂] [d₃]  ◀═══MIRROR═══▶  [d₃] [d₂] [d₁]          │
+│                                                                     │
+│  Constraint: RIGHT half = REVERSE(LEFT half)                       │
+│  Sampling:   Sample d₁,d₂,d₃ once → copy reversed                  │
+│                                                                     │
+│  Example (base 10):  1 2 3 │ 3 2 1  →  123321                      │
+│                             └─────────────┘                         │
+│                           Forced equality                           │
+│                                                                     │
+│  Property: ALWAYS divisible by (b+1)                               │
+│  Base 10:  123321 mod 11 = 0  ✓                                    │
+│  Base 6:   1001₆ mod 7 = 0    ✓                                    │
+│                                                                     │
+│  Trade-off: Universal (b+1) wall → systematic filtering limit      │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│              SPACING-SYMMETRIC (default construction)               │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  Layout:  [d₁] [d₂] [d₃]  ◀═══SPACING═══▶  [d₄] [d₅] [d₆]         │
+│                                                                     │
+│  Constraint: Position pattern symmetric (not values!)              │
+│  Sampling:   Sample ALL digits independently                       │
+│                                                                     │
+│  Example (base 10):  1 2 3 │ 4 5 6  →  123456                      │
+│                             └─────────────┘                         │
+│                          Independent values!                        │
+│                                                                     │
+│  Property: NOT universally divisible by (b+1)                      │
+│  Base 10:  123456 mod 11 = 3  ✗ (counterexample!)                  │
+│  Base 6:   1002₆ mod 7 = 1    ✗ (same spacing as 1001, diff div)   │
+│                                                                     │
+│  Advantage: Flexible filtering via exponent patterns               │
+│             • Can AVOID (b+1) trap                                  │
+│             • Can TARGET specific moduli                            │
+│             • Midpoint tuning shifts which primes filtered          │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Key Mathematical Difference**:
+
+```
+Palindrome pairing (requires mirroring):
+  d_i × b^i + d_j × b^j    where d_i = d_j
+  = d_i × (b^i + b^j)      ← Can factor!
+  = d_i × b^i × (1 + b^(j-i))
+
+  When j-i is odd: (b+1) ∣ (1 + b^(j-i))  → guaranteed divisibility
+
+Spacing-symmetric (independent digits):
+  d_i × b^i + d_j × b^j    where d_i ≠ d_j
+
+  Cannot factor!  → No universal (b+1) divisibility
+  But exponent pattern creates modular traps via gcd(base, modulus)
+```
+
+**Empirical Result**: The spacing-symmetric approach achieves **33% prime density** (base 6), outperforming palindromic constructions which hit the (b+1) filtering wall.
 
 ## Verification Standards
 
@@ -137,7 +249,10 @@ cargo run --example goldbach_hl_analysis -- --min-base 60 --max-base 80
 # Navigate to agda directory
 cd agda/
 
-# Type-check proof skeletons
+# Type-check proof skeletons (default construction)
+agda --library standard-library SpacingResidueModel.agda
+
+# Type-check proof skeletons (mirror mode & digit-sum rules)
 agda --library standard-library PalindromeEvenDivides.agda
 agda --library standard-library DigitSumMod3.agda
 
