@@ -18,7 +18,7 @@
 
 use num_bigint::BigUint;
 use num_traits::Zero;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::collections::{HashMap, HashSet};
 
 fn is_coprime(a: u32, b: u32) -> bool {
@@ -134,7 +134,7 @@ fn correlation_matrix(cov: &[[f64; 3]; 3]) -> [[f64; 3]; 3] {
     corr
 }
 
-fn analyze_symmetries(coords: &[Coord3D], base: u32) -> HashMap<String, usize> {
+fn analyze_symmetries(coords: &[Coord3D], _base: u32) -> HashMap<String, usize> {
     let mut symmetries = HashMap::new();
 
     // Count permutation classes

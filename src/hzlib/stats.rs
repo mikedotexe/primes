@@ -623,7 +623,7 @@ mod tests {
         // Perfect fit (no noise)
         let xs = vec![1.0, 2.0, 3.0, 4.0, 5.0];
         let ys = vec![2.0, 4.0, 6.0, 8.0, 10.0]; // y = 2x
-        let (slope, intercept, r2, slope_ci, intercept_ci, se) = linreg_with_ci(&xs, &ys, 0.95);
+        let (slope, intercept, r2, _slope_ci, _intercept_ci, se) = linreg_with_ci(&xs, &ys, 0.95);
 
         assert!((slope - 2.0).abs() < 0.01, "Slope should be ~2");
         assert!(intercept.abs() < 0.01, "Intercept should be ~0");
@@ -632,7 +632,7 @@ mod tests {
 
         // With noise
         let ys_noisy = vec![2.1, 3.9, 6.1, 7.9, 10.1];
-        let (slope2, _int2, r2_2, slope_ci2, intercept_ci2, se2) =
+        let (slope2, _int2, r2_2, slope_ci2, _intercept_ci2, se2) =
             linreg_with_ci(&xs, &ys_noisy, 0.95);
 
         assert!((slope2 - 2.0).abs() < 0.2, "Slope should be close to 2");
