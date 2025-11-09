@@ -1,0 +1,348 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Membrane Prime Enrichment Explorer</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      margin: 20px;
+      background: #fafafa;
+    }
+    .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { color: #333; margin: 0 0 10px 0; }
+    .subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+    .controls { margin: 20px 0; display: flex; gap: 15px; align-items: center; }
+    .controls label { font-weight: 600; color: #555; }
+    .controls select, .controls input[type=file] {
+      padding: 6px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    #chart { margin-top: 20px; }
+    .axis text { font-size: 11px; fill: #555; }
+    .axis line, .axis path { stroke: #ddd; }
+    .cell { stroke: #fff; stroke-width: 2px; cursor: pointer; transition: opacity 0.2s; }
+    .cell:hover { opacity: 0.8; stroke: #333; stroke-width: 3px; }
+    .legend rect { stroke: #ccc; }
+    .metric-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #e8f4f8;
+      color: #0066cc;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 13px;
+      margin-left: 10px;
+    }
+    .enrichment-high { background: #d4edda; color: #155724; }
+    .enrichment-med { background: #fff3cd; color: #856404; }
+    .stats-panel {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      display: none;
+    }
+    .stats-panel.active { display: block; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .stat-card {
+      background: white;
+      padding: 12px;
+      border-radius: 4px;
+      border-left: 3px solid #0066cc;
+    }
+    .stat-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-top: 4px; }
+    .stat-sub { font-size: 12px; color: #999; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Membrane Prime Enrichment Explorer</h1>
+    <p class="subtitle">
+      Visualize how membrane configurations beat random chance.
+      <strong>Enrichment factor</strong> shows how many times better than PNT baseline (1× = random, 2× = twice as good, 4× = exceptional).
+    </p>
+
+    <div class="controls">
+      <label for="file">📁 Data:</label>
+      <input type="file" id="file" accept=".csv">
+
+      <label for="metric">📊 Metric:</label>
+      <select id="metric">
+        <option value="enrichment_factor" selected>Enrichment Factor (×PNT)</option>
+        <option value="prime_density">Prime Density (raw %)</option>
+        <option value="total_len">Total Length</option>
+      </select>
+
+      <span id="current-metric" class="metric-badge">Enrichment Factor</span>
+    </div>
+
+    <div id="chart"></div>
+
+    <div id="stats" class="stats-panel">
+      <strong>📈 Dataset Summary</strong>
+      <div class="stats-grid" id="stats-content"></div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('file');
+    const metricSelect = document.getElementById('metric');
+    const currentMetricBadge = document.getElementById('current-metric');
+    const statsPanel = document.getElementById('stats');
+    const statsContent = document.getElementById('stats-content');
+
+    let currentData = null;
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = reader.result;
+        currentData = d3.csvParse(text, d3.autoType);
+        render(currentData, metricSelect.value);
+        showStats(currentData);
+      };
+      reader.readAsText(file);
+    });
+
+    metricSelect.addEventListener('change', (e) => {
+      if (currentData) {
+        render(currentData, e.target.value);
+        updateMetricBadge(e.target.value);
+      }
+    });
+
+    function updateMetricBadge(metric) {
+      const labels = {
+        'enrichment_factor': 'Enrichment Factor',
+        'prime_density': 'Prime Density',
+        'total_len': 'Total Length'
+      };
+      currentMetricBadge.textContent = labels[metric];
+
+      // Update badge color based on metric
+      if (metric === 'enrichment_factor') {
+        currentMetricBadge.className = 'metric-badge enrichment-high';
+      } else {
+        currentMetricBadge.className = 'metric-badge';
+      }
+    }
+
+    function showStats(data) {
+      const enrichments = data.map(d => d.enrichment_factor).filter(x => x > 0);
+      const densities = data.map(d => d.prime_density);
+
+      const maxEnrich = d3.max(enrichments);
+      const avgEnrich = d3.mean(enrichments);
+      const maxDensity = d3.max(densities);
+      const avgDensity = d3.mean(densities);
+
+      const best = data.reduce((a, b) => a.enrichment_factor > b.enrichment_factor ? a : b);
+
+      statsContent.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-label">Peak Enrichment</div>
+          <div class="stat-value">${maxEnrich.toFixed(2)}×</div>
+          <div class="stat-sub">vs ${avgEnrich.toFixed(2)}× average</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Best Configuration</div>
+          <div class="stat-value">mid=${best.mid_len}, z=${best.inner_zero}</div>
+          <div class="stat-sub">${(best.prime_density * 100).toFixed(1)}% density (${best.enrichment_factor.toFixed(2)}×)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Peak Density</div>
+          <div class="stat-value">${(maxDensity * 100).toFixed(1)}%</div>
+          <div class="stat-sub">avg ${(avgDensity * 100).toFixed(1)}%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Configurations</div>
+          <div class="stat-value">${data.length}</div>
+          <div class="stat-sub">${d3.sum(data, d => d.samples).toLocaleString()} total samples</div>
+        </div>
+      `;
+
+      statsPanel.classList.add('active');
+    }
+
+    function render(data, metric) {
+      const midLens = Array.from(new Set(data.map(d => d.mid_len))).sort((a,b)=>a-b);
+      const innerZeros = Array.from(new Set(data.map(d => d.inner_zero))).sort((a,b)=>a-b);
+
+      // Get extent for the selected metric
+      const ext = d3.extent(data, d => d[metric]);
+
+      const margin = {top: 60, right: 40, bottom: 60, left: 70};
+      const width = 900, height = 550;
+
+      d3.select('#chart').selectAll('*').remove();
+      const svg = d3.select('#chart').append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+      const x = d3.scaleBand().domain(midLens).range([margin.left, width - margin.right]).padding(0.08);
+      const y = d3.scaleBand().domain(innerZeros).range([height - margin.bottom, margin.top]).padding(0.08);
+
+      // Color scale depends on metric
+      let color;
+      if (metric === 'enrichment_factor') {
+        // Diverging scale: 1.0 = baseline (white/gray), >1.0 = good (blue/green)
+        // Clamp to reasonable range for visual clarity
+        const maxEnrich = Math.min(ext[1], 5.0); // Cap display at 5×
+        color = d3.scaleSequential()
+          .domain([0.5, maxEnrich])
+          .interpolator(d3.interpolateRgbBasis(['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15']));
+      } else if (metric === 'prime_density') {
+        color = d3.scaleSequential(d3.interpolateViridis).domain(ext);
+      } else {
+        color = d3.scaleSequential(d3.interpolateCool).domain(ext);
+      }
+
+      // Axes
+      svg.append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x));
+
+      svg.append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y));
+
+      // Axis labels
+      svg.append('text')
+        .attr('x', (width)/2)
+        .attr('y', height - 15)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '13px')
+        .style('font-weight', '600')
+        .style('fill', '#555')
+        .text('Midpoint Length');
+
+      svg.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -height/2)
+        .attr('y', 20)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '13px')
+        .style('font-weight', '600')
+        .style('fill', '#555')
+        .text('Inner Zero Padding');
+
+      // Title
+      const metricTitles = {
+        'enrichment_factor': 'Enrichment Factor (×PNT Baseline)',
+        'prime_density': 'Prime Density',
+        'total_len': 'Total Number Length'
+      };
+      svg.append('text')
+        .attr('x', width/2)
+        .attr('y', 25)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '16px')
+        .style('font-weight', '700')
+        .style('fill', '#333')
+        .text(metricTitles[metric]);
+
+      // Cells
+      svg.selectAll('.cell')
+        .data(data)
+        .join('rect')
+        .attr('class', 'cell')
+        .attr('x', d => x(d.mid_len))
+        .attr('y', d => y(d.inner_zero))
+        .attr('width', x.bandwidth())
+        .attr('height', y.bandwidth())
+        .attr('fill', d => color(d[metric]))
+        .append('title')
+        .text(d => {
+          const enrich = d.enrichment_factor || 0;
+          const enrichText = enrich >= 3 ? `🔥 ${enrich.toFixed(2)}× (EXCEPTIONAL)` :
+                             enrich >= 2 ? `✨ ${enrich.toFixed(2)}× (STRONG)` :
+                             `${enrich.toFixed(2)}×`;
+
+          return `Configuration: mid_len=${d.mid_len}, inner_zero=${d.inner_zero}
+Total Length: ${d.total_len} digits
+
+📊 ENRICHMENT: ${enrichText}
+   Beating random by ${((enrich - 1) * 100).toFixed(0)}%!
+
+Prime Density: ${(d.prime_density * 100).toFixed(2)}%
+Expected (PNT): ${(d.expected_density_pnt * 100).toFixed(2)}%
+95% CI: [${(d.ci_lo * 100).toFixed(2)}%, ${(d.ci_hi * 100).toFixed(2)}%]
+
+Samples: ${d.samples.toLocaleString()}
+Primes Found: ${d.primes.toLocaleString()}`;
+        });
+
+      // Legend
+      const legendW = 320, legendH = 16;
+      const legend = svg.append('g').attr('class', 'legend')
+        .attr('transform', `translate(${width - margin.right - legendW},${margin.top - 25})`);
+
+      const legendSteps = 100;
+      const lg = d3.range(legendSteps).map(i => {
+        const t = i / (legendSteps - 1);
+        const v = ext[0] + t * (ext[1] - ext[0]);
+        return {t, v};
+      });
+
+      legend.selectAll('rect').data(lg).join('rect')
+        .attr('x', d => d.t * legendW)
+        .attr('y', 0)
+        .attr('width', legendW / legendSteps + 1)
+        .attr('height', legendH)
+        .attr('fill', d => color(d.v));
+
+      // Legend labels
+      const legendLabelY = legendH + 14;
+      legend.append('text')
+        .attr('x', 0)
+        .attr('y', legendLabelY)
+        .style('font-size', '11px')
+        .style('fill', '#555')
+        .text(metric === 'enrichment_factor' ? `${ext[0].toFixed(1)}×` : ext[0].toFixed(4));
+
+      legend.append('text')
+        .attr('x', legendW)
+        .attr('y', legendLabelY)
+        .attr('text-anchor', 'end')
+        .style('font-size', '11px')
+        .style('fill', '#555')
+        .text(metric === 'enrichment_factor' ? `${ext[1].toFixed(1)}×` : ext[1].toFixed(4));
+
+      // Baseline marker for enrichment
+      if (metric === 'enrichment_factor' && ext[0] < 1.0 && ext[1] > 1.0) {
+        const baselineX = ((1.0 - ext[0]) / (ext[1] - ext[0])) * legendW;
+        legend.append('line')
+          .attr('x1', baselineX)
+          .attr('x2', baselineX)
+          .attr('y1', -2)
+          .attr('y2', legendH + 2)
+          .attr('stroke', '#333')
+          .attr('stroke-width', 2);
+
+        legend.append('text')
+          .attr('x', baselineX)
+          .attr('y', -6)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '10px')
+          .style('font-weight', '700')
+          .style('fill', '#333')
+          .text('1× (random)');
+      }
+    }
+  </script>
+</body>
+</html>
