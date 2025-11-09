@@ -38,7 +38,7 @@
   generally, not just for specific cases.
 -}
 
-module tests.Spec.ResidueClassesRingSpec where
+module Tests.Spec.ResidueClassesRingSpec where
 
 open import Data.Nat using (ℕ; zero; suc; _<_)
 open import Data.Nat.Properties using (z≤n; s≤s)

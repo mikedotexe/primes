@@ -1,4 +1,3 @@
 name: prime-physics-engine
-depend: standard-library-2.1
+depend: standard-library-2.3
 include: .
-flags: --safe

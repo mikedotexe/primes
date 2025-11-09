@@ -1,0 +1,11 @@
+[package]
+name = "agda-scan"
+version = "0.1.0"
+edition = "2021"
+authors = ["Mike Purvis"]
+description = "Scanner tool for Agda codebase analysis"
+
+# Standalone tool - not part of parent workspace
+[workspace]
+
+[dependencies]

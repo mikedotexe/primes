@@ -9,7 +9,7 @@ on:
 
 env:
   AGDA_VERSION: "2.8.0"
-  AGDA_STDLIB_VERSION: "v2.1"
+  AGDA_STDLIB_VERSION: "v2.3"
 
 jobs:
   # Tier 1: Core Abstract Framework (5-10 min)

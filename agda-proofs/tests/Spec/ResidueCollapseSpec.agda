@@ -31,7 +31,7 @@
   We verify these frequencies match expected patterns based on gcd(base, d).
 -}
 
-module tests.Spec.ResidueCollapseSpec where
+module Tests.Spec.ResidueCollapseSpec where
 
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _≤_; _<_)
 open import Data.Nat.DivMod using (_mod_)

@@ -33,11 +33,10 @@ jobs:
       - name: Run tests
         run: cargo test
 
-  # Agda verification temporarily disabled due to parser bug in Agda 2.8.0
-  # See: agda-proofs/Test/TestRecord.agda for minimal reproduction
-  # Issue: Records with `open` before `field` cannot parse forall quantifiers
-  # agda-verification:
-  #   uses: ./.github/workflows/agda-verification.yml
+  # Agda verification (unsafed mode - 348 postulates remain)
+  # Safe Agda disabled to enable type-checking with Agda 2.8.0
+  agda-verification:
+    uses: ./.github/workflows/agda-verification.yml
 
   examples:
     runs-on: ubuntu-latest
