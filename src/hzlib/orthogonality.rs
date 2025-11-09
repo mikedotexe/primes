@@ -54,6 +54,7 @@ pub fn prime_factors_small(mut n: usize) -> Vec<(usize, usize)> {
     let mut d = 2;
 
     while d * d <= n {
+
         if n.is_multiple_of(d) {
             let mut e = 0;
             while n.is_multiple_of(d) {
@@ -125,6 +126,7 @@ pub fn babylonian_score_60(g: usize) -> f64 {
     }
 
     let mut score = 2.0 * ((e2 + e3 + e5) as f64);
+
     score += if g.is_multiple_of(60) { 10.0 } else { 0.0 };
     score -= 3.0 * (others as f64);
     score += 0.5 * (tau_from_factor(&factors) as f64);
