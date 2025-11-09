@@ -3,7 +3,7 @@
 //! Let's systematically test the builder vs manual construction
 
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime, MembraneBuilder, MembraneConfig};
+use primes::{is_prime, MembraneBuilder, MembraneConfig};
 
 fn main() {
     println!("🔍 MembraneBuilder Investigation");

@@ -4,7 +4,7 @@
 //! Finds optimal membrane configurations for different number bases
 //! Based on verified findings about base-specific strategies
 
-use prime_physics_engine::membrane::MembraneConfig;
+use primes::membrane::MembraneConfig;
 use num_bigint::BigUint;
 use std::fs::File;
 use std::io::Write;

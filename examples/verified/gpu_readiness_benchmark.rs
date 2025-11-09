@@ -1,7 +1,7 @@
 //! GPU Readiness Benchmark - Measures current CPU performance for GPU comparison
 //! This benchmark focuses on operations that will be accelerated by GPU
 
-use prime_physics_engine::{is_prime_miller_rabin};
+use primes::{is_prime_miller_rabin};
 use num_bigint::BigUint;
 use rayon::prelude::*;
 use std::time::Instant;

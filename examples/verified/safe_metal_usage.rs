@@ -4,7 +4,7 @@
 //! This example shows how to gracefully handle all failure modes and provide
 //! meaningful feedback to users.
 
-use prime_physics_engine::{
+use primes::{
     membrane::MembraneConfig,
     is_prime_miller_rabin,
 };
@@ -13,7 +13,7 @@ use std::time::Instant;
 
 // Only import GPU types on macOS
 #[cfg(feature = "metal")]
-use prime_physics_engine::gpu::GpuSieve;
+use primes::gpu::GpuSieve;
 
 fn main() {
     println!("🛡️  Safe Metal GPU Usage Demo");
@@ -195,7 +195,7 @@ fn safe_prime_discovery(config: &MembraneConfig, count: usize) -> Vec<BigUint> {
 /// Try GPU-accelerated prime discovery
 #[cfg(feature = "metal")]
 fn try_gpu_discovery(config: &MembraneConfig, count: usize) -> Result<Vec<BigUint>, String> {
-    use prime_physics_engine::metal_host::build_packed6;
+    use primes::metal_host::build_packed6;
     
     // Initialize GPU
     let gpu = GpuSieve::new()?;

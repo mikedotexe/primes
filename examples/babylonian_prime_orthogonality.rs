@@ -30,8 +30,8 @@
 //! cargo run --example babylonian_prime_orthogonality -- --metric z
 //! ```
 
-use prime_physics_engine::hzlib::orthogonality::*;
-use prime_physics_engine::hzlib::sieve::sieve_bool;
+use primes::hzlib::orthogonality::*;
+use primes::hzlib::sieve::sieve_bool;
 use std::env;
 
 #[derive(Clone, Copy, Debug)]

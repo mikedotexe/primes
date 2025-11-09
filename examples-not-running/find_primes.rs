@@ -2,8 +2,8 @@
 //! 
 //! This example shows the basic usage of the prime generator library
 
-use prime_physics_engine::core::membrane::MembraneConfig;
-use prime_physics_engine::patterns::exclusivity::ExclusivityAnalyzer;
+use primes::core::membrane::MembraneConfig;
+use primes::patterns::exclusivity::ExclusivityAnalyzer;
 use std::error::Error;
 fn main() -> Result<(), Box<dyn Error>> {
     println!("Prime Generator - Basic Example");

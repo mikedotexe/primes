@@ -4,7 +4,7 @@
 //! A comprehensive visualization of how different number bases create
 //! unique prime generation landscapes through membrane configurations
 
-use prime_physics_engine::membrane::MembraneConfig;
+use primes::membrane::MembraneConfig;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "=".repeat(80));
     println!("{:^80}", "🌌 UNIFIED BASE SYSTEMS VISUALIZATION 🌌");

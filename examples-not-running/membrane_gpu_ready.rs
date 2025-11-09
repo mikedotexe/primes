@@ -1,7 +1,7 @@
 //! Membrane GPU-Ready Implementation
 //! Showing how our symmetric membranes map to the same efficient sieving structure
 
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use num_bigint::BigUint;
 use num_traits::Zero;
 use std::time::Instant;

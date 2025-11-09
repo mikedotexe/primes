@@ -6,7 +6,7 @@
 //! - Operation counts
 //! - Time distribution across phases
 
-use prime_physics_engine::prime_sieve::{BitSieve, segmented_sieve};
+use primes::prime_sieve::{BitSieve, segmented_sieve};
 use std::time::{Duration, Instant};
 use std::collections::HashMap;
 

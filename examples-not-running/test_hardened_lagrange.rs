@@ -1,8 +1,8 @@
 //! Test the hardened Lagrange point analysis system
 
-use prime_physics_engine::{PrimeUniverse, PhysicsError};
-use prime_physics_engine::gravity::{PrimeParticle, GravitationalField};
-use prime_physics_engine::lagrange::{ClusterAnalysis, TidalForce};
+use primes::{PrimeUniverse, PhysicsError};
+use primes::gravity::{PrimeParticle, GravitationalField};
+use primes::lagrange::{ClusterAnalysis, TidalForce};
 use num_bigint::BigUint;
 use std::time::SystemTime;
 fn main() {
@@ -33,7 +33,7 @@ fn main() {
             membrane_config: None,
             creation_time: SystemTime::now(),
             trajectory_history: Vec::new(),
-            physics_cache: prime_physics_engine::gravity::PhysicsCache::default(),
+            physics_cache: primes::gravity::PhysicsCache::default(),
     }).collect();
     match ClusterAnalysis::new(&too_many_particles, &field) {
             println!("   ✅ Correctly rejected too many particles: {}", msg);
@@ -51,7 +51,7 @@ fn main() {
         membrane_config: None,
         creation_time: SystemTime::now(),
         trajectory_history: Vec::new(),
-        physics_cache: prime_physics_engine::gravity::PhysicsCache::default(),
+        physics_cache: primes::gravity::PhysicsCache::default(),
     };
     match ClusterAnalysis::new(&vec![bad_particle], &field) {
             println!("   ✅ Correctly rejected invalid mass: {}", msg);

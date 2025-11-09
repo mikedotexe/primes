@@ -4,7 +4,7 @@
 //! This demonstrates how to properly use the membrane patterns for generating primes
 
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime, MembraneConfig};
+use primes::{is_prime, MembraneConfig};
 use rand::prelude::*;
 use std::time::Instant;
 

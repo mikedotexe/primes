@@ -3,7 +3,7 @@
 //! A no-nonsense introduction to membrane prime generation.
 //! Real examples, real primes, real results.
 
-use prime_physics_engine::{
+use primes::{
     is_prime,
     membrane::{MembraneConfig, MembraneBuilder},
 };

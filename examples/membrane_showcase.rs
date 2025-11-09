@@ -4,7 +4,7 @@
 //! Shows the symmetric zero-padded structure and statistical success
 
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime, MembraneConfig};
+use primes::{is_prime, MembraneConfig};
 
 fn main() {
     println!("✨ Membrane Prime Showcase");

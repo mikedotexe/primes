@@ -4,7 +4,7 @@
 //! zero-padded primes might have special all-zero structures.
 
 use num_bigint::BigUint;
-use prime_physics_engine::{
+use primes::{
     is_prime,
     membrane::{MembraneBuilder, MembraneConfig},
 };

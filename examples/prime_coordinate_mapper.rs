@@ -81,7 +81,7 @@
 //! The bridge: **Not all coordinates are created equal. Some favor primality.**
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use rand::Rng;
 use std::collections::HashMap;
 

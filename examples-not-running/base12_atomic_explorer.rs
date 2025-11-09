@@ -4,7 +4,7 @@
 //! In base 12, the midpoint is 6 (composite). What happens?
 //! Also explore: 5, 7, B (11) as alternative centers
 
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use num_bigint::BigUint;
 use num_traits::{Zero, One};
 use std::fs::File;

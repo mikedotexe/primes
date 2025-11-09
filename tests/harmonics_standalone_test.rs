@@ -3,8 +3,8 @@
 
 use num_bigint::BigUint;
 #[cfg(feature = "prime-harmonics")]
-use prime_physics_engine::harmonics::{fourier_transform, power_spectrum, HarmonicAnalyzer};
-use prime_physics_engine::{is_prime, prime_sieve::BitSieve};
+use primes::harmonics::{fourier_transform, power_spectrum, HarmonicAnalyzer};
+use primes::{is_prime, prime_sieve::BitSieve};
 
 /// Helper function to create a prime indicator sequence
 fn create_prime_sequence(limit: usize) -> Vec<f64> {
@@ -77,7 +77,7 @@ fn test_prime_sequence_harmonics() {
 #[cfg(feature = "prime-harmonics")]
 #[test]
 fn test_membrane_prime_harmonics() {
-    use prime_physics_engine::membrane::construct_symmetric_membrane;
+    use primes::membrane::construct_symmetric_membrane;
 
     let mut membrane_seq = vec![0.0; 200];
 
@@ -188,7 +188,7 @@ fn test_harmonics_feature_disabled() {
     println!("prime-harmonics feature is disabled");
     println!("Run with: cargo test --features prime-harmonics");
 
-    use prime_physics_engine::harmonics::HarmonicAnalyzer;
+    use primes::harmonics::HarmonicAnalyzer;
 
     let analyzer = HarmonicAnalyzer::new(100);
     let dummy_seq = vec![1.0, 0.0, 1.0, 0.0];

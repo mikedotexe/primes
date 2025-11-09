@@ -3,7 +3,7 @@
 //! We discovered base 12 performs exceptionally well, but didn't explore WHY.
 //! This dives deep into the mathematical properties that make base 12 magical.
 
-use prime_physics_engine::{is_prime_miller_rabin, ascii_art::*};
+use primes::{is_prime_miller_rabin, ascii_art::*};
 use num_bigint::BigUint;
 use std::fs::File;
 use std::io::Write;

@@ -3,7 +3,7 @@ use std::str::FromStr;//! GPU Power Demonstration - Finally using that 691x spee
 //! This demonstrates the massive parallelization possible with GPU acceleration,
 //! searching for rare patterns that would be impractical on CPU.
 
-use prime_physics_engine::{is_prime_miller_rabin, ascii_art::*};
+use primes::{is_prime_miller_rabin, ascii_art::*};
 use num_bigint::BigUint;
 use std::fs::File;
 use std::io::Write;

@@ -6,7 +6,7 @@ use std::io;//! Breathing Pattern Analyzer - Demonstrates why asymmetric k-value
 //! 3. Statistical significance testing
 //! 4. Outputs results to a timestamped JSON file for verification
 
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
 };
 use std::collections::HashMap;

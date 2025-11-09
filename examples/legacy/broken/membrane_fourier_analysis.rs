@@ -3,7 +3,7 @@
 //! This analyzes successful prime-generating membranes in frequency space
 //! to discover hidden harmonic patterns.
 
-use prime_physics_engine::{is_prime_miller_rabin, ascii_art::*};
+use primes::{is_prime_miller_rabin, ascii_art::*};
 use num_bigint::BigUint;
 use num_complex::Complex64;
 use std::f64::consts::PI;

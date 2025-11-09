@@ -4,7 +4,7 @@
 //! against random baselines, proving the results aren't due to chance.
 //! Run with: cargo run --example validation_demo
 
-use prime_physics_engine::{
+use primes::{
     membrane::MembraneConfig,
     is_prime,
 };
@@ -61,7 +61,7 @@ fn main() {
         let mut results = Vec::new();
         for middle in 0..10 {
             if let Ok(num) = config.construct_number(middle) {
-                let is_prime = prime_physics_engine::is_prime(&num);
+                let is_prime = primes::is_prime(&num);
                 results.push((num, is_prime));
             }
         }

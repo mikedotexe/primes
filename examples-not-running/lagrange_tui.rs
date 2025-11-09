@@ -18,7 +18,7 @@ use ratatui::{
 use std::{io, time::{Duration, SystemTime}};
 use std::fs::File;
 use std::io::Write;
-use prime_physics_engine::{
+use primes::{
     membrane::{MembraneConfig, MembraneBuilder},
     gravity::{PrimeParticle, GravitationalField, PhysicsCache},
     lagrange::{ClusterAnalysis, LagrangePoint},
@@ -305,7 +305,7 @@ fn calculate_lagrange_points(state: &mut LagrangeState) {
                 
                 state.lagrange_points.push(LagrangePoint {
                     position: midpoint_pos,
-                    point_type: prime_physics_engine::lagrange::LagrangePointType::L1,
+                    point_type: primes::lagrange::LagrangePointType::L1,
                     stability_score: 0.5,
                     field_strength: 1.0,
                     clustered_primes: vec![],

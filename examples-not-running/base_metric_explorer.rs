@@ -6,7 +6,7 @@
 //!
 //! Run with: cargo run --example base_metric_explorer
 
-use prime_physics_engine::{
+use primes::{
     gravity::{PrimeParticle, ForceCalculator},
     spacetime::BaseMetric,
     PhysicalConstants, PhysicsResult,
@@ -78,7 +78,7 @@ fn test_base_prime_density() -> PhysicsResult<()> {
         let config = MembraneConfig::new(base, 3, 7, 2, 2);
         for middle in 0..candidates_tested {
             if let Ok(num) = config.construct_number(middle) {
-                if prime_physics_engine::is_prime(&num) {
+                if primes::is_prime(&num) {
                     primes_found += 1;
                 }
             }

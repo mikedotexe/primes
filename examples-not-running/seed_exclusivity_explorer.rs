@@ -4,7 +4,7 @@
 //! Discovers membrane configurations that produce primes with
 //! exactly ONE seed - the ultimate in selectivity!
 
-use prime_physics_engine::membrane::MembraneConfig;
+use primes::membrane::MembraneConfig;
 #[derive(Debug, Clone)]
 struct ExclusiveConfig {
     outer: u32,

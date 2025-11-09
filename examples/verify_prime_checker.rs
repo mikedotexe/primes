@@ -3,7 +3,7 @@
 //! Tests known primes and composites to ensure accuracy
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::str::FromStr;
 
 fn main() {

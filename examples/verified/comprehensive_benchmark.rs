@@ -1,7 +1,7 @@
 //! Comprehensive benchmark collecting hard performance data
 //! This provides extensive metrics for GPU optimization comparison
 
-use prime_physics_engine::{
+use primes::{
     MembraneConfig, MembraneBuilder, is_prime, is_prime_miller_rabin,
     prime_sieve::BitSieve,
 };

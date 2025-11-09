@@ -5,7 +5,7 @@ use std::io;//! # Base Metrics Tutorial
 //!
 //! Run with: cargo run --example base_metrics_tutorial
 
-use prime_physics_engine::{
+use primes::{
     membrane::MembraneConfig,
     is_prime,
     PhysicsResult,
@@ -72,9 +72,9 @@ fn part2_measuring_effects() -> PhysicsResult<()> {
     for (base, primes, tested, density) in test_data {
         let metric = BaseMetricEducation::new(base);
         let metric_type = match metric.field_type {
-            prime_physics_engine::education::MetricFieldType::StrongAttraction => "Attractive",
-            prime_physics_engine::education::MetricFieldType::Repulsion => "Repulsive",
-            prime_physics_engine::education::MetricFieldType::Neutral => "Neutral",
+            primes::education::MetricFieldType::StrongAttraction => "Attractive",
+            primes::education::MetricFieldType::Repulsion => "Repulsive",
+            primes::education::MetricFieldType::Neutral => "Neutral",
         };
         
         println!("{:4} | {:12} | {:6} | {:6.2}% | {}",

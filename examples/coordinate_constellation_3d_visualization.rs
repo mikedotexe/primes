@@ -16,7 +16,7 @@
 
 use num_bigint::BigUint;
 use num_traits::Zero;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::collections::HashMap;
 
 fn septuplet_membrane(middle: u32, x: u32, y: u32, z: u32, base: u32) -> BigUint {

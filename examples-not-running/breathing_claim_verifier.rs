@@ -2,7 +2,7 @@
 //! 
 //! Tests the specific claim that asymmetric (breathing) patterns outperform symmetric ones
 
-use prime_physics_engine::{is_prime_miller_rabin, ascii_art::*};
+use primes::{is_prime_miller_rabin, ascii_art::*};
 use num_bigint::BigUint;
 use std::collections::HashMap;
 fn construct_membrane(base: u32, outer: u32, inner: u32, k_outer: usize, k_inner: usize, seed: u32) -> BigUint {

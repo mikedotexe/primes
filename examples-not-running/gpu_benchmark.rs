@@ -1,8 +1,8 @@
 //! GPU performance benchmark example
 
 #[cfg(feature = "metal")]
-use prime_physics_engine::gpu::GpuSieve;
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::gpu::GpuSieve;
+use primes::is_prime_miller_rabin;
 use num_bigint::BigUint;
 use std::time::Instant;
 fn main() {

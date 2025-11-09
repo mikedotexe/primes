@@ -1,5 +1,5 @@
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 fn test_lagrange_insertions(prime1: &str, prime2: &str, zero_count: usize) {
     println!("\n🔬 Testing Lagrange points between:");

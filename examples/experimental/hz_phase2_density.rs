@@ -20,7 +20,7 @@
 //! cargo run --example hz_phase2_density -- --bases 6,30,10 --limit 200000000 --bins 200
 //! ```
 
-use prime_physics_engine::hzlib::*;
+use primes::hzlib::*;
 use std::env;
 use std::fs::{self, File};
 use std::io::{BufWriter, Write};

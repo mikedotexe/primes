@@ -8,7 +8,7 @@
 //! - N× transform theory: residue classes modulo N determine success rates
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::collections::HashMap;
 use std::str::FromStr;
 

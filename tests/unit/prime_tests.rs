@@ -1,7 +1,7 @@
 //! Unit tests for prime number utilities
 
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime, is_prime_miller_rabin};
+use primes::{is_prime, is_prime_miller_rabin};
 
 #[test]
 fn test_small_primes() {

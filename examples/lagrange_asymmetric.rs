@@ -4,7 +4,7 @@
 //! like a massive star and a small planet
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::str::FromStr;
 
 fn main() {

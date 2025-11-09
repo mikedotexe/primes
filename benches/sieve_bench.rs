@@ -1,7 +1,7 @@
 //! Criterion benchmarks for prime sieve performance regression testing
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use prime_physics_engine::prime_sieve::{
+use primes::prime_sieve::{
     segmented_sieve, sieve_count_and_time, warm_slc, BitSieve,
 };
 

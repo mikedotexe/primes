@@ -1,5 +1,5 @@
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime, MembraneBuilder, MembraneConfig};
+use primes::{is_prime, MembraneBuilder, MembraneConfig};
 use std::str::FromStr;
 
 /// Demonstrates proper statistical sampling of membrane configurations

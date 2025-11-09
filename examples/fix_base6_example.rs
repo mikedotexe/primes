@@ -5,7 +5,7 @@
 
 use num_bigint::BigUint;
 use num_traits::{ToPrimitive, Zero};
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 fn main() {
     println!("Investigating the base-6 example error...\n");

@@ -1,6 +1,6 @@
 //! Basic membrane prime generation example
 
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use num_bigint::BigUint;
 fn main() {
     println!("=== Basic Membrane Prime Generation ===\n");

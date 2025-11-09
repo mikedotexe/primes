@@ -1,4 +1,4 @@
-use prime_physics_engine::{MembraneConfig, is_prime_miller_rabin};
+use primes::{MembraneConfig, is_prime_miller_rabin};
 use num_bigint::BigUint;
 use std::str::FromStr;
 

@@ -4,7 +4,7 @@
 //! zero-padded primes might have special structural properties.
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 fn main() {
     println!("🔬 Membrane Lagrange Point Deep Analysis");

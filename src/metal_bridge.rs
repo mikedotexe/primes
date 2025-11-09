@@ -17,7 +17,7 @@
 //! # Example
 //! 
 //! ```no_run
-//! use prime_physics_engine::metal_bridge::{MetalSieve, MetalConfig};
+//! use primes::metal_bridge::{MetalSieve, MetalConfig};
 //! 
 //! // Attempt to create a Metal sieve (returns None on non-macOS)
 //! if let Some(sieve) = MetalSieve::new() {
@@ -137,7 +137,7 @@ impl MetalSieve {
     /// # Example
     /// 
     /// ```no_run
-    /// use prime_physics_engine::metal_bridge::MetalSieve;
+    /// use primes::metal_bridge::MetalSieve;
     /// 
     /// match MetalSieve::new() {
     ///     Some(sieve) => println!("Metal GPU acceleration available"),

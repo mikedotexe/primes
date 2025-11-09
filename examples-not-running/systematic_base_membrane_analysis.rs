@@ -3,7 +3,7 @@
 //! A rigorous statistical exploration of membrane configurations across different bases
 //! with proper controls, significance testing, and comprehensive data output.
 
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use num_bigint::BigUint;
 use std::collections::HashMap;
 use std::fs::File;

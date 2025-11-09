@@ -3,7 +3,7 @@
 //! 
 //! Connecting base properties, midpoint primality, and seed exclusivity
 
-use prime_physics_engine::membrane::MembraneConfig;
+use primes::membrane::MembraneConfig;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🔗 The Base-Midpoint-Exclusivity Connection");
     println!("===========================================\n");

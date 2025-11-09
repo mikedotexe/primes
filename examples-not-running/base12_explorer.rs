@@ -5,7 +5,7 @@
 //! - Natural for time (12 hours) and geometry (360° = 30 × 12)
 //! - More divisors means different resonance patterns
 
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
 };
 use std::fs::File;

@@ -4,7 +4,7 @@
 //! using harmonic analysis to reveal hidden frequency relationships.
 //! Shows both time-domain and frequency-domain representations.
 
-use prime_physics_engine::{
+use primes::{
     membrane::MembraneConfig,
     is_prime_miller_rabin,
 };

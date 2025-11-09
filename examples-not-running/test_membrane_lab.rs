@@ -1,6 +1,6 @@
 //! Test the consolidated membrane laboratory features
 
-use prime_physics_engine::{
+use primes::{
     is_prime,
 };
 use num_bigint::BigUint;

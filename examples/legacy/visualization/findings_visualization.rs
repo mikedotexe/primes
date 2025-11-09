@@ -1,6 +1,6 @@
 //! Findings Visualization - Beautiful ASCII art summary of verified discoveries
 
-use prime_physics_engine::ascii_art::*;
+use primes::ascii_art::*;
 use std::env;
 use std::fs::File;
 use std::io::{self, Write};

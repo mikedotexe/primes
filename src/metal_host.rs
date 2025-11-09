@@ -206,7 +206,7 @@ impl MetalCtx {
 /// # Example
 ///
 /// ```
-/// # use prime_physics_engine::metal_host::unpack_bitmask;
+/// # use primes::metal_host::unpack_bitmask;
 /// let masks = vec![0b00000101]; // Bits 0 and 2 set
 /// let indices = unpack_bitmask(&masks, 0);
 /// assert_eq!(indices, vec![0, 2]);

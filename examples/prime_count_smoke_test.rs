@@ -38,7 +38,7 @@
 //! All tests should show ✅ PASS. Any ❌ FAIL indicates a critical bug.
 
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime, BitSieve};
+use primes::{is_prime, BitSieve};
 
 fn main() {
     println!("🔍 Running deterministic prime count smoke tests...\n");

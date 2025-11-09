@@ -4,7 +4,7 @@
 
 #![cfg(feature = "phase4")]
 
-use prime_physics_engine::prime_sieve::warm_cache_with_primes;
+use primes::prime_sieve::warm_cache_with_primes;
 
 // Mock cache_resident_mlp module for testing
 mod mock_mlp {
@@ -35,7 +35,7 @@ fn phase4_latency_ab() {
         }
 
         // Use safe median calculation
-        match prime_physics_engine::performance::PerfMonitor::safe_median(&mut v) {
+        match primes::performance::PerfMonitor::safe_median(&mut v) {
             Some(median) => median / 200_000.0,
             None => {
                 panic!("❌ Timer precision validation failed: no valid measurements");
@@ -49,7 +49,7 @@ fn phase4_latency_ab() {
 
     let sme = median_timing(|| unsafe {
         // Safety: predict_sme_padded expects 16-byte array, properly aligned
-        prime_physics_engine::phase4::predict_sme_padded(x)
+        primes::phase4::predict_sme_padded(x)
     });
 
     println!(
@@ -64,7 +64,7 @@ fn phase4_latency_ab() {
 
 #[test]
 fn rl_converges_basic() {
-    use prime_physics_engine::phase4::RL_CTL;
+    use primes::phase4::RL_CTL;
 
     // Feed dummy PMU + latency samples
     for i in 0..5000 {
@@ -89,7 +89,7 @@ fn rl_converges_basic() {
 
 #[test]
 fn pmu_double_buffer_monotonic() {
-    use prime_physics_engine::phase4::{PmuSnapshot, PMU_BUFFER};
+    use primes::phase4::{PmuSnapshot, PMU_BUFFER};
     use std::thread;
     use std::time::Duration;
 
@@ -130,7 +130,7 @@ fn pmu_double_buffer_monotonic() {
 
 #[test]
 fn slc_demand_driven_maintenance() {
-    use prime_physics_engine::phase4::SlcResident;
+    use primes::phase4::SlcResident;
 
     let mut slc = SlcResident::new(0.8);
     let dummy_weights = vec![0u8; 4096];
@@ -158,7 +158,7 @@ fn slc_demand_driven_maintenance() {
 
 #[test]
 fn integration_full_stack() {
-    use prime_physics_engine::phase4::{PmuSnapshot, PMU_BUFFER, RL_CTL};
+    use primes::phase4::{PmuSnapshot, PMU_BUFFER, RL_CTL};
 
     // 1. Warm cache with prime sieve (600K primes = ~36 MiB on 48 MiB SLC)
     warm_cache_with_primes(600_000);
@@ -181,7 +181,7 @@ fn integration_full_stack() {
         // Simulate inference
         let x = [1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0];
         // SAFETY: x is a properly aligned 16-byte array as required by predict_sme_padded
-        let _result = unsafe { prime_physics_engine::phase4::predict_sme_padded(x) };
+        let _result = unsafe { primes::phase4::predict_sme_padded(x) };
     }
 
     // Verify RL has adapted

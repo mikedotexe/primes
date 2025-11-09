@@ -6,7 +6,7 @@
 //! 3. Analyzes coverage and hitting patterns
 //! 4. Outputs detailed trajectory data to timestamped CSV files
 
-use prime_physics_engine::membrane::{MembraneConfig, generate_prime_candidate};
+use primes::membrane::{MembraneConfig, generate_prime_candidate};
 use std::fs::File;
 use std::io::Write;
 use std::collections::{HashMap, HashSet};

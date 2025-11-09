@@ -1,4 +1,4 @@
-use prime_physics_engine::prime_sieve::BitSieve;
+use primes::prime_sieve::BitSieve;
 
 fn count_primes_simple(limit: usize) -> usize {
     // Simple sieve for comparison

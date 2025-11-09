@@ -2,7 +2,7 @@
 //! 
 //! Based on the user's memory of finding attractive "atom-looking" primes with 5 in the middle
 
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use num_bigint::BigUint;
 use std::fs::{File, OpenOptions};
 use std::io::Write;

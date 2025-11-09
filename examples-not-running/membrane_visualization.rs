@@ -5,10 +5,10 @@ use std::str::FromStr;//! Membrane Visualization: Shows all valid configurations
 //! The visualization emphasizes that primes are "groups" - different numbers in different
 //! layers that together form a prime.
 
-use prime_physics_engine::resonance_profiles::{
+use primes::resonance_profiles::{
     BaseResonanceProfile, MembraneConfig, ConfigurationProfile
 };
-use prime_physics_engine::membrane::symmetric::construct_symmetric_membrane;
+use primes::membrane::symmetric::construct_symmetric_membrane;
 use num_bigint::BigUint;
 use num_traits::Num;
 use std::collections::HashSet;

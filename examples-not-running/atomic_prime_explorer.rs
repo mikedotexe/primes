@@ -5,7 +5,7 @@ use std::str::FromStr;//! Atomic Prime Explorer - Finds "atom-looking" primes wi
 //! - Double membrane: L 0...0 R 0...0 5 0...0 R 0...0 L
 //! - Triple membrane: L 0...0 R1 0...0 R2 0...0 5 0...0 R2 0...0 R1 0...0 L
 
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
 };
 use std::fs::{File, OpenOptions};

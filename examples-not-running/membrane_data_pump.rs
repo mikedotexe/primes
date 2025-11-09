@@ -6,7 +6,7 @@ use std::io::{Write, BufWriter};
 use std::time::Instant;
 use rayon::prelude::*;
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use chrono::Local;
 use sha2::{Sha256, Digest};
 fn main() {

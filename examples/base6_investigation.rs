@@ -3,7 +3,7 @@
 //! Why aren't we finding base 6 primes with the expected seeds?
 
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime, MembraneConfig};
+use primes::{is_prime, MembraneConfig};
 
 fn main() {
     println!("🔍 Base 6 Investigation");

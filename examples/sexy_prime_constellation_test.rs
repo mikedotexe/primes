@@ -16,7 +16,7 @@
 
 use num_bigint::BigUint;
 use num_traits::Zero;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 // Sexy prime pairs and their corresponding bases
 const SEXY_PRIME_PAIRS: &[(u32, u32, u32)] = &[

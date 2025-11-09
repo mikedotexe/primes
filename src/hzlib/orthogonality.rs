@@ -23,8 +23,8 @@
 //! # Example
 //!
 //! ```rust
-//! use prime_physics_engine::hzlib::orthogonality::*;
-//! use prime_physics_engine::hzlib::sieve::sieve_bool;
+//! use primes::hzlib::orthogonality::*;
+//! use primes::hzlib::sieve::sieve_bool;
 //!
 //! let is_prime = sieve_bool(1_000_000);
 //! let pairs = pairs_index(&is_prime, 300);
@@ -99,7 +99,7 @@ pub fn tau_from_factor(factors: &[(usize, usize)]) -> usize {
 ///
 /// # Example
 /// ```rust
-/// use prime_physics_engine::hzlib::orthogonality::babylonian_score_60;
+/// use primes::hzlib::orthogonality::babylonian_score_60;
 ///
 /// assert!(babylonian_score_60(60) > babylonian_score_60(62));  // 60 is more convenient
 /// assert!(babylonian_score_60(30) > babylonian_score_60(14));  // 30 = 2×3×5
@@ -140,7 +140,7 @@ pub fn babylonian_score_60(g: usize) -> f64 {
 ///
 /// # Example
 /// ```rust
-/// use prime_physics_engine::hzlib::orthogonality::babylonian_score_tau;
+/// use primes::hzlib::orthogonality::babylonian_score_tau;
 ///
 /// assert_eq!(babylonian_score_tau(12), 6.0);  // 1,2,3,4,6,12
 /// assert_eq!(babylonian_score_tau(13), 2.0);  // 1,13 (prime)
@@ -174,7 +174,7 @@ pub fn babylonian_score_tau(g: usize) -> f64 {
 ///
 /// # Example
 /// ```rust
-/// use prime_physics_engine::hzlib::orthogonality::singular_series;
+/// use primes::hzlib::orthogonality::singular_series;
 ///
 /// let s2 = singular_series(2);   // Twin primes
 /// let s6 = singular_series(6);   // Sexy primes (gap=6=2×3)
@@ -217,8 +217,8 @@ pub fn singular_series(g: usize) -> f64 {
 ///
 /// # Example
 /// ```rust
-/// use prime_physics_engine::hzlib::orthogonality::pairs_index;
-/// use prime_physics_engine::hzlib::sieve::sieve_bool;
+/// use primes::hzlib::orthogonality::pairs_index;
+/// use primes::hzlib::sieve::sieve_bool;
 ///
 /// let is_prime = sieve_bool(100);
 /// let pairs = pairs_index(&is_prime, 20);
@@ -262,8 +262,8 @@ pub fn pairs_index(is_prime: &[bool], gmax: usize) -> Vec<Vec<u32>> {
 ///
 /// # Example
 /// ```rust
-/// use prime_physics_engine::hzlib::orthogonality::*;
-/// use prime_physics_engine::hzlib::sieve::sieve_bool;
+/// use primes::hzlib::orthogonality::*;
+/// use primes::hzlib::sieve::sieve_bool;
 ///
 /// let is_prime = sieve_bool(1000);
 /// let pairs = pairs_index(&is_prime, 10);
@@ -305,7 +305,7 @@ pub fn count_pairs_upto(pairs: &[u32], limit: usize) -> usize {
 ///
 /// # Example
 /// ```rust
-/// use prime_physics_engine::hzlib::orthogonality::pearson;
+/// use primes::hzlib::orthogonality::pearson;
 ///
 /// let x = vec![1.0, 2.0, 3.0, 4.0];
 /// let y = vec![2.0, 4.0, 6.0, 8.0];
@@ -353,7 +353,7 @@ pub fn pearson(x: &[f64], y: &[f64]) -> f64 {
 ///
 /// # Example
 /// ```rust
-/// use prime_physics_engine::hzlib::orthogonality::weighted_corr;
+/// use primes::hzlib::orthogonality::weighted_corr;
 ///
 /// let x = vec![1.0, 2.0, 3.0];
 /// let y = vec![1.0, 2.0, 10.0];
@@ -409,7 +409,7 @@ pub fn weighted_corr(x: &[f64], y: &[f64], w: &[f64]) -> f64 {
 ///
 /// # Example
 /// ```rust
-/// use prime_physics_engine::hzlib::orthogonality::t_stat;
+/// use primes::hzlib::orthogonality::t_stat;
 ///
 /// let r = 0.3;
 /// let n = 100;
@@ -463,7 +463,7 @@ impl XorShift64 {
 ///
 /// # Example
 /// ```rust
-/// use prime_physics_engine::hzlib::orthogonality::{XorShift64, shuffle_in_place};
+/// use primes::hzlib::orthogonality::{XorShift64, shuffle_in_place};
 ///
 /// let mut rng = XorShift64::new(12345);
 /// let mut data = vec![1, 2, 3, 4, 5];
@@ -492,7 +492,7 @@ pub fn shuffle_in_place<T>(v: &mut [T], rng: &mut XorShift64) {
 ///
 /// # Example
 /// ```rust
-/// use prime_physics_engine::hzlib::orthogonality::{sieve_cramer, XorShift64};
+/// use primes::hzlib::orthogonality::{sieve_cramer, XorShift64};
 ///
 /// let mut rng = XorShift64::new(42);
 /// let cramer_primes = sieve_cramer(10000, &mut rng);

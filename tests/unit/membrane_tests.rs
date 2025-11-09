@@ -1,7 +1,7 @@
 //! Unit tests for membrane construction and validation
 
-use prime_physics_engine::is_prime;
-use prime_physics_engine::membrane::{MembraneBuilder, MembraneConfig};
+use primes::is_prime;
+use primes::membrane::{MembraneBuilder, MembraneConfig};
 
 #[test]
 fn test_basic_membrane_construction() {

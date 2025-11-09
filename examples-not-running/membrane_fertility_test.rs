@@ -2,7 +2,7 @@
 //! Let's push the boundaries and find the ultimate prime-generating membranes!
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use rayon::prelude::*;
 use std::time::Instant;
 use std::sync::atomic::{AtomicUsize, Ordering};

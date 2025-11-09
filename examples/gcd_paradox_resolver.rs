@@ -71,7 +71,7 @@
 //! ```
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 // ============================================================================
 // UTILITY FUNCTIONS

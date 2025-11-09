@@ -3,10 +3,10 @@
 //! Shows how the self-optimizing system adapts to different workloads
 //! and hardware configurations in real-time.
 
-use prime_physics_engine::optimization::*;
-use prime_physics_engine::optimization::strategies::*;
-use prime_physics_engine::optimization::telemetry::TelemetrySystem;
-use prime_physics_engine::prime_sieve::BitSieve;
+use primes::optimization::*;
+use primes::optimization::strategies::*;
+use primes::optimization::telemetry::TelemetrySystem;
+use primes::prime_sieve::BitSieve;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use colored::*;

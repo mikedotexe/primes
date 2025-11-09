@@ -1,7 +1,7 @@
 //! Test the L4/L5 triangular Lagrange points - the stable prime clusters!
 
-use prime_physics_engine::gravity::{PrimeParticle, GravitationalField};
-use prime_physics_engine::lagrange::ClusterAnalysis;
+use primes::gravity::{PrimeParticle, GravitationalField};
+use primes::lagrange::ClusterAnalysis;
 use num_bigint::BigUint;
 use std::time::SystemTime;
 fn main() {
@@ -21,7 +21,7 @@ fn main() {
             membrane_config: None,
             creation_time: SystemTime::now(),
             trajectory_history: Vec::new(),
-            physics_cache: prime_physics_engine::gravity::PhysicsCache::default(),
+            physics_cache: primes::gravity::PhysicsCache::default(),
         },
             value: BigUint::from(303050303u64), // From our membrane verification
             position: [20.0, 0.0], // 20 units apart
@@ -52,8 +52,8 @@ fn main() {
                         
                         // Check if this is a triangular point
                         if matches!(point.point_type, 
-                            prime_physics_engine::lagrange::LagrangePointType::L4 | 
-                            prime_physics_engine::lagrange::LagrangePointType::L5) {
+                            primes::lagrange::LagrangePointType::L4 | 
+                            primes::lagrange::LagrangePointType::L5) {
                             
                             // Calculate distances to verify equilateral triangle
                             let dist1 = ((point.position[0] - particles[0].position[0]).powi(2) + 

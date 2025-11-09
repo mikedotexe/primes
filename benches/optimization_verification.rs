@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
-use prime_physics_engine::prime_sieve::{chunk_size_hint, segmented_sieve, BitSieve};
+use primes::prime_sieve::{chunk_size_hint, segmented_sieve, BitSieve};
 use std::time::Duration;
 
 /// Baseline measurement structure

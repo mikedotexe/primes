@@ -1,4 +1,4 @@
-use prime_physics_engine::{
+use primes::{
     generator::Generator,
     prime_checker::is_prime_miller_rabin,
 };

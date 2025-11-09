@@ -5,7 +5,7 @@
 //! 2. Cache-aware bit-packed prime sieve with real-time performance metrics
 
 use wasm_bindgen::prelude::*;
-use prime_physics_engine::{MembraneConfig, PrimeCandidate};
+use primes::{MembraneConfig, PrimeCandidate};
 use std::convert::TryInto;
 
 // Better error handling for WASM
@@ -152,7 +152,7 @@ pub fn sieve_count_primes(limit: u32) -> Result<u32, WasmError> {
     }
     
     let limit = limit as usize;
-    let sieve = prime_physics_engine::prime_sieve::BitSieve::new(limit);
+    let sieve = primes::prime_sieve::BitSieve::new(limit);
     Ok(sieve.primes().len() as u32)
 }
 
@@ -251,7 +251,7 @@ pub fn neural_predict(input: &[i8]) -> i32 {
     padded[..8].copy_from_slice(&input[..8]);
     
     // Use the safe wrapper from phase4
-    prime_physics_engine::phase4::predict_sme_padded_safe(padded)
+    primes::phase4::predict_sme_padded_safe(padded)
 }
 
 /* --------------------------------------------------------------------- */

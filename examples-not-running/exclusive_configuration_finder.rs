@@ -6,7 +6,7 @@
 //! 3. Provides factorizations for non-prime results
 //! 4. Outputs detailed results to timestamped JSON file
 
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
 };
 use std::fs::File;

@@ -65,7 +65,7 @@
 //! If successful, this transforms prime generation from probabilistic to constructive.
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::collections::HashMap;
 
 // ============================================================================

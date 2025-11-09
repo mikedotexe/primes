@@ -1,6 +1,6 @@
 //! Compare prime density across different number bases
 
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use num_bigint::BigUint;
 use rayon::prelude::*;
 fn main() {

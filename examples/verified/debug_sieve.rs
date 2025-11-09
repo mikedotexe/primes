@@ -1,4 +1,4 @@
-use prime_physics_engine::prime_sieve::BitSieve;
+use primes::prime_sieve::BitSieve;
 
 fn main() {
     // Test different sizes to find where the issue starts

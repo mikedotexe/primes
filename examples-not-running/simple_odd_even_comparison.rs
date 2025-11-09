@@ -3,7 +3,7 @@
 //! Uses the existing membrane construction functions to compare
 //! prime generation across odd and even bases.
 
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
     ascii_art::*,
 };

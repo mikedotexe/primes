@@ -60,7 +60,7 @@
 //! Multiple ✓ 🎉 markers showing entire concatenated strings are prime.
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::str::FromStr;
 
 fn main() {

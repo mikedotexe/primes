@@ -1,5 +1,5 @@
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::env;
 
 // A simple primality test for small numbers, as the main is_prime is for BigUint

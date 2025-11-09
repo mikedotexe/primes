@@ -17,7 +17,7 @@
 
 use num_bigint::BigUint;
 use num_traits::Zero;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 // Distance-4 constellation configurations
 const DISTANCE_4_CONFIGS: &[(u32, u32, u32, &str)] = &[

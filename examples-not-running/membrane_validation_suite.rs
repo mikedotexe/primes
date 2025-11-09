@@ -1,4 +1,4 @@
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
 };
 use std::time::Instant;

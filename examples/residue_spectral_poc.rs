@@ -21,7 +21,7 @@
 //! ```
 
 #[cfg(feature = "prime-harmonics")]
-use prime_physics_engine::harmonics::{fourier_transform, power_spectrum};
+use primes::harmonics::{fourier_transform, power_spectrum};
 use std::f64::consts::PI;
 
 fn main() {

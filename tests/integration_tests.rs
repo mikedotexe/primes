@@ -1,6 +1,6 @@
 //! Comprehensive integration tests for the Prime Physics Engine
 
-use prime_physics_engine::{
+use primes::{
     prime_sieve::{segmented_sieve, sieve_count_and_time, warm_slc, BitSieve},
     MembraneConfig, PerfMonitor,
 };
@@ -21,7 +21,7 @@ fn test_membrane_generation_correctness() {
         // Only test base 10 for now, as the membrane construction checks for digits 0-9
         if base == 10 {
             let candidate = config.construct_number(seed).unwrap();
-            let is_prime = prime_physics_engine::is_prime(&candidate);
+            let is_prime = primes::is_prime(&candidate);
             assert_eq!(
                 is_prime, expected_prime,
                 "Failed for config ({},{}) k=({},{}) seed={} in base {}",
@@ -143,7 +143,7 @@ fn test_membrane_edge_cases() {
     for seed in 0..=3 {
         let candidate = config.construct_number(seed).unwrap();
         // Should not panic
-        let _ = prime_physics_engine::is_prime(&candidate);
+        let _ = primes::is_prime(&candidate);
     }
 
     // Test with large padding
@@ -175,13 +175,13 @@ fn test_prime_validation_accuracy() {
 
     for p in primes {
         let n = BigUint::from_str(p).unwrap();
-        assert!(prime_physics_engine::is_prime(&n), "{} should be prime", p);
+        assert!(primes::is_prime(&n), "{} should be prime", p);
     }
 
     for c in composites {
         let n = BigUint::from_str(c).unwrap();
         assert!(
-            !prime_physics_engine::is_prime(&n),
+            !primes::is_prime(&n),
             "{} should be composite",
             c
         );
@@ -191,7 +191,7 @@ fn test_prime_validation_accuracy() {
 #[cfg(feature = "phase4")]
 #[test]
 fn test_phase4_integration() {
-    use prime_physics_engine::phase4::{
+    use primes::phase4::{
         predict_sme_padded_safe, OnChipRL, PmuDoubleBuffer, PmuSnapshot,
     };
 
@@ -243,7 +243,7 @@ fn test_large_number_handling() {
     assert!(str_repr.len() > 20); // Should be quite long
 
     // Primality test should still work (might be slow)
-    let _ = prime_physics_engine::is_prime(&candidate);
+    let _ = primes::is_prime(&candidate);
 }
 
 #[test]

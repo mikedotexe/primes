@@ -5,7 +5,7 @@
 //! 2. Performance comparisons between traditional and affine methods
 //! 3. Verification that both methods produce identical results
 
-use prime_physics_engine::membrane::MembraneConfig;
+use primes::membrane::MembraneConfig;
 use std::time::Instant;
 use num_bigint::BigUint;
 use num_traits::Zero;

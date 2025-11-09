@@ -1,7 +1,7 @@
 //! Massive Prime Finder
 //! Aggressive search for truly massive primes showing 1000x+ amplification
 
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use num_bigint::BigUint;
 use num_traits::{Zero, One};
 use std::fs::File;

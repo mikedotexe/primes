@@ -1,4 +1,4 @@
-use std::io;use prime_physics_engine::{
+use std::io;use primes::{
     analysis::{ConfigurationAnalyzer, AnalysisResult},
 };
 use num_bigint::BigUint;

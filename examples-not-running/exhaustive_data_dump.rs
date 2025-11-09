@@ -3,7 +3,7 @@
 //! This script tests many configurations and outputs detailed data
 //! to verify or disprove claims in documentation.
 
-use prime_physics_engine::{is_prime_miller_rabin, ascii_art::*};
+use primes::{is_prime_miller_rabin, ascii_art::*};
 use num_bigint::BigUint;
 use std::fs::File;
 use std::io::Write;

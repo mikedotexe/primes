@@ -2,7 +2,7 @@ use std::io;use std::env;//! Educational Explorer - Colored Edition
 //! 
 //! Same as educational_explorer.rs but with unified color scheme
 
-use prime_physics_engine::{
+use primes::{
     is_prime,
 };
 use num_bigint::BigUint;

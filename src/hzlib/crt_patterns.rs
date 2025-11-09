@@ -22,7 +22,7 @@
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::zero_pattern;
+/// use primes::hzlib::zero_pattern;
 /// let (zeros, count, tag, comp) = zero_pattern(66, &[3, 5, 7, 11]);
 /// // 66/2 = 33 = 3×11
 /// assert_eq!(zeros, vec![3, 11]);
@@ -72,7 +72,7 @@ pub fn zero_pattern(base: usize, small: &[usize]) -> (Vec<usize>, usize, String,
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::is_double_prime_base;
+/// use primes::hzlib::is_double_prime_base;
 /// assert!(is_double_prime_base(6));  // 6 = 2×3
 /// assert!(is_double_prime_base(10)); // 10 = 2×5
 /// assert!(!is_double_prime_base(12)); // 12 = 2×6 (6 not prime)

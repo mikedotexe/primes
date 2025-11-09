@@ -1,6 +1,6 @@
 use num_bigint::BigUint;
 use num_traits::{One, Zero};
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::env;
 
 // Function to calculate the sum of digits of a BigUint

@@ -3,7 +3,7 @@
 //! This creates visual representations of the Apple Silicon optimizations
 //! that enable our 691x speedup in membrane prime generation.
 
-use prime_physics_engine::ascii_art::*;
+use primes::ascii_art::*;
 use std::fs::File;
 use std::io::Write;
 use chrono::Local;

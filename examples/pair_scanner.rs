@@ -1,5 +1,5 @@
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::time::Instant;
 
 fn fertility_scan(body1: &str, body2: &str) -> u32 {

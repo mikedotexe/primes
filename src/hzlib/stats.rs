@@ -24,7 +24,7 @@ use std::collections::BTreeMap;
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::linreg;
+/// use primes::hzlib::linreg;
 /// let xs = vec![1.0, 2.0, 3.0, 4.0];
 /// let ys = vec![2.0, 4.0, 6.0, 8.0]; // y = 2x
 /// let (slope, intercept, r2) = linreg(&xs, &ys);
@@ -92,7 +92,7 @@ pub fn linreg(xs: &[f64], ys: &[f64]) -> (f64, f64, f64) {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::linreg_with_ci;
+/// use primes::hzlib::linreg_with_ci;
 /// let xs = vec![1.0, 2.0, 3.0, 4.0, 5.0];
 /// let ys = vec![2.1, 3.9, 6.1, 7.9, 10.1]; // ~2x with noise
 /// let (slope, intercept, r2, slope_ci, intercept_ci, se) = linreg_with_ci(&xs, &ys, 0.95);
@@ -190,7 +190,7 @@ fn t_critical_value(df: f64, alpha_half: f64) -> f64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::welch_t;
+/// use primes::hzlib::welch_t;
 /// let a = vec![1.0, 2.0, 3.0, 4.0, 5.0];
 /// let b = vec![6.0, 7.0, 8.0, 9.0, 10.0];
 /// let (t, p) = welch_t(&a, &b);
@@ -248,7 +248,7 @@ pub fn welch_t(a: &[f64], b: &[f64]) -> (f64, f64) {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::permutation_pvalue;
+/// use primes::hzlib::permutation_pvalue;
 /// let data = vec![
 ///     (66, true, 0.95),  // Complementary base
 ///     (70, true, 0.93),
@@ -365,7 +365,7 @@ fn std_dev(x: &[f64]) -> f64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::hedges_g;
+/// use primes::hzlib::hedges_g;
 /// let a = vec![1.0, 2.0, 3.0, 4.0];
 /// let b = vec![5.0, 6.0, 7.0, 8.0];
 /// let g = hedges_g(&a, &b);
@@ -427,7 +427,7 @@ pub fn hedges_g(a: &[f64], b: &[f64]) -> f64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::cliffs_delta;
+/// use primes::hzlib::cliffs_delta;
 /// let a = vec![1.0, 2.0, 3.0];
 /// let b = vec![4.0, 5.0, 6.0];
 /// let delta = cliffs_delta(&a, &b);
@@ -474,7 +474,7 @@ pub fn cliffs_delta(a: &[f64], b: &[f64]) -> f64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::spearman_rho;
+/// use primes::hzlib::spearman_rho;
 /// let xs = vec![1.0, 2.0, 3.0, 4.0, 5.0];
 /// let ys = vec![2.0, 4.0, 6.0, 8.0, 10.0]; // Perfect linear
 /// let rho = spearman_rho(&xs, &ys);
@@ -568,7 +568,7 @@ fn pearson_correlation(xs: &[f64], ys: &[f64]) -> f64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::benjamini_hochberg;
+/// use primes::hzlib::benjamini_hochberg;
 /// let pvalues = vec![0.001, 0.01, 0.03, 0.10, 0.50];
 /// let adjusted = benjamini_hochberg(&pvalues, 0.05);
 /// // First few should remain significant after adjustment

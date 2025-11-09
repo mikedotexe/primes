@@ -20,7 +20,7 @@ use std::{
     io,
     time::{Duration, Instant},
     collections::VecDeque,
-use prime_physics_engine::{
+use primes::{
     membrane::{MembraneConfig, MembraneBuilder},
     lagrange::{LagrangePoint, LagrangePointType},
     is_prime,

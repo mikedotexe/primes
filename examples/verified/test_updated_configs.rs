@@ -1,6 +1,6 @@
 //! Test the updated membrane configurations based on empirical verification
 
-use prime_physics_engine::membrane::MembraneConfig;
+use primes::membrane::MembraneConfig;
 fn main() {
     println!("Testing updated membrane configurations...\n");
     

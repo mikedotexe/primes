@@ -2,7 +2,7 @@
 //! 
 //! Searches for numbers claimed to be prime and verifies them
 
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use num_bigint::BigUint;
 use std::str::FromStr;
 use std::fs;

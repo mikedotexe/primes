@@ -1,6 +1,6 @@
 use num_bigint::BigUint;
 use plotters::prelude::*;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let body1 = "7";

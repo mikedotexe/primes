@@ -19,7 +19,7 @@
 
 use num_bigint::BigUint;
 use num_traits::Zero;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 // Prime triplet patterns (examples from OEIS and HL theory)
 #[derive(Debug, Clone)]

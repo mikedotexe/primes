@@ -1,6 +1,6 @@
 //! Find large primes using membrane configurations
 
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use num_bigint::BigUint;
 use std::time::Instant;
 fn main() {

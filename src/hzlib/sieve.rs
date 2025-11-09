@@ -18,7 +18,7 @@ use std::cmp::min;
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::sieve_bool;
+/// use primes::hzlib::sieve_bool;
 /// let is_prime = sieve_bool(100);
 /// assert!(is_prime[2]);
 /// assert!(is_prime[97]);
@@ -66,7 +66,7 @@ pub fn sieve_primes(n: usize) -> Vec<usize> {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::segmented_sieve;
+/// use primes::hzlib::segmented_sieve;
 /// let mut count = 0;
 /// segmented_sieve(1000000, |_p| count += 1);
 /// assert_eq!(count, 78498); // π(10^6)
@@ -135,7 +135,7 @@ pub fn segmented_sieve(limit: usize, mut on_prime: impl FnMut(usize)) {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::sieve_spf;
+/// use primes::hzlib::sieve_spf;
 /// let spf = sieve_spf(100);
 /// assert_eq!(spf[12], 2); // 12 = 2² × 3
 /// assert_eq!(spf[17], 17); // 17 is prime

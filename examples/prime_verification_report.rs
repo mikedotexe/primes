@@ -44,7 +44,7 @@
 //! counter-examples showing what NOT to do.
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::str::FromStr;
 
 fn verify_number(num_str: &str, description: &str) -> bool {

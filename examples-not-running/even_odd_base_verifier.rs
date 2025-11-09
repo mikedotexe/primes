@@ -2,7 +2,7 @@
 //! 
 //! Tests the claim that even bases generate 44% more primes than odd bases
 
-use prime_physics_engine::{is_prime_miller_rabin, ascii_art::*};
+use primes::{is_prime_miller_rabin, ascii_art::*};
 use num_bigint::BigUint;
 use std::io::Write;
 fn gcd(a: u32, b: u32) -> u32 {

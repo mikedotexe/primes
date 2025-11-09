@@ -54,7 +54,7 @@
 //! You should see success rates of 30-55% with multiple primes marked ✓.
 
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime, MembraneConfig};
+use primes::{is_prime, MembraneConfig};
 use rand::prelude::*;
 
 /// Generate a membrane prime using the seed AS the middle digit(s)

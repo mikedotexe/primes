@@ -57,7 +57,7 @@
 //! Success rates of 30-33% for individual configs, 60%+ for batch generation.
 
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime, MembraneBuilder, MembraneConfig};
+use primes::{is_prime, MembraneBuilder, MembraneConfig};
 use rand::prelude::*;
 use std::collections::HashMap;
 

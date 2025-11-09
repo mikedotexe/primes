@@ -1,5 +1,5 @@
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 fn deep_dive_configuration(body1: &str, body2: &str, max_space: usize) {
     let b1 = body1.parse::<BigUint>().unwrap();

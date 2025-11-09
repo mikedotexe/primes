@@ -4,7 +4,7 @@
 //! to find the true optimal patterns using proper statistics.
 
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime, MembraneConfig};
+use primes::{is_prime, MembraneConfig};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]

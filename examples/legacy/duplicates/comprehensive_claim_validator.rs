@@ -7,7 +7,7 @@ use std::io;//! Comprehensive Claim Validator - Verifies all major claims with d
 //! 4. Cross-base performance
 //! 5. Outputs complete verification data with timestamps
 
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
 };
 use std::fs::File;

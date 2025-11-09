@@ -3,7 +3,7 @@
 //! This explores how odd bases fundamentally differ from even bases in their
 //! membrane prime generation capabilities.
 
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
     ascii_art::*,
 };

@@ -3,7 +3,7 @@
 //! Usage: echo "12345" | cargo run --example check_prime
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::io::{self, BufRead};
 
 fn main() {

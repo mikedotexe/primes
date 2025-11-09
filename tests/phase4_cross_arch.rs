@@ -3,8 +3,8 @@
 
 #![cfg(feature = "phase4")]
 
-use prime_physics_engine::phase4::{OnChipRL, PmuDoubleBuffer, PmuSnapshot, SlcResident};
-use prime_physics_engine::prime_sieve::{segmented_sieve, warm_slc};
+use primes::phase4::{OnChipRL, PmuDoubleBuffer, PmuSnapshot, SlcResident};
+use primes::prime_sieve::{segmented_sieve, warm_slc};
 
 #[test]
 fn rl_controller_works_cross_arch() {
@@ -75,6 +75,6 @@ fn slc_controller_basic() {
 fn sme_fallback_works() {
     // On non-ARM, the SME prediction should still work via fallback
     let x = [1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0];
-    let result = prime_physics_engine::phase4::predict_sme_padded_safe(x);
+    let result = primes::phase4::predict_sme_padded_safe(x);
     assert_eq!(result, 36, "Should sum first 8 elements: 1+2+3+4+5+6+7+8");
 }

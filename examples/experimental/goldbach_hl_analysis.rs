@@ -22,7 +22,7 @@
 //! cargo run --example goldbach_hl_analysis -- --min-base 60 --max-base 80 --window 1000
 //! ```
 
-use prime_physics_engine::hzlib::*;
+use primes::hzlib::*;
 use std::env;
 use std::fs::{self, File};
 use std::io::{BufWriter, Write};

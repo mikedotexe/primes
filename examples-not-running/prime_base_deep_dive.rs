@@ -3,7 +3,7 @@
 //! Prime bases have ALL non-zero digits coprime with the base.
 //! This creates unique dynamics worth exploring.
 
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
     ascii_art::*,
 };

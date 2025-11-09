@@ -3,7 +3,7 @@
 //! This visualizes the wave mechanics behind why certain patterns work,
 //! with beautiful ASCII representations of interference patterns.
 
-use prime_physics_engine::{is_prime_miller_rabin, ascii_art::*};
+use primes::{is_prime_miller_rabin, ascii_art::*};
 use num_bigint::BigUint;
 use std::fs::File;
 use std::io::Write;

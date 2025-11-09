@@ -25,7 +25,7 @@ use std::{
     path::PathBuf,
     io::Write,
 };
-use prime_physics_engine::{
+use primes::{
     is_prime,
     membrane::{MembraneConfig, MembraneBuilder},
 };

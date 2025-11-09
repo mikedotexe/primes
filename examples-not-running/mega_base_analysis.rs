@@ -8,7 +8,7 @@
 //! - Breathing pattern analysis
 //! - Much more!
 
-use prime_physics_engine::{is_prime_miller_rabin, ascii_art::*};
+use primes::{is_prime_miller_rabin, ascii_art::*};
 use num_bigint::BigUint;
 use std::collections::HashMap;
 use std::fs::File;

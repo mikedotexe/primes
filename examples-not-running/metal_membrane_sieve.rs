@@ -34,7 +34,7 @@ struct MembraneConfig {
     r2: u32,
     base: u32,
 fn simulate_gpu_sieve(config: &MembraneConfig) {
-    use prime_physics_engine::is_prime_miller_rabin;
+    use primes::is_prime_miller_rabin;
     use rayon::prelude::*;
     use std::time::Instant;
     println!("\n1. SIMULATING GPU BATCH PROCESSING");

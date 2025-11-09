@@ -24,7 +24,7 @@ use std::{
     time::{Duration, Instant},
     collections::VecDeque,
 };
-use prime_physics_engine::{
+use primes::{
     membrane::{MembraneConfig, MembraneBuilder},
     PrimeUniverse,
     is_prime,

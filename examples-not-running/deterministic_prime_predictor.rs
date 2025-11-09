@@ -18,7 +18,7 @@
 //! - F1 Score: Harmonic mean of precision and recall
 //! - Forbidden Zone Accuracy: 100% (no primes can exist in destructive zones)
 
-use prime_physics_engine::*;
+use primes::*;
 /// Wave function parameters for a configuration
 #[derive(Debug, Clone)]
 struct WaveFunction {

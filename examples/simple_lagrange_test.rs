@@ -1,7 +1,7 @@
 //! Simple test to verify membrane Lagrange point structure
 
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 fn main() {
     println!("🔬 Simple Membrane Lagrange Test\n");

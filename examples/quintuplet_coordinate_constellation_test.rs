@@ -34,7 +34,7 @@
 
 use num_bigint::BigUint;
 use num_traits::Zero;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 use std::collections::HashMap;
 
 /// Build quintuplet membrane: y-x-MIDDLE-x-y

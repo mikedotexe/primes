@@ -1,7 +1,7 @@
 //! Benchmark comparing single-core vs segmented multi-core sieve
 //! Shows the performance improvements from the compact message optimizations
 
-use prime_physics_engine::prime_sieve::{BitSieve, segmented_sieve};
+use primes::prime_sieve::{BitSieve, segmented_sieve};
 use std::time::Instant;
 
 fn benchmark_sieve(name: &str, limit: usize, mut f: impl FnMut()) {

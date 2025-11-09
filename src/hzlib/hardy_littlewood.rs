@@ -34,7 +34,7 @@ pub const C2: f64 = 0.6601618158468696;
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::{kappa, PairCount, C2};
+/// use primes::hzlib::{kappa, PairCount, C2};
 /// assert!((kappa(PairCount::Ordered) - 2.0 * C2).abs() < 1e-10);
 /// assert!((kappa(PairCount::Unordered) - C2).abs() < 1e-10);
 /// ```
@@ -65,7 +65,7 @@ pub fn kappa(pairing: PairCount) -> f64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::{sieve_spf, singular_series_goldbach_multiplicative};
+/// use primes::hzlib::{sieve_spf, singular_series_goldbach_multiplicative};
 /// let spf = sieve_spf(100);
 /// let s2 = singular_series_goldbach_multiplicative(30, &spf); // 30 = 2×3×5
 /// // S₂(30) = (3-1)/(3-2) × (5-1)/(5-2) = 2 × 4/3 = 8/3
@@ -118,7 +118,7 @@ pub fn singular_series_goldbach_multiplicative(n: usize, spf: &[usize]) -> f64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::{sieve_spf, singular_series_goldbach};
+/// use primes::hzlib::{sieve_spf, singular_series_goldbach};
 /// let spf = sieve_spf(100);
 /// let s = singular_series_goldbach(30, &spf); // 30 = 2×3×5
 /// // S₂(30) = (3-1)/(3-2) × (5-1)/(5-2) = 2/1 × 4/3 = 8/3 ≈ 2.667
@@ -142,7 +142,7 @@ pub fn singular_series_goldbach(n: usize, spf: &[usize]) -> f64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::{sieve_bool, count_pairs_for_n};
+/// use primes::hzlib::{sieve_bool, count_pairs_for_n};
 /// let is_prime = sieve_bool(100);
 /// let pairs = count_pairs_for_n(30, 2, &is_prime);
 /// // 30 = 11+19 = 13+17
@@ -207,7 +207,7 @@ pub fn predict_goldbach_pairs(n: usize, spf: &[usize], k_hat: f64) -> f64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::{sieve_spf, hl_goldbach_lambda, PairCount};
+/// use primes::hzlib::{sieve_spf, hl_goldbach_lambda, PairCount};
 /// let spf = sieve_spf(10000);
 /// let lambda = hl_goldbach_lambda(1000, &spf, PairCount::Unordered);
 /// // For n=1000, expect λ ≈ 20-30 pairs
@@ -252,7 +252,7 @@ pub fn hl_goldbach_lambda(n: usize, spf: &[usize], pairing: PairCount) -> f64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::{sieve_spf, hl_goldbach_lambda_truncated, PairCount};
+/// use primes::hzlib::{sieve_spf, hl_goldbach_lambda_truncated, PairCount};
 /// let spf = sieve_spf(10000);
 /// // Pairs for 1000 with both primes ≥ 100
 /// let lambda = hl_goldbach_lambda_truncated(1000, 100, &spf, PairCount::Unordered);
@@ -299,7 +299,7 @@ pub fn hl_goldbach_lambda_truncated(n: usize, lo: usize, spf: &[usize], pairing:
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::goldbach_coverage_from_lambda;
+/// use primes::hzlib::goldbach_coverage_from_lambda;
 /// // λ=0 → 0% coverage
 /// assert_eq!(goldbach_coverage_from_lambda(0.0), 0.0);
 /// // λ=1 → ~63% coverage

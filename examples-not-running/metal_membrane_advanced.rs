@@ -112,7 +112,7 @@ fn find_self_inverse_digits(base: u32) -> Vec<u32> {
 fn process_gpu_batches(param_queue: Vec<MembraneParams>, event_log: &mut EventLog) {
     use rayon::prelude::*;
     use num_bigint::BigUint;
-    use prime_physics_engine::is_prime_miller_rabin;
+    use primes::is_prime_miller_rabin;
     println!("\nProcessing {} configurations in batches...\n", param_queue.len());
     // Group by polynomial degree for efficient GPU usage
     let mut batches: std::collections::HashMap<u32, Vec<MembraneParams>> = 

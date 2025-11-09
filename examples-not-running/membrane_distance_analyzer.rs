@@ -4,7 +4,7 @@
 //! This explores the mathematical relationship between membrane distances,
 //! base properties, and prime generation success.
 
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
 };
 use std::fs::File;

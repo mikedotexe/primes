@@ -4,7 +4,7 @@
 //! all major subsystems: membrane generation, prime testing, sieve operations,
 //! and phase 4 neural network inference.
 
-use prime_physics_engine::{
+use primes::{
     MembraneConfig, PerfMonitor,
     prime_sieve::{BitSieve, segmented_sieve, warm_slc},
 };
@@ -160,7 +160,7 @@ fn benchmark_cache_operations(monitor: &PerfMonitor) {
 
 #[cfg(feature = "phase4")]
 fn benchmark_neural_network(monitor: &PerfMonitor) {
-    use prime_physics_engine::phase4::{predict_sme_padded_safe, OnChipRL};
+    use primes::phase4::{predict_sme_padded_safe, OnChipRL};
     
     println!("\n🧠 Benchmarking Neural Network (Phase 4)...");
     

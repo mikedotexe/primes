@@ -22,7 +22,7 @@ use std::{
     fs::{OpenOptions, create_dir_all},
     io::Write,
     path::PathBuf,
-use prime_physics_engine::{
+use primes::{
     is_prime,
 use num_bigint::BigUint;
 // ===== ACHIEVEMENTS =====

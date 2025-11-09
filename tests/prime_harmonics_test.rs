@@ -10,8 +10,8 @@
 
 use num_bigint::BigUint;
 #[cfg(feature = "prime-harmonics")]
-use prime_physics_engine::harmonics::{fourier_transform, power_spectrum, HarmonicAnalyzer};
-use prime_physics_engine::{is_prime, prime_sieve::BitSieve};
+use primes::harmonics::{fourier_transform, power_spectrum, HarmonicAnalyzer};
+use primes::{is_prime, prime_sieve::BitSieve};
 use std::f64::consts::PI;
 
 /// Helper to create a prime indicator sequence
@@ -170,7 +170,7 @@ fn test_harmonic_identity_prime_vs_random() {
 fn test_membrane_generated_harmonics() {
     println!("\n=== Testing Membrane-Generated Prime Harmonics ===");
 
-    use prime_physics_engine::membrane::construct_symmetric_membrane;
+    use primes::membrane::construct_symmetric_membrane;
 
     // Test multiple membrane configurations
     let configs = vec![
@@ -276,7 +276,7 @@ fn test_harmonics_feature_required() {
     println!("  cargo test --features prime-harmonics --test prime_harmonics_test");
 
     // Verify stub behavior when feature is disabled
-    use prime_physics_engine::harmonics::HarmonicAnalyzer;
+    use primes::harmonics::HarmonicAnalyzer;
 
     let analyzer = HarmonicAnalyzer::new(100);
     let dummy_seq = vec![1.0, 0.0, 1.0, 0.0];

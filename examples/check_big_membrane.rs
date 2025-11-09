@@ -1,5 +1,5 @@
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 fn check_membrane_structure(s: &str) -> bool {
     // Check if it has membrane-like structure with zeros

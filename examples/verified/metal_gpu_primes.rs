@@ -5,7 +5,7 @@
 //!
 //! IMPORTANT: Requires macOS with Metal support and --features metal
 
-use prime_physics_engine::{
+use primes::{
     membrane::MembraneConfig,
     is_prime_miller_rabin,
 };
@@ -13,7 +13,7 @@ use num_bigint::BigUint;
 use std::time::{Duration, Instant};
 
 #[cfg(feature = "metal")]
-use prime_physics_engine::gpu::GpuSieve;
+use primes::gpu::GpuSieve;
 
 struct BenchmarkResult {
     method: String,

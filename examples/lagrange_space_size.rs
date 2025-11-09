@@ -1,5 +1,5 @@
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime;
+use primes::is_prime;
 
 fn test_space_sizes(body1: &str, body2: &str) {
     println!("\n🔬 Testing: {} ↔ {}", body1, body2);

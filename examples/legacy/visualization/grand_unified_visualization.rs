@@ -3,7 +3,7 @@
 //! This creates a comprehensive visual summary of all our discoveries
 //! about membrane primes, with beautiful ASCII art throughout.
 
-use prime_physics_engine::{is_prime_miller_rabin, ascii_art::*};
+use primes::{is_prime_miller_rabin, ascii_art::*};
 use num_bigint::BigUint;
 use std::fs::File;
 use std::io::Write;

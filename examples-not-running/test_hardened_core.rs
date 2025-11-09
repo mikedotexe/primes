@@ -1,8 +1,8 @@
 //! Test the hardened core structs and safety validations
 
-use prime_physics_engine::{PrimeUniverse, PhysicsError};
-use prime_physics_engine::gravity::PrimeParticle;
-use prime_physics_engine::membrane::MembraneConfig;
+use primes::{PrimeUniverse, PhysicsError};
+use primes::gravity::PrimeParticle;
+use primes::membrane::MembraneConfig;
 use num_bigint::BigUint;
 use std::time::SystemTime;
 fn main() {
@@ -22,7 +22,7 @@ fn main() {
         membrane_config: None,
         creation_time: SystemTime::now(),
         trajectory_history: Vec::new(),
-        physics_cache: prime_physics_engine::gravity::PhysicsCache::default(),
+        physics_cache: primes::gravity::PhysicsCache::default(),
     };
     match universe.add_particle(bad_particle) {
         Err(PhysicsError::InvalidConfiguration(msg)) => {
@@ -63,10 +63,10 @@ fn main() {
     println!("\n🔒 Test 5: Miller-Rabin parameter validation");
     let test_num = BigUint::from(97u32);
     // Test with 0 rounds (should warn and use default)
-    let result_zero = prime_physics_engine::miller_rabin_test(&test_num, 0);
+    let result_zero = primes::miller_rabin_test(&test_num, 0);
     println!("   Miller-Rabin with 0 rounds: {} (should warn)", result_zero);
     // Test with excessive rounds (should warn and cap)
-    let result_excessive = prime_physics_engine::miller_rabin_test(&test_num, 200);
+    let result_excessive = primes::miller_rabin_test(&test_num, 200);
     println!("   Miller-Rabin with 200 rounds: {} (should warn)", result_excessive);
     // Test 6: Non-coprime configuration warning
     println!("\n🔒 Test 6: Non-coprime configuration warning");

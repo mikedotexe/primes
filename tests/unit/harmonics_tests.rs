@@ -5,10 +5,10 @@
 #[cfg(feature = "prime-harmonics")]
 mod harmonics_tests {
     use num_bigint::BigUint;
-    use prime_physics_engine::harmonics::{
+    use primes::harmonics::{
         find_dominant_frequencies, fourier_transform, power_spectrum, HarmonicAnalyzer,
     };
-    use prime_physics_engine::{is_prime, prime_sieve::BitSieve};
+    use primes::{is_prime, prime_sieve::BitSieve};
     use std::f64::consts::PI;
 
     /// Helper function to create a prime indicator sequence
@@ -144,7 +144,7 @@ mod harmonics_tests {
 
     #[test]
     fn test_membrane_prime_harmonics() {
-        use prime_physics_engine::membrane::construct_symmetric_membrane;
+        use primes::membrane::construct_symmetric_membrane;
 
         // Create a sequence of membrane-generated numbers
         let mut membrane_seq = vec![0.0; 200];
@@ -235,7 +235,7 @@ mod harmonics_tests {
 
     #[test]
     fn test_base_dependent_harmonics() {
-        use prime_physics_engine::membrane::construct_symmetric_membrane;
+        use primes::membrane::construct_symmetric_membrane;
 
         // Test harmonic profiles in different bases
         // Use coprime boundary digits for each base
@@ -295,7 +295,7 @@ mod harmonics_tests {
 mod harmonics_tests {
     #[test]
     fn test_harmonics_feature_disabled() {
-        use prime_physics_engine::harmonics::HarmonicAnalyzer;
+        use primes::harmonics::HarmonicAnalyzer;
 
         // When feature is disabled, analyzer should return empty results
         let analyzer = HarmonicAnalyzer::new(100);

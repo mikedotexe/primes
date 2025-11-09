@@ -2,7 +2,7 @@ use std::io;//! Visual Membrane Explorer - Interactive exploration with beautifu
 //! 
 //! Uses the ascii_art module to create stunning visualizations
 
-use prime_physics_engine::{
+use primes::{
     is_prime_miller_rabin,
     ascii_art::*,
 };

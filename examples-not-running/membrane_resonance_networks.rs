@@ -1,4 +1,4 @@
-use prime_physics_engine::{
+use primes::{
     miller_rabin_test,
 };
 use num_bigint::BigUint;

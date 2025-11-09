@@ -22,7 +22,7 @@ use std::{
     time::{Duration, Instant},
     fs::{OpenOptions, create_dir_all},
     io::Write,
-use prime_physics_engine::{
+use primes::{
     is_prime,
 use num_bigint::BigUint;
 // Achievement system based on statistical milestones

@@ -3,7 +3,7 @@
 //! Tests a hypothesis: even bases generate more primes than odd bases
 //! using membrane-like patterns.
 
-use prime_physics_engine::{is_prime_miller_rabin, ascii_art::*};
+use primes::{is_prime_miller_rabin, ascii_art::*};
 use num_bigint::BigUint;
 use num_traits::Num;
 use std::fs::File;

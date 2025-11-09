@@ -21,7 +21,7 @@ use std::{
     fs::{OpenOptions, create_dir_all},
     path::PathBuf,
     io::Write,
-use prime_physics_engine::{
+use primes::{
     is_prime,
 use num_bigint::BigUint;
 #[derive(Debug, Clone, Serialize, Deserialize)]

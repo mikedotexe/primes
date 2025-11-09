@@ -2,7 +2,7 @@
 //! 
 //! This demonstrates the client-side software for finding and submitting prime discoveries
 
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use num_bigint::BigUint;
 use std::str::FromStr;
 use std::time::{Instant, Duration};

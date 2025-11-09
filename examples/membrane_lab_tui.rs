@@ -9,7 +9,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use num_bigint::BigUint;
-use prime_physics_engine::{
+use primes::{
     is_prime,
     membrane::{MembraneBuilder, MembraneConfig},
 };

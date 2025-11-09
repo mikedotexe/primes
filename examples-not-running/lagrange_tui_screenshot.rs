@@ -13,7 +13,7 @@ use ratatui::{
 use std::io;
 
 // We'll need to duplicate some of the core structures here
-use prime_physics_engine::{
+use primes::{
     membrane::{MembraneConfig, MembraneBuilder},
     gravity::{PrimeParticle, GravitationalField, PhysicsCache},
     lagrange::{ClusterAnalysis, LagrangePoint},

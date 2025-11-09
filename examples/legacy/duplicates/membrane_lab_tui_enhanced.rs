@@ -18,7 +18,7 @@ use ratatui::{
 use std::{
     io,
     time::{Duration, Instant},
-use prime_physics_engine::{
+use primes::{
     is_prime,
 use num_bigint::BigUint;
 #[derive(Debug, Clone, Serialize, Deserialize)]

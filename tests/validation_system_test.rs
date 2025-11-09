@@ -1,6 +1,6 @@
 //! Integration test to verify the validation system works correctly with current structure
 
-use prime_physics_engine::{
+use primes::{
     membrane::{MembraneBuilder, MembraneConfig},
     validation::{
         exhaustive_tracker::ExhaustiveTracker,
@@ -82,7 +82,7 @@ fn test_exhaustive_tracker() {
         for middle in 0..10 {
             match config.construct_number(middle) {
                 Ok(num) => {
-                    let is_prime = prime_physics_engine::is_prime(&num);
+                    let is_prime = primes::is_prime(&num);
                     results.push((num, is_prime));
                 }
                 Err(_) => {} // Skip invalid
@@ -129,7 +129,7 @@ fn test_failure_analyzer() {
     let mut results = Vec::new();
     for middle in 0..10 {
         if let Ok(num) = bad_config.construct_number(middle) {
-            let is_prime = prime_physics_engine::is_prime(&num);
+            let is_prime = primes::is_prime(&num);
             results.push((num, is_prime));
         }
     }
@@ -192,7 +192,7 @@ fn test_multiple_configs_separately() {
 
             // Test with middle = 5
             if let Ok(num) = config.construct_number(5) {
-                if prime_physics_engine::is_prime(&num) {
+                if primes::is_prime(&num) {
                     total_primes += 1;
                     println!("Prime found: ({},{}) -> {}", outer, inner, num);
                 }
@@ -237,7 +237,7 @@ fn test_full_validation_pipeline() {
         let mut results = Vec::new();
         for middle in 0..10 {
             if let Ok(num) = config.construct_number(middle) {
-                let is_prime = prime_physics_engine::is_prime(&num);
+                let is_prime = primes::is_prime(&num);
                 results.push((num, is_prime));
             }
         }

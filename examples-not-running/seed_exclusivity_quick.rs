@@ -3,7 +3,7 @@
 //! 
 //! Focused exploration of the most interesting exclusive configurations
 
-use prime_physics_engine::membrane::MembraneConfig;
+use primes::membrane::MembraneConfig;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🔬 Quick Seed Exclusivity Discovery");
     println!("===================================\n");

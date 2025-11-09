@@ -1,7 +1,7 @@
 //! Benchmark the cache-aware prime sieve implementation
 //! This provides a baseline for GPU optimization comparisons
 
-use prime_physics_engine::prime_sieve::{BitSieve, warm_cache_with_primes};
+use primes::prime_sieve::{BitSieve, warm_cache_with_primes};
 use std::time::Instant;
 
 fn main() {
@@ -59,7 +59,7 @@ fn main() {
     let membrane_start = Instant::now();
     let mut membrane_primes = 0;
     
-    use prime_physics_engine::{MembraneConfig, MembraneBuilder, is_prime};
+    use primes::{MembraneConfig, MembraneBuilder, is_prime};
     let config = MembraneConfig::new(10, 3, 7, 0, 0);
     
     for seed in 1u8..=250 {

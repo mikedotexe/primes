@@ -32,7 +32,7 @@
 //! ## Quick Start
 //!
 //! ```rust
-//! use prime_physics_engine::{BitSieve, MembraneConfig};
+//! use primes::{BitSieve, MembraneConfig};
 //!
 //! // Basic prime generation
 //! let sieve = BitSieve::new(1000);
