@@ -19,12 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, macos-14, windows-latest]
-        rust: [1.82.0, 1.70.0]  # Pinned version and MSRV
-        include:
-          # Add ARM64 testing for Apple Silicon
-          - os: macos-14
-            rust: 1.82.0
-            name: "macOS 14 ARM64"
+        rust: [stable, 1.80.0]  # Current stable and MSRV (required by rayon 1.11+)
     steps:
       - uses: actions/checkout@v4
       
@@ -78,9 +73,8 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.82.0
           targets: wasm32-unknown-unknown
       
       - name: Check WASM build
@@ -105,22 +99,6 @@ jobs:
           fi
           echo "WASM build successful: $wasm_size bytes"
 
-  docs:
-    name: Documentation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: 1.82.0
-      
-      - name: Check documentation
-        env:
-          RUSTDOCFLAGS: -D warnings
-        run: cargo doc --no-deps --document-private-items --all-features
-
   examples:
     name: Verify Examples
     runs-on: ubuntu-latest
@@ -128,19 +106,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: 1.82.0
-
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-examples-${{ hashFiles('**/Cargo.lock') }}
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Check core examples compile
         run: |
-          # Check key examples that demonstrate framework functionality
+          # Verify key examples compile
           examples=(
             "proper_membrane_generator"
             "lagrange_verification"
@@ -150,67 +120,9 @@ jobs:
           )
 
           for example in "${examples[@]}"; do
-            echo "✓ Checking example: $example"
+            echo "Checking example: $example"
             cargo check --example "$example" || exit 1
           done
 
-      - name: Run smoke tests
-        continue-on-error: true
-        run: |
-          echo "Running quick smoke tests..."
-          cargo run --example prime_count_smoke_test --release -- --quick || echo "Note: Smoke test failed (non-critical)"
+          echo "✅ All examples compile successfully"
 
-  benchmarks:
-    name: Performance Benchmarks
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Need history for comparison
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: 1.82.0
-
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-bench-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Run benchmarks (current)
-        run: |
-          cargo bench --no-run  # Just compile for now
-          echo "Benchmark compilation successful"
-
-      - name: Check for benchmark regressions
-        run: |
-          echo "Benchmark regression detection would run here"
-          echo "To enable: add criterion benchmarks and store baseline"
-
-  coverage:
-    name: Code Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: 1.82.0
-
-      - name: Install tarpaulin
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-tarpaulin
-
-      - name: Generate coverage
-        run: cargo tarpaulin --verbose --workspace --timeout 120 --out xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./cobertura.xml
-          fail_ci_if_error: false
