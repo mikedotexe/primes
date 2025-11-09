@@ -5,6 +5,7 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering for testing
 
 env:
   CARGO_TERM_COLOR: always
@@ -92,8 +93,12 @@ jobs:
         run: |
           # Verify the WASM build produced output
           ls -la target/wasm32-unknown-unknown/debug/*.wasm
-          # Check file size is reasonable (not empty)
-          wasm_size=$(stat -f%z target/wasm32-unknown-unknown/debug/prime_physics_engine.wasm 2>/dev/null || stat -c%s target/wasm32-unknown-unknown/debug/prime_physics_engine.wasm)
+          # Check file size is reasonable (not empty) - use portable stat command
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+            wasm_size=$(stat -f%z target/wasm32-unknown-unknown/debug/prime_physics_engine.wasm)
+          else
+            wasm_size=$(stat -c%s target/wasm32-unknown-unknown/debug/prime_physics_engine.wasm)
+          fi
           if [ "$wasm_size" -lt 1000 ]; then
             echo "WASM file seems too small: $wasm_size bytes"
             exit 1
@@ -190,18 +195,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.82.0
-      
+
       - name: Install tarpaulin
-        run: cargo install cargo-tarpaulin
-        
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-tarpaulin
+
       - name: Generate coverage
         run: cargo tarpaulin --verbose --workspace --timeout 120 --out xml
-        
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
