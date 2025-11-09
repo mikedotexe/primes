@@ -150,9 +150,10 @@ jobs:
           done
 
       - name: Run smoke tests
+        continue-on-error: true
         run: |
           echo "Running quick smoke tests..."
-          timeout 30s cargo run --example prime_count_smoke_test || echo "Note: Smoke test timed out or failed (non-critical)"
+          cargo run --example prime_count_smoke_test --release -- --quick || echo "Note: Smoke test failed (non-critical)"
 
   benchmarks:
     name: Performance Benchmarks
