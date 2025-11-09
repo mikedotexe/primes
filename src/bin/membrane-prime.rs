@@ -4,7 +4,7 @@
 use chrono::Local;
 use clap::Parser;
 use num_bigint::BigUint;
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 use rayon::prelude::*;
 use std::fs::OpenOptions;
 use std::io::Write;

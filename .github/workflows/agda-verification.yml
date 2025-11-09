@@ -1,0 +1,183 @@
+name: Agda Formal Verification
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AGDA_VERSION: "2.8.0"
+  AGDA_STDLIB_VERSION: "v2.1"
+
+jobs:
+  # Tier 1: Core Abstract Framework (5-10 min)
+  verify-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Agda installation
+        id: cache-agda
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.agda
+            ~/.cabal
+            ~/.ghcup
+          key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+
+      - name: Install Agda
+        if: steps.cache-agda.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y agda
+          agda --version
+
+      - name: Setup Agda Standard Library
+        if: steps.cache-agda.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --branch ${{ env.AGDA_STDLIB_VERSION }} \
+            https://github.com/agda/agda-stdlib.git ~/.agda/agda-stdlib
+          mkdir -p ~/.agda
+          echo "$HOME/.agda/agda-stdlib/standard-library.agda-lib" > ~/.agda/libraries
+          echo "standard-library-2.1" > ~/.agda/defaults
+
+      - name: Register project library
+        run: |
+          echo "$(pwd)/agda-proofs/prime-physics-engine.agda-lib" >> ~/.agda/libraries
+
+      - name: Verify Core Abstract Framework
+        working-directory: agda-proofs
+        run: |
+          echo "🔬 Verifying core abstract framework (Layer 1)..."
+          set -e
+          agda --safe Theorems/Abstract/SymmetryImpliesRepulsion.agda
+          agda --safe Theorems/Abstract/SymmetryFromList.agda
+          agda --safe Theorems/Abstract/ConstrainedOrbitals.agda
+          agda --safe Theorems/Abstract/BucketsAutoMatch.agda
+          agda --safe Theorems/Abstract/WindowCertificate.agda
+          echo "✓ Core framework verified successfully!"
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agda-core-verification
+          path: agda-proofs/**/*.agdai
+
+  # Tier 2: Concrete Examples (depends on core)
+  verify-examples:
+    runs-on: ubuntu-latest
+    needs: verify-core
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore Agda cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.agda
+            ~/.cabal
+            ~/.ghcup
+          key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+
+      - name: Register project library
+        run: |
+          echo "$(pwd)/agda-proofs/prime-physics-engine.agda-lib" >> ~/.agda/libraries
+
+      - name: Verify Concrete Examples
+        working-directory: agda-proofs
+        run: |
+          echo "🎯 Verifying concrete examples..."
+          set -e
+          agda --safe Examples/CertifiedResonanceComplete.agda
+          agda --safe Examples/CertifiedResonanceParam.agda
+          agda --safe Examples/CertifiedResonanceParamDyn.agda
+          echo "✓ Examples verified - dual certification works!"
+
+  # Tier 3: Full Verification (comprehensive)
+  verify-all:
+    runs-on: ubuntu-latest
+    needs: verify-examples
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore Agda cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.agda
+            ~/.cabal
+            ~/.ghcup
+          key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+
+      - name: Register project library
+        run: |
+          echo "$(pwd)/agda-proofs/prime-physics-engine.agda-lib" >> ~/.agda/libraries
+
+      - name: Verify All Modules
+        working-directory: agda-proofs
+        run: |
+          echo "🔍 Discovering all Agda modules..."
+          find . -name "*.agda" -not -path "./Tests/*" | sort > /tmp/agda-modules.txt
+
+          total=$(wc -l < /tmp/agda-modules.txt)
+          echo "📊 Verifying $total modules..."
+
+          count=0
+          while read module; do
+            count=$((count + 1))
+            echo "[$count/$total] Checking $module..."
+            agda --safe "$module" || exit 1
+          done < /tmp/agda-modules.txt
+
+          echo "✅ Complete verification successful! All $total modules type-check."
+
+      - name: Generate HTML Documentation
+        working-directory: agda-proofs
+        run: |
+          echo "📚 Generating HTML documentation..."
+          agda --html Theorems/Abstract/WindowCertificate.agda
+          agda --html Examples/CertifiedResonanceComplete.agda
+
+      - name: Upload Proof Documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: agda-proofs-documentation
+          path: agda-proofs/html/
+
+  # Performance tracking
+  benchmark-verification:
+    runs-on: ubuntu-latest
+    needs: verify-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore Agda cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.agda
+            ~/.cabal
+            ~/.ghcup
+          key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
+
+      - name: Register project library
+        run: |
+          echo "$(pwd)/agda-proofs/prime-physics-engine.agda-lib" >> ~/.agda/libraries
+
+      - name: Benchmark Critical Proofs
+        working-directory: agda-proofs
+        run: |
+          echo "⏱ Benchmarking verification times..."
+
+          for module in \
+            Theorems/Abstract/SymmetryImpliesRepulsion.agda \
+            Theorems/Abstract/WindowCertificate.agda \
+            Examples/CertifiedResonanceComplete.agda; do
+
+            echo "Testing $module..."
+            /usr/bin/time -v agda --safe "$module" 2>&1 | grep "Elapsed"
+          done

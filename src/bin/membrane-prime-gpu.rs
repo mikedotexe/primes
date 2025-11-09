@@ -6,10 +6,10 @@ use num_bigint::BigUint;
 use std::time::Instant;
 
 #[cfg(feature = "metal")]
-use prime_physics_engine::{gpu::GpuSieve, is_prime_miller_rabin};
+use primes::{gpu::GpuSieve, is_prime_miller_rabin};
 
 #[cfg(not(feature = "metal"))]
-use prime_physics_engine::is_prime_miller_rabin;
+use primes::is_prime_miller_rabin;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about = "GPU-accelerated membrane prime generator")]

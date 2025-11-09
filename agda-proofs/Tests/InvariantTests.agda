@@ -9,11 +9,11 @@
 
 module Tests.InvariantTests where
 
-open import Agda.Builtin.Nat       using (Nat ; zero ; suc)
-open import Agda.Builtin.Equality  using (_≡_; refl)
-open import Agda.Builtin.Bool      using (Bool; true; false)
-open import Agda.Builtin.List      using (List; []; _∷_)
-open import Agda.Builtin.Unit      using (⊤ ; tt)
+open import Data.Nat       using (Nat ; zero ; suc)
+open import Relation.Binary.PropositionalEquality  using (_≡_; refl)
+open import Data.Bool      using (Bool; true; false)
+open import Data.List      using (List; []; _∷_)
+open import Data.Unit      using (⊤ ; tt)
 
 -- Import our theorem modules
 -- Note: In real Agda, these would be: open import Theorems.ConstrainedOrbitals

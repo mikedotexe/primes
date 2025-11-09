@@ -9,12 +9,12 @@
 
 module Complete.OrthogonalityFloat where
 
-open import Agda.Builtin.Nat       using (Nat; suc; zero)
-open import Agda.Builtin.Bool      using (Bool; true; false; if_then_else_)
+open import Data.Nat       using (Nat; suc; zero)
+open import Data.Bool      using (Bool; true; false; if_then_else_)
 open import Agda.Builtin.Int       using (Int)
 open import Agda.Builtin.Float     using (Float; primFloatLess; primFloatSqrt)
-open import Agda.Builtin.String    using (String; primStringAppend; primShowFloat; primShowNat)
-open import Agda.Builtin.Unit      using (⊤; tt)
+open import Data.String    using (String; primStringAppend; primShowFloat; primShowNat)
+open import Data.Unit      using (⊤; tt)
 open import IO                     using (IO; putStrLn)
 
 _++_ : String → String → String

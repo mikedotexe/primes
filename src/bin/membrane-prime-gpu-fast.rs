@@ -130,7 +130,7 @@ fn run_cpu_pipeline(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
 /// ------------------------------------------------------------------------
 #[cfg(feature = "metal")]
 fn run_gpu_pipeline(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
-    use prime_physics_engine::gpu::GpuSieve;
+    use primes::gpu::GpuSieve;
 
     // ------------ pre-compute membrane values (parallel CPU) -------------
     let pre_t0 = Instant::now();

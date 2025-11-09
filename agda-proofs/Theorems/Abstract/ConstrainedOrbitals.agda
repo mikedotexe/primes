@@ -10,9 +10,9 @@
 
 module Theorems.Abstract.ConstrainedOrbitals where
 
-open import Agda.Builtin.Nat      using (Nat ; zero ; suc)
-open import Agda.Builtin.Equality using (_≡_; refl)
-open import Agda.Builtin.Empty    using (⊥)
+open import Data.Nat      using (Nat ; zero ; suc)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+open import Data.Empty    using (⊥)
 
 ------------------------------------------------------------------------
 -- Lists

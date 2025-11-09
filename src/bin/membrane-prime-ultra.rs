@@ -163,7 +163,7 @@ fn run_cpu_ultra(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
 
 #[cfg(feature = "metal")]
 fn run_gpu_ultra(base: u32, l: u32, r: u32, count: usize) -> Vec<BigUint> {
-    use prime_physics_engine::gpu_optimized::GpuSieveOptimized;
+    use primes::gpu_optimized::GpuSieveOptimized;
 
     println!("\nGPU Pipeline Breakdown:");
     println!("{}", "-".repeat(40));
@@ -237,7 +237,7 @@ fn benchmark_improvements() {
         .filter(|&&n| {
             // Simple version
             let big = BigUint::from(n);
-            prime_physics_engine::is_prime_miller_rabin(&big)
+            primes::is_prime_miller_rabin(&big)
         })
         .count();
     let time1 = start.elapsed();

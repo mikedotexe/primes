@@ -2,7 +2,7 @@
 
 use clap::Parser;
 use num_bigint::BigUint;
-use prime_physics_engine::{is_prime_miller_rabin, nibble_pack, prime_lut};
+use primes::{is_prime_miller_rabin, nibble_pack, prime_lut};
 use rayon::prelude::*;
 use std::time::Instant;
 

@@ -13,10 +13,10 @@
 
 module Theorems.Abstract.SymmetryImpliesRepulsion where
 
-open import Agda.Builtin.Sigma     using (Σ; _,_; proj₁; proj₂)
-open import Agda.Builtin.Equality  using (_≡_; refl; sym; cong)
-open import Agda.Builtin.Unit      using (⊤; tt)
-open import Agda.Builtin.Empty     using (⊥)
+open import Data.Product     using (Σ; _,_; proj₁; proj₂)
+open import Relation.Binary.PropositionalEquality  using (_≡_; refl; sym; cong)
+open import Data.Unit      using (⊤; tt)
+open import Data.Empty     using (⊥)
 
 ------------------------------------------------------------------------
 -- Equality transitivity and negation

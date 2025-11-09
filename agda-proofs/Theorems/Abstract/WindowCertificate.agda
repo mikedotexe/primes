@@ -12,10 +12,10 @@
 
 module Theorems.Abstract.WindowCertificate where
 
-open import Agda.Builtin.Nat       using (Nat; zero; suc; _+_; _*_; _∸_)
-open import Agda.Builtin.Sigma     using (Σ; _,_; proj₁; proj₂)
-open import Agda.Builtin.Equality  using (_≡_; refl)
-open import Agda.Builtin.Empty     using (⊥)
+open import Data.Nat       using (Nat; zero; suc; _+_; _*_; _∸_)
+open import Data.Product     using (Σ; _,_; proj₁; proj₂)
+open import Relation.Binary.PropositionalEquality  using (_≡_; refl)
+open import Data.Empty     using (⊥)
 open import Data.Fin               using (Fin)
 
 -- Import complete framework
