@@ -51,6 +51,7 @@ jobs:
           set -e
           agda Theorems/Abstract/SymmetryImpliesRepulsion.agda
           agda Theorems/Abstract/SymmetryFromList.agda
+          agda Theorems/TotientDensity.agda
           # NOTE: Remaining files need additional fixes for Agda 2.8.0 + stdlib 2.3
           # agda Theorems/Abstract/ConstrainedOrbitals.agda
           # agda Theorems/Abstract/BucketsAutoMatch.agda
@@ -148,7 +149,8 @@ jobs:
           set -e
           agda Theorems/Abstract/SymmetryImpliesRepulsion.agda
           agda Theorems/Abstract/SymmetryFromList.agda
-          echo "✅ Core modules verified (2 working modules)"
+          agda Theorems/TotientDensity.agda
+          echo "✅ Core modules verified (3 working modules)"
           echo "NOTE: Additional modules need fixes for Agda 2.8.0 + stdlib 2.3 compatibility"
 
       - name: Generate HTML Documentation
@@ -157,6 +159,7 @@ jobs:
           echo "📚 Generating HTML documentation..."
           agda --html Theorems/Abstract/SymmetryImpliesRepulsion.agda
           agda --html Theorems/Abstract/SymmetryFromList.agda
+          agda --html Theorems/TotientDensity.agda
 
       - name: Upload Proof Documentation
         uses: actions/upload-artifact@v4
@@ -204,7 +207,8 @@ jobs:
 
           for module in \
             Theorems/Abstract/SymmetryImpliesRepulsion.agda \
-            Theorems/Abstract/SymmetryFromList.agda; do
+            Theorems/Abstract/SymmetryFromList.agda \
+            Theorems/TotientDensity.agda; do
 
             echo "Testing $module..."
             /usr/bin/time -v agda "$module" 2>&1 | grep "Elapsed"
