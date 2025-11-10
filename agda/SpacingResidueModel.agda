@@ -1,395 +1,322 @@
 {-# OPTIONS --safe #-}
 
 ------------------------------------------------------------------------
--- Spacing-Based Residue Model
+-- Spacing-Based Residue Model (DEFAULT CONSTRUCTION)
 --
--- ✓  SCOPE: This module formalizes the DEFAULT construction:
---            symmetric spacing with INDEPENDENT digit sampling
+-- ✓  SCOPE: Spacing-symmetric layouts with INDEPENDENT digit sampling
 --
--- Core insight: Spacing alone (exponent patterns in base expansion)
---               creates modular traps that shift with midpoint length
+-- Core insight: Exponent patterns in base expansion create modular
+-- traps that shift with template parameters (midpoint length, etc.)
 --
--- Key properties:
---   • Open slots sample digits independently (no mirroring)
---   • Layout is symmetric (midpoint + zero runs + slot widths)
---   • Residue distribution P(n ≡ r mod m) determined by:
---       - Positions (exponents) of open slots
---       - Allowed digits in each slot
---       - Base and modulus interaction
---
--- This is the mathematical foundation for the DP residue model
--- implemented in tools/density-explorer/src/main.rs
+-- Key distinction: This does NOT assume digit-value mirroring.
+-- Open slots sample digits independently → flexible filtering.
 ------------------------------------------------------------------------
 
 module SpacingResidueModel where
 
-open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _≤_; _%_)
+open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _∸_; _≟_; _≤_; _<_; _/_; _%_)
 open import Data.Nat.Properties as ℕₚ
-open import Data.List using (List; []; _∷_; length; foldr; map)
-open import Data.Vec using (Vec; []; _∷_)
-open import Data.Fin using (Fin)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym; trans)
-open import Data.Product using (Σ; Σ-syntax; _,_; proj₁; proj₂; _×_)
-open import Data.Rational using (ℚ; 0ℚ; 1ℚ; _+_; _*_; _/_)
-open import Data.Integer using (ℤ; +_)
+open import Data.Fin using (Fin; zero; suc; toℕ; fromℕ<)
+open import Data.Vec using (Vec; []; _∷_; length; tabulate; lookup; map; foldr)
+open import Data.Bool using (Bool; true; false; if_then_else_; not; _∧_; _∨_)
+open import Data.List using (List; []; _∷_; map; foldr; concatMap; filter; length) renaming (_++_ to _++ₗ_)
+open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; cong; sym; trans)
+open import Relation.Nullary using (Dec; yes; no; ¬_)
+open import Data.Product using (Σ; Σ-syntax; ∃; _,_; proj₁; proj₂; _×_)
+open import Data.Nat.Divisibility using (_∣_; divides)
+open import Data.Maybe using (Maybe; just; nothing)
+open import Data.Empty using (⊥)
+open import Function using (_∘_; id)
 
 ------------------------------------------------------------------------
--- Pattern specification (spacing-symmetric layout)
+-- Template: spacing-symmetric layout with independent slot sampling
 
--- Midpoint specification
-data MidpointSpec : Set where
-  Free  : ℕ → MidpointSpec  -- Free digits of given length
-  Zeros : ℕ → MidpointSpec  -- Fixed zeros of given length
-
--- Layer specification (symmetric around midpoint)
-record Layer : Set where
+record Template : Set where
   field
-    zeroCount : ℕ    -- Fixed zeros
-    slotCount : ℕ    -- Open slots (independently sampled)
+    base     : ℕ                          -- b ≥ 2 (assumed externally)
+    len      : ℕ                          -- total digit count
+    open?    : Fin len → Bool             -- which positions are open (vs fixed zero)
+    allow    : (i : Fin len) → List ℕ     -- allowed digits at each position
+    noLead0  : Bool                       -- if true, leading position forbids 0
+    lastSet  : Maybe (List ℕ)             -- optional last-digit constraint (coprimality)
 
--- Complete pattern (spacing-symmetric, no digit mirroring)
-record Pattern : Set where
+open Template public
+
+------------------------------------------------------------------------
+-- Helper: mirror index (for stating symmetry predicate)
+
+postulate
+  mirror : ∀ {n} → Fin (suc n) → Fin (suc n)
+  -- Semantics: toℕ (mirror i) = n ∸ toℕ i
+  -- Kept as postulate for now; Fin arithmetic is fiddly but computable
+
+------------------------------------------------------------------------
+-- Spacing-symmetric predicate (layout only, not values)
+
+SpacingSymmetric : ∀ {n} → (Fin n → Bool) → Set
+SpacingSymmetric {zero}  open? = ⊤
+  where open import Data.Unit using (⊤)
+SpacingSymmetric {suc n} open? = ∀ (i : Fin (suc n)) → open? i ≡ open? (mirror i)
+
+------------------------------------------------------------------------
+-- Non-degenerate template (at least one position has choice)
+
+NonDegenerate : Template → Set
+NonDegenerate T =
+  (base T ≥ 2) × (∃ λ i → 2 ≤ Data.List.length (allow T i))
+  where
+  open import Data.Nat.Properties using (_≤?_)
+
+------------------------------------------------------------------------
+-- Allowed digits at position i (respecting constraints)
+
+AllowedAt : (T : Template) → (i : Fin (len T)) → List ℕ
+AllowedAt T i with open? T i
+... | false = 0 ∷ []  -- Fixed zero
+... | true  = applyConstraints (allow T i) i
+  where
+  -- Helper: apply leading-zero and last-digit constraints
+  postulate
+    applyConstraints : List ℕ → Fin (len T) → List ℕ
+    -- Implementation sketch:
+    --   • If i = 0 and noLead0 T: filter (≢ 0)
+    --   • If i = len T - 1 and lastSet T ≢ nothing: intersect with lastSet
+    --   • Otherwise: identity
+
+------------------------------------------------------------------------
+-- Digit assignment respecting template
+
+DigitsRespect : (T : Template) → Vec ℕ (len T) → Set
+DigitsRespect T ds = ∀ (i : Fin (len T)) → lookup ds i ∈ₗ AllowedAt T i
+  where
+  postulate _∈ₗ_ : ℕ → List ℕ → Set
+
+------------------------------------------------------------------------
+-- Evaluation (MSB-first)
+
+eval : (b : ℕ) → ∀ {n} → Vec ℕ n → ℕ
+eval b {zero}  []       = 0
+eval b {suc n} (d ∷ ds) = d * b ^ n + eval b ds
+
+------------------------------------------------------------------------
+-- Modular weight at position i (exponent = len - 1 - i)
+
+weightAt : (b m : ℕ) → ∀ {n} → Fin n → ℕ
+weightAt b m {zero}  ()
+weightAt b m {suc n} i = (b ^ (n ∸ toℕ i)) % m
+
+------------------------------------------------------------------------
+-- Residue set computation via DP
+--
+-- Key idea: Start with {0}, then for each open position i:
+--   R' = { (r + d·wᵢ) mod m | r ∈ R, d ∈ AllowedAt i }
+--
+-- This computes exactly which residues are reachable.
+
+-- Single DP step: update residue set with one position
+stepResidue : (b m : ℕ) → ∀ {n} → Fin n → List ℕ → Template → List ℕ
+stepResidue b m {n} i currentRes T =
+  let w = weightAt b m i
+      allowed = AllowedAt T i
+  in removeDuplicates (concatMap (λ r → map (λ d → (r + d * w) % m) allowed) currentRes)
+  where
+  postulate removeDuplicates : List ℕ → List ℕ
+
+-- Full computation: fold over all positions
+Residues : (T : Template) → (m : ℕ) → List ℕ
+Residues T m =
+  let positions = allFins (len T)
+  in Data.List.foldr (stepResidue (base T) m) (0 ∷ []) positions
+  where
+  postulate allFins : (n : ℕ) → List (Fin n)
+
+------------------------------------------------------------------------
+-- Key correctness theorem: DP result ↔ actual divisibility
+
+postulate
+  zero-in-Residues↔exists-assignment
+    : ∀ (T : Template) (m : ℕ)
+    → (0 ∈ₗ Residues T m)
+    ↔ (∃ λ (ds : Vec ℕ (len T)) → DigitsRespect T ds × ((eval (base T) ds % m) ≡ 0))
+  where
+  postulate
+    _∈ₗ_ : ℕ → List ℕ → Set
+    _↔_ : Set → Set → Set
+
+-- This theorem states: The DP residue computation is correct.
+-- Proving this validates the Rust implementation (residue_null_probability).
+
+------------------------------------------------------------------------
+-- Probability of divisibility (if uniform sampling from allowed digits)
+
+P[n≡0] : (T : Template) → (m : ℕ) → ℚ
+P[n≡0] T m = if zeroPresent then (count0 / totalPaths) else 0ℚ
+  where
+  open import Data.Rational using (ℚ; 0ℚ; _/_)
+  postulate
+    zeroPresent : Bool
+    count0      : ℕ
+    totalPaths  : ℕ
+  -- Implementation sketch:
+  --   • Track probabilities instead of just residue membership
+  --   • dist[r] = probability that sum ≡ r (mod m)
+  --   • Update: dist'[r'] = Σ_{d ∈ allowed} (1/|allowed|) · dist[(r' - d·w) mod m]
+
+------------------------------------------------------------------------
+-- Contrast: Palindrome constraint vs spacing-only
+
+-- Extra constraint: force digit-value mirroring
+record MirrorConstraint (T : Template) : Set where
   field
-    base     : ℕ
-    midpoint : MidpointSpec
-    layers   : List Layer    -- Inner to outer
+    evenLen  : Even (len T)
+    mirrorEq : ∀ (ds : Vec ℕ (len T)) → DigitsRespect T ds
+             → ∀ (i : Fin (len T)) → lookup ds i ≡ lookup ds (mirror i)
+
+open import Data.Product using (∃-syntax)
+
+Even : ℕ → Set
+Even n = ∃ λ k → n ≡ 2 * k
+
+postulate
+  -- If we also demand value mirroring at even length → (b+1) trap
+  PalMirrorImpliesDivBPlus1
+    : ∀ (T : Template) → MirrorConstraint T
+    → ∀ (ds : Vec ℕ (len T)) → DigitsRespect T ds
+    → (base T + 1) ∣ eval (base T) ds
+
+  -- Spacing-only (no mirroring) CAN avoid (b+1) trap
+  SpacingOnlyCanAvoidBPlus1
+    : ∀ (T : Template)
+    → SpacingSymmetric (open? T)
+    → NonDegenerate T
+    → ∃ λ (ds : Vec ℕ (len T)) →
+        DigitsRespect T ds × ((eval (base T) ds % (base T + 1)) ≢ 0)
 
 ------------------------------------------------------------------------
--- Open slot specification
+-- Concrete counterexamples (computational witnesses)
 
--- Position (exponent) and allowed digits for one open slot
-record OpenSlot : Set where
-  field
-    exponent      : ℕ        -- Position in base expansion
-    allowedDigits : List ℕ   -- Digits that can appear here
-    isLeading     : Bool     -- True if this is leading position (no zero allowed)
-    isLastDigit   : Bool     -- True if this determines last digit (coprimality filter)
+-- Example 1: Base 10, spacing [0][0][0][d][0][0][0]
+-- Generated numbers: 1000, 2000, ..., 9000
+-- None divisible by 11 = 10+1
 
--- Extract all open slots from a pattern
--- This is the key data structure for the residue model
+example1-base10-template : Template
+example1-base10-template = record
+  { base = 10
+  ; len = 7
+  ; open? = λ i → toℕ i ≟ 3  -- Only position 3 is open
+  ; allow = λ i → if toℕ i ≟ 3 then (1 ∷ 2 ∷ 3 ∷ 4 ∷ 5 ∷ 6 ∷ 7 ∷ 8 ∷ 9 ∷ []) else []
+  ; noLead0 = true
+  ; lastSet = nothing
+  }
+
 postulate
-  extractOpenSlots : Pattern → List OpenSlot
+  example1-avoids-11
+    : ∀ (d : ℕ) → 1 ≤ d → d ≤ 9
+    → let n = d * (10 ^ 3)
+      in (n % 11) ≢ 0
+
+-- Example 2: Base 6, spacing [d₁][0][0][d₂]
+-- Palindrome (d₁=d₂): 1001₆ = 217 → 217 % 7 = 0 ✓
+-- Independent (d₁≠d₂): 1002₆ = 218 → 218 % 7 = 1 ✗
+
+example2-base6-template : Template
+example2-base6-template = record
+  { base = 6
+  ; len = 4
+  ; open? = λ i → (toℕ i ≟ 0) ∨ (toℕ i ≟ 3)
+  ; allow = λ i → if (toℕ i ≟ 0) ∨ (toℕ i ≟ 3)
+                  then (1 ∷ 2 ∷ 3 ∷ 4 ∷ 5 ∷ [])
+                  else []
+  ; noLead0 = true
+  ; lastSet = nothing
+  }
+
+postulate
+  example2-independent-avoids-7
+    : let n = 1 * 6^3 + 0 * 6^2 + 0 * 6^1 + 2 * 6^0  -- 1002₆ = 218
+      in (n % 7) ≢ 0
+
+  example2-palindrome-hits-7
+    : let n = 1 * 6^3 + 0 * 6^2 + 0 * 6^1 + 1 * 6^0  -- 1001₆ = 217
+      in (n % 7) ≡ 0
 
 ------------------------------------------------------------------------
--- Residue distribution via DP
-
--- Probability distribution over residues modulo m
-ResidueDistribution : ℕ → Set
-ResidueDistribution m = Vec ℚ m
-
--- Base case: start with all probability at residue 0
-initialDistribution : (m : ℕ) → ResidueDistribution m
-initialDistribution zero    = []
-initialDistribution (suc n) = 1ℚ ∷ (foldr (λ _ acc → 0ℚ ∷ acc) [] (replicate n 0))
-  where
-  open import Data.Vec using (replicate)
-
--- Update distribution by adding one open slot
--- For each current residue r with probability p:
---   For each allowed digit d:
---     Transfer probability p/|allowed| to residue (r + d·b^exp) mod m
-postulate
-  updateWithSlot
-    : ∀ {m} → ResidueDistribution m → OpenSlot → ℕ → ResidueDistribution m
-  -- Parameters: current distribution, slot spec, modulus
-  -- Returns: updated distribution after processing this slot
-
--- Fold over all slots to compute final distribution
-computeResidueDistribution
-  : Pattern → ℕ → ResidueDistribution
-computeResidueDistribution pattern modulus =
-    foldr (updateWithSlot modulus) (initialDistribution modulus) slots
-  where
-  slots = extractOpenSlots pattern
-  postulate updateWithSlot : ℕ → OpenSlot → ResidueDistribution modulus → ResidueDistribution modulus
-
--- Extract probability of being divisible by m
--- (probability that n ≡ 0 mod m)
-postulate
-  getProbabilityDivisible : ∀ {m} → ResidueDistribution (suc m) → ℚ
-  -- Returns: dist[0], the probability at residue 0
-
-------------------------------------------------------------------------
--- Key theorems about spacing-driven filtering
-
--- Theorem 1: Spacing can create non-uniform residue distributions
--- (even with uniform digit sampling)
-postulate
-  spacing-creates-bias
-    : ∀ (pattern : Pattern) (modulus : ℕ)
-    → (m≥2 : 2 ≤ modulus)
-    → let dist = computeResidueDistribution pattern modulus
-          p0   = getProbabilityDivisible dist
-          uniform = 1ℚ / (+ modulus)
-      in ¬ (p0 ≡ uniform)  -- Probability at 0 deviates from uniform
-
--- Theorem 2: GCD between base and modulus amplifies bias
--- When gcd(base, modulus) > 1, certain exponent patterns create "traps"
-postulate
-  gcd-amplifies-spacing-bias
-    : ∀ (base modulus : ℕ)
-    → (gcd : ℕ) → gcd ≡ ℕₚ.gcd base modulus
-    → gcd > 1
-    → ∃ λ (positions : List ℕ) →
-        ∃ λ (bias : ℚ) →
-          bias > 0ℚ ∧ bias ≠ 1ℚ / (+ modulus)
-
--- Theorem 3: Midpoint length shifts modular traps
--- Changing midpoint length changes exponent patterns, shifting residue bias
-postulate
-  midpoint-shifts-traps
-    : ∀ (pattern1 pattern2 : Pattern)
-    → (sameLayout : sameLayers pattern1 pattern2)
-    → (diffMidpoint : midpointLength pattern1 ≠ midpointLength pattern2)
-    → ∃ λ (modulus : ℕ) →
-        let dist1 = computeResidueDistribution pattern1 modulus
-            dist2 = computeResidueDistribution pattern2 modulus
-        in getProbabilityDivisible dist1 ≠ getProbabilityDivisible dist2
-  where
-  postulate
-    sameLayers      : Pattern → Pattern → Set
-    midpointLength  : Pattern → ℕ
-
--- Theorem 4: Independence preserves no (b+1) divisibility guarantee
--- Unlike palindromes, spacing-symmetric patterns with independent slots
--- do NOT automatically divide by (b+1)
-postulate
-  spacing-symmetric-not-universally-divisible
-    : ∀ (pattern : Pattern)
-    → (isSpacingSymmetric : IsSpacingSymmetric pattern)
-    → ¬ (∀ (digits : SampleFromPattern pattern) →
-           (Pattern.base pattern + 1) ∣ evalDigits pattern digits)
-  where
-  postulate
-    IsSpacingSymmetric : Pattern → Set
-    SampleFromPattern  : Pattern → Set
-    evalDigits         : (p : Pattern) → SampleFromPattern p → ℕ
-
-------------------------------------------------------------------------
--- Connection to local-factors baseline
-
--- The local-factors baseline uses the exact residue model:
---   density ≈ ∏_{p ∈ track} (1 - P(n ≡ 0 mod p)) / ln(x)
---
--- This is MORE accurate than conditional PNT when:
---   • Base has non-trivial factorization
---   • Spacing creates modular traps
---   • Midpoint length interacts with prime moduli
-
-postulate
-  local-factors-from-residue-model
-    : ∀ (pattern : Pattern) (trackedPrimes : List ℕ)
-    → ℚ  -- Predicted prime density
-    -- Implementation:
-    -- prod = ∏_{p ∈ tracked} (1 - getProbabilityDivisible (computeResidueDistribution pattern p))
-    -- density = prod / ln(length)
-
--- Correctness: local-factors baseline converges to true density
--- as we track more small primes
-postulate
-  local-factors-convergence
-    : ∀ (pattern : Pattern) (trackedPrimes : List ℕ)
-    → (allPrime : AllPrime trackedPrimes)
-    → (sorted : Sorted trackedPrimes)
-    → let predicted = local-factors-from-residue-model pattern trackedPrimes
-          observed  = empiricalDensity pattern  -- from sampling
-      in |predicted - observed| ≤ O(1 / sqrt(sampledCount))
-  where
-  postulate
-    AllPrime        : List ℕ → Set
-    Sorted          : List ℕ → Set
-    empiricalDensity : Pattern → ℚ
-    sampledCount    : ℕ
-    _-_             : ℚ → ℚ → ℚ
-    |_|             : ℚ → ℚ
-    O               : ℚ → ℚ
-    sqrt            : ℕ → ℚ
-
-------------------------------------------------------------------------
--- Example: Base 10, midpoint shifts mod-3 trap
-
--- In base 10, positions with exponent ≡ 0 mod 2 interact with mod-2 trap
--- Positions with exponent pattern affect mod-3 differently based on 10 ≡ 1 (mod 3)
-
-exampleBase10Mod3Shift : Set
-exampleBase10Mod3Shift =
-  let pattern1 = record {
-        base = 10 ;
-        midpoint = Free 3 ;  -- Odd midpoint length
-        layers = []
-      }
-      pattern2 = record {
-        base = 10 ;
-        midpoint = Free 4 ;  -- Even midpoint length
-        layers = []
-      }
-      dist1 = computeResidueDistribution pattern1 3
-      dist2 = computeResidueDistribution pattern2 3
-      p0₁   = getProbabilityDivisible dist1
-      p0₂   = getProbabilityDivisible dist2
-  in p0₁ ≠ p0₂  -- Different divisibility probabilities!
-
-------------------------------------------------------------------------
--- Concrete counterexamples: Spacing-symmetric ≠ Palindrome
-
--- Example 1: Base 10, spacing-symmetric but NOT divisible by 11
---
--- Pattern: 3 zeros, 1 free digit (midpoint), 3 zeros
--- Layout:  0 0 0 [d] 0 0 0  (spacing is symmetric)
---
--- Possible values: 0001000, 0002000, ..., 0009000
--- In base 10: 1000, 2000, ..., 9000
---
--- Check divisibility by (base+1) = 11:
---   1000 mod 11 = 10  ✗
---   2000 mod 11 = 9   ✗
---   3000 mod 11 = 8   ✗
---   ...
--- None are divisible by 11, even though layout is symmetric!
-
-counterexample1-base10-not-div-11 : Set
-counterexample1-base10-not-div-11 =
-  let pattern = record {
-        base = 10 ;
-        midpoint = Free 1 ;
-        layers = record { zeroCount = 3 ; slotCount = 0 } ∷ []
-      }
-      -- Generated number: d₀ × 10³ where d₀ ∈ {1..9}
-      -- For d₀=1: 1000 mod 11 = 10 ≠ 0
-  in ∃ λ (n : ℕ) →
-       (generatedBy pattern n) ∧ ¬((10 + 1) ∣ n)
-  where
-  postulate generatedBy : Pattern → ℕ → Set
-
--- Example 2: Base 6, spacing-symmetric with independent sampling
---
--- Pattern: [d₁] 0 0 [d₂] (spacing is symmetric: 1 slot, 2 zeros, 1 slot)
--- Palindrome would force d₂ = d₁
--- Spacing-symmetric allows d₁ ≠ d₂
---
--- Palindrome:  1001₆ = 217₁₀ = 7 × 31  (divisible by 7 = 6+1) ✓
--- Non-mirror:  1002₆ = 218₁₀ = 2 × 109 (NOT divisible by 7) ✗
---              2001₆ = 433₁₀ = prime   (NOT divisible by 7) ✗
---
--- Same spacing, different divisibility!
-
-counterexample2-base6-independence-breaks-div : Set
-counterexample2-base6-independence-breaks-div =
-  let pattern = record {
-        base = 6 ;
-        midpoint = Zeros 2 ;
-        layers = record { zeroCount = 0 ; slotCount = 1 } ∷ []
-      }
-      -- Layout: [d₁] 0 0 [d₂]
-      -- Palindrome: d₁ = d₂ → always divisible by 7
-      -- Independent: d₁ ≠ d₂ possible → NOT always divisible by 7
-      n1 = 1 * 6^3 + 0 * 6^2 + 0 * 6^1 + 2 * 6^0  -- 1002₆ = 218₁₀
-      n2 = 2 * 6^3 + 0 * 6^2 + 0 * 6^1 + 1 * 6^0  -- 2001₆ = 433₁₀
-  in (¬((6 + 1) ∣ n1)) ∧ (¬((6 + 1) ∣ n2))
-
--- Example 3: Explicit comparison - Palindrome vs Spacing-Symmetric
---
--- Base 10, length 6
--- Layout: [a][b][c] [c][b][a]  (3 open slots, symmetric positions)
---
--- PALINDROME construction:
---   Sample a,b,c independently
---   Mirror: rightmost 3 digits = reverse of leftmost 3
---   Result: always length-6 even palindrome
---   Property: ALWAYS divisible by 11 = (10+1) ✓
---   Example: 123321, 456654, 789987
---
--- SPACING-SYMMETRIC construction:
---   Sample all 6 digits independently
---   No mirroring enforced
---   Same layout (positions symmetric) but values independent
---   Property: NOT always divisible by 11 ✗
---   Counterexample: 123456 mod 11 = 3 ≠ 0
-
-comparison-palindrome-vs-spacing : Set
-comparison-palindrome-vs-spacing =
-  let layout = record {
-        base = 10 ;
-        midpoint = Zeros 0 ;  -- No midpoint
-        layers = record { zeroCount = 0 ; slotCount = 3 } ∷ []
-      }
-
-      -- Palindrome: 123321
-      palindrome = 1*10^5 + 2*10^4 + 3*10^3 + 3*10^2 + 2*10^1 + 1*10^0
-      -- Check: 123321 mod 11 = 0 ✓
-
-      -- Spacing-symmetric (independent): 123456
-      independent = 1*10^5 + 2*10^4 + 3*10^3 + 4*10^2 + 5*10^1 + 6*10^0
-      -- Check: 123456 mod 11 = 3 ✗
-
-  in ((10 + 1) ∣ palindrome) ∧ ¬((10 + 1) ∣ independent)
-
-------------------------------------------------------------------------
--- Visualization: Why spacing-symmetry ≠ palindrome
-
--- Palindrome divisibility proof relies on PAIRING symmetric digit VALUES:
---   d_i × b^i + d_j × b^j  where d_i = d_j (mirroring!)
---   = d_i × (b^i + b^j)
---   = d_i × b^i × (1 + b^(j-i))
---   When j-i is odd, (b+1) ∣ (1 + b^(j-i)) by factorization
---
--- Spacing-symmetric with independence breaks this:
---   d_i × b^i + d_j × b^j  where d_i ≠ d_j (independent!)
---   Cannot factor out common digit
---   No guaranteed divisibility by (b+1)
-
-postulate
-  palindrome-pairing-requires-equal-digits
-    : ∀ (base : ℕ) (i j : ℕ) (d_i d_j : ℕ)
-    → (odd-gap : Odd (j - i))
-    → (mirrored : d_i ≡ d_j)  -- PALINDROME property
-    → (base + 1) ∣ (d_i * base^i + d_j * base^j)
-
-  spacing-symmetric-independence-breaks-divisibility
-    : ∀ (base : ℕ) (i j : ℕ) (d_i d_j : ℕ)
-    → (symmetric-positions : i + j ≡ totalLen - 1)  -- Positions symmetric
-    → (independent : d_i ≠ d_j)  -- But values INDEPENDENT
-    → ¬ (∀ d_i d_j → (base + 1) ∣ (d_i * base^i + d_j * base^j))
-  where
-  postulate
-    totalLen : ℕ
-    Odd : ℕ → Set
-
-------------------------------------------------------------------------
--- Key insight: Spacing creates DIFFERENT filtering mechanism
-
--- Palindromes: Universal (b+1) divisibility wall → systematic filtering
--- Spacing-symmetric: Modular traps from exponent patterns → selective filtering
---
--- The spacing-based approach is MORE FLEXIBLE:
---   • Can avoid (b+1) trap entirely
---   • Can target specific moduli via exponent engineering
---   • Midpoint tuning shifts which primes are filtered
+-- Key insight: Flexible filtering via exponent engineering
 
 postulate
   spacing-offers-flexible-filtering
-    : ∀ (base : ℕ) (targetModulus : ℕ)
-    → ∃ λ (pattern : Pattern) →
-        let dist = computeResidueDistribution pattern targetModulus
-            p0   = getProbabilityDivisible dist
-        in (p0 > 1ℚ / (+ targetModulus))  -- Enhanced filtering for target
-           ∧ (pattern is not palindromic)  -- But avoids (b+1) wall
+    : ∀ (base targetModulus : ℕ)
+    → base ≥ 2
+    → targetModulus ≥ 2
+    → ∃ λ (T : Template) →
+        (SpacingSymmetric (open? T))
+        × (¬ MirrorConstraint T)  -- Not palindromic
+        × (P[n≡0] T targetModulus > P[n≡0]-uniform targetModulus)  -- Enhanced filtering
   where
-  postulate _is_not_palindromic : Pattern → Set
+  open import Data.Rational using (ℚ; _>_)
+  postulate
+    P[n≡0]-uniform : ℕ → ℚ
+    -- Uniform expectation: 1/m for modulus m
 
 ------------------------------------------------------------------------
--- Future work: Connect to empirical findings
+-- Midpoint-shift theorem: changing midpoint length shifts traps
 
--- These postulates should be proven or validated against:
+postulate
+  midpoint-length-shifts-traps
+    : ∀ (T1 T2 : Template)
+    → (sameBase : base T1 ≡ base T2)
+    → (sameOpenPattern : ∀ i j → relativePosition i (len T1) ≡ relativePosition j (len T2)
+                                → open? T1 i ≡ open? T2 j)
+    → (diffLength : len T1 ≢ len T2)
+    → ∃ λ m → P[n≡0] T1 m ≢ P[n≡0] T2 m
+  where
+  postulate
+    relativePosition : ∀ {n} → Fin n → ℕ → ℕ  -- Relative position in layout
+
+------------------------------------------------------------------------
+-- GCD amplification: gcd(base, m) > 1 creates stronger traps
+
+postulate
+  gcd-amplifies-spacing-bias
+    : ∀ (base modulus : ℕ)
+    → (g : ℕ) → g ≡ ℕₚ.gcd base modulus
+    → g > 1
+    → ∃ λ (exponentPattern : List ℕ) →
+        ∃ λ (bias : ℚ) →
+          (bias > 0ℚ) × (bias ≢ 1/modulus)
+  where
+  open import Data.Rational using (ℚ; 0ℚ; _>_; _≢_; _/_)
+  postulate _/_ : ℕ → ℕ → ℚ
+
+------------------------------------------------------------------------
+-- Connection to Rust implementation
+
+-- The functions in tools/density-explorer/src/main.rs implement:
 --
--- 1. Rust implementation in tools/density-explorer
---    • DP residue computation (residue_null_probability)
---    • Local-factors baseline (expected_density_local)
+--   • residue_null_probability(pattern, modulus)
+--       ↔ P[n≡0] (toTemplate pattern) modulus
 --
--- 2. Empirical data from grid sweeps
---    • Midpoint length vs prime density plots
---    • Observed vs predicted divisibility rates
+--   • expected_density_local(pattern, tracked_primes)
+--       = ∏_{p ∈ tracked} (1 - P[n≡0] pattern p) / ln(length)
 --
--- 3. GCD paradox data
---    • Higher gcd → better filtering (via stronger traps)
---    • Correlation between gcd and success rate
+-- The correctness theorem zero-in-Residues↔exists-assignment
+-- validates the DP implementation.
+--
+-- The counterexamples (example1, example2) correspond to:
+--   • base 10: midpoint=free:1, layers=3:0
+--   • base 6:  midpoint=zeros:2, layers=0:1
+
+------------------------------------------------------------------------
+-- Future work: Complete proofs
+
+-- To prove:
+--   1. zero-in-Residues↔exists-assignment (DP correctness)
+--   2. SpacingOnlyCanAvoidBPlus1 (explicit construction)
+--   3. midpoint-length-shifts-traps (exponent analysis)
+--   4. gcd-amplifies-spacing-bias (number theory)
+--
+-- To implement computationally:
+--   1. mirror function (Fin arithmetic)
+--   2. applyConstraints (filter/intersect logic)
+--   3. allFins (enumerate Fin n)
+--   4. P[n≡0] with probability tracking
