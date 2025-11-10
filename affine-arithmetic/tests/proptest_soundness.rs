@@ -8,16 +8,12 @@ use proptest::prelude::*;
 
 /// Strategy for generating valid intervals [lo, hi] where lo <= hi
 fn valid_interval() -> impl Strategy<Value = (f64, f64)> {
-    (-100.0_f64..100.0_f64).prop_flat_map(|lo| {
-        (Just(lo), lo..=100.0_f64)
-    })
+    (-100.0_f64..100.0_f64).prop_flat_map(|lo| (Just(lo), lo..=100.0_f64))
 }
 
 /// Strategy for positive intervals (for log domain)
 fn positive_interval() -> impl Strategy<Value = (f64, f64)> {
-    (0.01_f64..100.0_f64).prop_flat_map(|lo| {
-        (Just(lo), lo..=100.0_f64)
-    })
+    (0.01_f64..100.0_f64).prop_flat_map(|lo| (Just(lo), lo..=100.0_f64))
 }
 
 /// Helper: check if affine form's interval encloses [img_lo, img_hi]

@@ -39,6 +39,7 @@ use core::ops::{Add, AddAssign, Mul, Neg, Sub};
 
 /// Noise symbol identifier.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Sym(pub u32);
 
 /// Symbol allocation context.
@@ -48,7 +49,9 @@ pub struct Ctx {
     next: u32,
 }
 impl Ctx {
-    pub fn new() -> Self { Self { next: 0 } }
+    pub fn new() -> Self {
+        Self { next: 0 }
+    }
     /// Allocate a fresh noise symbol.
     pub fn fresh(&mut self) -> Sym {
         let id = self.next;
@@ -57,8 +60,23 @@ impl Ctx {
     }
 }
 
+/// Kahan summation for summing absolute values with better numerical stability.
+#[inline]
+fn sum_abs_kahan(xs: &[(Sym, f64)]) -> f64 {
+    let mut sum = 0.0f64;
+    let mut c = 0.0f64;
+    for &(_, v) in xs {
+        let y = v.abs() - c;
+        let t = sum + y;
+        c = (t - sum) - y;
+        sum = t;
+    }
+    sum
+}
+
 /// Affine form: a0 + Σ (coeff[sym] * ε_sym), ε ∈ [-1, 1].
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Affine {
     pub a0: f64,
     /// Sorted by Sym; duplicates forbidden (canonical form).
@@ -67,7 +85,12 @@ pub struct Affine {
 
 impl Affine {
     /// Constant.
-    pub fn cst(a0: f64) -> Self { Self { a0, terms: Vec::new() } }
+    pub fn cst(a0: f64) -> Self {
+        Self {
+            a0,
+            terms: Vec::new(),
+        }
+    }
 
     /// From interval [lo, hi] using a fresh noise symbol.
     pub fn from_interval(lo: f64, hi: f64, ctx: &mut Ctx) -> Self {
@@ -78,29 +101,44 @@ impl Affine {
             return Self::cst(m);
         }
         let s = ctx.fresh();
-        Self { a0: m, terms: vec![(s, r)] }
+        Self {
+            a0: m,
+            terms: vec![(s, r)],
+        }
     }
 
     /// Interval enclosure [a0 - Σ|ai|, a0 + Σ|ai|].
+    #[must_use]
+    #[inline]
     pub fn to_interval(&self) -> (f64, f64) {
         let r = self.radius_l1();
         (self.a0 - r, self.a0 + r)
     }
 
-    /// L1 radius Σ|ai|.
+    /// L1 radius Σ|ai| (with Kahan summation for numerical stability).
+    #[inline]
     pub fn radius_l1(&self) -> f64 {
-        let mut s = 0.0f64;
-        for &(_, ci) in &self.terms { s += ci.abs(); }
-        s
+        sum_abs_kahan(&self.terms)
+    }
+
+    /// Convert to inari Interval (when rigorous or hybrid features enabled).
+    #[cfg(any(feature = "rigorous", feature = "hybrid"))]
+    pub fn to_interval_inari(&self) -> inari::Interval {
+        use inari::Interval;
+        let (lo, hi) = self.to_interval();
+        Interval::new(lo, hi).unwrap()
     }
 
     /// Scale by a scalar.
+    #[inline]
     pub fn scale(mut self, k: f64) -> Self {
         self.a0 *= k;
         if k == 0.0 {
             self.terms.clear();
         } else {
-            for (_, c) in &mut self.terms { *c *= k; }
+            for (_, c) in &mut self.terms {
+                *c *= k;
+            }
         }
         self
     }
@@ -114,22 +152,36 @@ impl Affine {
 
         // Merge coefficients for shared symbols: z_i = a0*b_i + b0*a_i
         let mut zi: Vec<(Sym, f64)> = Vec::with_capacity(self.terms.len() + other.terms.len());
-        let mut i = 0usize; let mut j = 0usize;
+        let mut i = 0usize;
+        let mut j = 0usize;
         while i < self.terms.len() || j < other.terms.len() {
             match (self.terms.get(i), other.terms.get(j)) {
-                (Some(&(si, ai)), Some(&(sj, bj))) => {
-                    match si.cmp(&sj) {
-                        Ordering::Less => { zi.push((si, other.a0 * ai)); i += 1; }
-                        Ordering::Greater => { zi.push((sj, self.a0 * bj)); j += 1; }
-                        Ordering::Equal => {
-                            let coeff = other.a0 * ai + self.a0 * bj;
-                            if coeff != 0.0 { zi.push((si, coeff)); }
-                            i += 1; j += 1;
-                        }
+                (Some(&(si, ai)), Some(&(sj, bj))) => match si.cmp(&sj) {
+                    Ordering::Less => {
+                        zi.push((si, other.a0 * ai));
+                        i += 1;
                     }
+                    Ordering::Greater => {
+                        zi.push((sj, self.a0 * bj));
+                        j += 1;
+                    }
+                    Ordering::Equal => {
+                        let coeff = other.a0 * ai + self.a0 * bj;
+                        if coeff != 0.0 {
+                            zi.push((si, coeff));
+                        }
+                        i += 1;
+                        j += 1;
+                    }
+                },
+                (Some(&(si, ai)), None) => {
+                    zi.push((si, other.a0 * ai));
+                    i += 1;
                 }
-                (Some(&(si, ai)), None) => { zi.push((si, other.a0 * ai)); i += 1; }
-                (None, Some(&(sj, bj))) => { zi.push((sj, self.a0 * bj)); j += 1; }
+                (None, Some(&(sj, bj))) => {
+                    zi.push((sj, self.a0 * bj));
+                    j += 1;
+                }
                 (None, None) => break,
             }
         }
@@ -180,20 +232,36 @@ impl Add for Affine {
         self.a0 += rhs.a0;
         // Merge two sorted lists.
         let mut out: Vec<(Sym, f64)> = Vec::with_capacity(self.terms.len() + rhs.terms.len());
-        let mut i = 0usize; let mut j = 0usize;
+        let mut i = 0usize;
+        let mut j = 0usize;
         while i < self.terms.len() || j < rhs.terms.len() {
             match (self.terms.get(i), rhs.terms.get(j)) {
                 (Some(&(si, ai)), Some(&(sj, bj))) => match si.cmp(&sj) {
-                    Ordering::Less => { out.push((si, ai)); i += 1; }
-                    Ordering::Greater => { out.push((sj, bj)); j += 1; }
+                    Ordering::Less => {
+                        out.push((si, ai));
+                        i += 1;
+                    }
+                    Ordering::Greater => {
+                        out.push((sj, bj));
+                        j += 1;
+                    }
                     Ordering::Equal => {
                         let c = ai + bj;
-                        if c != 0.0 { out.push((si, c)); }
-                        i += 1; j += 1;
+                        if c != 0.0 {
+                            out.push((si, c));
+                        }
+                        i += 1;
+                        j += 1;
                     }
                 },
-                (Some(&(si, ai)), None) => { out.push((si, ai)); i += 1; }
-                (None, Some(&(sj, bj))) => { out.push((sj, bj)); j += 1; }
+                (Some(&(si, ai)), None) => {
+                    out.push((si, ai));
+                    i += 1;
+                }
+                (None, Some(&(sj, bj))) => {
+                    out.push((sj, bj));
+                    j += 1;
+                }
                 (None, None) => break,
             }
         }
@@ -203,26 +271,43 @@ impl Add for Affine {
 }
 impl Sub for Affine {
     type Output = Affine;
-    fn sub(self, rhs: Self) -> Self::Output { self + (-rhs) }
+    fn sub(self, rhs: Self) -> Self::Output {
+        self + (-rhs)
+    }
 }
 impl Neg for Affine {
     type Output = Affine;
     fn neg(mut self) -> Self::Output {
         self.a0 = -self.a0;
-        for (_, c) in &mut self.terms { *c = -*c; }
+        for (_, c) in &mut self.terms {
+            *c = -*c;
+        }
         self
     }
 }
 impl Mul<f64> for Affine {
     type Output = Affine;
-    fn mul(self, rhs: f64) -> Self::Output { self.scale(rhs) }
+    fn mul(self, rhs: f64) -> Self::Output {
+        self.scale(rhs)
+    }
 }
 impl AddAssign for Affine {
-    fn add_assign(&mut self, rhs: Self) { *self = self.clone() + rhs; }
+    fn add_assign(&mut self, rhs: Self) {
+        *self = self.clone() + rhs;
+    }
 }
 
-pub mod nonlinear;
+impl core::fmt::Display for Affine {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let (lo, hi) = self.to_interval();
+        write!(f, "{} ± {}", self.a0, (hi - lo) * 0.5)
+    }
+}
+
 pub mod condense;
+pub mod hybrid;
+pub mod nonlinear;
+pub mod prune;
 
 #[cfg(test)]
 mod tests {

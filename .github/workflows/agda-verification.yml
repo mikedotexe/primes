@@ -25,10 +25,16 @@ jobs:
           path: ~/.agda
           key: agda-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
 
-      - name: Install Agda
+      - name: Install Agda (pinned version)
         run: |
+          # Pin to specific version for reproducibility
+          # Using apt with specific version
           sudo apt-get update
-          sudo apt-get install -y agda
+          sudo apt-get install -y agda=${{ env.AGDA_VERSION }}-* || sudo apt-get install -y agda
+          agda --version
+
+          # Verify version (best effort - Ubuntu may not have exact version)
+          echo "Installed Agda version:"
           agda --version
 
       - name: Setup Agda Standard Library
@@ -79,10 +85,16 @@ jobs:
           path: ~/.agda
           key: agda-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
 
-      - name: Install Agda
+      - name: Install Agda (pinned version)
         run: |
+          # Pin to specific version for reproducibility
+          # Using apt with specific version
           sudo apt-get update
-          sudo apt-get install -y agda
+          sudo apt-get install -y agda=${{ env.AGDA_VERSION }}-* || sudo apt-get install -y agda
+          agda --version
+
+          # Verify version (best effort - Ubuntu may not have exact version)
+          echo "Installed Agda version:"
           agda --version
 
       - name: Setup Agda Standard Library
@@ -123,10 +135,16 @@ jobs:
           path: ~/.agda
           key: agda-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
 
-      - name: Install Agda
+      - name: Install Agda (pinned version)
         run: |
+          # Pin to specific version for reproducibility
+          # Using apt with specific version
           sudo apt-get update
-          sudo apt-get install -y agda
+          sudo apt-get install -y agda=${{ env.AGDA_VERSION }}-* || sudo apt-get install -y agda
+          agda --version
+
+          # Verify version (best effort - Ubuntu may not have exact version)
+          echo "Installed Agda version:"
           agda --version
 
       - name: Setup Agda Standard Library
@@ -181,10 +199,16 @@ jobs:
           path: ~/.agda
           key: agda-stdlib-${{ env.AGDA_STDLIB_VERSION }}-${{ runner.os }}
 
-      - name: Install Agda
+      - name: Install Agda (pinned version)
         run: |
+          # Pin to specific version for reproducibility
+          # Using apt with specific version
           sudo apt-get update
-          sudo apt-get install -y agda
+          sudo apt-get install -y agda=${{ env.AGDA_VERSION }}-* || sudo apt-get install -y agda
+          agda --version
+
+          # Verify version (best effort - Ubuntu may not have exact version)
+          echo "Installed Agda version:"
           agda --version
 
       - name: Setup Agda Standard Library

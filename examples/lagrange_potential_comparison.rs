@@ -15,7 +15,10 @@ fn phi_divisibility(
 
     // Count how many small primes divide N
     let small_primes = sieve_primes_up_to(prime_bound);
-    small_primes.iter().filter(|&p| &n % p == BigUint::zero()).count()
+    small_primes
+        .iter()
+        .filter(|&p| &n % p == BigUint::zero())
+        .count()
 }
 
 /// Framework 2: Modular Distance Field (L2 norm)
@@ -214,15 +217,32 @@ fn main() {
     println!("  P₁ = {}", p1);
     println!("  P₂ = {}", p2);
     println!("  Buffer = {} zeros", buffer);
-    println!("  Prime bound = {} (first {} primes)\n", prime_bound, sieve_primes_up_to(prime_bound).len());
+    println!(
+        "  Prime bound = {} (first {} primes)\n",
+        prime_bound,
+        sieve_primes_up_to(prime_bound).len()
+    );
 
-    println!("Baseline (all zeros): {}", construct_number(&p1, &p2, buffer, 0, 0));
-    println!("  → {}\n", if is_prime(&construct_number(&p1, &p2, buffer, 0, 0)) { "PRIME ✓" } else { "COMPOSITE ✗" });
+    println!(
+        "Baseline (all zeros): {}",
+        construct_number(&p1, &p2, buffer, 0, 0)
+    );
+    println!(
+        "  → {}\n",
+        if is_prime(&construct_number(&p1, &p2, buffer, 0, 0)) {
+            "PRIME ✓"
+        } else {
+            "COMPOSITE ✗"
+        }
+    );
 
     // Test all positions and digits
     let mut results = Vec::new();
 
-    println!("Computing potentials for all {} configurations...\n", buffer * 9);
+    println!(
+        "Computing potentials for all {} configurations...\n",
+        buffer * 9
+    );
 
     for pos in 0..buffer {
         for digit in 1..=9 {
@@ -280,8 +300,15 @@ fn main() {
     println!("  ✓ Criterion: φ_DIV = 0 (coprime to all small primes)");
     let div_zero: Vec<_> = results.iter().filter(|r| r.phi_div == 0).collect();
     println!("  → {} candidates with φ_DIV = 0", div_zero.len());
-    println!("  → {} are actually prime", div_zero.iter().filter(|r| r.is_prime).count());
-    println!("  → Precision: {:.1}%\n", 100.0 * div_zero.iter().filter(|r| r.is_prime).count() as f64 / div_zero.len().max(1) as f64);
+    println!(
+        "  → {} are actually prime",
+        div_zero.iter().filter(|r| r.is_prime).count()
+    );
+    println!(
+        "  → Precision: {:.1}%\n",
+        100.0 * div_zero.iter().filter(|r| r.is_prime).count() as f64
+            / div_zero.len().max(1) as f64
+    );
 
     println!("Framework 2: Modular Distance Field");
     println!("  ✓ Criterion: φ_MOD locally maximal");
@@ -292,8 +319,14 @@ fn main() {
     };
     let top10_mod: Vec<_> = mod_sorted.iter().take(10).collect();
     println!("  → Top 10 highest φ_MOD candidates");
-    println!("  → {} are actually prime", top10_mod.iter().filter(|r| r.is_prime).count());
-    println!("  → Precision: {:.1}%\n", 100.0 * top10_mod.iter().filter(|r| r.is_prime).count() as f64 / 10.0);
+    println!(
+        "  → {} are actually prime",
+        top10_mod.iter().filter(|r| r.is_prime).count()
+    );
+    println!(
+        "  → Precision: {:.1}%\n",
+        100.0 * top10_mod.iter().filter(|r| r.is_prime).count() as f64 / 10.0
+    );
 
     println!("Framework 3: Hardy-Littlewood Likelihood");
     println!("  ✓ Criterion: φ_HL locally minimal (highest probability)");
@@ -312,11 +345,24 @@ fn main() {
         });
         sorted
     };
-    let top10_hl: Vec<_> = hl_sorted.iter().take(10).filter(|r| !r.phi_hl.is_infinite()).collect();
+    let top10_hl: Vec<_> = hl_sorted
+        .iter()
+        .take(10)
+        .filter(|r| !r.phi_hl.is_infinite())
+        .collect();
     if !top10_hl.is_empty() {
-        println!("  → Top {} lowest φ_HL candidates (excluding ∞)", top10_hl.len());
-        println!("  → {} are actually prime", top10_hl.iter().filter(|r| r.is_prime).count());
-        println!("  → Precision: {:.1}%\n", 100.0 * top10_hl.iter().filter(|r| r.is_prime).count() as f64 / top10_hl.len() as f64);
+        println!(
+            "  → Top {} lowest φ_HL candidates (excluding ∞)",
+            top10_hl.len()
+        );
+        println!(
+            "  → {} are actually prime",
+            top10_hl.iter().filter(|r| r.is_prime).count()
+        );
+        println!(
+            "  → Precision: {:.1}%\n",
+            100.0 * top10_hl.iter().filter(|r| r.is_prime).count() as f64 / top10_hl.len() as f64
+        );
     }
 
     println!("Framework 4: Residue Variance");
@@ -328,8 +374,14 @@ fn main() {
     };
     let top10_var: Vec<_> = var_sorted.iter().take(10).collect();
     println!("  → Top 10 highest φ_VAR candidates");
-    println!("  → {} are actually prime", top10_var.iter().filter(|r| r.is_prime).count());
-    println!("  → Precision: {:.1}%\n", 100.0 * top10_var.iter().filter(|r| r.is_prime).count() as f64 / 10.0);
+    println!(
+        "  → {} are actually prime",
+        top10_var.iter().filter(|r| r.is_prime).count()
+    );
+    println!(
+        "  → Precision: {:.1}%\n",
+        100.0 * top10_var.iter().filter(|r| r.is_prime).count() as f64 / 10.0
+    );
 
     println!("Framework 5: Perturbation Gradient");
     println!("  ✓ Criterion: φ_GRAD moderate (boundary region)");
@@ -341,8 +393,15 @@ fn main() {
     let mid_range_grad: Vec<_> = grad_sorted.iter().skip(10).take(10).collect();
     if !mid_range_grad.is_empty() {
         println!("  → Middle 10 φ_GRAD candidates (boundary region)");
-        println!("  → {} are actually prime", mid_range_grad.iter().filter(|r| r.is_prime).count());
-        println!("  → Precision: {:.1}%\n", 100.0 * mid_range_grad.iter().filter(|r| r.is_prime).count() as f64 / mid_range_grad.len() as f64);
+        println!(
+            "  → {} are actually prime",
+            mid_range_grad.iter().filter(|r| r.is_prime).count()
+        );
+        println!(
+            "  → Precision: {:.1}%\n",
+            100.0 * mid_range_grad.iter().filter(|r| r.is_prime).count() as f64
+                / mid_range_grad.len() as f64
+        );
     }
 
     // Correlation analysis
@@ -352,12 +411,27 @@ fn main() {
 
     if !lagrange_points.is_empty() {
         println!("Average potentials at Lagrange points:");
-        let avg_div = lagrange_points.iter().map(|lp| lp.phi_div as f64).sum::<f64>() / lagrange_points.len() as f64;
-        let avg_mod = lagrange_points.iter().map(|lp| lp.phi_mod).sum::<f64>() / lagrange_points.len() as f64;
-        let avg_hl = lagrange_points.iter().filter(|lp| !lp.phi_hl.is_infinite()).map(|lp| lp.phi_hl).sum::<f64>()
-                     / lagrange_points.iter().filter(|lp| !lp.phi_hl.is_infinite()).count().max(1) as f64;
-        let avg_var = lagrange_points.iter().map(|lp| lp.phi_var).sum::<f64>() / lagrange_points.len() as f64;
-        let avg_grad = lagrange_points.iter().map(|lp| lp.phi_grad).sum::<f64>() / lagrange_points.len() as f64;
+        let avg_div = lagrange_points
+            .iter()
+            .map(|lp| lp.phi_div as f64)
+            .sum::<f64>()
+            / lagrange_points.len() as f64;
+        let avg_mod =
+            lagrange_points.iter().map(|lp| lp.phi_mod).sum::<f64>() / lagrange_points.len() as f64;
+        let avg_hl = lagrange_points
+            .iter()
+            .filter(|lp| !lp.phi_hl.is_infinite())
+            .map(|lp| lp.phi_hl)
+            .sum::<f64>()
+            / lagrange_points
+                .iter()
+                .filter(|lp| !lp.phi_hl.is_infinite())
+                .count()
+                .max(1) as f64;
+        let avg_var =
+            lagrange_points.iter().map(|lp| lp.phi_var).sum::<f64>() / lagrange_points.len() as f64;
+        let avg_grad = lagrange_points.iter().map(|lp| lp.phi_grad).sum::<f64>()
+            / lagrange_points.len() as f64;
 
         println!("  φ_DIV  = {:.2}", avg_div);
         println!("  φ_MOD  = {:.4}", avg_mod);
@@ -368,10 +442,14 @@ fn main() {
         println!("Average potentials at composites:");
         let composites: Vec<_> = results.iter().filter(|r| !r.is_prime).collect();
         if !composites.is_empty() {
-            let avg_div_comp = composites.iter().map(|c| c.phi_div as f64).sum::<f64>() / composites.len() as f64;
-            let avg_mod_comp = composites.iter().map(|c| c.phi_mod).sum::<f64>() / composites.len() as f64;
-            let avg_var_comp = composites.iter().map(|c| c.phi_var).sum::<f64>() / composites.len() as f64;
-            let avg_grad_comp = composites.iter().map(|c| c.phi_grad).sum::<f64>() / composites.len() as f64;
+            let avg_div_comp =
+                composites.iter().map(|c| c.phi_div as f64).sum::<f64>() / composites.len() as f64;
+            let avg_mod_comp =
+                composites.iter().map(|c| c.phi_mod).sum::<f64>() / composites.len() as f64;
+            let avg_var_comp =
+                composites.iter().map(|c| c.phi_var).sum::<f64>() / composites.len() as f64;
+            let avg_grad_comp =
+                composites.iter().map(|c| c.phi_grad).sum::<f64>() / composites.len() as f64;
 
             println!("  φ_DIV  = {:.2}", avg_div_comp);
             println!("  φ_MOD  = {:.4}", avg_mod_comp);

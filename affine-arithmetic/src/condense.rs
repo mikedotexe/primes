@@ -3,9 +3,12 @@ use crate::{Affine, Ctx, Sym};
 impl Affine {
     pub fn condense(&mut self, max_terms: usize, ctx: &mut Ctx) {
         assert!(max_terms >= 1, "max_terms must be >= 1");
-        if self.terms.len() <= max_terms { return; }
+        if self.terms.len() <= max_terms {
+            return;
+        }
 
-        let mut idx_abs: Vec<(usize, f64)> = self.terms
+        let mut idx_abs: Vec<(usize, f64)> = self
+            .terms
             .iter()
             .enumerate()
             .map(|(i, &(_, c))| (i, c.abs()))
@@ -48,7 +51,10 @@ mod tests {
     fn condense_reduces_terms_and_encloses() {
         let mut ctx = Ctx::new();
         // a0 = 0, terms: many small ones
-        let mut a = Affine { a0: 0.0, terms: Vec::new() };
+        let mut a = Affine {
+            a0: 0.0,
+            terms: Vec::new(),
+        };
         for _ in 0..20 {
             let s = ctx.fresh();
             a.terms.push((s, 0.01));
@@ -65,7 +71,10 @@ mod tests {
     #[test]
     fn condense_keeps_largest() {
         let mut ctx = Ctx::new();
-        let mut a = Affine { a0: 1.0, terms: Vec::new() };
+        let mut a = Affine {
+            a0: 1.0,
+            terms: Vec::new(),
+        };
         let s_big = ctx.fresh();
         a.terms.push((s_big, 0.5));
         for _ in 0..10 {

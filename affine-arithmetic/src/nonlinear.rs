@@ -4,31 +4,45 @@ const PI: f64 = core::f64::consts::PI;
 const TAU: f64 = core::f64::consts::PI * 2.0;
 
 fn range_contains(base: f64, period: f64, lo: f64, hi: f64) -> bool {
-    if hi < lo { return false; }
+    if hi < lo {
+        return false;
+    }
     let k_min = ((lo - base) / period).ceil();
     let k_max = ((hi - base) / period).floor();
     k_min <= k_max
 }
 
-fn range_sin(lo: f64, hi: f64) -> (f64, f64) {
-    if hi - lo >= TAU { return (-1.0, 1.0); }
+pub(crate) fn range_sin(lo: f64, hi: f64) -> (f64, f64) {
+    if hi - lo >= TAU {
+        return (-1.0, 1.0);
+    }
     let s_lo = lo.sin();
     let s_hi = hi.sin();
     let mut mn = s_lo.min(s_hi);
     let mut mx = s_lo.max(s_hi);
-    if range_contains(PI * 0.5, TAU, lo, hi) { mx = 1.0; }
-    if range_contains(PI * 1.5, TAU, lo, hi) { mn = -1.0; }
+    if range_contains(PI * 0.5, TAU, lo, hi) {
+        mx = 1.0;
+    }
+    if range_contains(PI * 1.5, TAU, lo, hi) {
+        mn = -1.0;
+    }
     (mn, mx)
 }
 
-fn range_cos(lo: f64, hi: f64) -> (f64, f64) {
-    if hi - lo >= TAU { return (-1.0, 1.0); }
+pub(crate) fn range_cos(lo: f64, hi: f64) -> (f64, f64) {
+    if hi - lo >= TAU {
+        return (-1.0, 1.0);
+    }
     let c_lo = lo.cos();
     let c_hi = hi.cos();
     let mut mn = c_lo.min(c_hi);
     let mut mx = c_lo.max(c_hi);
-    if range_contains(0.0, TAU, lo, hi) { mx = 1.0; }
-    if range_contains(PI, TAU, lo, hi) { mn = -1.0; }
+    if range_contains(0.0, TAU, lo, hi) {
+        mx = 1.0;
+    }
+    if range_contains(PI, TAU, lo, hi) {
+        mn = -1.0;
+    }
     (mn, mx)
 }
 
@@ -57,12 +71,7 @@ fn cheb_linear_map(
 
 impl Affine {
     pub fn exp_ctx(&self, ctx: &mut Ctx) -> Affine {
-        cheb_linear_map(
-            self,
-            ctx,
-            |x| x.exp(),
-            |lo, hi| (lo.exp(), hi.exp()),
-        )
+        cheb_linear_map(self, ctx, |x| x.exp(), |lo, hi| (lo.exp(), hi.exp()))
     }
 
     pub fn log_ctx(&self, ctx: &mut Ctx) -> Affine {
@@ -82,12 +91,7 @@ impl Affine {
     }
 
     pub fn sin_ctx(&self, ctx: &mut Ctx) -> Affine {
-        cheb_linear_map(
-            self,
-            ctx,
-            |x| x.sin(),
-            |lo, hi| range_cos(lo, hi),
-        )
+        cheb_linear_map(self, ctx, |x| x.sin(), |lo, hi| range_cos(lo, hi))
     }
 
     pub fn cos_ctx(&self, ctx: &mut Ctx) -> Affine {
@@ -109,12 +113,15 @@ impl Affine {
         let (lo, hi) = self.to_interval();
 
         // Check if interval crosses a discontinuity at π/2 + nπ
-        let k_min = ((lo - PI/2.0) / PI).ceil();
-        let k_max = ((hi - PI/2.0) / PI).floor();
+        let k_min = ((lo - PI / 2.0) / PI).ceil();
+        let k_max = ((hi - PI / 2.0) / PI).floor();
 
         if k_min <= k_max {
             // Interval crosses discontinuity - tan is unbounded
-            panic!("tan domain error: interval [{}, {}] crosses discontinuity", lo, hi);
+            panic!(
+                "tan domain error: interval [{}, {}] crosses discontinuity",
+                lo, hi
+            );
         }
 
         cheb_linear_map(
@@ -342,8 +349,12 @@ mod tests {
         let c_hi = hi.cos();
         let mut mn = c_lo.min(c_hi);
         let mut mx = c_lo.max(c_hi);
-        if (hi - lo) >= TAU || super::range_contains(0.0, TAU, lo, hi) { mx = 1.0; }
-        if (hi - lo) >= TAU || super::range_contains(PI, TAU, lo, hi) { mn = -1.0; }
+        if (hi - lo) >= TAU || super::range_contains(0.0, TAU, lo, hi) {
+            mx = 1.0;
+        }
+        if (hi - lo) >= TAU || super::range_contains(PI, TAU, lo, hi) {
+            mn = -1.0;
+        }
         assert!(encloses(mn, mx, &y));
     }
 

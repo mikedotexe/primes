@@ -32,7 +32,10 @@ fn demo_correlation_tracking() {
     println!("  Input: x ∈ [1.95, 2.05]");
     println!("  Computing: x - x");
     println!();
-    println!("  Naive IA:   [{:.2}, {:.2}]  ❌ (spurious uncertainty!)", lo_ia, hi_ia);
+    println!(
+        "  Naive IA:   [{:.2}, {:.2}]  ❌ (spurious uncertainty!)",
+        lo_ia, hi_ia
+    );
     println!("  AA result:  [{:.2}, {:.2}]  ✓  (exact!)", lo_aa, hi_aa);
     println!("  True value: 0.00\n");
 }
@@ -60,7 +63,10 @@ fn demo_multiplication() {
     println!("  True range:   [{:.4}, {:.4}]", truth_lo, truth_hi);
     println!("  AA enclosure: [{:.4}, {:.4}]", lo, hi);
     println!("  Width:        {:.4}", hi - lo);
-    println!("  Symbols used: {} (including remainder)", product.terms.len());
+    println!(
+        "  Symbols used: {} (including remainder)",
+        product.terms.len()
+    );
     println!();
 }
 
@@ -84,9 +90,9 @@ fn demo_polynomial() {
     // Naive IA expansion: each operation widens independently
     let x_ia_lo = 0.95;
     let x_ia_hi = 1.05;
-    let sum_ia_lo = x_ia_lo + 1.0;  // 1.95
-    let sum_ia_hi = x_ia_hi + 1.0;  // 2.05
-    // Naive squaring: [1.95, 2.05] × [1.95, 2.05]
+    let sum_ia_lo = x_ia_lo + 1.0; // 1.95
+    let sum_ia_hi = x_ia_hi + 1.0; // 2.05
+                                   // Naive squaring: [1.95, 2.05] × [1.95, 2.05]
     let naive_lo = sum_ia_lo * sum_ia_lo;
     let naive_hi = sum_ia_hi * sum_ia_hi;
 
@@ -94,8 +100,18 @@ fn demo_polynomial() {
     println!("  Computing: (x + 1)²");
     println!();
     println!("  True range:       [{:.4}, {:.4}]", truth_lo, truth_hi);
-    println!("  Naive IA:         [{:.4}, {:.4}]  (width: {:.4})", naive_lo, naive_hi, naive_hi - naive_lo);
-    println!("  AA enclosure:     [{:.4}, {:.4}]  (width: {:.4})", lo, hi, hi - lo);
+    println!(
+        "  Naive IA:         [{:.4}, {:.4}]  (width: {:.4})",
+        naive_lo,
+        naive_hi,
+        naive_hi - naive_lo
+    );
+    println!(
+        "  AA enclosure:     [{:.4}, {:.4}]  (width: {:.4})",
+        lo,
+        hi,
+        hi - lo
+    );
     println!();
 
     let improvement = ((naive_hi - naive_lo) - (hi - lo)) / (naive_hi - naive_lo) * 100.0;

@@ -9,8 +9,8 @@ fn main() {
     let mut ctx = Ctx::new();
 
     // Create uncertain values from intervals
-    let x = Affine::from_interval(1.9, 2.1, &mut ctx);  // x ∈ [1.9, 2.1]
-    let y = Affine::from_interval(2.9, 3.1, &mut ctx);  // y ∈ [2.9, 3.1]
+    let x = Affine::from_interval(1.9, 2.1, &mut ctx); // x ∈ [1.9, 2.1]
+    let y = Affine::from_interval(2.9, 3.1, &mut ctx); // y ∈ [2.9, 3.1]
 
     // Perform operations
     let sum = x.clone() + y.clone();

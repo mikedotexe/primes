@@ -21,8 +21,16 @@ fn print_comparison(name: &str, aa_width: f64, ia_width: f64) {
     let bars_ia = (ia_width * 50.0).round() as usize;
 
     println!("  {}", name);
-    println!("    AA: [width: {:.8}] {}", aa_width, "█".repeat(bars_aa.min(60)));
-    println!("    IA: [width: {:.8}] {}", ia_width, "█".repeat(bars_ia.min(60)));
+    println!(
+        "    AA: [width: {:.8}] {}",
+        aa_width,
+        "█".repeat(bars_aa.min(60))
+    );
+    println!(
+        "    IA: [width: {:.8}] {}",
+        ia_width,
+        "█".repeat(bars_ia.min(60))
+    );
     println!("    ⚡ AA is {:.1}× tighter than IA\n", ratio);
 }
 
@@ -238,7 +246,10 @@ fn demo_transcendental_composition() {
     println!("  Affine Arithmetic:");
     println!("    Composes: x → sin(x) → sin²(x) → exp(sin²(x))");
     println!("    Result: [{:.6}, {:.6}] ✓", aa_lo, aa_hi);
-    println!("    Maintains soundness through {} noise symbols", result.terms.len());
+    println!(
+        "    Maintains soundness through {} noise symbols",
+        result.terms.len()
+    );
     println!();
 
     println!("  💡 Insight: AA handles complex compositions while preserving rigor!");

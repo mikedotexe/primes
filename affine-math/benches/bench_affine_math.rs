@@ -1,10 +1,16 @@
 use affine_math::{Affine, Ctx};
-use criterion::{criterion_group, criterion_main, Criterion, black_box};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 fn bench_mul_ctx(c: &mut Criterion) {
     let mut ctx = Ctx::new();
-    let mut a = Affine { a0: 1.0, terms: Vec::new() };
-    let mut b = Affine { a0: 2.0, terms: Vec::new() };
+    let mut a = Affine {
+        a0: 1.0,
+        terms: Vec::new(),
+    };
+    let mut b = Affine {
+        a0: 2.0,
+        terms: Vec::new(),
+    };
     for _ in 0..64 {
         a.terms.push((ctx.fresh(), 0.01));
         b.terms.push((ctx.fresh(), 0.02));
@@ -23,8 +29,14 @@ fn bench_mul_ctx(c: &mut Criterion) {
 
 fn bench_mul_hybrid(c: &mut Criterion) {
     let mut ctx = Ctx::new();
-    let mut a = Affine { a0: 1.0, terms: Vec::new() };
-    let mut b = Affine { a0: 2.0, terms: Vec::new() };
+    let mut a = Affine {
+        a0: 1.0,
+        terms: Vec::new(),
+    };
+    let mut b = Affine {
+        a0: 2.0,
+        terms: Vec::new(),
+    };
     for _ in 0..64 {
         a.terms.push((ctx.fresh(), 0.01));
         b.terms.push((ctx.fresh(), 0.02));
@@ -58,7 +70,7 @@ fn bench_inari_ia(c: &mut Criterion) {
 }
 
 #[cfg(not(any(feature = "hybrid", feature = "rigorous")))]
-fn bench_inari_ia(_c: &mut Criterion) { }
+fn bench_inari_ia(_c: &mut Criterion) {}
 
 criterion_group!(benches, bench_mul_ctx, bench_mul_hybrid, bench_inari_ia);
 criterion_main!(benches);

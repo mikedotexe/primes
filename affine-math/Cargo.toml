@@ -3,22 +3,14 @@ name = "affine-math"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-description = "Affine arithmetic core with optional rigorous backing via inari"
+description = "Thin re-export wrapper for affine-arithmetic (for backward compatibility)"
 repository = "https://github.com/mikedotexe/primes"
 
 [features]
-default = ["std"]
-std = []
-rigorous = ["inari"]   # uses inari for outward-rounded interval ops (rho & hybrid)
-hybrid = ["inari"]     # enables inari-backed hybrid fallbacks (optional)
+default = ["affine-arithmetic/default"]
+std = ["affine-arithmetic/std"]
+rigorous = ["affine-arithmetic/rigorous"]
+hybrid = ["affine-arithmetic/hybrid"]
 
 [dependencies]
-inari = { version = "1.0", optional = true }
-
-[dev-dependencies]
-proptest = "1"
-criterion = { version = "0.5", default-features = false, features = ["cargo_bench_support"] }
-
-[[bench]]
-name = "bench_affine_math"
-harness = false
+affine-arithmetic = { version = "0.1.0", path = "../affine-arithmetic" }
