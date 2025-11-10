@@ -102,6 +102,118 @@ impl Affine {
             },
         )
     }
+
+    pub fn tan_ctx(&self, ctx: &mut Ctx) -> Affine {
+        // tan' = sec² = 1 + tan²
+        // For derivative range, compute tan at endpoints and extrema
+        let (lo, hi) = self.to_interval();
+
+        // Check if interval crosses a discontinuity at π/2 + nπ
+        let k_min = ((lo - PI/2.0) / PI).ceil();
+        let k_max = ((hi - PI/2.0) / PI).floor();
+
+        if k_min <= k_max {
+            // Interval crosses discontinuity - tan is unbounded
+            panic!("tan domain error: interval [{}, {}] crosses discontinuity", lo, hi);
+        }
+
+        cheb_linear_map(
+            self,
+            ctx,
+            |x| x.tan(),
+            |lo, hi| {
+                // Derivative sec²(x) = 1 + tan²(x)
+                let sec2_lo = 1.0 + lo.tan().powi(2);
+                let sec2_hi = 1.0 + hi.tan().powi(2);
+                (sec2_lo.min(sec2_hi), sec2_lo.max(sec2_hi))
+            },
+        )
+    }
+
+    pub fn atan_ctx(&self, ctx: &mut Ctx) -> Affine {
+        // atan' = 1/(1 + x²), always positive, decreasing in |x|
+        cheb_linear_map(
+            self,
+            ctx,
+            |x| x.atan(),
+            |lo, hi| {
+                // Derivative 1/(1+x²) is monotone decreasing in |x|
+                let d_lo = 1.0 / (1.0 + lo * lo);
+                let d_hi = 1.0 / (1.0 + hi * hi);
+                // Find min/max considering 0 might be in interval
+                let dmin = d_lo.min(d_hi);
+                let dmax = if lo <= 0.0 && hi >= 0.0 {
+                    1.0 // Maximum at x=0
+                } else {
+                    d_lo.max(d_hi)
+                };
+                (dmin, dmax)
+            },
+        )
+    }
+
+    pub fn sinh_ctx(&self, ctx: &mut Ctx) -> Affine {
+        // sinh(x) = (exp(x) - exp(-x))/2
+        // sinh'(x) = cosh(x) = (exp(x) + exp(-x))/2
+        cheb_linear_map(
+            self,
+            ctx,
+            |x| x.sinh(),
+            |lo, hi| {
+                // cosh is always positive, minimum at x=0
+                let cosh_lo = lo.cosh();
+                let cosh_hi = hi.cosh();
+                let mut dmin = cosh_lo.min(cosh_hi);
+                let dmax = cosh_lo.max(cosh_hi);
+                if lo <= 0.0 && hi >= 0.0 {
+                    dmin = 1.0; // cosh(0) = 1
+                }
+                (dmin, dmax)
+            },
+        )
+    }
+
+    pub fn cosh_ctx(&self, ctx: &mut Ctx) -> Affine {
+        // cosh'(x) = sinh(x)
+        cheb_linear_map(
+            self,
+            ctx,
+            |x| x.cosh(),
+            |lo, hi| {
+                // sinh is monotonic, ranges from sinh(lo) to sinh(hi)
+                let sinh_lo = lo.sinh();
+                let sinh_hi = hi.sinh();
+                (sinh_lo.min(sinh_hi), sinh_lo.max(sinh_hi))
+            },
+        )
+    }
+
+    pub fn tanh_ctx(&self, ctx: &mut Ctx) -> Affine {
+        // tanh'(x) = sech²(x) = 1 - tanh²(x)
+        cheb_linear_map(
+            self,
+            ctx,
+            |x| x.tanh(),
+            |lo, hi| {
+                // sech² is maximum at x=0, decreasing away from 0
+                let sech2_lo = {
+                    let th = lo.tanh();
+                    1.0 - th * th
+                };
+                let sech2_hi = {
+                    let th = hi.tanh();
+                    1.0 - th * th
+                };
+                let dmin = sech2_lo.min(sech2_hi);
+                let dmax = if lo <= 0.0 && hi >= 0.0 {
+                    1.0 // Maximum at x=0
+                } else {
+                    sech2_lo.max(sech2_hi)
+                };
+                (dmin, dmax)
+            },
+        )
+    }
 }
 
 #[cfg(test)]
@@ -182,5 +294,75 @@ mod tests {
         let mut ctx = Ctx::new();
         let x = Affine::from_interval(-1.0, 0.5, &mut ctx);
         let _y = x.log_ctx(&mut ctx); // Should panic
+    }
+
+    #[test]
+    fn tan_encloses() {
+        let mut ctx = Ctx::new();
+        // Small interval away from discontinuities
+        let x = Affine::from_interval(0.3, 0.5, &mut ctx);
+        let y = x.tan_ctx(&mut ctx);
+        let (lo, hi) = x.to_interval();
+        let truth_lo = lo.tan().min(hi.tan());
+        let truth_hi = lo.tan().max(hi.tan());
+        assert!(encloses(truth_lo, truth_hi, &y));
+    }
+
+    #[test]
+    #[should_panic(expected = "tan domain error")]
+    fn tan_panics_on_discontinuity() {
+        let mut ctx = Ctx::new();
+        // Interval crosses π/2
+        let x = Affine::from_interval(1.0, 2.0, &mut ctx);
+        let _y = x.tan_ctx(&mut ctx); // Should panic
+    }
+
+    #[test]
+    fn atan_encloses() {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(-2.0, 3.0, &mut ctx);
+        let y = x.atan_ctx(&mut ctx);
+        let (lo, hi) = x.to_interval();
+        let truth_lo = lo.atan().min(hi.atan());
+        let truth_hi = lo.atan().max(hi.atan());
+        assert!(encloses(truth_lo, truth_hi, &y));
+    }
+
+    #[test]
+    fn sinh_encloses() {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(-1.0, 1.5, &mut ctx);
+        let y = x.sinh_ctx(&mut ctx);
+        let (lo, hi) = x.to_interval();
+        let truth_lo = lo.sinh().min(hi.sinh());
+        let truth_hi = lo.sinh().max(hi.sinh());
+        assert!(encloses(truth_lo, truth_hi, &y));
+    }
+
+    #[test]
+    fn cosh_encloses() {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(-0.5, 1.0, &mut ctx);
+        let y = x.cosh_ctx(&mut ctx);
+        let (lo, hi) = x.to_interval();
+        // cosh has minimum at 0
+        let truth_lo = if lo <= 0.0 && hi >= 0.0 {
+            1.0
+        } else {
+            lo.cosh().min(hi.cosh())
+        };
+        let truth_hi = lo.cosh().max(hi.cosh());
+        assert!(encloses(truth_lo, truth_hi, &y));
+    }
+
+    #[test]
+    fn tanh_encloses() {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(-2.0, 2.0, &mut ctx);
+        let y = x.tanh_ctx(&mut ctx);
+        let (lo, hi) = x.to_interval();
+        let truth_lo = lo.tanh().min(hi.tanh());
+        let truth_hi = lo.tanh().max(hi.tanh());
+        assert!(encloses(truth_lo, truth_hi, &y));
     }
 }
