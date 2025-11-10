@@ -1,9 +1,7 @@
 //! Criterion benchmarks for prime sieve performance regression testing
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use primes::prime_sieve::{
-    segmented_sieve, sieve_count_and_time, warm_slc, BitSieve,
-};
+use primes::prime_sieve::{segmented_sieve, sieve_count_and_time, warm_slc, BitSieve};
 
 /// Benchmark basic sieve for various sizes
 fn bench_basic_sieve(c: &mut Criterion) {
