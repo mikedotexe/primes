@@ -23,7 +23,9 @@ fn positive_interval() -> impl Strategy<Value = (f64, f64)> {
 /// Helper: check if affine form's interval encloses [img_lo, img_hi]
 fn encloses(img_lo: f64, img_hi: f64, aff: &Affine) -> bool {
     let (alo, ahi) = aff.to_interval();
-    let epsilon = 1e-10;
+    // Use relative epsilon for large magnitudes, absolute for small
+    let magnitude = img_lo.abs().max(img_hi.abs()).max(1.0);
+    let epsilon = magnitude * 1e-10 + 1e-12;
     alo <= img_lo + epsilon && ahi + epsilon >= img_hi
 }
 
@@ -263,5 +265,59 @@ proptest! {
         let truth_hi = sin_hi.exp();
 
         prop_assert!(encloses(truth_lo, truth_hi, &y));
+    }
+
+    /// Property: sqrt preserves enclosures (positive intervals only)
+    #[test]
+    fn sqrt_preserves_enclosure((lo, hi) in (0.01_f64..100.0).prop_flat_map(|lo| (Just(lo), lo..=100.0))) {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(lo, hi, &mut ctx);
+        let y = x.sqrt_ctx(&mut ctx);
+
+        // Ground truth: sqrt is monotonic for x ≥ 0
+        let truth_lo = lo.sqrt();
+        let truth_hi = hi.sqrt();
+
+        prop_assert!(encloses(truth_lo, truth_hi, &y));
+    }
+
+    /// Property: powi preserves enclosures for various powers
+    #[test]
+    fn powi_preserves_enclosure((lo, hi) in valid_interval(), n in 0_i32..=5) {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(lo, hi, &mut ctx);
+        let y = x.powi_ctx(n, &mut ctx);
+
+        // Ground truth: compute pow at endpoints and find range
+        let vals = [lo.powi(n), hi.powi(n)];
+        let mut truth_lo = vals[0].min(vals[1]);
+        let truth_hi = vals[0].max(vals[1]);
+
+        // For even powers, check if interval contains 0 (minimum point)
+        if n % 2 == 0 && n > 0 && lo <= 0.0 && hi >= 0.0 {
+            truth_lo = 0.0;
+        }
+
+        prop_assert!(encloses(truth_lo, truth_hi, &y));
+    }
+
+    /// Property: powi binary exponentiation is efficient (smoke test)
+    #[test]
+    fn powi_efficiency_smoke((lo, hi) in (1.0_f64..2.0).prop_flat_map(|lo| (Just(lo), lo..=2.0))) {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(lo, hi, &mut ctx);
+
+        // High power should still work efficiently (binary exponentiation)
+        let y = x.powi_ctx(100, &mut ctx);
+
+        // Just verify it produces sound enclosures
+        let truth_lo = lo.powi(100);
+        let truth_hi = hi.powi(100);
+
+        prop_assert!(encloses(truth_lo, truth_hi, &y));
+
+        // Verify we didn't create too many symbols (should be ~log₂(100) ≈ 7 new symbols)
+        // Start with 1 symbol from x, binary exp adds ~log₂(n) symbols
+        prop_assert!(y.terms.len() < 20); // Conservative upper bound
     }
 }
