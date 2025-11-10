@@ -214,6 +214,65 @@ impl Affine {
             },
         )
     }
+
+    pub fn sqrt_ctx(&self, ctx: &mut Ctx) -> Affine {
+        // sqrt'(x) = 1/(2√x)
+        let (lo, _hi) = self.to_interval();
+        assert!(lo >= 0.0, "sqrt domain requires interval >= 0");
+
+        cheb_linear_map(
+            self,
+            ctx,
+            |x| x.sqrt(),
+            |lo, hi| {
+                assert!(lo >= 0.0, "sqrt' domain requires interval >= 0");
+                // Derivative 1/(2√x) is monotone decreasing for x > 0
+                let d_lo = 1.0 / (2.0 * lo.sqrt());
+                let d_hi = 1.0 / (2.0 * hi.sqrt());
+                // Handle the case where lo might be very close to 0
+                if lo < 1e-10 {
+                    // Near zero, derivative approaches infinity, so use conservative bound
+                    (d_hi, d_lo.min(1e6)) // Cap at 1e6 for numerical stability
+                } else {
+                    (d_hi, d_lo) // d_hi < d_lo since derivative is decreasing
+                }
+            },
+        )
+    }
+
+    pub fn powi_ctx(&self, n: i32, ctx: &mut Ctx) -> Affine {
+        // Efficient integer power using repeated multiplication
+        if n == 0 {
+            return Affine::cst(1.0);
+        }
+        if n == 1 {
+            return self.clone();
+        }
+        if n == -1 {
+            // Would need division - not implemented yet
+            panic!("Negative powers require division (not yet implemented)");
+        }
+        if n < 0 {
+            panic!("Negative powers require division (not yet implemented)");
+        }
+
+        // For positive n, use binary exponentiation
+        let mut result = Affine::cst(1.0);
+        let mut base = self.clone();
+        let mut exp = n as u32;
+
+        while exp > 0 {
+            if exp % 2 == 1 {
+                result = result.mul_ctx(&base, ctx);
+            }
+            if exp > 1 {
+                base = base.clone().mul_ctx(&base, ctx);
+            }
+            exp /= 2;
+        }
+
+        result
+    }
 }
 
 #[cfg(test)]
@@ -364,5 +423,61 @@ mod tests {
         let truth_lo = lo.tanh().min(hi.tanh());
         let truth_hi = lo.tanh().max(hi.tanh());
         assert!(encloses(truth_lo, truth_hi, &y));
+    }
+
+    #[test]
+    fn sqrt_encloses() {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(0.5, 2.0, &mut ctx);
+        let y = x.sqrt_ctx(&mut ctx);
+        let (lo, hi) = x.to_interval();
+        let truth_lo = lo.sqrt();
+        let truth_hi = hi.sqrt();
+        assert!(encloses(truth_lo, truth_hi, &y));
+    }
+
+    #[test]
+    #[should_panic(expected = "sqrt domain requires interval >= 0")]
+    fn sqrt_panics_on_negative() {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(-1.0, 0.5, &mut ctx);
+        let _y = x.sqrt_ctx(&mut ctx); // Should panic
+    }
+
+    #[test]
+    fn powi_encloses() {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(0.9, 1.1, &mut ctx);
+
+        // Test x²
+        let y2 = x.powi_ctx(2, &mut ctx);
+        let (lo, hi) = x.to_interval();
+        let truth_lo2 = lo.powi(2).min(hi.powi(2));
+        let truth_hi2 = lo.powi(2).max(hi.powi(2));
+        assert!(encloses(truth_lo2, truth_hi2, &y2));
+
+        // Test x³
+        let y3 = x.powi_ctx(3, &mut ctx);
+        let truth_lo3 = lo.powi(3).min(hi.powi(3));
+        let truth_hi3 = lo.powi(3).max(hi.powi(3));
+        assert!(encloses(truth_lo3, truth_hi3, &y3));
+    }
+
+    #[test]
+    fn powi_special_cases() {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(2.0, 3.0, &mut ctx);
+
+        // x^0 = 1
+        let y0 = x.powi_ctx(0, &mut ctx);
+        let (lo0, hi0) = y0.to_interval();
+        assert!((lo0 - 1.0).abs() < 1e-10);
+        assert!((hi0 - 1.0).abs() < 1e-10);
+
+        // x^1 = x
+        let y1 = x.powi_ctx(1, &mut ctx);
+        let (lo1, hi1) = y1.to_interval();
+        assert!((lo1 - 2.0).abs() < 1e-10);
+        assert!((hi1 - 3.0).abs() < 1e-10);
     }
 }
