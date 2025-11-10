@@ -180,20 +180,14 @@ fn test_prime_validation_accuracy() {
 
     for c in composites {
         let n = BigUint::from_str(c).unwrap();
-        assert!(
-            !primes::is_prime(&n),
-            "{} should be composite",
-            c
-        );
+        assert!(!primes::is_prime(&n), "{} should be composite", c);
     }
 }
 
 #[cfg(feature = "phase4")]
 #[test]
 fn test_phase4_integration() {
-    use primes::phase4::{
-        predict_sme_padded_safe, OnChipRL, PmuDoubleBuffer, PmuSnapshot,
-    };
+    use primes::phase4::{predict_sme_padded_safe, OnChipRL, PmuDoubleBuffer, PmuSnapshot};
 
     // Test neural network
     let input = [1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0];
