@@ -40,12 +40,22 @@ AA **remembers** that `x` and `y` are the same, preventing spurious uncertainty 
 
 ## Features
 
+**Core Capabilities:**
 - **Sound enclosures**: All operations rigorously contain the true value
 - **Correlation tracking**: Shared noise symbols preserve dependencies
 - **Contexted API**: Explicit symbol allocation (no globals, fully deterministic)
 - **Canonical form**: Sorted, merged symbols for efficient operations
-- **Optional rigorous mode**: IEEE-1788 compliant interval backend via `inari`
 - **no_std compatible**: Works in embedded/WASM environments
+
+**Nonlinear Functions (Phase 2):**
+- **exp, log**: Exponential and logarithm with Chebyshev approximations
+- **sin, cos**: Trigonometric functions handling full periodicity
+- **Symbol condensation**: Cap term growth while maintaining enclosures
+- **Composability**: Chain operations (e.g., exp(sin(x)))
+
+**Optional Rigorous Mode:**
+- IEEE-1788 compliant interval backend via `inari`
+- Outward-rounded remainder bounds for formal verification
 
 ## Operations
 
@@ -92,6 +102,34 @@ fn main() {
 
     // Expected: [1.95×2.9, 2.05×3.1] = [5.655, 6.355]
     // AA gives tighter bounds than naive IA when correlations exist!
+}
+```
+
+### Nonlinear Functions
+
+```rust
+use affine_arithmetic::{Affine, Ctx};
+
+fn main() {
+    let mut ctx = Ctx::new();
+
+    // Create input with uncertainty
+    let x = Affine::from_interval(0.95, 1.05, &mut ctx);  // ±5% around 1.0
+
+    // Apply nonlinear functions (all return new Affine with rigorous enclosures)
+    let y_exp = x.exp_ctx(&mut ctx);    // exp(x)
+    let y_log = x.log_ctx(&mut ctx);    // log(x)
+    let y_sin = x.sin_ctx(&mut ctx);    // sin(x)
+    let y_cos = x.cos_ctx(&mut ctx);    // cos(x)
+
+    // Compose operations: exp(sin(x))
+    let angle = Affine::from_interval(0.0, 0.5, &mut ctx);
+    let composed = angle.sin_ctx(&mut ctx).exp_ctx(&mut ctx);
+
+    // Symbol management: condense to cap growth
+    let mut many_terms = /* ... affine with 100 terms ... */;
+    many_terms.condense(10, &mut ctx);  // Keep 10 largest, merge rest
+    // Maintains enclosure while reducing complexity!
 }
 ```
 
@@ -168,13 +206,17 @@ Dual-licensed under MIT OR Apache-2.0.
 ## Contributing
 
 This crate is part of the [primes](https://github.com/mikedotexe/primes) research repository. Contributions focused on:
-- Additional nonlinear functions (exp, log, sin, cos, etc.)
-- Symbol condensation strategies
-- Performance optimizations
+- Additional nonlinear functions (tan, atan, sinh, cosh, etc.)
+- Advanced condensation strategies (e.g., L∞-norm, adaptive budgets)
+- Performance optimizations and benchmarks
 - Formal verification integration
+- Applications to prime number analysis
 
 are especially welcome!
 
 ---
 
-**Status**: Production-ready core (Phase 1). Nonlinear functions (Phase 2) planned.
+**Status**: ✅ Production-ready (Phase 2 complete)
+- **Phase 1**: Core arithmetic (+, -, ×, scalar ops) with rigorous enclosures
+- **Phase 2**: Nonlinear functions (exp, log, sin, cos) + symbol condensation ✓
+- **Next**: Performance benchmarks vs IA/Arb, additional transcendental functions

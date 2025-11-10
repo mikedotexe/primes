@@ -1,6 +1,12 @@
 //! Affine arithmetic core: sound first-order enclosures with explicit noise symbols.
-//! Ops implemented: +, -, scalar mul, and aa.mul(&mut Ctx) (needs a fresh noise symbol).
-//! Coeffs are f64; rounding errors are conservatively absorbed into the remainder term.
+//!
+//! Operations implemented:
+//! - Linear: +, -, scalar mul (no fresh symbols)
+//! - Multiplication: aa.mul_ctx(&mut Ctx) (requires fresh symbol for remainder)
+//! - Nonlinear: exp, log, sin, cos (Chebyshev linear approximations)
+//! - Symbol management: condense() to cap term growth
+//!
+//! Coeffs are f64; rounding errors are conservatively absorbed into remainder terms.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -64,19 +70,6 @@ impl Affine {
         let mut s = 0.0f64;
         for &(_, ci) in &self.terms { s += ci.abs(); }
         s
-    }
-
-    /// Add a term (merge by symbol), keeping canonical sorted form.
-    #[allow(dead_code)]
-    fn add_term(&mut self, sym: Sym, coeff: f64) {
-        if coeff == 0.0 { return; }
-        match self.terms.binary_search_by(|(s, _)| s.cmp(&sym)) {
-            Ok(idx) => {
-                let newc = self.terms[idx].1 + coeff;
-                if newc == 0.0 { self.terms.remove(idx); } else { self.terms[idx].1 = newc; }
-            }
-            Err(pos) => self.terms.insert(pos, (sym, coeff)),
-        }
     }
 
     /// Scale by a scalar.
@@ -206,6 +199,9 @@ impl AddAssign for Affine {
     fn add_assign(&mut self, rhs: Self) { *self = self.clone() + rhs; }
 }
 
+pub mod nonlinear;
+pub mod condense;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -221,15 +217,15 @@ mod tests {
     }
 
     #[test]
-    fn aa_vs_ia_encloses_product() {
+    fn aa_encloses_product() {
         let mut ctx = Ctx::new();
         let a = Affine::from_interval(1.95, 2.05, &mut ctx);
         let b = Affine::from_interval(2.9, 3.1, &mut ctx);
         let z = a.mul_ctx(&b, &mut ctx);
         let (zlo, zhi) = z.to_interval();
         // Ground truth by endpoint products:
-        let truth_lo = 1.95 * 2.9_f64.min(3.1);
-        let truth_hi = 2.05 * 3.1_f64.max(2.9);
+        let truth_lo = 1.95_f64.min(2.05) * 2.9_f64.min(3.1);
+        let truth_hi = 1.95_f64.max(2.05) * 2.9_f64.max(3.1);
         assert!(zlo <= truth_lo + 1e-12 && zhi >= truth_hi - 1e-12);
     }
 }
