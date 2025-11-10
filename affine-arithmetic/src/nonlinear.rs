@@ -175,4 +175,12 @@ mod tests {
         if (hi - lo) >= TAU || super::range_contains(PI, TAU, lo, hi) { mn = -1.0; }
         assert!(encloses(mn, mx, &y));
     }
+
+    #[test]
+    #[should_panic(expected = "log domain requires interval > 0")]
+    fn log_panics_on_nonpositive() {
+        let mut ctx = Ctx::new();
+        let x = Affine::from_interval(-1.0, 0.5, &mut ctx);
+        let _y = x.log_ctx(&mut ctx); // Should panic
+    }
 }

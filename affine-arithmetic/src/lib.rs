@@ -1,10 +1,32 @@
 //! Affine arithmetic core: sound first-order enclosures with explicit noise symbols.
 //!
-//! Operations implemented:
-//! - Linear: +, -, scalar mul (no fresh symbols)
-//! - Multiplication: aa.mul_ctx(&mut Ctx) (requires fresh symbol for remainder)
-//! - Nonlinear: exp, log, sin, cos (Chebyshev linear approximations)
-//! - Symbol management: condense() to cap term growth
+//! # Core Invariants
+//!
+//! An affine form `â = a₀ + Σᵢ aᵢ·εᵢ` where `εᵢ ∈ [-1, 1]` maintains:
+//!
+//! 1. **Canonical Form**: Terms are sorted by `Sym` in ascending order with no duplicates
+//! 2. **Sound Enclosure**: For any assignment of `εᵢ ∈ [-1, 1]`, the value is contained in `to_interval()`
+//! 3. **Correlation Tracking**: Shared `Sym` across multiple `Affine` preserves dependencies
+//! 4. **Conservative Rounding**: All floating-point errors are absorbed into remainder terms
+//!
+//! # Operations
+//!
+//! - **Linear** (+, -, scalar mul): Preserve exact correlations, no fresh symbols needed
+//! - **Multiplication** (`mul_ctx`): First-order approximation, requires fresh symbol for remainder ρ
+//! - **Nonlinear** (exp, log, sin, cos): Chebyshev linearization with rigorous remainder bounds
+//! - **Symbol management** (`condense`): Merge smallest coefficients to cap term growth
+//!
+//! # Semantics
+//!
+//! When `x` and `y` share noise symbols, operations like `x - y` exploit correlation:
+//!
+//! ```text
+//! x = 2.0 + 0.1·ε₀     (represents [1.9, 2.1])
+//! y = x.clone()        (shares ε₀)
+//! z = x - y = 0        (exact cancellation, not [-0.2, 0.2])
+//! ```
+//!
+//! This prevents the "dependency problem" in standard interval arithmetic.
 //!
 //! Coeffs are f64; rounding errors are conservatively absorbed into remainder terms.
 
