@@ -1,0 +1,17 @@
+[package]
+name = "affine-arithmetic"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Affine arithmetic (AA) core with optional rigorous backing via inari."
+
+[features]
+default = ["std"]
+std = []
+rigorous = ["inari"]
+
+[dependencies]
+# Only used when feature `rigorous` is enabled to compute outward-rounded bounds.
+inari = { version = "2.0", optional = true }
+
+[dev-dependencies]
