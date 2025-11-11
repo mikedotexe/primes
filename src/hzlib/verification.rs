@@ -1,4 +1,4 @@
-use super::JoinedGrid;
+use super::{JoinedGrid, ExplainMap};
 use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
@@ -19,7 +19,7 @@ pub struct VerifyRow {
 
 pub fn verify_to_csv<P: AsRef<Path>>(
     grid: &JoinedGrid,
-    explain_map: Option<&std::collections::HashMap<(usize,usize), Vec<(u32,f64)>>>,
+    explain_map: Option<&ExplainMap>,
     out_csv: P,
 ) -> io::Result<()> {
     if let Some(dir) = out_csv.as_ref().parent() { if !dir.exists() { fs::create_dir_all(dir)?; } }

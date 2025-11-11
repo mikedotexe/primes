@@ -8,6 +8,9 @@ use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 
+/// Map from (mid_len, inner_zero) to list of (modulus, probability) pairs
+pub type ExplainMap = HashMap<(usize, usize), Vec<(u32, f64)>>;
+
 #[derive(Clone, Debug)]
 pub struct Pair {
     pub base: u32,
@@ -220,7 +223,7 @@ pub fn enrichment(obs: f64, pred: f64) -> f64 {
 }
 
 /// Parse ExplainGrid JSON array (optional) and return a map (mid,iz) -> top (p, p0).
-pub fn load_explain_json<P: AsRef<Path>>(path: P) -> io::Result<HashMap<(usize,usize), Vec<(u32,f64)>>> {
+pub fn load_explain_json<P: AsRef<Path>>(path: P) -> io::Result<ExplainMap> {
     let f = File::open(path)?;
     let vals: serde_json::Value = serde_json::from_reader(f).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
     let mut out = HashMap::new();

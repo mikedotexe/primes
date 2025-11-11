@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::fs::{self, File};
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use primes::hzlib::{
     self, Axis, JoinedGrid, lineout, join_sample_and_model, load_explain_json,
@@ -109,14 +109,14 @@ impl From<AxisArg> for Axis {
 #[derive(Copy, Clone, Debug, ValueEnum)]
 enum Quantity { Obs, Pred, Enrichment }
 
-fn ensure_parent(path: &PathBuf) -> io::Result<()> {
+fn ensure_parent(path: &Path) -> io::Result<()> {
     if let Some(dir) = path.parent() {
         if !dir.exists() { fs::create_dir_all(dir)?; }
     }
     Ok(())
 }
 
-fn load_grid(sample: &PathBuf, model: &PathBuf) -> io::Result<JoinedGrid> {
+fn load_grid(sample: &Path, model: &Path) -> io::Result<JoinedGrid> {
     let s = hzlib::load_sample_csv(sample)?;
     let m = hzlib::load_model_csv(model)?;
     Ok(join_sample_and_model(&s, &m))
