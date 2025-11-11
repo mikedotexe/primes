@@ -306,6 +306,37 @@ fn main() {
     println!("║        Rigorous Testing of Prime Pattern Hypotheses       ║");
     println!("╚════════════════════════════════════════════════════════════╝");
     println!();
+
+    // Visual legend for interpreting results
+    println!("┌────────────────────────────────────────────────────────────┐");
+    println!("│                   VISUAL LEGEND                            │");
+    println!("├────────────────────────────────────────────────────────────┤");
+    println!("│  Symbols:                                                  │");
+    println!("│    ✓ = Hypothesis SUPPORTED (p<0.05 + effect>0.2)         │");
+    println!("│    ✗ = Hypothesis NOT SUPPORTED                           │");
+    println!("│    ★ = Statistical significance (p-value strength)         │");
+    println!("│    ● = Effect size magnitude                               │");
+    println!("│                                                            │");
+    println!("│  Bar Charts:                                               │");
+    println!("│    ████████ = High confidence (longer = stronger)          │");
+    println!("│    ░░░░░░░░ = Low confidence (empty space)                 │");
+    println!("│    ▓▓▓▓▓▓▓▓ = Effect magnitude (filled bars)               │");
+    println!("│                                                            │");
+    println!("│  Star Ratings (p-value):                                   │");
+    println!("│    ★★★ = p<0.001 (very strong evidence)                    │");
+    println!("│    ★★☆ = p<0.01  (strong evidence)                         │");
+    println!("│    ★☆☆ = p<0.05  (moderate evidence)                       │");
+    println!("│    ☆☆☆ = p<0.10  (weak evidence)                           │");
+    println!("│    --- = p≥0.10  (not significant)                         │");
+    println!("│                                                            │");
+    println!("│  Circle Ratings (effect size):                             │");
+    println!("│    ●●● = |effect|≥0.8 (large - very important!)            │");
+    println!("│    ●●○ = 0.5≤|effect|<0.8 (medium)                         │");
+    println!("│    ●○○ = 0.2≤|effect|<0.5 (small)                          │");
+    println!("│    ○○○ = |effect|<0.2 (negligible)                         │");
+    println!("└────────────────────────────────────────────────────────────┘");
+    println!();
+
     println!("This pipeline systematically tests our key hypotheses:");
     println!("  H1: Symmetry Breaking - Failures cluster non-randomly");
     println!("  H2: Harmonic Resonance - Overtones inherit patterns");
