@@ -16,6 +16,7 @@
 //! - `symmetry_breaking`: Seed-level failure pattern analysis (where patterns break)
 //! - `harmonic_overtones`: Harmonic resonance in multiples of successful bases
 //! - `harmonic_lagrange`: Lagrange point positions follow harmonic ratios
+//! - `verification`: Empirical verification pipeline for hypothesis testing
 
 pub mod crt_patterns;
 pub mod density;
@@ -26,6 +27,7 @@ pub mod orthogonality;
 pub mod sieve;
 pub mod stats;
 pub mod symmetry_breaking;
+pub mod verification;
 
 // Re-export commonly used types
 pub use crt_patterns::{is_double_prime_base, zero_pattern};
@@ -40,3 +42,7 @@ pub use orthogonality::{babylonian_score_60, pairs_index, pearson, singular_seri
 pub use sieve::{segmented_sieve, sieve_bool, sieve_primes, sieve_spf};
 pub use stats::{linreg, linreg_with_ci, permutation_pvalue, welch_t};
 pub use symmetry_breaking::{BreakingAccumulator, SymmetryBreaker};
+pub use verification::{
+    chi_squared_test, permutation_test_clustering, Hypothesis, VerificationResult,
+    VerificationSuite,
+};
