@@ -15,10 +15,12 @@
 //! - `orthogonality`: Babylonian-Prime divergence analysis (human vs nature math)
 //! - `symmetry_breaking`: Seed-level failure pattern analysis (where patterns break)
 //! - `harmonic_overtones`: Harmonic resonance in multiples of successful bases
+//! - `harmonic_lagrange`: Lagrange point positions follow harmonic ratios
 
 pub mod crt_patterns;
 pub mod density;
 pub mod hardy_littlewood;
+pub mod harmonic_lagrange;
 pub mod harmonic_overtones;
 pub mod orthogonality;
 pub mod sieve;
@@ -29,6 +31,10 @@ pub mod symmetry_breaking;
 pub use crt_patterns::{is_double_prime_base, zero_pattern};
 pub use density::{Band, BaseAccum};
 pub use hardy_littlewood::{count_pairs_for_n, singular_series_goldbach};
+pub use harmonic_lagrange::{
+    HarmonicComparator, HarmonicLagrangePair, LagrangePoint, PositionalAnalysis, GOLDEN_RATIO,
+    HARMONIC_RATIOS,
+};
 pub use harmonic_overtones::{ConfigurationHarmonic, HarmonicAccumulator, HarmonicSeries};
 pub use orthogonality::{babylonian_score_60, pairs_index, pearson, singular_series};
 pub use sieve::{segmented_sieve, sieve_bool, sieve_primes, sieve_spf};
