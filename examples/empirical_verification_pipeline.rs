@@ -400,7 +400,28 @@ fn main() {
     println!();
 
     // ========================================================================
-    // SUMMARY AND OUTPUT
+    // VISUAL SUMMARY DASHBOARD
+    // ========================================================================
+
+    println!("═══════════════════════════════════════════════════════════════");
+    println!("VISUAL SUMMARY DASHBOARD");
+    println!("═══════════════════════════════════════════════════════════════");
+    println!();
+
+    // Display support overview chart
+    println!("{}", suite.visual_support_chart());
+    println!();
+
+    // Display effect size comparison
+    println!("{}", suite.visual_effect_sizes());
+    println!();
+
+    // Display statistical strength matrix
+    println!("{}", suite.visual_strength_matrix());
+    println!();
+
+    // ========================================================================
+    // DETAILED SUMMARY
     // ========================================================================
 
     println!("═══════════════════════════════════════════════════════════════");

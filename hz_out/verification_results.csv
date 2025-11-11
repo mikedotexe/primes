@@ -1,6 +1,6 @@
 hypothesis_id,description,test_statistic,p_value,effect_size,supported,interpretation
 H1_symmetry_b6,Symmetry Breaking: Base 6 (1,5) k=(0,0) shows clustered failures,50.000000,0.000000,-0.960000,YES,✓ STRONG SUPPORT (p<0.001, effect=0.96)
-H1_symmetry_b10,Symmetry Breaking: Base 10 (3,7) k=(0,0) shows clustered failures,3.100000,0.861000,-0.411765,NO,✗ NOT SUPPORTED (p=0.861)
+H1_symmetry_b10,Symmetry Breaking: Base 10 (3,7) k=(0,0) shows clustered failures,3.100000,0.858000,-0.411765,NO,✗ NOT SUPPORTED (p=0.858)
 H2_resonance_f6,Harmonic Resonance: Base 6 (1,5) overtones show coherence,0.000000,0.500000,-0.500000,NO,✗ NOT SUPPORTED (p=0.500)
 H2_resonance_f5,Harmonic Resonance: Base 5 (1,4) overtones show coherence,0.000000,0.500000,-0.500000,NO,✗ NOT SUPPORTED (p=0.500)
 H3_lagrange_6_12,Lagrange Harmonic: Pair (6,12) clusters at harmonic positions,0.500000,0.001000,0.500000,YES,✓ MODERATE SUPPORT (p<0.01, effect=0.50)

@@ -327,6 +327,158 @@ impl VerificationSuite {
         csv
     }
 
+    /// Generate visual support bar chart
+    pub fn visual_support_chart(&self) -> String {
+        let mut chart = String::new();
+
+        chart.push_str("┌────────────────────────────────────────────────────────┐\n");
+        chart.push_str("│           HYPOTHESIS SUPPORT OVERVIEW                 │\n");
+        chart.push_str("├────────────────────────────────────────────────────────┤\n");
+
+        for result in &self.results {
+            // Hypothesis type indicator
+            let type_label = if result.hypothesis_id.starts_with("H1") {
+                "H1"
+            } else if result.hypothesis_id.starts_with("H2") {
+                "H2"
+            } else {
+                "H3"
+            };
+
+            // Visual bar based on p-value (lower = longer bar)
+            let bar_length = if result.p_value < 0.001 {
+                20
+            } else if result.p_value < 0.01 {
+                15
+            } else if result.p_value < 0.05 {
+                10
+            } else if result.p_value < 0.10 {
+                5
+            } else {
+                2
+            };
+
+            let bar: String = "█".repeat(bar_length);
+            let empty: String = "░".repeat(20 - bar_length);
+
+            // Status symbol
+            let symbol = if result.supported { "✓" } else { "✗" };
+
+            chart.push_str(&format!(
+                "│ {} [{}] {}{}  p={:.3} │\n",
+                symbol, type_label, bar, empty, result.p_value
+            ));
+        }
+
+        chart.push_str("└────────────────────────────────────────────────────────┘\n");
+        chart.push_str("  (Bar length = statistical strength, 1-p)\n");
+
+        chart
+    }
+
+    /// Generate effect size comparison chart
+    pub fn visual_effect_sizes(&self) -> String {
+        let mut chart = String::new();
+
+        chart.push_str("┌────────────────────────────────────────────────────────┐\n");
+        chart.push_str("│              EFFECT SIZE COMPARISON                    │\n");
+        chart.push_str("├────────────────────────────────────────────────────────┤\n");
+        chart.push_str("│  Hypothesis  │  Effect │ Magnitude                    │\n");
+        chart.push_str("├──────────────┼─────────┼──────────────────────────────┤\n");
+
+        for result in &self.results {
+            let type_label = if result.hypothesis_id.starts_with("H1") {
+                "H1"
+            } else if result.hypothesis_id.starts_with("H2") {
+                "H2"
+            } else {
+                "H3"
+            };
+
+            let abs_effect = result.effect_size.abs();
+
+            // Visual magnitude indicator
+            let bar_length = (abs_effect * 20.0).min(20.0) as usize;
+            let bar: String = "▓".repeat(bar_length);
+            let empty: String = "░".repeat(20 - bar_length);
+
+            // Magnitude label
+            let magnitude = if abs_effect >= 0.8 {
+                "LARGE   "
+            } else if abs_effect >= 0.5 {
+                "MEDIUM  "
+            } else if abs_effect >= 0.2 {
+                "SMALL   "
+            } else {
+                "NEGLIGIB"
+            };
+
+            chart.push_str(&format!(
+                "│      {}      │  {:+.3}  │ {}{} {} │\n",
+                type_label, result.effect_size, bar, empty, magnitude
+            ));
+        }
+
+        chart.push_str("└────────────────────────────────────────────────────────┘\n");
+        chart.push_str("  Effect size: >0.8=large, 0.5-0.8=medium, 0.2-0.5=small\n");
+
+        chart
+    }
+
+    /// Generate statistical strength heatmap
+    pub fn visual_strength_matrix(&self) -> String {
+        let mut matrix = String::new();
+
+        matrix.push_str("┌─────────────────────────────────────────────────────────┐\n");
+        matrix.push_str("│        STATISTICAL STRENGTH MATRIX                      │\n");
+        matrix.push_str("├─────────────────────────────────────────────────────────┤\n");
+        matrix.push_str("│              │ p-value │ Effect │ Overall │ Support    │\n");
+        matrix.push_str("├──────────────┼─────────┼────────┼─────────┼────────────┤\n");
+
+        for result in &self.results {
+            let short_id = &result.hypothesis_id[..result.hypothesis_id.len().min(12)];
+
+            // P-value strength (lower is better)
+            let p_symbol = if result.p_value < 0.001 {
+                "★★★"
+            } else if result.p_value < 0.01 {
+                "★★☆"
+            } else if result.p_value < 0.05 {
+                "★☆☆"
+            } else if result.p_value < 0.10 {
+                "☆☆☆"
+            } else {
+                "---"
+            };
+
+            // Effect size strength
+            let e_symbol = if result.effect_size.abs() >= 0.8 {
+                "●●●"
+            } else if result.effect_size.abs() >= 0.5 {
+                "●●○"
+            } else if result.effect_size.abs() >= 0.2 {
+                "●○○"
+            } else {
+                "○○○"
+            };
+
+            // Overall strength (both matter)
+            let overall = if result.supported { "✓✓✓" } else { "✗✗✗" };
+
+            let support_text = if result.supported { "YES" } else { "NO " };
+
+            matrix.push_str(&format!(
+                "│ {:12} │   {}   │  {}  │   {}   │     {}     │\n",
+                short_id, p_symbol, e_symbol, overall, support_text
+            ));
+        }
+
+        matrix.push_str("└─────────────────────────────────────────────────────────┘\n");
+        matrix.push_str("  ★=p-value strength, ●=effect size, ✓=supported\n");
+
+        matrix
+    }
+
     /// Generate summary report
     pub fn summary_report(&self) -> String {
         let mut report = String::new();
