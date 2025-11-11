@@ -36,8 +36,16 @@ fn main() {
     );
 
     println!("Input Measurements:");
-    println!("  Length L: {:.3} m (±{:.1}%)", length_nominal, length_error * 100.0);
-    println!("  Gravity g: {:.2} m/s² (±{:.1}%)", g_nominal, g_error * 100.0);
+    println!(
+        "  Length L: {:.3} m (±{:.1}%)",
+        length_nominal,
+        length_error * 100.0
+    );
+    println!(
+        "  Gravity g: {:.2} m/s² (±{:.1}%)",
+        g_nominal,
+        g_error * 100.0
+    );
     println!();
 
     // Compute T = 2π√(L/g)
@@ -60,12 +68,18 @@ fn main() {
     let period_percent = (period_uncertainty / period_mid) * 100.0;
 
     println!("Calculated Period:");
-    println!("  T = {:.4} ± {:.4} seconds", period_mid, period_uncertainty);
+    println!(
+        "  T = {:.4} ± {:.4} seconds",
+        period_mid, period_uncertainty
+    );
     println!("  T = {:.4} seconds (±{:.2}%)", period_mid, period_percent);
     println!();
 
     // Compare with naive interval arithmetic
-    let l_ia = (length_nominal * (1.0 - length_error), length_nominal * (1.0 + length_error));
+    let l_ia = (
+        length_nominal * (1.0 - length_error),
+        length_nominal * (1.0 + length_error),
+    );
     let g_ia = (g_nominal * (1.0 - g_error), g_nominal * (1.0 + g_error));
 
     // IA calculation (loses correlations)
@@ -80,8 +94,14 @@ fn main() {
 
     println!("Comparison:");
     println!("  Affine Arithmetic:");
-    println!("    T = {:.4} seconds (±{:.2}%)", period_mid, period_percent);
-    println!("    Uncertainty width: {:.4} seconds", period_hi - period_lo);
+    println!(
+        "    T = {:.4} seconds (±{:.2}%)",
+        period_mid, period_percent
+    );
+    println!(
+        "    Uncertainty width: {:.4} seconds",
+        period_hi - period_lo
+    );
     println!();
     println!("  Interval Arithmetic (naive):");
     println!("    T = {:.4} seconds (±{:.2}%)", t_ia_mid, t_ia_percent);
