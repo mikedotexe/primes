@@ -1,0 +1,15 @@
+base = 10
+
+[[jobs]]
+kind = "ridge"
+mid_kind = "free"
+mid_len_range = "1..24"
+inner_zero_range = "0..12"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,3,7,9"
+out_csv = "out/ridge_mid_vs_best_iz.csv"
+mirror = false
+track_moduli = ""
+auto_track = { enable = true, mode = "global", pmax = 97, k = 10, min_p0 = 0.02 }
+objective = "exact"

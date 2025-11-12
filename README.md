@@ -246,6 +246,13 @@ cargo test --lib
 cargo build --release --features metal
 ```
 
+### Visualization Tools
+
+For grid-based density analysis, see the **interactive viewer**:
+- **Location**: `tools/density-explorer/viewer/overlay_v2.html`
+- **Features**: 7 visualization modes, lineout plots, quantile clamping, PNG/CSV export
+- **Documentation**: [tools/README.md](tools/README.md#density-explorer)
+
 ## Core Concept: Membrane Structures
 
 The membrane structure uses symmetric zero-padding patterns around boundary digits to create numbers with enhanced prime probability.

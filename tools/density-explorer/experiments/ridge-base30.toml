@@ -1,0 +1,17 @@
+# Base 30 ridge - high performer!
+base = 30
+seed = 42
+
+[[jobs]]
+kind = "ridge"
+mid_kind = "free"
+mid_len_range = "1..40"
+inner_zero_range = "0..15"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,7,11,13,17,19,23,29"
+out_csv = "out/ridge_base30.csv"
+mirror = false
+track_moduli = ""
+auto_track = { enable = true, mode = "global", pmax = 97, k = 10, min_p0 = 0.02 }
+objective = "exact"

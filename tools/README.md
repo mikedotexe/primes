@@ -232,6 +232,137 @@ For base B and N× transform with remainder r, we compute N fractional vertices:
 **MZR Hypothesis**:
 The MZR selection rule (r ≈ 0.4×HZ) may bias which vertex k becomes the integer one. The entropy and uniformity metrics test whether MZR concentrates on specific k values, which could explain downstream patterns in CCRT coverage or MDR density inflation.
 
+## density-explorer
+
+**Purpose**: Grid-based prime density exploration with sophisticated moduli auto-selection and statistical analysis.
+
+### Build
+
+```bash
+cd tools/density-explorer
+cargo build --release
+```
+
+### Key Features
+
+- **Grid exploration**: Sample (mid_len, inner_zero) parameter spaces
+- **Auto-track moduli**: Automatic selection of optimal moduli for tracking (Global/PerCell modes)
+- **Model generation**: Compute expected densities without sampling
+- **Explain mode**: Generate detailed obstruction analysis (union_p_any, per-prime P0)
+- **Interactive viewer**: Web-based overlay visualization (overlay_v2.html)
+
+### Usage
+
+```bash
+# Sample a grid
+./target/release/density-explorer --base 14 grid \
+  --mid-kind free --mid-len-range 1:5 --inner-zero-range 0:3 \
+  --samples 10000 --auto-track --auto-mode global \
+  --out-csv grid_sample.csv
+
+# Generate model predictions
+./target/release/density-explorer --base 14 model-only \
+  --mid-kind free --mid-len-range 1:5 --inner-zero-range 0:3 \
+  --auto-track --auto-mode global \
+  --out-csv grid_model.csv
+
+# Explain obstructions
+./target/release/density-explorer --base 14 explain-grid \
+  --mid-kind free --mid-len-range 1:5 --inner-zero-range 0:3 \
+  --auto-track --auto-mode global \
+  --out-json grid_explain.json
+```
+
+### Visualization
+
+Open `viewer/overlay_v2.html` in a browser and load:
+- `grid_sample.csv` (required)
+- `grid_model.csv` (required)
+- `grid_explain.json` (required)
+
+**Interactive features**:
+- 7 map modes: Obs, Pred, Δ abs, Δ enrichment, Union(any), per-prime P0, A→B compare
+- Quantile/absolute clamping for outlier-robust color scaling
+- Pin cells (P key) and see row/col lineouts comparing obs vs pred
+- Export PNG (S key) and CSV (E key) for reproducibility
+- CI fade: confidence intervals visualized as opacity
+
+## hz
+
+**Purpose**: Post-processing CLI for prime-density grid analysis with Fourier, polynomial fitting, and verification.
+
+### Build
+
+```bash
+cd tools/hz
+cargo build --release
+```
+
+### Subcommands
+
+#### verify
+Join sample+model grids and write verification table with Δ, enrichment, CI, and top moduli.
+
+```bash
+./target/release/hz verify \
+  --sample grid_sample.csv \
+  --model grid_model.csv \
+  --explain grid_explain.json \
+  --out verification_results.csv
+```
+
+#### overtones
+Discrete Fourier spectrum of a lineout (obs|pred|enrichment).
+
+```bash
+./target/release/hz overtones \
+  --sample grid_sample.csv --model grid_model.csv \
+  --axis mid --fixed 0 --quantity enrichment \
+  --topk 8 --out hz_out/overtones.csv
+```
+
+#### lagrange
+Lagrange/Newton polynomial fit of a lineout.
+
+```bash
+./target/release/hz lagrange \
+  --sample grid_sample.csv --model grid_model.csv \
+  --axis mid --fixed 0 --quantity enrichment \
+  --degree 5 --out hz_out/lagrange_lineout.csv
+```
+
+#### ridge
+Trough/ridge detection along chosen axis.
+
+```bash
+./target/release/hz ridge \
+  --sample grid_sample.csv --model grid_model.csv \
+  --axis mid --quantity pred \
+  --out hz_out/ridge.csv
+```
+
+#### lineout
+Emit lineout table: x, obs, pred, enrichment.
+
+```bash
+./target/release/hz lineout \
+  --sample grid_sample.csv --model grid_model.csv \
+  --axis mid --fixed 0 \
+  --out hz_out/lineout.csv
+```
+
+#### compare
+Compare two sample CSVs (A vs B) with per-cell deltas and top changes.
+
+```bash
+./target/release/hz compare \
+  --sample-a grid_sample_before.csv \
+  --sample-b grid_sample_after.csv \
+  --out hz_out/compare.csv --top 20
+```
+
+**Output**: CSV with deltas + console report of top 20 changes by |delta|.
+
 ## Data Pipeline
 
 The CSV outputs are designed to be consumed by:

@@ -1,0 +1,41 @@
+base = 10
+seed = 42
+
+[[jobs]]
+kind = "grid"
+mid_kind = "free"
+mid_len_range = "1..10"
+inner_zero_range = "0..8"
+inner_slot = 1
+outer_layers = ["0:1"]
+samples = 40000
+allowed_last_digits = "1,3,7,9"
+out_csv = "out/grid.csv"
+parallel = true
+mirror = false
+track_moduli = "3,5,7,11"
+pre_sieve = true
+
+[[jobs]]
+kind = "model-only"
+mid_kind = "free"
+mid_len_range = "1..10"
+inner_zero_range = "0..8"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,3,7,9"
+out_csv = "out/model.csv"
+mirror = false
+track_moduli = "3,5,7,11"
+
+[[jobs]]
+kind = "explain-grid"
+mid_kind = "free"
+mid_len_range = "1..10"
+inner_zero_range = "0..8"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,3,7,9"
+out_json = "out/explain.json"
+mirror = false
+track_moduli = "3,5,7,11"

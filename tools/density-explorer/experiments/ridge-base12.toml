@@ -1,0 +1,17 @@
+# Base 12 ridge
+base = 12
+seed = 42
+
+[[jobs]]
+kind = "ridge"
+mid_kind = "free"
+mid_len_range = "1..40"
+inner_zero_range = "0..15"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "auto"  # Auto-selects coprime digits: 1,5,7,11
+out_csv = "out/ridge_base12.csv"
+mirror = false
+track_moduli = ""
+auto_track = { enable = true, mode = "global", pmax = 97, k = 10, min_p0 = 0.02 }
+objective = "exact"

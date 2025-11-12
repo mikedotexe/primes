@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lineout Viewer</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        #controls { margin-bottom: 20px; }
+        #controls > * { margin-right: 10px; }
+        .chart-container { position: relative; display: inline-block; }
+        canvas { border: 1px solid #ccc; }
+        .info { margin: 10px 0; }
+        .loading { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>Lineout Parameter Sweep Viewer</h1>
+
+    <div id="controls">
+        <label>
+            CSV file: <input type="text" id="csv_file" value="out/lineout_mid.csv" />
+        </label>
+        <label>
+            X-axis:
+            <select id="x_axis">
+                <option value="mid_len">Midpoint Length</option>
+                <option value="inner_zero">Inner Zero</option>
+            </select>
+        </label>
+        <label>
+            Primary metric:
+            <select id="metric1">
+                <option value="prime_density">Prime Density</option>
+                <option value="enrichment_vs_local_exact" selected>Enrichment vs Local Exact</option>
+                <option value="enrichment_vs_local">Enrichment vs Local Sieve</option>
+                <option value="enrichment_vs_pnt_cond">Enrichment vs PNT</option>
+            </select>
+        </label>
+        <label>
+            Secondary metric:
+            <select id="metric2">
+                <option value="expected_density_local_exact" selected>Expected Local Exact</option>
+                <option value="expected_density_local">Expected Local Sieve</option>
+                <option value="expected_density_pnt_cond">Expected PNT</option>
+                <option value="prime_density">Prime Density</option>
+            </select>
+        </label>
+        <button onclick="loadData()">Load</button>
+    </div>
+
+    <div class="info">
+        <div id="status" class="loading">Ready to load data...</div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="chart" width="900" height="600"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('chart');
+        const ctx = canvas.getContext('2d');
+
+        let currentData = null;
+
+        async function loadData() {
+            const csvFile = document.getElementById('csv_file').value;
+            document.getElementById('status').textContent = 'Loading data...';
+
+            try {
+                const response = await fetch(csvFile);
+                const text = await response.text();
+                const lines = text.trim().split('\n');
+                const headers = lines[0].split(',');
+
+                const data = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const parts = lines[i].split(',');
+                    const row = {};
+                    headers.forEach((h, idx) => {
+                        row[h] = parts[idx];
+                    });
+                    data.push(row);
+                }
+
+                currentData = data;
+                document.getElementById('status').textContent =
+                    `Loaded ${data.length} data points`;
+                drawChart();
+
+            } catch (error) {
+                document.getElementById('status').textContent =
+                    `Error: ${error.message}`;
+            }
+        }
+
+        function drawChart() {
+            if (!currentData) return;
+
+            const xAxis = document.getElementById('x_axis').value;
+            const metric1 = document.getElementById('metric1').value;
+            const metric2 = document.getElementById('metric2').value;
+
+            // Extract data
+            const xVals = currentData.map(d => parseFloat(d[xAxis]));
+            const y1Vals = currentData.map(d => parseFloat(d[metric1]));
+            const y2Vals = currentData.map(d => parseFloat(d[metric2]));
+
+            // Find ranges
+            const xMin = Math.min(...xVals);
+            const xMax = Math.max(...xVals);
+            const y1Min = Math.min(...y1Vals.filter(v => !isNaN(v)));
+            const y1Max = Math.max(...y1Vals.filter(v => !isNaN(v)));
+            const y2Min = Math.min(...y2Vals.filter(v => !isNaN(v)));
+            const y2Max = Math.max(...y2Vals.filter(v => !isNaN(v)));
+
+            // Margins
+            const margin = { top: 40, right: 100, bottom: 60, left: 80 };
+            const width = canvas.width - margin.left - margin.right;
+            const height = canvas.height - margin.top - margin.bottom;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Save state
+            ctx.save();
+            ctx.translate(margin.left, margin.top);
+
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            ctx.lineTo(width, height);
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, height);
+            ctx.stroke();
+
+            // X-axis labels
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 5; i++) {
+                const x = (width / 5) * i;
+                const val = xMin + (xMax - xMin) * (i / 5);
+                ctx.fillText(val.toFixed(0), x, height + 20);
+
+                // Grid lines
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+
+            // Y1-axis labels (left)
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#0066cc';
+            for (let i = 0; i <= 5; i++) {
+                const y = height - (height / 5) * i;
+                const val = y1Min + (y1Max - y1Min) * (i / 5);
+                ctx.fillText(val.toFixed(3), -10, y + 5);
+
+                // Grid lines
+                ctx.strokeStyle = '#ddd';
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+
+            // Y2-axis labels (right)
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#ff6600';
+            for (let i = 0; i <= 5; i++) {
+                const y = height - (height / 5) * i;
+                const val = y2Min + (y2Max - y2Min) * (i / 5);
+                ctx.fillText(val.toFixed(3), width + 10, y + 5);
+            }
+
+            // Plot data - Primary metric
+            ctx.strokeStyle = '#0066cc';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            let firstPoint = true;
+            for (let i = 0; i < xVals.length; i++) {
+                if (!isNaN(y1Vals[i])) {
+                    const x = ((xVals[i] - xMin) / (xMax - xMin)) * width;
+                    const y = height - ((y1Vals[i] - y1Min) / (y1Max - y1Min)) * height;
+
+                    if (firstPoint) {
+                        ctx.moveTo(x, y);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+
+                    // Draw point
+                    ctx.fillStyle = '#0066cc';
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+            ctx.stroke();
+
+            // Plot data - Secondary metric
+            ctx.strokeStyle = '#ff6600';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            firstPoint = true;
+            for (let i = 0; i < xVals.length; i++) {
+                if (!isNaN(y2Vals[i])) {
+                    const x = ((xVals[i] - xMin) / (xMax - xMin)) * width;
+                    const y = height - ((y2Vals[i] - y2Min) / (y2Max - y2Min)) * height;
+
+                    if (firstPoint) {
+                        ctx.moveTo(x, y);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+
+                    // Draw point
+                    ctx.fillStyle = '#ff6600';
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+            ctx.stroke();
+
+            // Plot difference (if both metrics are comparable)
+            if (metric1.includes('enrichment') && metric2.includes('expected')) {
+                // Don't plot difference for incomparable metrics
+            } else if (y1Max - y1Min > 0 && y2Max - y2Min > 0) {
+                // Normalize and compute difference
+                ctx.strokeStyle = '#009900';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                firstPoint = true;
+
+                for (let i = 0; i < xVals.length; i++) {
+                    if (!isNaN(y1Vals[i]) && !isNaN(y2Vals[i])) {
+                        const x = ((xVals[i] - xMin) / (xMax - xMin)) * width;
+                        const diff = y1Vals[i] - y2Vals[i];
+                        const diffNorm = (diff - y1Min) / (y1Max - y1Min);
+                        const y = height - diffNorm * height;
+
+                        if (firstPoint) {
+                            ctx.moveTo(x, y);
+                            firstPoint = false;
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Labels
+            ctx.restore();
+
+            // Title
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#333';
+            ctx.fillText(`${metric1} and ${metric2} vs ${xAxis}`,
+                         canvas.width / 2, 25);
+
+            // X-axis label
+            ctx.font = '14px Arial';
+            ctx.fillText(xAxis === 'mid_len' ? 'Midpoint Length' : 'Inner Zero Count',
+                         canvas.width / 2, canvas.height - 10);
+
+            // Y-axis labels
+            ctx.save();
+            ctx.translate(15, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = '#0066cc';
+            ctx.fillText(metric1, 0, 0);
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(canvas.width - 15, canvas.height / 2);
+            ctx.rotate(Math.PI / 2);
+            ctx.fillStyle = '#ff6600';
+            ctx.fillText(metric2, 0, 0);
+            ctx.restore();
+
+            // Legend
+            const legendX = canvas.width - margin.right - 150;
+            const legendY = margin.top + 20;
+
+            ctx.fillStyle = '#0066cc';
+            ctx.fillRect(legendX, legendY, 20, 3);
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(metric1, legendX + 25, legendY + 5);
+
+            ctx.fillStyle = '#ff6600';
+            ctx.fillRect(legendX, legendY + 20, 20, 3);
+            ctx.fillStyle = '#333';
+            ctx.fillText(metric2, legendX + 25, legendY + 25);
+
+            if (!(metric1.includes('enrichment') && metric2.includes('expected'))) {
+                ctx.strokeStyle = '#009900';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(legendX, legendY + 41);
+                ctx.lineTo(legendX + 20, legendY + 41);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#333';
+                ctx.fillText('Difference', legendX + 25, legendY + 45);
+            }
+        }
+
+        // Initial load
+        loadData();
+    </script>
+</body>
+</html>

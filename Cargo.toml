@@ -118,3 +118,6 @@ harness = false
 [[bench]]
 name = "optimization_verification"
 harness = false
+
+[workspace]
+members = [".", "tools/density-explorer", "tools/hz"]
