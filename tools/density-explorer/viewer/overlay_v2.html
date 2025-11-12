@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Prime Density — Overlay v2</title>
+<style>
+  :root{
+    --bg:#0b0c11; --panel:#0f1117; --ink:#e6e9f2; --muted:#9aa3b2; --grid:#1b2030;
+    --accent:#60e0d0; --warn:#f59e0b; --bad:#f43f5e; --good:#34d399; --line:#a5b4fc;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
+  header{display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:10px 12px;border-bottom:1px solid #1b2030;background:linear-gradient(180deg,#0f1117,#0c0e14)}
+  header h1{font-size:16px;margin:0;color:#cbd4e1}
+  .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  label{color:var(--muted)}
+  input[type=file]{color:var(--muted)}
+  select,button,input[type=number],input[type=text]{background:#121521;border:1px solid #2a3044;color:var(--ink);padding:4px 8px;border-radius:6px}
+  button{cursor:pointer}
+  main{display:grid;grid-template-columns:320px 1fr;grid-template-rows:1fr auto;gap:0;height:calc(100% - 56px)}
+  aside{background:var(--panel);border-right:1px solid #1b2030;padding:12px;overflow:auto}
+  section{display:grid;grid-template-rows:1fr 160px 40px;gap:0}
+  #heat{width:100%;height:100%;background:#0a0c12;image-rendering:pixelated}
+  #chart{width:100%;height:160px;background:#0b0d13}
+  .legend,.status{display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid #1b2030;background:#0e1016;color:var(--muted)}
+  .swatch{width:120px;height:10px;border-radius:2px;background:linear-gradient(90deg,#2dd4bf,#1e293b 50%,#f43f5e)}
+  .ctrl h3{margin:10px 0 6px 0;color:#cbd4e1;font-size:13px}
+  .ctrl .kv{display:grid;grid-template-columns:120px 1fr;gap:4px 8px}
+  .pill{display:inline-block;padding:2px 6px;background:#121521;border:1px solid #2a3044;border-radius:999px;font-size:12px;color:#dbe3ff;margin:2px 2px 0 0}
+  .sep{height:1px;background:#1b2030;margin:10px 0}
+  .small{font-size:12px;color:var(--muted)}
+  .key{border:1px solid #2a3044;border-radius:6px;padding:4px 8px;background:#0f1220}
+  .err{color:var(--bad)} .ok{color:var(--good)} .warn{color:var(--warn)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Prime Density — Overlay v2</h1>
+  <div class="row">
+    <label>A: Sample CSV <input id="fSampleA" type="file" accept=".csv"/></label>
+    <label>Model CSV <input id="fModel" type="file" accept=".csv"/></label>
+    <label>Explain JSON <input id="fExplain" type="file" accept=".json"/></label>
+    <label class="small">optional B: <input id="fSampleB" type="file" accept=".csv"/></label>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <div class="ctrl">
+      <h3>Grid</h3>
+      <div class="kv">
+        <div>base</div><div id="meta-base">—</div>
+        <div>mid_len</div><div id="meta-mid">—</div>
+        <div>inner_zero</div><div id="meta-iz">—</div>
+        <div>cells</div><div id="meta-cells">—</div>
+      </div>
+
+      <div class="sep"></div>
+
+      <h3>Map</h3>
+      <div class="kv">
+        <div>mode</div>
+        <div>
+          <select id="mode">
+            <option value="enr">Δ enrichment (A/pred − 1)</option>
+            <option value="abs">Δ absolute (A − pred)</option>
+            <option value="obs">Observed A</option>
+            <option value="pred">Predicted</option>
+            <option value="union">Union(any) obstruction</option>
+            <option value="p0">Per‑prime P0(p)</option>
+            <option value="ab">A→B delta (obsB − obsA)</option>
+          </select>
+        </div>
+        <div>prime</div>
+        <div><select id="prime"><option value="">—</option></select></div>
+        <div>clamp</div>
+        <div>
+          <select id="clampKind">
+            <option value="q">quantile</option>
+            <option value="abs">absolute</option>
+          </select>
+          <input id="clamp" type="number" step="0.01" value="0.98" style="width:70px"/>
+          <span class="small" id="clampHelp">(q: keep 2–98%)</span>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <h3>Render</h3>
+      <div class="kv">
+        <div>cell size</div>
+        <div><input id="cell" type="range" min="8" max="28" value="16"/></div>
+        <div>grid lines</div>
+        <div><input id="showGrid" type="checkbox" checked/></div>
+        <div>fade by CI</div>
+        <div><input id="fadeCI" type="checkbox" checked/></div>
+        <div>crosshair</div>
+        <div><input id="cross" type="checkbox" checked/></div>
+      </div>
+
+      <div class="sep"></div>
+
+      <h3>Inspect</h3>
+      <div id="info" class="small">Load files and mouse over a cell.</div>
+
+      <div class="sep"></div>
+
+      <div class="kv">
+        <div></div>
+        <div class="small">Pan: drag • Zoom: Alt+Wheel • Pin: P • Save: S • Export CSV: E</div>
+      </div>
+    </div>
+  </aside>
+
+  <section>
+    <canvas id="heat"></canvas>
+    <canvas id="chart"></canvas>
+    <div class="legend">
+      <div>color</div><div class="swatch"></div>
+      <div class="small">teal = model &gt; sample • rose = sample &gt; model (for Δ modes)</div>
+      <div id="status" class="status"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+
+const state = {
+  sampleA: null, sampleB: null, model: null, explain: null,
+  grid: null, base: null,
+  mids: [], izs: [],
+  mapCache: new Map(),
+  cell: { sz: 16, zoom: 1, ox: 0, oy: 0 },
+  pin: null, hover: null,
+  primes: [], // union from explain
+};
+
+function parseCSV(text){
+  const lines = text.trim().split(/\r?\n/);
+  const header = lines[0].split(',');
+  const out = [];
+  for (let i=1;i<lines.length;i++){
+    if (!lines[i].trim()) continue;
+    const parts = [];
+    let cur='', d=0;
+    for (const ch of lines[i]){
+      if (ch==='[') d++;
+      if (ch===']') d--;
+      if (ch===',' && d===0){ parts.push(cur); cur=''; } else cur+=ch;
+    }
+    parts.push(cur);
+    const row={};
+    header.forEach((h,idx)=>row[h]=parts[idx]);
+    out.push(row);
+  }
+  return out;
+}
+function num(v){ const x = +v; return Number.isFinite(x)? x : null; }
+function vec(v){
+  if (!v || !v.trim()) return [];
+  try { return JSON.parse(v); } catch{ return []; }
+}
+function key(m,z){ return `${m}_${z}`; }
+
+function loadExplain(text){
+  const js = JSON.parse(text);
+  const map = new Map();
+  const primes = new Set();
+  for (const e of js){
+    const mid = e.mid_len, iz = e.inner_zero;
+    const entry = {
+      union: (e.union_p_any==null? null : e.union_p_any),
+      p0: new Map(), // p -> p0
+    };
+    if (Array.isArray(e.model_p0)){
+      for (const [p,p0] of e.model_p0){
+        entry.p0.set(+p, +p0);
+        primes.add(+p);
+      }
+    }
+    map.set(key(mid,iz), entry);
+  }
+  state.primes = Array.from(primes).sort((a,b)=>a-b);
+  return map;
+}
+
+function indexGrid(sampleRows, modelRows){
+  const mids = new Set(), izs = new Set();
+  const A = new Map(), M = new Map(), B = new Map();
+
+  for (const r of sampleRows) {
+    const m = +r.mid_len, z = +r.inner_zero; mids.add(m); izs.add(z);
+    A.set(key(m,z), r);
+  }
+  if (modelRows){
+    for (const r of modelRows) {
+      const m = +r.mid_len, z = +r.inner_zero; mids.add(m); izs.add(z);
+      M.set(key(m,z), r);
+    }
+  }
+  if (state.sampleB){
+    for (const r of state.sampleB) {
+      const m = +r.mid_len, z = +r.inner_zero; B.set(key(m,z), r);
+    }
+  }
+
+  const midsArr = Array.from(mids).sort((a,b)=>a-b);
+  const izsArr  = Array.from(izs).sort((a,b)=>a-b);
+  const base = sampleRows.length ? +sampleRows[0].base : (modelRows.length ? +modelRows[0].base : 10);
+
+  const grid = [];
+  for (const z of izsArr){
+    for (const m of midsArr){
+      grid.push({
+        mid:m, iz:z,
+        A: A.get(key(m,z)) || null,
+        M: M.get(key(m,z)) || null,
+        B: B.get(key(m,z)) || null,
+      });
+    }
+  }
+  return { mids:midsArr, izs:izsArr, grid, base };
+}
+
+function clampVals(vals, kind, c){
+  if (!vals.length) return {min:0,max:1};
+  if (kind==='abs'){
+    const mx = Math.max(...vals.map(v=>Math.abs(v)));
+    const mmx = Math.max(mx, 1e-16);
+    return {min:-mmx*c, max:mmx*c};
+  } else {
+    const s=vals.slice().sort((a,b)=>a-b);
+    const lo = s[Math.floor((1-c)*0.5 * (s.length-1))];
+    const hi = s[Math.ceil((1+(c-1)*0.5) * (s.length-1))];
+    return {min:lo, max:hi};
+  }
+}
+
+function colorDiverge(x, mn, mx){
+  if (mx<=mn){ return 'rgb(30,41,59)'; }
+  let t = (x - mn) / (mx - mn);
+  t = Math.max(0, Math.min(1, t));
+  const mid = 0.5;
+  if (t < mid){
+    const k = t/mid; // teal -> mid
+    const c0=[45,212,191], c1=[30,41,59];
+    const r=Math.round(c0[0]+(c1[0]-c0[0])*k), g=Math.round(c0[1]+(c1[1]-c0[1])*k), b=Math.round(c0[2]+(c1[2]-c0[2])*k);
+    return `rgb(${r},${g},${b})`;
+  } else {
+    const k=(t-mid)/(1-mid); // mid -> rose
+    const c0=[30,41,59], c1=[244,63,94];
+    const r=Math.round(c0[0]+(c1[0]-c0[0])*k), g=Math.round(c0[1]+(c1[1]-c0[1])*k), b=Math.round(c0[2]+(c1[2]-c0[2])*k);
+    return `rgb(${r},${g},${b})`;
+  }
+}
+
+function currentMap(){
+  const mode = $('#mode').value;
+  const psel = +($('#prime').value||'0');
+  const cacheKey = `${mode}:${psel}`;
+  if (state.mapCache.has(cacheKey)) return state.mapCache.get(cacheKey);
+
+  const vals = [];
+  const meta = [];
+  const {mids, izs, grid} = state;
+
+  const take = (r, k) => (r && r[k]!=null && r[k]!=='') ? +r[k] : null;
+
+  for (const cell of state.grid){
+    const A = cell.A, M = cell.M, B = cell.B;
+    const obsA = take(A,'prime_density');
+    const pred = (take(A,'expected_density_local_exact') ?? take(A,'expected_density_local')) ??
+                 (take(M,'expected_density_local_exact') ?? take(M,'expected_density_local')) ?? null;
+    const ciw = (A && A.ci_lo && A.ci_hi) ? Math.abs(+A.ci_hi - +A.ci_lo) : null;
+
+    let v=null;
+    if (mode==='obs') v = obsA;
+    else if (mode==='pred') v = pred;
+    else if (mode==='enr') v = (pred!=null && pred>0 && obsA!=null) ? (obsA/pred - 1) : 0;
+    else if (mode==='abs') v = (obsA!=null && pred!=null) ? (obsA - pred) : 0;
+    else if (mode==='ab') {
+      const obsB = take(B,'prime_density');
+      v = (obsA!=null && obsB!=null) ? (obsB - obsA) : 0;
+    } else if (mode==='union') {
+      const ex = state.explain?.get(key(cell.mid,cell.iz));
+      if (ex && ex.union!=null) v = ex.union; else v = null;
+    } else if (mode==='p0') {
+      if (!psel) v = null;
+      const ex = state.explain?.get(key(cell.mid,cell.iz));
+      v = ex?.p0?.get(psel) ?? null;
+    }
+
+    vals.push({v,ciw});
+    meta.push({mid:cell.mid, iz:cell.iz, obsA, pred, ciw});
+  }
+
+  state.mapCache.set(cacheKey, {vals, meta});
+  return {vals, meta};
+}
+
+function refreshPrimeList(){
+  const sel = $('#prime');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">—</option>';
+  for (const p of state.primes){
+    const opt = document.createElement('option');
+    opt.value = String(p); opt.textContent = String(p);
+    sel.appendChild(opt);
+  }
+  if (state.primes.includes(+cur)) sel.value = cur;
+}
+
+function draw(){
+  const cvs = $('#heat'), ctx = cvs.getContext('2d');
+  const sz = Math.round(+$('#cell').value * state.cell.zoom);
+  const pad = 28;
+  const W = Math.max(420, pad*2 + state.mids.length*sz);
+  const H = Math.max(320, pad*2 + state.izs.length*sz);
+  cvs.width = W; cvs.height = H;
+  ctx.fillStyle = '#0a0c12'; ctx.fillRect(0,0,W,H);
+
+  if (!state.grid || state.grid.length===0){
+    $('#status').textContent = 'Load sample+model+explain.';
+    return;
+  }
+
+  const {vals, meta} = currentMap();
+  const mode = $('#mode').value;
+
+  const vraw = vals.map(o => (o.v==null? 0 : o.v)).filter(Number.isFinite);
+  const clampKind = $('#clampKind').value;
+  const clampVal = +$('#clamp').value || 0.98;
+  const {min, max} = (mode==='pred' || mode==='obs' || mode==='union' || mode==='p0')
+      ? {min: Math.min(...vraw, 0), max: Math.max(...vraw, 1e-16)}
+      : clampVals(vraw, clampKind, clampVal);
+
+  // grid lines
+  if ($('#showGrid').checked){
+    ctx.strokeStyle = '#1b2030'; ctx.lineWidth = 1;
+    for (let i=0;i<=state.mids.length;i++){ const x=pad+i*sz+state.cell.ox; ctx.beginPath(); ctx.moveTo(x,pad+state.cell.oy); ctx.lineTo(x,pad+state.izs.length*sz+state.cell.oy); ctx.stroke(); }
+    for (let j=0;j<=state.izs.length;j++){ const y=pad+j*sz+state.cell.oy; ctx.beginPath(); ctx.moveTo(pad+state.cell.ox,y); ctx.lineTo(pad+state.mids.length*sz+state.cell.ox,y); ctx.stroke(); }
+  }
+
+  // cells
+  let idx=0;
+  for (let j=0;j<state.izs.length;j++){
+    for (let i=0;i<state.mids.length;i++,idx++){
+      const v = vals[idx].v;
+      const x = pad + i*sz + state.cell.ox;
+      const y = pad + j*sz + state.cell.oy;
+      if (v==null){ ctx.fillStyle = '#11131a'; ctx.fillRect(x,y,sz,sz); continue; }
+      let col;
+      if (mode==='pred' || mode==='obs' || mode==='union' || mode==='p0'){
+        // map to [min,max] with monotone ramp
+        const t = (v - min) / Math.max(max-min, 1e-16);
+        const g = Math.max(0, Math.min(1, t));
+        const c0=[30,41,59], c1=[148,163,184];
+        const r=Math.round(c0[0]+(c1[0]-c0[0])*g), g2=Math.round(c0[1]+(c1[1]-c0[1])*g), b=Math.round(c0[2]+(c1[2]-c0[2])*g);
+        col = `rgb(${r},${g2},${b})`;
+      } else {
+        col = colorDiverge(v, min, max); // Δ modes
+      }
+      ctx.fillStyle = col; ctx.fillRect(x,y,sz,sz);
+
+      if ($('#fadeCI').checked && vals[idx].ciw!=null && (mode==='enr'||mode==='abs'||mode==='obs')){
+        const ciw = vals[idx].ciw;
+        const fade = Math.max(0.15, Math.min(1.0, 1.0 - (ciw*1000)));
+        ctx.fillStyle = `rgba(0,0,0,${1.0-fade})`;
+        ctx.fillRect(x,y,sz,sz);
+      }
+    }
+  }
+
+  // labels
+  ctx.fillStyle = '#9aa3b2'; ctx.font = '12px system-ui';
+  for (let i=0;i<state.mids.length;i++){ ctx.fillText(String(state.mids[i]), pad + i*sz + state.cell.ox + 3, pad - 8 + state.cell.oy); }
+  for (let j=0;j<state.izs.length;j++){ ctx.fillText(String(state.izs[j]), 6 + state.cell.ox, pad + j*sz + 12 + state.cell.oy); }
+
+  // crosshair
+  const cur = state.hover || state.pin;
+  if (cur && $('#cross').checked){
+    ctx.strokeStyle = '#2a334a'; ctx.lineWidth = 1;
+    const i = state.mids.indexOf(cur.mid), j = state.izs.indexOf(cur.iz);
+    if (i>=0 && j>=0){
+      const x = pad + i*sz + state.cell.ox, y = pad + j*sz + state.cell.oy;
+      ctx.strokeStyle = '#93c5fd';
+      ctx.strokeRect(x+0.5,y+0.5,sz-1,sz-1);
+      ctx.beginPath(); ctx.moveTo(x, pad + state.cell.oy); ctx.lineTo(x, pad + state.izs.length*sz + state.cell.oy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pad + state.cell.ox, y); ctx.lineTo(pad + state.mids.length*sz + state.cell.ox, y); ctx.stroke();
+    }
+  }
+
+  // meta
+  $('#meta-cells').textContent = `${state.mids.length*state.izs.length}`;
+  $('#meta-mid').textContent = `${state.mids[0]}..${state.mids[state.mids.length-1]}`;
+  $('#meta-iz').textContent  = `${state.izs[0]}..${state.izs[state.izs.length-1]}`;
+  $('#meta-base').textContent= state.base ?? '—';
+
+  // status
+  $('#status').textContent = `mode=${$('#mode').value} • clamp=[${min.toExponential(2)}, ${max.toExponential(2)}]`;
+}
+
+function lineoutSeries(mid, iz){
+  // row: vary mid at fixed iz; col: vary iz at fixed mid
+  const {grid, mids, izs} = state;
+  const seriesRow = [], seriesCol = [];
+  for (let i=0;i<mids.length;i++){
+    const g = grid[izs.indexOf(iz)*mids.length + i];
+    const obs = g.A? +g.A.prime_density : null;
+    const pred = (g.A && g.A.expected_density_local_exact!=='') ? +g.A.expected_density_local_exact :
+                 (g.A && g.A.expected_density_local!=='') ? +g.A.expected_density_local :
+                 (g.M && g.M.expected_density_local_exact!=='') ? +g.M.expected_density_local_exact :
+                 (g.M && g.M.expected_density_local!=='') ? +g.M.expected_density_local :
+                 null;
+    seriesRow.push({x:mids[i], obs, pred});
+  }
+  for (let j=0;j<izs.length;j++){
+    const g = grid[j*mids.length + mids.indexOf(mid)];
+    const obs = g.A? +g.A.prime_density : null;
+    const pred = (g.A && g.A.expected_density_local_exact!=='') ? +g.A.expected_density_local_exact :
+                 (g.A && g.A.expected_density_local!=='') ? +g.A.expected_density_local :
+                 (g.M && g.M.expected_density_local_exact!=='') ? +g.M.expected_density_local_exact :
+                 (g.M && g.M.expected_density_local!=='') ? +g.M.expected_density_local :
+                 null;
+    seriesCol.push({y:izs[j], obs, pred});
+  }
+  return {seriesRow, seriesCol};
+}
+
+function drawChart(){
+  const cvs = $('#chart'), ctx = cvs.getContext('2d');
+  const W = cvs.width = cvs.clientWidth|0;
+  const H = cvs.height = cvs.clientHeight|0;
+  ctx.fillStyle = '#0b0d13'; ctx.fillRect(0,0,W,H);
+  const cur = state.hover || state.pin;
+  if (!cur){ ctx.fillStyle='#7b8796'; ctx.fillText('hover or pin a cell to see lineouts', 12, 18); return; }
+
+  const {seriesRow, seriesCol} = lineoutSeries(cur.mid, cur.iz);
+  // common scale
+  const all = [...seriesRow.map(s=>[s.obs,s.pred]), ...seriesCol.map(s=>[s.obs,s.pred])].flat().filter(x=>x!=null);
+  if (!all.length){ return; }
+  const ymin = Math.min(...all), ymax = Math.max(...all)*1.02;
+
+  function plot(series, orient){
+    const pad=28;
+    const X = (t, i, n)=> orient==='row'
+      ? pad + (i/(n-1))* (W/2 - pad*1.6)
+      : W/2 + pad + (i/(n-1))* (W/2 - pad*1.6);
+    const Y = v => H-10 - ( (v - ymin) / Math.max(ymax-ymin,1e-16) ) * (H-26);
+
+    // grid
+    const x0 = orient==='row'? pad : W/2 + pad;
+    ctx.strokeStyle='#182033'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x0, 10); ctx.lineTo(x0, H-10); ctx.stroke();
+
+    // pred
+    ctx.strokeStyle = '#a5b4fc'; ctx.lineWidth = 1.5; ctx.beginPath();
+    series.forEach((s,i)=>{ if (s.pred==null) return; const x=X(null,i,series.length), y=Y(s.pred); if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+    // obs
+    ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.5; ctx.beginPath();
+    series.forEach((s,i)=>{ if (s.obs==null) return; const x=X(null,i,series.length), y=Y(s.obs); if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+
+    // labels
+    ctx.fillStyle='#9aa3b2'; ctx.font='12px system-ui';
+    ctx.fillText(orient==='row' ? `mid_len @ iz=${cur.iz}` : `inner_zero @ mid=${cur.mid}`, x0, 12);
+  }
+  plot(seriesRow,'row'); plot(seriesCol,'col');
+}
+
+function pickCell(clientX, clientY){
+  const rect = $('#heat').getBoundingClientRect();
+  const x = clientX - rect.left, y = clientY - rect.top;
+  const sz = Math.round(+$('#cell').value * state.cell.zoom);
+  const pad = 28;
+  const i = Math.floor( (x - pad - state.cell.ox) / sz );
+  const j = Math.floor( (y - pad - state.cell.oy) / sz );
+  if (i<0 || j<0 || i>=state.mids.length || j>=state.izs.length) return null;
+  return { mid: state.mids[i], iz: state.izs[j], i, j };
+}
+
+function updateInfo(cur){
+  if (!cur){ $('#info').innerHTML='—'; return; }
+  const k = key(cur.mid,cur.iz);
+  const cell = state.grid[cur.j*state.mids.length + cur.i];
+  const obs = cell.A? +cell.A.prime_density : null;
+  const ci_lo = cell.A? +cell.A.ci_lo : null;
+  const ci_hi = cell.A? +cell.A.ci_hi : null;
+  const pred = (cell.A && cell.A.expected_density_local_exact!=='') ? +cell.A.expected_density_local_exact :
+               (cell.A && cell.A.expected_density_local!=='') ? +cell.A.expected_density_local :
+               (cell.M && cell.M.expected_density_local_exact!=='') ? +cell.M.expected_density_local_exact :
+               (cell.M && cell.M.expected_density_local!=='') ? +cell.M.expected_density_local :
+               null;
+  const enr = (obs!=null && pred>0) ? (obs/pred - 1) : null;
+  const ex = state.explain?.get(k);
+  const top = ex ? Array.from(ex.p0.entries()).sort((a,b)=>b[1]-a[1]).slice(0,6) : [];
+  const union = ex?.union ?? null;
+
+  const fmt = v => (v==null? '—' : (v*100).toFixed(3)+'%');
+  const f6  = v => (v==null? '—' : v.toFixed(6));
+
+  $('#info').innerHTML = `
+    <div class="kv">
+      <div>mid_len</div><div><b>${cur.mid}</b></div>
+      <div>inner_zero</div><div><b>${cur.iz}</b></div>
+      <div>obs(A)</div><div>${fmt(obs)}</div>
+      <div>pred</div><div>${fmt(pred)}</div>
+      <div>enrichment</div><div>${enr==null?'—': (enr>=0? '+':'') + (enr*100).toFixed(2)+'%'}</div>
+      <div>CI</div><div>${(ci_lo!=null && ci_hi!=null)? (fmt(ci_lo)+' .. '+fmt(ci_hi)):'—'}</div>
+    </div>
+    <div class="sep"></div>
+    <div class="small">dominant small‑mod contributors</div>
+    <div class="kv">
+      ${top.map(([p,p0])=>`<div>p=${p}</div><div>${fmt(p0)}</div>`).join('')}
+      ${union!=null ? `<div>union(any)</div><div>${fmt(union)}</div>` : ``}
+    </div>
+  `;
+}
+
+function exportPNG(){
+  const a = document.createElement('a');
+  a.download = 'overlay.png';
+  a.href = $('#heat').toDataURL('image/png');
+  a.click();
+}
+function exportCSVCurrentMap(){
+  const {vals, meta} = currentMap();
+  let rows = ['mid_len,inner_zero,value,obs,pred,ci_width'];
+  for (let i=0;i<meta.length;i++){
+    const m = meta[i]; const v = vals[i].v; const ciw = vals[i].ciw;
+    rows.push([m.mid, m.iz, v==null?'':v, m.obsA==null?'':m.obsA, m.pred==null?'':m.pred, ciw==null?'':ciw].join(','));
+  }
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='overlay_map.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function onFilesChange(){
+  if (!state.sampleA || !state.model){ draw(); return; }
+  const {mids, izs, grid, base} = indexGrid(state.sampleA, state.model);
+  state.mids = mids; state.izs = izs; state.grid = grid; state.base = base;
+  state.mapCache.clear();
+  refreshPrimeList();
+  draw();
+}
+
+$('#fSampleA').addEventListener('change', e=>{
+  const r = new FileReader(); r.onload = ()=>{ state.sampleA = parseCSV(r.result); onFilesChange(); }; r.readAsText(e.target.files[0]);
+});
+$('#fSampleB').addEventListener('change', e=>{
+  const r = new FileReader(); r.onload = ()=>{ state.sampleB = parseCSV(r.result); onFilesChange(); }; r.readAsText(e.target.files[0]);
+});
+$('#fModel').addEventListener('change', e=>{
+  const r = new FileReader(); r.onload = ()=>{ state.model = parseCSV(r.result); onFilesChange(); }; r.readAsText(e.target.files[0]);
+});
+$('#fExplain').addEventListener('change', e=>{
+  const r = new FileReader(); r.onload = ()=>{ state.explain = loadExplain(r.result); refreshPrimeList(); draw(); }; r.readAsText(e.target.files[0]);
+});
+
+$('#mode').addEventListener('change', ()=>{ draw(); });
+$('#prime').addEventListener('change', ()=>{ draw(); });
+$('#clampKind').addEventListener('change', ()=>{
+  const k=$('#clampKind').value;
+  $('#clampHelp').textContent = k==='q' ? '(q: keep 2–98%)' : '(abs scale: ×mult of max |Δ|)';
+  draw();
+});
+$('#clamp').addEventListener('change', draw);
+$('#cell').addEventListener('input', ()=>{ state.mapCache.clear(); draw(); });
+$('#showGrid').addEventListener('change', draw);
+$('#fadeCI').addEventListener('change', draw);
+$('#cross').addEventListener('change', draw);
+
+let panning=false, last=null;
+$('#heat').addEventListener('mousedown', e=>{ panning=true; last={x:e.clientX,y:e.clientY}; });
+window.addEventListener('mouseup', ()=>{ panning=false; last=null; });
+window.addEventListener('mousemove', e=>{
+  if (!state.grid) return;
+  if (panning){
+    const dx = e.clientX - last.x, dy = e.clientY - last.y; last={x:e.clientX,y:e.clientY};
+    state.cell.ox += dx; state.cell.oy += dy; draw(); return;
+  }
+  const cur = pickCell(e.clientX, e.clientY);
+  if (cur){ state.hover = cur; updateInfo(cur); drawChart(); draw(); }
+});
+window.addEventListener('wheel', e=>{
+  if (!e.altKey) return;
+  e.preventDefault();
+  const z = state.cell.zoom * (e.deltaY<0 ? 1.1 : 0.9);
+  state.cell.zoom = Math.max(0.5, Math.min(2.0, z));
+  draw();
+}, {passive:false});
+
+window.addEventListener('keydown', e=>{
+  if (e.key==='p' || e.key==='P'){ state.pin = state.hover ? { ...state.hover } : null; draw(); drawChart(); }
+  if (e.key==='s' || e.key==='S'){ exportPNG(); }
+  if (e.key==='e' || e.key==='E'){ exportCSVCurrentMap(); }
+});
+
+function boot(){
+  draw();
+}
+boot();
+</script>
+</body>
+</html>

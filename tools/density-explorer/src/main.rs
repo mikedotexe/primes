@@ -1290,6 +1290,16 @@ fn main() {
             };
             track.sort_unstable(); track.dedup();
 
+            eprintln!(
+                "[density-explorer] base={} allowed_last_digits={:?} auto_track={} track={:?}  LCM={}{}",
+                cli.base,
+                p.constraints.allowed_last_digits,
+                auto_track,
+                track,
+                lcm_list(&track),
+                if lcm_list(&track) > LCM_CAP { "  (over cap → prod fallback)" } else { "" }
+            );
+
             let report = do_sample(&p, samples, cli.seed, parallel, &track, pre_sieve);
             if let Some(path) = out_json {
                 let f = File::create(path).expect("create json");
@@ -1322,6 +1332,34 @@ fn main() {
                     mirror, auto_pmax, auto_k, auto_min_p0
                 ))
             } else { None };
+
+            if let Some(ref gt) = global_track {
+                eprintln!(
+                    "[density-explorer] base={} allowed_last_digits={:?} auto_track(mode={:?}): {:?}  LCM={}{}",
+                    cli.base,
+                    parse_allowed_last_digits(cli.base, &allowed_last_digits),
+                    at_mode,
+                    gt,
+                    lcm_list(gt),
+                    if lcm_list(gt) > LCM_CAP { "  (over cap → prod fallback)" } else { "" }
+                );
+            } else if auto_track {
+                eprintln!(
+                    "[density-explorer] base={} allowed_last_digits={:?} auto_track(mode={:?}): tracks will vary per cell",
+                    cli.base,
+                    parse_allowed_last_digits(cli.base, &allowed_last_digits),
+                    at_mode
+                );
+            } else {
+                eprintln!(
+                    "[density-explorer] base={} allowed_last_digits={:?} auto_track=false track={:?}  LCM={}{}",
+                    cli.base,
+                    parse_allowed_last_digits(cli.base, &allowed_last_digits),
+                    explicit_track,
+                    lcm_list(&explicit_track),
+                    if lcm_list(&explicit_track) > LCM_CAP { "  (over cap → prod fallback)" } else { "" }
+                );
+            }
 
             let f = File::create(out_csv).expect("create csv");
             let mut w = BufWriter::new(f); write_csv_header(&mut w);
@@ -1399,6 +1437,34 @@ fn main() {
                 ))
             } else { None };
 
+            if let Some(ref gt) = global_track {
+                eprintln!(
+                    "[density-explorer] base={} allowed_last_digits={:?} auto_track(mode={:?}): {:?}  LCM={}{}",
+                    cli.base,
+                    parse_allowed_last_digits(cli.base, &allowed_last_digits),
+                    at_mode,
+                    gt,
+                    lcm_list(gt),
+                    if lcm_list(gt) > LCM_CAP { "  (over cap → prod fallback)" } else { "" }
+                );
+            } else if auto_track {
+                eprintln!(
+                    "[density-explorer] base={} allowed_last_digits={:?} auto_track(mode={:?}): tracks will vary per cell",
+                    cli.base,
+                    parse_allowed_last_digits(cli.base, &allowed_last_digits),
+                    at_mode
+                );
+            } else {
+                eprintln!(
+                    "[density-explorer] base={} allowed_last_digits={:?} auto_track=false track={:?}  LCM={}{}",
+                    cli.base,
+                    parse_allowed_last_digits(cli.base, &allowed_last_digits),
+                    explicit_track,
+                    lcm_list(&explicit_track),
+                    if lcm_list(&explicit_track) > LCM_CAP { "  (over cap → prod fallback)" } else { "" }
+                );
+            }
+
             let f = File::create(out_csv).expect("create csv");
             let mut w = BufWriter::new(f); write_model_csv_header(&mut w);
 
@@ -1454,6 +1520,16 @@ fn main() {
             };
             track.sort_unstable(); track.dedup();
 
+            eprintln!(
+                "[density-explorer] base={} allowed_last_digits={:?} auto_track={} track={:?}  LCM={}{}",
+                cli.base,
+                p.constraints.allowed_last_digits,
+                auto_track,
+                track,
+                lcm_list(&track),
+                if lcm_list(&track) > LCM_CAP { "  (over cap → prod fallback)" } else { "" }
+            );
+
             let report = explain_for_pattern(&p, &track);
             if let Some(path) = out_json {
                 let f = File::create(path).expect("create json");
@@ -1479,6 +1555,34 @@ fn main() {
                     mirror, auto_pmax, auto_k, auto_min_p0
                 ))
             } else { None };
+
+            if let Some(ref gt) = global_track {
+                eprintln!(
+                    "[density-explorer] base={} allowed_last_digits={:?} auto_track(mode={:?}): {:?}  LCM={}{}",
+                    cli.base,
+                    parse_allowed_last_digits(cli.base, &allowed_last_digits),
+                    at_mode,
+                    gt,
+                    lcm_list(gt),
+                    if lcm_list(gt) > LCM_CAP { "  (over cap → prod fallback)" } else { "" }
+                );
+            } else if auto_track {
+                eprintln!(
+                    "[density-explorer] base={} allowed_last_digits={:?} auto_track(mode={:?}): tracks will vary per cell",
+                    cli.base,
+                    parse_allowed_last_digits(cli.base, &allowed_last_digits),
+                    at_mode
+                );
+            } else {
+                eprintln!(
+                    "[density-explorer] base={} allowed_last_digits={:?} auto_track=false track={:?}  LCM={}{}",
+                    cli.base,
+                    parse_allowed_last_digits(cli.base, &allowed_last_digits),
+                    explicit_track,
+                    lcm_list(&explicit_track),
+                    if lcm_list(&explicit_track) > LCM_CAP { "  (over cap → prod fallback)" } else { "" }
+                );
+            }
 
             let mut entries: Vec<ExplainReport> = Vec::new();
             for mid_len in mid_a..=mid_b {
