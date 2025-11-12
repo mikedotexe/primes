@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ridge Finder Pro - Multi-Base Analysis</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        #controls {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        #controls label {
+            font-weight: 600;
+            color: #495057;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        #controls input[type="text"], #controls select {
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        #controls input[type="text"]:focus, #controls select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        #controls button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            grid-column: span 2;
+        }
+        #controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .base-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: #e7f3ff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .base-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .base-checkbox:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        .base-checkbox input[type="checkbox"] {
+            cursor: pointer;
+        }
+        .chart-container {
+            position: relative;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        canvas {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+        .info {
+            margin: 15px 0;
+            padding: 15px;
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            border-radius: 6px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .insights {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .insights h3 {
+            margin-top: 0;
+            color: #92400e;
+        }
+        .insight-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 6px;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #856404;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        .tab:hover {
+            color: #667eea;
+        }
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏔️ Ridge Finder Pro: Multi-Base Analysis 🏔️</h1>
+        <div class="subtitle">Discovering optimal paths through the prime landscape</div>
+
+        <div class="base-selector">
+            <label class="base-checkbox">
+                <input type="checkbox" id="base6" value="6" checked>
+                <span>Base 6 (Champion 33%)</span>
+            </label>
+            <label class="base-checkbox">
+                <input type="checkbox" id="base10" value="10" checked>
+                <span>Base 10 (Standard)</span>
+            </label>
+            <label class="base-checkbox">
+                <input type="checkbox" id="base12" value="12">
+                <span>Base 12 (Dozenal)</span>
+            </label>
+            <label class="base-checkbox">
+                <input type="checkbox" id="base30" value="30">
+                <span>Base 30 (High Performer 30%)</span>
+            </label>
+        </div>
+
+        <div id="controls">
+            <label>
+                View Mode:
+                <select id="view_mode">
+                    <option value="ridge_compare">Ridge Comparison</option>
+                    <option value="density_compare">Density Comparison</option>
+                    <option value="heatmap">2D Heatmap (iz vs mid_len)</option>
+                    <option value="efficiency">Efficiency Analysis</option>
+                </select>
+            </label>
+            <button onclick="loadAllData()">🚀 Load & Analyze</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('visualization')">📊 Visualization</button>
+            <button class="tab" onclick="switchTab('insights')">💡 AI Insights</button>
+            <button class="tab" onclick="switchTab('patterns')">🔍 Pattern Analysis</button>
+        </div>
+
+        <div id="visualization" class="tab-content active">
+            <div class="info">
+                <div id="status" class="loading">Select bases and click Load & Analyze</div>
+            </div>
+
+            <div class="stats-grid" id="stats" style="display: none;"></div>
+
+            <div class="chart-container">
+                <canvas id="chart" width="1400" height="700"></canvas>
+            </div>
+        </div>
+
+        <div id="insights" class="tab-content">
+            <div class="insights">
+                <h3>🧠 Automated Pattern Recognition</h3>
+                <div id="insight-content">Load data to generate insights...</div>
+            </div>
+        </div>
+
+        <div id="patterns" class="tab-content">
+            <div class="chart-container">
+                <canvas id="pattern-chart" width="1400" height="700"></canvas>
+            </div>
+            <div id="pattern-stats"></div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('chart');
+        const ctx = canvas.getContext('2d');
+        const patternCanvas = document.getElementById('pattern-chart');
+        const patternCtx = patternCanvas.getContext('2d');
+
+        let allData = {};
+        const baseColors = {
+            6: '#10b981',
+            10: '#667eea',
+            12: '#f59e0b',
+            30: '#ef4444'
+        };
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            if (tabName === 'patterns') {
+                drawPatternAnalysis();
+            }
+        }
+
+        async function loadAllData() {
+            document.getElementById('status').textContent = 'Loading ridge data across bases...';
+            document.getElementById('stats').style.display = 'none';
+
+            const selectedBases = [];
+            ['base6', 'base10', 'base12', 'base30'].forEach(id => {
+                if (document.getElementById(id).checked) {
+                    selectedBases.push(parseInt(document.getElementById(id).value));
+                }
+            });
+
+            if (selectedBases.length === 0) {
+                document.getElementById('status').textContent = 'Please select at least one base!';
+                return;
+            }
+
+            allData = {};
+            for (const base of selectedBases) {
+                const filename = base === 10 && window.location.search.includes('comprehensive')
+                    ? 'out/ridge_base10_comprehensive.csv'
+                    : `out/ridge_base${base}.csv`;
+
+                try {
+                    const response = await fetch(filename);
+                    const text = await response.text();
+                    const lines = text.trim().split('\n');
+                    const headers = lines[0].split(',');
+
+                    const data = [];
+                    for (let i = 1; i < lines.length; i++) {
+                        const parts = lines[i].split(',');
+                        const row = {};
+                        headers.forEach((h, idx) => {
+                            row[h] = parts[idx];
+                        });
+                        data.push(row);
+                    }
+                    allData[base] = data;
+                } catch (error) {
+                    console.error(`Error loading base ${base}:`, error);
+                }
+            }
+
+            if (Object.keys(allData).length === 0) {
+                document.getElementById('status').textContent = 'Error: No data could be loaded';
+                return;
+            }
+
+            generateStatistics();
+            generateInsights();
+            drawChart();
+        }
+
+        function generateStatistics() {
+            let totalPoints = 0;
+            let statsHtml = '';
+
+            for (const [base, data] of Object.entries(allData)) {
+                const izValues = data.map(d => parseInt(d.iz_best));
+                const densityValues = data.map(d => parseFloat(d.expected_local_exact) * 100);
+
+                const avgIz = (izValues.reduce((a,b) => a+b, 0) / izValues.length).toFixed(1);
+                const maxDensity = Math.max(...densityValues).toFixed(3);
+                const avgDensity = (densityValues.reduce((a,b) => a+b, 0) / densityValues.length).toFixed(3);
+
+                totalPoints += data.length;
+
+                statsHtml += `
+                    <div class="stat-card" style="background: ${baseColors[base]}">
+                        <div class="stat-label">Base ${base}</div>
+                        <div class="stat-value">${data.length}pts</div>
+                        <div style="font-size: 0.8em; margin-top: 10px;">
+                            Avg iz: ${avgIz}<br>
+                            Max ρ: ${maxDensity}%<br>
+                            Avg ρ: ${avgDensity}%
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('stats').innerHTML = statsHtml;
+            document.getElementById('stats').style.display = 'grid';
+            document.getElementById('status').innerHTML =
+                `Loaded <span class="highlight">${totalPoints}</span> ridge points across <span class="highlight">${Object.keys(allData).length}</span> bases`;
+        }
+
+        function generateInsights() {
+            let insights = '<h3>🧠 Automated Pattern Recognition</h3>';
+
+            // Compare bases
+            if (Object.keys(allData).length > 1) {
+                const densities = {};
+                for (const [base, data] of Object.entries(allData)) {
+                    const vals = data.map(d => parseFloat(d.expected_local_exact) * 100);
+                    densities[base] = vals.reduce((a,b) => a+b) / vals.length;
+                }
+
+                const bestBase = Object.entries(densities).sort((a,b) => b[1] - a[1])[0];
+                insights += `<div class="insight-item">
+                    <strong>🏆 Density Champion:</strong> Base ${bestBase[0]} achieves ${bestBase[1].toFixed(3)}% average expected density across all patterns.
+                </div>`;
+            }
+
+            // Analyze iz patterns
+            for (const [base, data] of Object.entries(allData)) {
+                const izValues = data.map(d => parseInt(d.iz_best));
+                const izCounts = {};
+                izValues.forEach(iz => izCounts[iz] = (izCounts[iz] || 0) + 1);
+                const mostCommon = Object.entries(izCounts).sort((a,b) => b[1] - a[1])[0];
+
+                if (mostCommon[1] >= 3) {
+                    insights += `<div class="insight-item">
+                        <strong>🎯 Base ${base} Pattern:</strong> iz=${mostCommon[0]} appears ${mostCommon[1]} times (${(mostCommon[1]/data.length*100).toFixed(1)}% of patterns).
+                    </div>`;
+                }
+
+                // Detect oscillations
+                const diffs = [];
+                for (let i = 1; i < izValues.length; i++) {
+                    diffs.push(izValues[i] - izValues[i-1]);
+                }
+                const avgDiff = diffs.reduce((a,b) => a+b, 0) / diffs.length;
+                const signChanges = diffs.filter((d, i) => i > 0 && d * diffs[i-1] < 0).length;
+
+                if (signChanges > diffs.length * 0.3) {
+                    insights += `<div class="insight-item">
+                        <strong>🌊 Base ${base} Oscillation:</strong> Ridge path shows ${signChanges} direction changes - highly oscillatory behavior!
+                    </div>`;
+                } else if (Math.abs(avgDiff) < 0.5) {
+                    insights += `<div class="insight-item">
+                        <strong>📏 Base ${base} Stability:</strong> Ridge path is remarkably stable (avg change: ${avgDiff.toFixed(2)}).
+                    </div>`;
+                }
+            }
+
+            document.getElementById('insight-content').innerHTML = insights;
+        }
+
+        function drawChart() {
+            const viewMode = document.getElementById('view_mode').value;
+
+            if (viewMode === 'heatmap') {
+                drawHeatmap();
+            } else {
+                drawComparison(viewMode);
+            }
+        }
+
+        function drawComparison(mode) {
+            const margin = { top: 80, right: 120, bottom: 80, left: 80 };
+            const width = canvas.width - margin.left - margin.right;
+            const height = canvas.height - margin.top - margin.bottom;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Find global ranges
+            let allMidLens = [];
+            let allYVals = [];
+            for (const [base, data] of Object.entries(allData)) {
+                allMidLens.push(...data.map(d => parseInt(d.mid_len)));
+                if (mode === 'ridge_compare') {
+                    allYVals.push(...data.map(d => parseInt(d.iz_best)));
+                } else if (mode === 'density_compare') {
+                    allYVals.push(...data.map(d => parseFloat(d.expected_local_exact) * 100));
+                } else { // efficiency
+                    allYVals.push(...data.map(d => (parseFloat(d.expected_local_exact) * 100) / (parseFloat(d.p_any_exact) * 100 + 0.001)));
+                }
+            }
+
+            const xMin = Math.min(...allMidLens);
+            const xMax = Math.max(...allMidLens);
+            const yMin = Math.min(...allYVals);
+            const yMax = Math.max(...allYVals);
+
+            ctx.save();
+            ctx.translate(margin.left, margin.top);
+
+            // Grid
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const x = (width / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+
+                const y = (height / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+
+            // Axes
+            ctx.strokeStyle = '#1f2937';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            ctx.lineTo(width, height);
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, height);
+            ctx.stroke();
+
+            // X-axis labels
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 5; i++) {
+                const x = (width / 5) * i;
+                const val = xMin + (xMax - xMin) * (i / 5);
+                ctx.fillText(Math.round(val), x, height + 30);
+            }
+
+            // Y-axis labels
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const y = height - (height / 5) * i;
+                const val = yMin + (yMax - yMin) * (i / 5);
+                ctx.fillText(val.toFixed(mode === 'ridge_compare' ? 0 : 2), -10, y + 5);
+            }
+
+            // Plot each base
+            for (const [base, data] of Object.entries(allData)) {
+                const color = baseColors[base];
+                const midLens = data.map(d => parseInt(d.mid_len));
+                let yVals;
+
+                if (mode === 'ridge_compare') {
+                    yVals = data.map(d => parseInt(d.iz_best));
+                } else if (mode === 'density_compare') {
+                    yVals = data.map(d => parseFloat(d.expected_local_exact) * 100);
+                } else {
+                    yVals = data.map(d => (parseFloat(d.expected_local_exact) * 100) / (parseFloat(d.p_any_exact) * 100 + 0.001));
+                }
+
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                let firstPoint = true;
+
+                for (let i = 0; i < midLens.length; i++) {
+                    const x = ((midLens[i] - xMin) / (xMax - xMin)) * width;
+                    const y = height - ((yVals[i] - yMin) / (yMax - yMin)) * height;
+
+                    if (firstPoint) {
+                        ctx.moveTo(x, y);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+                ctx.stroke();
+            }
+
+            ctx.restore();
+
+            // Title
+            const titles = {
+                'ridge_compare': 'Ridge Path Comparison (iz_best)',
+                'density_compare': 'Expected Density Comparison (%)',
+                'efficiency': 'Efficiency: Density / Obstruction Ratio'
+            };
+            ctx.font = 'bold 24px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#1f2937';
+            ctx.fillText(titles[mode], canvas.width / 2, 35);
+
+            // Legend
+            const legendX = margin.left + 30;
+            const legendY = margin.top + 30;
+            let legendOffset = 0;
+
+            for (const [base, _] of Object.entries(allData)) {
+                ctx.fillStyle = baseColors[base];
+                ctx.fillRect(legendX, legendY + legendOffset, 30, 4);
+                ctx.fillStyle = '#1f2937';
+                ctx.font = '14px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Base ${base}`, legendX + 40, legendY + legendOffset + 5);
+                legendOffset += 25;
+            }
+
+            // Axis labels
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Midpoint Length (mid_len)', canvas.width / 2, canvas.height - 20);
+
+            ctx.save();
+            ctx.translate(25, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(titles[mode], 0, 0);
+            ctx.restore();
+        }
+
+        function drawHeatmap() {
+            // Pick first base for heatmap
+            const base = Object.keys(allData)[0];
+            const data = allData[base];
+
+            const margin = { top: 80, right: 120, bottom: 80, left: 80 };
+            const width = canvas.width - margin.left - margin.right;
+            const height = canvas.height - margin.top - margin.bottom;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Get ranges
+            const midLens = data.map(d => parseInt(d.mid_len));
+            const izBests = data.map(d => parseInt(d.iz_best));
+            const densities = data.map(d => parseFloat(d.expected_local_exact) * 100);
+
+            const xMin = Math.min(...midLens);
+            const xMax = Math.max(...midLens);
+            const yMin = Math.min(...izBests);
+            const yMax = Math.max(...izBests);
+            const dMin = Math.min(...densities);
+            const dMax = Math.max(...densities);
+
+            ctx.save();
+            ctx.translate(margin.left, margin.top);
+
+            // Draw heatmap cells
+            const cellWidth = width / (xMax - xMin + 1);
+            const cellHeight = height / (yMax - yMin + 1);
+
+            for (let i = 0; i < data.length; i++) {
+                const mid = parseInt(data[i].mid_len);
+                const iz = parseInt(data[i].iz_best);
+                const density = parseFloat(data[i].expected_local_exact) * 100;
+
+                const x = ((mid - xMin) / (xMax - xMin + 1)) * width;
+                const y = height - ((iz - yMin + 1) / (yMax - yMin + 1)) * height;
+
+                // Color based on density
+                const intensity = (density - dMin) / (dMax - dMin);
+                const r = Math.floor(102 + (16 - 102) * intensity);
+                const g = Math.floor(126 + (185 - 126) * intensity);
+                const b = Math.floor(234 + (129 - 234) * intensity);
+
+                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                ctx.fillRect(x, y, cellWidth, cellHeight);
+
+                // Draw point
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(x + cellWidth/2, y + cellHeight/2, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#1f2937';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            ctx.restore();
+
+            // Title
+            ctx.font = 'bold 24px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#1f2937';
+            ctx.fillText(`Base ${base}: Optimal Ridge Heatmap`, canvas.width / 2, 35);
+
+            // Axes
+            ctx.save();
+            ctx.translate(margin.left, margin.top);
+
+            ctx.strokeStyle = '#1f2937';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            ctx.lineTo(width, height);
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, height);
+            ctx.stroke();
+
+            ctx.restore();
+
+            // Labels
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Midpoint Length', canvas.width / 2, canvas.height - 20);
+
+            ctx.save();
+            ctx.translate(25, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('iz_best', 0, 0);
+            ctx.restore();
+
+            // Color scale legend
+            const legendX = canvas.width - margin.right + 20;
+            const legendY = margin.top;
+            const legendHeight = height;
+
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#1f2937';
+            ctx.fillText('Density', legendX, legendY - 10);
+
+            for (let i = 0; i <= 10; i++) {
+                const y = legendY + (legendHeight / 10) * i;
+                const val = dMax - (dMax - dMin) * (i / 10);
+                const intensity = 1 - (i / 10);
+                const r = Math.floor(102 + (16 - 102) * intensity);
+                const g = Math.floor(126 + (185 - 126) * intensity);
+                const b = Math.floor(234 + (129 - 234) * intensity);
+
+                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                ctx.fillRect(legendX, y, 20, legendHeight / 10);
+
+                ctx.fillStyle = '#1f2937';
+                ctx.fillText(val.toFixed(2) + '%', legendX + 25, y + 10);
+            }
+        }
+
+        function drawPatternAnalysis() {
+            if (Object.keys(allData).length === 0) return;
+
+            const margin = { top: 80, right: 120, bottom: 80, left: 80 };
+            const width = patternCanvas.width - margin.left - margin.right;
+            const height = patternCanvas.height - margin.top - margin.bottom;
+
+            patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height);
+
+            // Analyze periodicity for each base
+            let analysisHtml = '<h3>🔍 Pattern Analysis Results</h3>';
+
+            for (const [base, data] of Object.entries(allData)) {
+                const izValues = data.map(d => parseInt(d.iz_best));
+
+                // Detect cycles
+                const diffs = [];
+                for (let i = 1; i < izValues.length; i++) {
+                    diffs.push(izValues[i] - izValues[i-1]);
+                }
+
+                // Autocorrelation
+                const acf = [];
+                for (let lag = 1; lag <= Math.min(10, diffs.length / 2); lag++) {
+                    let sum = 0;
+                    for (let i = 0; i < diffs.length - lag; i++) {
+                        sum += diffs[i] * diffs[i + lag];
+                    }
+                    acf.push(sum / (diffs.length - lag));
+                }
+
+                analysisHtml += `<div class="insight-item">
+                    <strong>Base ${base} Autocorrelation:</strong><br>
+                    ${acf.slice(0, 5).map((v, i) => `Lag ${i+1}: ${v.toFixed(2)}`).join(', ')}
+                </div>`;
+            }
+
+            document.getElementById('pattern-stats').innerHTML = analysisHtml;
+
+            // Draw autocorrelation plot
+            patternCtx.save();
+            patternCtx.translate(margin.left, margin.top);
+
+            // Grid
+            patternCtx.strokeStyle = '#e5e7eb';
+            patternCtx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const x = (width / 10) * i;
+                patternCtx.beginPath();
+                patternCtx.moveTo(x, 0);
+                patternCtx.lineTo(x, height);
+                patternCtx.stroke();
+
+                const y = (height / 10) * i;
+                patternCtx.beginPath();
+                patternCtx.moveTo(0, y);
+                patternCtx.lineTo(width, y);
+                patternCtx.stroke();
+            }
+
+            // Axes
+            patternCtx.strokeStyle = '#1f2937';
+            patternCtx.lineWidth = 3;
+            patternCtx.beginPath();
+            patternCtx.moveTo(0, height);
+            patternCtx.lineTo(width, height);
+            patternCtx.moveTo(0, 0);
+            patternCtx.lineTo(0, height);
+            patternCtx.stroke();
+
+            patternCtx.restore();
+
+            // Title
+            patternCtx.font = 'bold 24px sans-serif';
+            patternCtx.textAlign = 'center';
+            patternCtx.fillStyle = '#1f2937';
+            patternCtx.fillText('Autocorrelation Analysis (Pattern Cycles)', patternCanvas.width / 2, 35);
+        }
+
+        // Listen for view changes
+        document.getElementById('view_mode').addEventListener('change', drawChart);
+    </script>
+</body>
+</html>

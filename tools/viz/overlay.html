@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pattern Analysis Overlay</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        #controls { margin-bottom: 20px; }
+        #controls > * { margin-right: 10px; }
+        .info { margin: 10px 0; }
+        .canvas-container { position: relative; display: inline-block; }
+        canvas { border: 1px solid #ccc; cursor: crosshair; }
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            pointer-events: none;
+            white-space: pre;
+            z-index: 1000;
+            max-width: 400px;
+        }
+        .legend { margin-top: 10px; }
+        .color-bar {
+            display: inline-block;
+            width: 200px;
+            height: 20px;
+            background: linear-gradient(to right, blue, cyan, green, yellow, red);
+            vertical-align: middle;
+        }
+        .loading { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>Pattern Analysis Overlay</h1>
+
+    <div id="controls">
+        <label>
+            Base: <input type="number" id="base" value="10" min="2" max="100" />
+        </label>
+        <label>
+            CSV file: <input type="text" id="csv_file" value="out/grid.csv" />
+        </label>
+        <label>
+            Metric:
+            <select id="metric">
+                <option value="prime_density">Prime Density</option>
+                <option value="enrichment_vs_pnt_cond">Enrichment vs PNT</option>
+                <option value="enrichment_vs_local" selected>Enrichment vs Local Sieve</option>
+                <option value="enrichment_vs_local_exact">Enrichment vs Local Exact</option>
+                <option value="model_p0">Model P0 (union null prob)</option>
+            </select>
+        </label>
+        <label>
+            Heatmap:
+            <select id="heatmap_mode">
+                <option value="mid_inner">Mid × Inner</option>
+                <option value="outer_inner">Outer × Inner</option>
+                <option value="outer_mid">Outer × Mid</option>
+            </select>
+        </label>
+        <button onclick="loadData()">Refresh</button>
+    </div>
+
+    <div class="info">
+        <div id="status" class="loading">Ready to load data...</div>
+        <div id="pattern_info"></div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="heatmap" width="800" height="600"></canvas>
+        <div class="tooltip" id="tooltip" style="display: none;"></div>
+    </div>
+
+    <div class="legend">
+        <div id="legend_text"></div>
+        <div class="color-bar"></div>
+        <span id="legend_range"></span>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('heatmap');
+        const ctx = canvas.getContext('2d');
+        const tooltip = document.getElementById('tooltip');
+
+        let currentData = null;
+        let minVal = 0, maxVal = 1;
+
+        // Color mapping
+        function valueToColor(val, min, max) {
+            const norm = (val - min) / (max - min);
+            const hue = (1 - norm) * 240; // Blue to Red
+            return `hsl(${hue}, 100%, 50%)`;
+        }
+
+        // Parse pattern string
+        function parsePattern(pattern) {
+            // Example: mid=2,2|base=10
+            const parts = pattern.split('|');
+            const result = {};
+
+            for (const part of parts) {
+                const [key, value] = part.split('=');
+                if (key === 'mid') {
+                    const [outer, inner] = value.split(',').map(Number);
+                    result.outer = outer;
+                    result.inner = inner;
+                } else if (key === 'base') {
+                    result.base = Number(value);
+                }
+            }
+            return result;
+        }
+
+        // Load and process data
+        async function loadData() {
+            const base = document.getElementById('base').value;
+            const csvFile = document.getElementById('csv_file').value;
+            const metric = document.getElementById('metric').value;
+            const heatmapMode = document.getElementById('heatmap_mode').value;
+
+            document.getElementById('status').textContent = 'Loading data...';
+
+            try {
+                const response = await fetch(csvFile);
+                const text = await response.text();
+                const lines = text.trim().split('\n');
+                const headers = lines[0].split(',');
+
+                // Find column indices
+                const patternIdx = headers.indexOf('pattern');
+                const metricIdx = headers.indexOf(metric);
+
+                if (patternIdx === -1 || metricIdx === -1) {
+                    throw new Error(`Column not found: ${metric}`);
+                }
+
+                // Group data by pattern components
+                const dataMap = new Map();
+                let rowCount = 0;
+
+                for (let i = 1; i < lines.length; i++) {
+                    const parts = lines[i].split(',');
+                    const pattern = parsePattern(parts[patternIdx]);
+
+                    if (pattern.base != base) continue;
+
+                    const value = parseFloat(parts[metricIdx]);
+                    const key = heatmapMode === 'mid_inner' ?
+                        `${pattern.outer}_${pattern.inner}` :
+                        heatmapMode === 'outer_inner' ?
+                        `${pattern.outer}_${pattern.inner}` :
+                        `${pattern.outer}_${pattern.outer}`;
+
+                    dataMap.set(key, {
+                        pattern: pattern,
+                        value: value,
+                        row: parts
+                    });
+                    rowCount++;
+                }
+
+                currentData = dataMap;
+                document.getElementById('status').textContent =
+                    `Loaded ${rowCount} patterns for base ${base}`;
+
+                drawHeatmap();
+
+            } catch (error) {
+                document.getElementById('status').textContent =
+                    `Error: ${error.message}`;
+            }
+        }
+
+        // Draw heatmap
+        function drawHeatmap() {
+            if (!currentData) return;
+
+            const heatmapMode = document.getElementById('heatmap_mode').value;
+            const metric = document.getElementById('metric').value;
+
+            // Find data range
+            const values = Array.from(currentData.values()).map(d => d.value);
+            minVal = Math.min(...values);
+            maxVal = Math.max(...values);
+
+            // Determine grid size
+            let xMax = 0, yMax = 0;
+            for (const [key, data] of currentData.entries()) {
+                const p = data.pattern;
+                if (heatmapMode === 'mid_inner') {
+                    xMax = Math.max(xMax, p.inner);
+                    yMax = Math.max(yMax, p.outer);
+                } else if (heatmapMode === 'outer_inner') {
+                    xMax = Math.max(xMax, p.inner);
+                    yMax = Math.max(yMax, p.outer);
+                } else {
+                    xMax = Math.max(xMax, p.outer);
+                    yMax = Math.max(yMax, p.outer);
+                }
+            }
+
+            const cellWidth = canvas.width / (xMax + 1);
+            const cellHeight = canvas.height / (yMax + 1);
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw cells
+            for (const [key, data] of currentData.entries()) {
+                const p = data.pattern;
+                let x, y;
+
+                if (heatmapMode === 'mid_inner') {
+                    x = p.inner * cellWidth;
+                    y = p.outer * cellHeight;
+                } else if (heatmapMode === 'outer_inner') {
+                    x = p.inner * cellWidth;
+                    y = p.outer * cellHeight;
+                } else {
+                    x = p.outer * cellWidth;
+                    y = p.outer * cellHeight;
+                }
+
+                ctx.fillStyle = valueToColor(data.value, minVal, maxVal);
+                ctx.fillRect(x, y, cellWidth, cellHeight);
+
+                // Draw grid lines
+                ctx.strokeStyle = '#ddd';
+                ctx.strokeRect(x, y, cellWidth, cellHeight);
+            }
+
+            // Update legend
+            document.getElementById('legend_text').textContent =
+                `${metric}: `;
+            document.getElementById('legend_range').textContent =
+                `${minVal.toFixed(4)} - ${maxVal.toFixed(4)}`;
+        }
+
+        // Mouse interaction
+        canvas.addEventListener('mousemove', function(e) {
+            if (!currentData) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const heatmapMode = document.getElementById('heatmap_mode').value;
+
+            // Find which cell we're over
+            let found = false;
+            for (const [key, data] of currentData.entries()) {
+                const p = data.pattern;
+                let cellX, cellY;
+
+                // Determine cell size based on data range
+                let xMax = 0, yMax = 0;
+                for (const d of currentData.values()) {
+                    const dp = d.pattern;
+                    if (heatmapMode === 'mid_inner') {
+                        xMax = Math.max(xMax, dp.inner);
+                        yMax = Math.max(yMax, dp.outer);
+                    } else if (heatmapMode === 'outer_inner') {
+                        xMax = Math.max(xMax, dp.inner);
+                        yMax = Math.max(yMax, dp.outer);
+                    } else {
+                        xMax = Math.max(xMax, dp.outer);
+                        yMax = Math.max(yMax, dp.outer);
+                    }
+                }
+
+                const cellWidth = canvas.width / (xMax + 1);
+                const cellHeight = canvas.height / (yMax + 1);
+
+                if (heatmapMode === 'mid_inner') {
+                    cellX = p.inner * cellWidth;
+                    cellY = p.outer * cellHeight;
+                } else if (heatmapMode === 'outer_inner') {
+                    cellX = p.inner * cellWidth;
+                    cellY = p.outer * cellHeight;
+                } else {
+                    cellX = p.outer * cellWidth;
+                    cellY = p.outer * cellHeight;
+                }
+
+                if (x >= cellX && x < cellX + cellWidth &&
+                    y >= cellY && y < cellY + cellHeight) {
+
+                    showTooltip(e, data);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                tooltip.style.display = 'none';
+            }
+        });
+
+        canvas.addEventListener('mouseleave', function() {
+            tooltip.style.display = 'none';
+        });
+
+        function showTooltip(e, data) {
+            const headers = [
+                'pattern', 'base', 'samples', 'primes', 'prime_density',
+                'expected_density_pnt_cond', 'expected_density_local',
+                'expected_density_local_exact', 'enrichment_vs_pnt_cond',
+                'enrichment_vs_local', 'enrichment_vs_local_exact',
+                'tracked_moduli', 'model_p0', 'elapsed_ms'
+            ];
+
+            const row = data.row;
+            const pattern = data.pattern;
+
+            // Build info text with exact LCM status
+            let info = `Pattern: mid=${pattern.outer},${pattern.inner}\n`;
+            info += `Base: ${pattern.base}\n`;
+            info += `━━━━━━━━━━━━━━━━━━━━\n`;
+
+            // Key metrics
+            const densIdx = headers.indexOf('prime_density');
+            const primesIdx = headers.indexOf('primes');
+            const samplesIdx = headers.indexOf('samples');
+            const exactIdx = headers.indexOf('expected_density_local_exact');
+            const enrichExactIdx = headers.indexOf('enrichment_vs_local_exact');
+            const trackedIdx = headers.indexOf('tracked_moduli');
+            const p0Idx = headers.indexOf('model_p0');
+
+            if (densIdx >= 0) {
+                const density = parseFloat(row[densIdx]);
+                const primes = parseInt(row[primesIdx]);
+                const samples = parseInt(row[samplesIdx]);
+                info += `Observed: ${(density*100).toFixed(2)}% (${primes}/${samples})\n`;
+            }
+
+            if (exactIdx >= 0) {
+                const exact = parseFloat(row[exactIdx]);
+                const enrichment = parseFloat(row[enrichExactIdx]);
+                info += `Expected (exact): ${(exact*100).toFixed(2)}%\n`;
+                info += `Enrichment: ${enrichment.toFixed(3)}x\n`;
+            }
+
+            if (trackedIdx >= 0 && p0Idx >= 0) {
+                const tracked = row[trackedIdx];
+                const p0 = parseFloat(row[p0Idx]);
+
+                // Extract LCM indicator if present
+                let lcmStatus = '';
+                const isExact = row[exactIdx] && row[exactIdx] !== '';
+                if (isExact) {
+                    // Check if we used exact LCM or fallback
+                    const localApprox = headers.indexOf('expected_density_local');
+                    if (localApprox >= 0) {
+                        const approx = parseFloat(row[localApprox]);
+                        const exact = parseFloat(row[exactIdx]);
+                        if (Math.abs(approx - exact) < 0.0001) {
+                            lcmStatus = ' (indep)';
+                        } else {
+                            lcmStatus = ' (LCM)';
+                        }
+                    }
+                }
+
+                info += `\n━━━━━━━━━━━━━━━━━━━━\n`;
+                info += `Tracked moduli: ${tracked}\n`;
+                info += `Union P0: ${(p0*100).toFixed(2)}%${lcmStatus}\n`;
+            }
+
+            tooltip.textContent = info;
+            tooltip.style.display = 'block';
+
+            // Position tooltip
+            const rect = canvas.getBoundingClientRect();
+            let left = e.clientX - rect.left + 10;
+            let top = e.clientY - rect.top + 10;
+
+            // Keep tooltip within canvas bounds
+            if (left + tooltip.offsetWidth > canvas.width) {
+                left = e.clientX - rect.left - tooltip.offsetWidth - 10;
+            }
+            if (top + tooltip.offsetHeight > canvas.height) {
+                top = e.clientY - rect.top - tooltip.offsetHeight - 10;
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        }
+
+        // Initial load
+        loadData();
+    </script>
+</body>
+</html>

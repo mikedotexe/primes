@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Prime Density Overlay — Model vs Sample</title>
+<style>
+  :root { --bg:#0b0b0e; --fg:#e8e8ef; --muted:#a0a3b1; --grid:#1b1e28; --accent:#5eead4; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji","Segoe UI Emoji"; }
+  header { padding:12px 16px; border-bottom:1px solid #222634; display:flex; gap:16px; align-items:center; flex-wrap:wrap;}
+  header h1 { font-size:16px; margin:0; letter-spacing:.2px; color:#cdd1e0; }
+  .row { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  input[type="file"]{ color:var(--muted); }
+  main { display:flex; height:calc(100% - 62px); }
+  aside { width:320px; border-right:1px solid #222634; padding:12px; overflow:auto;}
+  section { flex:1; position:relative; display:flex; flex-direction:column; }
+  #canvas { flex:1; background:linear-gradient(45deg, #0d0f16, #0a0c12); image-rendering: pixelated; }
+  .legend { display:flex; gap:6px; align-items:center; font-size:12px; color:var(--muted); padding:8px 12px;}
+  .swatch { width:100px; height:10px; background:linear-gradient(90deg,#2dd4bf, #1e293b 50%, #f43f5e); border-radius:2px; }
+  .meta { font-size:12px; color:var(--muted); padding:8px 12px; border-top:1px solid #222634; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:4px 8px; }
+  .kv div:first-child{ color:#9aa1b5; }
+  .pill { display:inline-block; padding:2px 6px; border:1px solid #2b3042; border-radius:999px; color:#cfd6f6; background:#121521; margin:2px 2px 0 0; font-size:12px;}
+  .ctrls label { display:flex; align-items:center; gap:6px; }
+  .ctrls input[type="checkbox"]{ transform:translateY(1px); }
+  .sep { height:1px; background:#222634; margin:8px 0; }
+  .small { color:#9aa1b5; font-size:12px;}
+  .err { color:#f87171; }
+  .ok { color:#34d399; }
+  a { color:#93c5fd; text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  code { background:#121521; padding:1px 4px; border-radius:4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Prime Density Overlay — Model vs Sample</h1>
+  <div class="row">
+    <label>Sample CSV <input id="file-sample" type="file" accept=".csv"/></label>
+    <label>Model CSV <input id="file-model" type="file" accept=".csv"/></label>
+    <label>Explain JSON <input id="file-explain" type="file" accept=".json"/></label>
+  </div>
+</header>
+<main>
+  <aside>
+    <div class="ctrls">
+      <div class="kv" style="margin-bottom:6px">
+        <div>Base</div><div id="meta-base">—</div>
+        <div>Cells</div><div id="meta-cells">—</div>
+        <div>mid_len</div><div id="meta-mid">—</div>
+        <div>inner_zero</div><div id="meta-iz">—</div>
+      </div>
+      <div class="sep"></div>
+      <label><input id="toggle-norm" type="checkbox" checked/> Show Δ as enrichment (obs / local_exact - 1)</label>
+      <label><input id="toggle-abs" type="checkbox"/> Show absolute Δ (obs - local_exact)</label>
+      <label><input id="toggle-ci" type="checkbox" checked/> Fade by 95% CI width</label>
+      <label><input id="toggle-grid" type="checkbox" checked/> Grid lines</label>
+      <div class="sep"></div>
+      <label>Cell size <input id="cell-size" type="range" min="8" max="28" value="16"/></label>
+      <div class="small">Scroll canvas to pan, Alt+Scroll to zoom.</div>
+      <div class="sep"></div>
+      <div id="cell-info" class="small">Load data to inspect a cell.</div>
+    </div>
+  </aside>
+  <section>
+    <canvas id="canvas"></canvas>
+    <div class="legend">
+      <div>Δ Model vs Sample</div>
+      <div class="swatch"></div>
+      <div class="small">left = model &gt; sample (teal), right = sample &gt; model (rose)</div>
+    </div>
+    <div class="meta small" id="meta"></div>
+  </section>
+</main>
+
+<script>
+const $ = sel => document.querySelector(sel);
+const state = {
+  sample: null,
+  model: null,
+  explain: null,
+  grid: null,
+  keys: { mids: [], izs: [] },
+  base: null,
+  cell: { size: 16, zoom: 1, ox: 0, oy: 0 },
+};
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  const header = lines[0].split(',');
+  const rows = lines.slice(1).map(line => {
+    let parts = [];
+    let cur = '';
+    let depth = 0;
+    for (let i=0;i<line.length;i++) {
+      const ch = line[i];
+      if (ch === '[') depth++;
+      if (ch === ']') depth = Math.max(0, depth-1);
+      if (ch === ',' && depth===0) { parts.push(cur); cur=''; }
+      else cur += ch;
+    }
+    parts.push(cur);
+    const obj = {};
+    header.forEach((h,idx)=> obj[h]=parts[idx]);
+    return obj;
+  });
+  return { header, rows };
+}
+
+function parseVec(s){ try { return JSON.parse(s); } catch(e){ return []; } }
+
+function indexGrid(sampleRows, modelRows, explainArr){
+  const mids = Array.from(new Set(sampleRows.map(r=>+r.mid_len))).sort((a,b)=>a-b);
+  const izs = Array.from(new Set(sampleRows.map(r=>+r.inner_zero))).sort((a,b)=>a-b);
+  const key = (m,z)=> m+'_'+z;
+  const smap = new Map(sampleRows.map(r => [key(+r.mid_len,+r.inner_zero), r]));
+  const mmap = new Map(modelRows.map(r => [key(+r.mid_len,+r.inner_zero), r]));
+  const emap = new Map();
+  for (const e of explainArr||[]) { emap.set(key(+e.mid_len,+e.inner_zero), e); }
+  const grid = [];
+  for (let i=0;i<mids.length;i++){
+    for(let j=0;j<izs.length;j++){
+      const k = key(mids[i], izs[j]);
+      grid.push({ mid:mids[i], iz:izs[j], s: smap.get(k), m: mmap.get(k), e: emap.get(k) });
+    }
+  }
+  return { mids, izs, grid };
+}
+
+function colorForDelta(delta){
+  const x = Math.max(-1, Math.min(1, delta));
+  const t = (x+1)/2;
+  const teal = [45,212,191], rose=[244,63,94], mid=[30,41,59];
+  const lerp=(a,b,t)=>Math.round(a+(b-a)*t);
+  const c=[lerp(teal[0],mid[0],Math.abs(x)),lerp(teal[1],mid[1],Math.abs(x)),lerp(teal[2],mid[2],Math.abs(x))];
+  const d=[lerp(mid[0],rose[0],Math.abs(x)),lerp(mid[1],rose[1],Math.abs(x)),lerp(mid[2],rose[2],Math.abs(x))];
+  const rgb = x<0 ? c : d;
+  return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+}
+
+function draw(){
+  const cvs = $('#canvas'); const ctx = cvs.getContext('2d');
+  const sz = +$('#cell-size').value * state.cell.zoom | 0;
+  const pad = 24;
+  const {mids, izs, grid} = state.grid || {};
+  const W = Math.max(300, (mids?.length||10)*sz + pad*2);
+  const H = Math.max(300, (izs?.length||10)*sz + pad*2);
+  cvs.width = W; cvs.height = H;
+  ctx.fillStyle = '#0a0c12'; ctx.fillRect(0,0,W,H);
+
+  if (!grid){ $('#meta').textContent = 'Load sample, model, explain files.'; return; }
+
+  if ($('#toggle-grid').checked){
+    ctx.strokeStyle = '#222634'; ctx.lineWidth = 1;
+    for(let i=0;i<=mids.length;i++){ const x = pad + i*sz; ctx.beginPath(); ctx.moveTo(x,pad); ctx.lineTo(x,pad+izs.length*sz); ctx.stroke(); }
+    for(let j=0;j<=izs.length;j++){ const y = pad + j*sz; ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(pad+mids.length*sz,y); ctx.stroke(); }
+  }
+
+  for (let j=0;j<izs.length;j++){
+    for (let i=0;i<mids.length;i++){
+      const cell = grid[j*mids.length+i];
+      if (!cell) continue;
+      let obs = null, pred = null, ciw = 0.0;
+      if (cell.s) {
+        obs = +cell.s.prime_density;
+        pred = +cell.s.expected_density_local_exact || +cell.s.expected_density_local || 0;
+        ciw = (+cell.s.ci_hi - +cell.s.ci_lo) || 0.0;
+      } else if (cell.m) {
+        pred = +cell.m.expected_density_local_exact || +cell.m.expected_density_local || 0;
+      }
+      let delta = 0;
+      if (obs != null && pred != null) {
+        if ($('#toggle-norm').checked) delta = obs / (pred||1e-16) - 1;
+        else if ($('#toggle-abs').checked) delta = obs - pred;
+      } else { delta = 0; }
+      const x = pad + i*sz + state.cell.ox;
+      const y = pad + j*sz + state.cell.oy;
+      ctx.fillStyle = colorForDelta(delta);
+      ctx.fillRect(x,y,sz,sz);
+      if ($('#toggle-ci').checked && ciw>0){
+        const fade = Math.max(0.2, Math.min(1.0, 1.0 - ciw*800));
+        ctx.fillStyle = `rgba(0,0,0,${1.0-fade})`;
+        ctx.fillRect(x,y,sz,sz);
+      }
+    }
+  }
+  ctx.fillStyle = '#9aa1b5'; ctx.font = '12px system-ui';
+  for (let i=0;i<mids.length;i++){ ctx.fillText(String(mids[i]), pad + i*sz + 4, pad - 6); }
+  for (let j=0;j<izs.length;j++){ ctx.fillText(String(izs[j]), 4, pad + j*sz + 12); }
+  $('#meta-cells').textContent = (mids.length*izs.length)+'';
+  $('#meta-mid').textContent = mids[0]+'..'+mids[mids.length-1];
+  $('#meta-iz').textContent = izs[0]+'..'+izs[izs.length-1];
+}
+
+function loadFile(input, cb){
+  const f = input.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => cb(reader.result);
+  reader.readAsText(f);
+}
+
+$('#file-sample').addEventListener('change', e=>{
+  loadFile(e.target, text=>{
+    const {rows} = parseCSV(text);
+    state.sample = rows.map(r=>({
+      ...r,
+      base:+r.base, mid_len:+r.mid_len, inner_zero:+r.inner_zero,
+      prime_density:+r.prime_density, expected_density_local:+r.expected_density_local,
+      expected_density_local_exact:+r.expected_density_local_exact,
+      ci_lo:+r.ci_lo, ci_hi:+r.ci_hi
+    }));
+    tryIndex();
+  });
+});
+$('#file-model').addEventListener('change', e=>{
+  loadFile(e.target, text=>{
+    const {rows} = parseCSV(text);
+    state.model = rows.map(r=>({
+      ...r,
+      base:+r.base, mid_len:+r.mid_len, inner_zero:+r.inner_zero,
+      expected_density_local:+r.expected_density_local,
+      expected_density_local_exact:+r.expected_density_local_exact
+    }));
+    tryIndex();
+  });
+});
+$('#file-explain').addEventListener('change', e=>{
+  loadFile(e.target, text=>{
+    state.explain = JSON.parse(text);
+    tryIndex();
+  });
+});
+
+function tryIndex(){
+  if (!state.sample || !state.model) { draw(); return; }
+  const {mids, izs, grid} = indexGrid(state.sample, state.model, state.explain);
+  state.grid = { mids, izs, grid };
+  state.keys = { mids, izs };
+  draw();
+}
+
+$('#cell-size').addEventListener('input', draw);
+$('#toggle-norm').addEventListener('change', draw);
+$('#toggle-abs').addEventListener('change', draw);
+$('#toggle-ci').addEventListener('change', draw);
+$('#toggle-grid').addEventListener('change', draw);
+
+function cellAt(clientX, clientY){
+  const rect = $('#canvas').getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  const pad = 24, sz = +$('#cell-size').value * state.cell.zoom | 0;
+  const {mids, izs} = state.grid || {};
+  const i = Math.floor((x - pad - state.cell.ox) / sz);
+  const j = Math.floor((y - pad - state.cell.oy) / sz);
+  if (i<0 || j<0 || !mids || !izs || i>=mids.length || j>=izs.length) return null;
+  return { i, j, mid: mids[i], iz: izs[j] };
+}
+
+function updateCellInfo(mid, iz){
+  const {grid} = state;
+  const mids = state.keys.mids, izs = state.keys.izs;
+  const idx = mids.indexOf(mid), idy = izs.indexOf(iz);
+  const cell = grid.grid[idy*mids.length + idx];
+  const s = cell.s, m = cell.m, e = cell.e;
+  const base = s ? +s.base : (m ? +m.base : (e ? +e.base : null));
+  state.base = base;
+  $('#meta-base').textContent = base ?? '—';
+  function pct(x){ return (x==null || isNaN(x)) ? '—' : ((x*100).toFixed(2)+'%'); }
+  let obs = s? +s.prime_density : null;
+  let pred = (s? (+s.expected_density_local_exact||+s.expected_density_local) : (m? (+m.expected_density_local_exact||+m.expected_density_local) : null));
+  let enr = (obs!=null && pred!=null) ? (obs/(pred||1e-16)) : null;
+  const tracked = s? parseVec(s.tracked_moduli) : (m? parseVec(m.tracked_moduli) : []);
+  const topMods = e? (e.model_p0||[]).slice().sort((a,b)=>b[1]-a[1]).slice(0,6) : [];
+  let html = `<div class="kv">
+    <div>mid_len</div><div><b>${mid}</b></div>
+    <div>inner_zero</div><div><b>${iz}</b></div>
+    <div>obs density</div><div>${pct(obs)}</div>
+    <div>pred density</div><div>${pct(pred)}</div>
+    <div>enrichment</div><div>${enr!=null? (enr.toFixed(3)+'×'): '—'}</div>
+    <div>tracked</div><div>${tracked.map(p=>'<span class="pill">'+p+'</span>').join('')}</div>
+  </div>`;
+  if (e){
+    html += `<div class="sep"></div><div class="small">Dominant small-mod contributors (model P(n≡0 mod p))</div>`;
+    html += `<div class="kv">`;
+    for (const item of topMods){
+      html += `<div>p=${item[0]}</div><div>${(item[1]*100).toFixed(2)}%</div>`;
+    }
+    if (e.union_p_any!=null){
+      html += `<div>union(any)</div><div>${(e.union_p_any*100).toFixed(2)}%</div>`;
+    }
+    html += `</div>`;
+  }
+  $('#cell-info').innerHTML = html;
+}
+
+$('#canvas').addEventListener('mousemove', e=>{
+  if (!state.grid) return;
+  const hit = cellAt(e.clientX, e.clientY);
+  if (!hit) return;
+  updateCellInfo(hit.mid, hit.iz);
+});
+
+let pan = false; let last = null;
+$('#canvas').addEventListener('mousedown', e=>{ pan = true; last = {x:e.clientX, y:e.clientY}; });
+window.addEventListener('mouseup', ()=>{ pan=false; last=null; });
+window.addEventListener('mousemove', e=>{
+  if (!pan || !state.grid) return;
+  const dx = e.clientX - last.x, dy = e.clientY - last.y; last = {x:e.clientX, y:e.clientY};
+  state.cell.ox += dx; state.cell.oy += dy; draw();
+});
+window.addEventListener('wheel', e=>{
+  if (!e.altKey) return;
+  e.preventDefault();
+  const z = state.cell.zoom * (e.deltaY<0 ? 1.1 : 0.9);
+  state.cell.zoom = Math.max(0.5, Math.min(2.0, z));
+  draw();
+},{passive:false});
+</script>
+</body>
+</html>

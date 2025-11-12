@@ -1,0 +1,46 @@
+base = 10
+seed = 42
+
+# Grid analysis with automatic moduli tracking
+[[jobs]]
+kind = "grid"
+mid_kind = "free"
+mid_len_range = "1..6"
+inner_zero_range = "0..8"
+mid_len = 0          # ignored for mid_kind="free"
+inner_slot = 1
+outer_layers = ["0:1"]
+samples = 10000
+allowed_last_digits = "1,3,7,9"
+out_csv = "out/auto_track_grid.csv"
+mirror = false
+# Auto-select tracking moduli based on impact
+track_moduli = ""
+auto_track = { enable = true, pmax = 97, k = 8, min_p0 = 0.05 }
+explain_limit = 10
+pre_sieve = true
+
+# Compare with fixed tracking for specific patterns
+[[jobs]]
+kind = "sample"
+midpoint = "free:2"
+layers = ["2:1", "0:1"]
+samples = 40000
+allowed_last_digits = "1,3,7,9"
+out_csv = "out/auto_track_sample1.csv"
+# Fixed tracking for comparison
+track_moduli = "3,7,11,13"
+auto_track = { enable = false }
+pre_sieve = true
+
+[[jobs]]
+kind = "sample"
+midpoint = "free:5"
+layers = ["0:1", "0:1"]
+samples = 40000
+allowed_last_digits = "1,3,7,9"
+out_csv = "out/auto_track_sample2.csv"
+# Fixed tracking for comparison
+track_moduli = "3,7,11,13"
+auto_track = { enable = false }
+pre_sieve = true

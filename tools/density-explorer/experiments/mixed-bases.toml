@@ -1,0 +1,152 @@
+# You can override per-job base/seed below; top-level defaults apply when omitted.
+base = 10
+seed = 42
+
+# ---------- Base-10 grid (spacing-only), plus model and explain ----------
+[[jobs]]
+kind = "grid"
+base = 10
+mid_kind = "free"
+mid_len_range = "1..12"
+inner_zero_range = "0..8"
+inner_slot = 1
+outer_layers = ["0:1"]
+samples = 40000
+allowed_last_digits = "1,3,7,9"
+out_csv = "out/b10_grid.csv"
+parallel = true
+mirror = false
+track_moduli = "3,5,7,11"
+pre_sieve = true
+
+[[jobs]]
+kind = "model-only"
+base = 10
+mid_kind = "free"
+mid_len_range = "1..12"
+inner_zero_range = "0..8"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,3,7,9"
+out_csv = "out/b10_model.csv"
+mirror = false
+track_moduli = "3,5,7,11"
+
+[[jobs]]
+kind = "explain-grid"
+base = 10
+mid_kind = "free"
+mid_len_range = "1..12"
+inner_zero_range = "0..8"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,3,7,9"
+out_json = "out/b10_explain.json"
+mirror = false
+track_moduli = "3,5,7,11"
+
+# ---------- Base-12 grid (spacing-only), Euler-phi friendly last digits ----------
+[[jobs]]
+kind = "grid"
+base = 12
+mid_kind = "free"
+mid_len_range = "1..12"
+inner_zero_range = "0..8"
+inner_slot = 1
+outer_layers = ["0:1"]
+samples = 40000
+# For base 12, digits coprime to 12 are {1,5,7,11}
+allowed_last_digits = "1,5,7,11"
+out_csv = "out/b12_grid.csv"
+parallel = true
+mirror = false
+track_moduli = "5,7,11,13"
+pre_sieve = true
+
+[[jobs]]
+kind = "model-only"
+base = 12
+mid_kind = "free"
+mid_len_range = "1..12"
+inner_zero_range = "0..8"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,5,7,11"
+out_csv = "out/b12_model.csv"
+mirror = false
+track_moduli = "5,7,11,13"
+
+[[jobs]]
+kind = "explain-grid"
+base = 12
+mid_kind = "free"
+mid_len_range = "1..12"
+inner_zero_range = "0..8"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,5,7,11"
+out_json = "out/b12_explain.json"
+mirror = false
+track_moduli = "5,7,11,13"
+
+# ---------- Base-12 mirrored (value-palindrome) to expose the (b+1) wall ----------
+# Even total length ⇒ divisible by (b+1)=13 ⇒ prime density collapses except trivial cases.
+# Odd total length avoids the wall; the grid mixes parities so you see the "striping".
+[[jobs]]
+kind = "grid"
+base = 12
+mid_kind = "free"
+mid_len_range = "1..10"
+inner_zero_range = "0..6"
+inner_slot = 1
+outer_layers = ["0:1"]
+samples = 30000
+allowed_last_digits = "1,5,7,11"
+out_csv = "out/b12_mirror_grid.csv"
+parallel = true
+mirror = true
+track_moduli = "5,7,11,13"
+pre_sieve = true
+
+[[jobs]]
+kind = "model-only"
+base = 12
+mid_kind = "free"
+mid_len_range = "1..10"
+inner_zero_range = "0..6"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,5,7,11"
+out_csv = "out/b12_mirror_model.csv"
+mirror = true
+track_moduli = "5,7,11,13"
+
+[[jobs]]
+kind = "explain-grid"
+base = 12
+mid_kind = "free"
+mid_len_range = "1..10"
+inner_zero_range = "0..6"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,5,7,11"
+out_json = "out/b12_mirror_explain.json"
+mirror = true
+track_moduli = "5,7,11,13"
+
+# ---------- Base-2 sample (binary), spacing-only ----------
+# Last digit must be 1 to avoid even numbers.
+[[jobs]]
+kind = "sample"
+base = 2
+seed = 1337
+midpoint = "free:5"
+layers = ["0:3","2:2"]         # total_len = 5 + 2*(0+3 + 2+2) = 5 + 2*7 = 19 (odd)
+samples = 100000
+allowed_last_digits = "1"
+parallel = true
+mirror = false
+track_moduli = "3,5,7"
+pre_sieve = true
+out_json = "out/b2_sample.json"
+out_csv  = "out/b2_sample.csv"

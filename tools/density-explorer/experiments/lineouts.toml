@@ -1,0 +1,42 @@
+base = 10
+seed = 42
+
+# Lineout varying midpoint length, fixing inner_zero
+[[jobs]]
+kind = "lineout"
+axis = "mid"
+mid_kind = "free"
+range = "1..20"
+inner_zero = 2
+mid_len = 0         # ignored for axis="mid"
+inner_slot = 1
+outer_layers = ["0:1"]
+samples = 40000
+allowed_last_digits = "auto"  # Auto-selects coprime digits: 1,3,7,9
+out_csv = "out/lineout_mid.csv"
+parallel = true
+mirror = false
+track_moduli = ""
+pre_sieve = true
+model_only = false
+auto_track = { enable = true, pmax = 97, k = 8, min_p0 = 0.03 }
+
+# Lineout varying inner_zero, fixing midpoint length
+[[jobs]]
+kind = "lineout"
+axis = "iz"
+mid_kind = "free"
+range = "0..12"
+inner_zero = 0      # ignored for axis="iz"
+mid_len = 5
+inner_slot = 1
+outer_layers = ["0:1"]
+samples = 40000
+allowed_last_digits = "auto"  # Auto-selects coprime digits: 1,3,7,9
+out_csv = "out/lineout_iz.csv"
+parallel = true
+mirror = false
+track_moduli = ""
+pre_sieve = true
+model_only = false
+auto_track = { enable = true, pmax = 97, k = 8, min_p0 = 0.03 }

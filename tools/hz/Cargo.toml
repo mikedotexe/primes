@@ -1,18 +1,17 @@
 [package]
-name = "density-explorer"
+name = "hz"
 version = "0.1.0"
 edition = "2021"
-description = "Prime density exploration for symmetric zero-padding templates"
+description = "Post-processing CLI for prime-density grids"
 license = "MIT"
 authors = ["Collaborative PE"]
 
+[[bin]]
+name = "hz"
+path = "src/main.rs"
+
 [dependencies]
-rand = "0.8"
 clap = { version = "4.5.4", features = ["derive"] }
+primes = { path = "../.." }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-num-bigint = "0.4"
-num-traits = "0.2"
-rayon = "1.10"
-statrs = "0.16"
-toml = "0.8"

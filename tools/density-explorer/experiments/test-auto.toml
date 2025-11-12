@@ -1,0 +1,15 @@
+base = 12
+seed = 42
+
+[[jobs]]
+kind = "model-only"
+mid_kind = "free"
+mid_len_range = "1..5"
+inner_zero_range = "0..3"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "auto"  # Should select 1,5,7,11 (coprime to 12)
+out_csv = "out/test_auto.csv"
+mirror = false
+track_moduli = ""
+auto_track = { enable = true, mode = "global", pmax = 97, k = 8, min_p0 = 0.03 }

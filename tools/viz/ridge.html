@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ridge Finder Visualization</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        #controls {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        #controls > * { margin-right: 10px; }
+        #controls label {
+            font-weight: 600;
+            color: #495057;
+        }
+        #controls input[type="text"] {
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        #controls input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        #controls select {
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        #controls select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        #controls button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        #controls button:active {
+            transform: translateY(0);
+        }
+        .chart-container {
+            position: relative;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        canvas {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+        .info {
+            margin: 15px 0;
+            padding: 15px;
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            border-radius: 6px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ridge Finder: Optimal Inner Zero Explorer</h1>
+        <div class="subtitle">Finding the path of minimal small-mod obstruction</div>
+
+        <div id="controls">
+            <label>
+                CSV file: <input type="text" id="csv_file" value="out/ridge_mid_vs_best_iz.csv" />
+            </label>
+            <label>
+                View:
+                <select id="view_mode">
+                    <option value="ridge">Ridge Path (iz_best vs mid_len)</option>
+                    <option value="density">Expected Density Along Ridge</option>
+                    <option value="obstruction">Obstruction Level (p_any_exact)</option>
+                    <option value="dual">Dual: Ridge + Density</option>
+                </select>
+            </label>
+            <button onclick="loadData()">Load & Visualize</button>
+        </div>
+
+        <div class="info">
+            <div id="status" class="loading">Ready to load ridge data...</div>
+        </div>
+
+        <div class="stats-grid" id="stats" style="display: none;"></div>
+
+        <div class="chart-container">
+            <canvas id="chart" width="1200" height="700"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('chart');
+        const ctx = canvas.getContext('2d');
+
+        let currentData = null;
+
+        async function loadData() {
+            const csvFile = document.getElementById('csv_file').value;
+            document.getElementById('status').textContent = 'Loading ridge data...';
+            document.getElementById('stats').style.display = 'none';
+
+            try {
+                const response = await fetch(csvFile);
+                const text = await response.text();
+                const lines = text.trim().split('\n');
+                const headers = lines[0].split(',');
+
+                const data = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const parts = lines[i].split(',');
+                    const row = {};
+                    headers.forEach((h, idx) => {
+                        row[h] = parts[idx];
+                    });
+                    data.push(row);
+                }
+
+                currentData = data;
+
+                // Calculate statistics
+                const izValues = data.map(d => parseInt(d.iz_best));
+                const densityValues = data.map(d => parseFloat(d.expected_local_exact));
+                const obstructionValues = data.map(d => parseFloat(d.p_any_exact));
+
+                const avgIz = (izValues.reduce((a,b) => a+b, 0) / izValues.length).toFixed(2);
+                const maxDensity = Math.max(...densityValues);
+                const minObstruction = Math.min(...obstructionValues);
+                const izRange = Math.max(...izValues) - Math.min(...izValues);
+
+                // Display stats
+                const statsHtml = `
+                    <div class="stat-card">
+                        <div class="stat-label">Data Points</div>
+                        <div class="stat-value">${data.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg iz_best</div>
+                        <div class="stat-value">${avgIz}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">iz Range</div>
+                        <div class="stat-value">${izRange}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Max Density</div>
+                        <div class="stat-value">${(maxDensity * 100).toFixed(2)}%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Min Obstruction</div>
+                        <div class="stat-value">${(minObstruction * 100).toFixed(1)}%</div>
+                    </div>
+                `;
+                document.getElementById('stats').innerHTML = statsHtml;
+                document.getElementById('stats').style.display = 'grid';
+
+                document.getElementById('status').innerHTML =
+                    `Loaded <span class="highlight">${data.length}</span> ridge points from base ${data[0].base}`;
+
+                drawChart();
+
+            } catch (error) {
+                document.getElementById('status').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function drawChart() {
+            if (!currentData) return;
+
+            const viewMode = document.getElementById('view_mode').value;
+
+            if (viewMode === 'dual') {
+                drawDualChart();
+            } else {
+                drawSingleChart(viewMode);
+            }
+        }
+
+        function drawSingleChart(mode) {
+            const midLens = currentData.map(d => parseInt(d.mid_len));
+            let yVals, yLabel, yColor;
+
+            if (mode === 'ridge') {
+                yVals = currentData.map(d => parseInt(d.iz_best));
+                yLabel = 'Optimal Inner Zero (iz_best)';
+                yColor = '#667eea';
+            } else if (mode === 'density') {
+                yVals = currentData.map(d => parseFloat(d.expected_local_exact) * 100);
+                yLabel = 'Expected Prime Density (%)';
+                yColor = '#10b981';
+            } else { // obstruction
+                yVals = currentData.map(d => parseFloat(d.p_any_exact) * 100);
+                yLabel = 'Obstruction Level p_any (%)';
+                yColor = '#ef4444';
+            }
+
+            const xMin = Math.min(...midLens);
+            const xMax = Math.max(...midLens);
+            const yMin = Math.min(...yVals.filter(v => !isNaN(v)));
+            const yMax = Math.max(...yVals.filter(v => !isNaN(v)));
+
+            const margin = { top: 60, right: 80, bottom: 80, left: 80 };
+            const width = canvas.width - margin.left - margin.right;
+            const height = canvas.height - margin.top - margin.bottom;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(margin.left, margin.top);
+
+            // Draw grid
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const x = (width / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+
+                const y = (height / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+
+            // Draw axes
+            ctx.strokeStyle = '#1f2937';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            ctx.lineTo(width, height);
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, height);
+            ctx.stroke();
+
+            // X-axis labels
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 5; i++) {
+                const x = (width / 5) * i;
+                const val = xMin + (xMax - xMin) * (i / 5);
+                ctx.fillText(Math.round(val), x, height + 30);
+            }
+
+            // Y-axis labels
+            ctx.textAlign = 'right';
+            ctx.fillStyle = yColor;
+            for (let i = 0; i <= 5; i++) {
+                const y = height - (height / 5) * i;
+                const val = yMin + (yMax - yMin) * (i / 5);
+                ctx.fillText(val.toFixed(mode === 'ridge' ? 0 : 2), -10, y + 5);
+            }
+
+            // Plot line
+            ctx.strokeStyle = yColor;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            let firstPoint = true;
+            for (let i = 0; i < midLens.length; i++) {
+                if (!isNaN(yVals[i])) {
+                    const x = ((midLens[i] - xMin) / (xMax - xMin)) * width;
+                    const y = height - ((yVals[i] - yMin) / (yMax - yMin)) * height;
+
+                    if (firstPoint) {
+                        ctx.moveTo(x, y);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+
+                    // Draw point
+                    ctx.fillStyle = yColor;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+            ctx.stroke();
+
+            ctx.restore();
+
+            // Title
+            ctx.font = 'bold 24px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#1f2937';
+            ctx.fillText(yLabel + ' vs Midpoint Length', canvas.width / 2, 35);
+
+            // X-axis label
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillText('Midpoint Length (mid_len)', canvas.width / 2, canvas.height - 20);
+
+            // Y-axis label
+            ctx.save();
+            ctx.translate(25, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = yColor;
+            ctx.fillText(yLabel, 0, 0);
+            ctx.restore();
+        }
+
+        function drawDualChart() {
+            const midLens = currentData.map(d => parseInt(d.mid_len));
+            const izVals = currentData.map(d => parseInt(d.iz_best));
+            const densityVals = currentData.map(d => parseFloat(d.expected_local_exact) * 100);
+
+            const xMin = Math.min(...midLens);
+            const xMax = Math.max(...midLens);
+            const y1Min = Math.min(...izVals);
+            const y1Max = Math.max(...izVals);
+            const y2Min = Math.min(...densityVals);
+            const y2Max = Math.max(...densityVals);
+
+            const margin = { top: 60, right: 120, bottom: 80, left: 80 };
+            const width = canvas.width - margin.left - margin.right;
+            const height = canvas.height - margin.top - margin.bottom;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(margin.left, margin.top);
+
+            // Draw grid
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const x = (width / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+
+                const y = (height / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+
+            // Draw axes
+            ctx.strokeStyle = '#1f2937';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            ctx.lineTo(width, height);
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, height);
+            ctx.stroke();
+
+            // X-axis labels
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 5; i++) {
+                const x = (width / 5) * i;
+                const val = xMin + (xMax - xMin) * (i / 5);
+                ctx.fillText(Math.round(val), x, height + 30);
+            }
+
+            // Y1-axis labels (left - iz_best)
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#667eea';
+            for (let i = 0; i <= 5; i++) {
+                const y = height - (height / 5) * i;
+                const val = y1Min + (y1Max - y1Min) * (i / 5);
+                ctx.fillText(Math.round(val), -10, y + 5);
+            }
+
+            // Y2-axis labels (right - density)
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#10b981';
+            for (let i = 0; i <= 5; i++) {
+                const y = height - (height / 5) * i;
+                const val = y2Min + (y2Max - y2Min) * (i / 5);
+                ctx.fillText(val.toFixed(2) + '%', width + 10, y + 5);
+            }
+
+            // Plot iz_best
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            let firstPoint = true;
+            for (let i = 0; i < midLens.length; i++) {
+                const x = ((midLens[i] - xMin) / (xMax - xMin)) * width;
+                const y = height - ((izVals[i] - y1Min) / (y1Max - y1Min)) * height;
+
+                if (firstPoint) {
+                    ctx.moveTo(x, y);
+                    firstPoint = false;
+                } else {
+                    ctx.lineTo(x, y);
+                }
+
+                ctx.fillStyle = '#667eea';
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            ctx.stroke();
+
+            // Plot density
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([8, 4]);
+            ctx.beginPath();
+            firstPoint = true;
+            for (let i = 0; i < midLens.length; i++) {
+                const x = ((midLens[i] - xMin) / (xMax - xMin)) * width;
+                const y = height - ((densityVals[i] - y2Min) / (y2Max - y2Min)) * height;
+
+                if (firstPoint) {
+                    ctx.moveTo(x, y);
+                    firstPoint = false;
+                } else {
+                    ctx.lineTo(x, y);
+                }
+
+                ctx.fillStyle = '#10b981';
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.restore();
+
+            // Title
+            ctx.font = 'bold 24px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#1f2937';
+            ctx.fillText('Ridge Path & Expected Density', canvas.width / 2, 35);
+
+            // X-axis label
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillText('Midpoint Length (mid_len)', canvas.width / 2, canvas.height - 20);
+
+            // Y-axis labels
+            ctx.save();
+            ctx.translate(25, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = '#667eea';
+            ctx.fillText('iz_best', 0, 0);
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(canvas.width - 25, canvas.height / 2);
+            ctx.rotate(Math.PI / 2);
+            ctx.fillStyle = '#10b981';
+            ctx.fillText('Expected Density (%)', 0, 0);
+            ctx.restore();
+
+            // Legend
+            const legendX = margin.left + 30;
+            const legendY = margin.top + 30;
+
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(legendX, legendY, 30, 4);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('iz_best (optimal inner zero)', legendX + 40, legendY + 5);
+
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([8, 4]);
+            ctx.beginPath();
+            ctx.moveTo(legendX, legendY + 25);
+            ctx.lineTo(legendX + 30, legendY + 25);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#1f2937';
+            ctx.fillText('Expected density (%)', legendX + 40, legendY + 30);
+        }
+
+        // Listen for view changes
+        document.getElementById('view_mode').addEventListener('change', drawChart);
+
+        // Initial load
+        loadData();
+    </script>
+</body>
+</html>

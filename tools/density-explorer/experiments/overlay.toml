@@ -1,0 +1,47 @@
+base = 10
+seed = 42
+
+# Produce sample grid (observed densities)
+[[jobs]]
+kind = "grid"
+mid_kind = "free"
+mid_len_range = "1..18"
+inner_zero_range = "0..12"
+inner_slot = 1
+outer_layers = ["0:1"]
+samples = 40000
+allowed_last_digits = "1,3,7,9"
+out_csv = "out/grid_sample.csv"
+parallel = true
+mirror = false
+track_moduli = ""
+pre_sieve = true
+auto_track = { enable = true, mode = "global", pmax = 97, k = 8, min_p0 = 0.03 }
+
+# Model-only counterpart (no sampling)
+[[jobs]]
+kind = "model-only"
+mid_kind = "free"
+mid_len_range = "1..18"
+inner_zero_range = "0..12"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,3,7,9"
+out_csv = "out/grid_model.csv"
+mirror = false
+track_moduli = ""
+auto_track = { enable = true, mode = "global", pmax = 97, k = 8, min_p0 = 0.03 }
+
+# Explanations per cell (weights, P0 per prime, union)
+[[jobs]]
+kind = "explain-grid"
+mid_kind = "free"
+mid_len_range = "1..18"
+inner_zero_range = "0..12"
+inner_slot = 1
+outer_layers = ["0:1"]
+allowed_last_digits = "1,3,7,9"
+out_json = "out/grid_explain.json"
+mirror = false
+track_moduli = ""
+auto_track = { enable = true, mode = "global", pmax = 97, k = 8, min_p0 = 0.03 }
