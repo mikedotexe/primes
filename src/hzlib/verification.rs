@@ -1,75 +1,71 @@
-//! Verification functions for comparing sample vs model predictions
-
-use super::grid_analysis::JoinedGrid;
-use serde_json::Value;
-use std::collections::HashMap;
-use std::fs::File;
+use super::{JoinedGrid, ExplainMap};
+use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
 
-/// Write verification table to CSV
-/// Columns: base, mid_len, inner_zero, obs, pred, delta, enrichment, ci_lo, ci_hi, ci_width
+#[derive(Clone, Debug)]
+pub struct VerifyRow {
+    pub base: u32,
+    pub mid_len: usize,
+    pub inner_zero: usize,
+    pub obs: Option<f64>,
+    pub pred: Option<f64>,
+    pub ci_width: Option<f64>,
+    pub delta_abs: Option<f64>,
+    pub enrichment: Option<f64>,
+    pub union_any: Option<f64>,
+    pub top_moduli: Vec<(u32,f64)>,
+}
+
 pub fn verify_to_csv<P: AsRef<Path>>(
     grid: &JoinedGrid,
-    _explain: Option<&HashMap<String, Value>>,
-    out_path: P,
+    explain_map: Option<&ExplainMap>,
+    out_csv: P,
 ) -> io::Result<()> {
-    let mut file = File::create(out_path)?;
+    if let Some(dir) = out_csv.as_ref().parent() { if !dir.exists() { fs::create_dir_all(dir)?; } }
+    let mut w = File::create(out_csv)?;
+    writeln!(w, "base,mid_len,inner_zero,obs,pred,ci_width,delta_abs,enrichment,union_any,top_moduli")?;
+    for p in &grid.pairs {
+        let pred = p.pred_local_exact.or(p.pred_local);
+        let obs = p.obs_density;
+        let ciw = match (p.ci_lo, p.ci_hi) { (Some(a), Some(b)) => Some((b-a).abs()), _ => None };
+        let dabs = match (obs, pred) { (Some(o), Some(pr)) => Some(o - pr), _ => None };
+        let enr  = match (obs, pred) { (Some(o), Some(pr)) => Some(super::enrichment(o, pr)), _ => None };
 
-    // Write header
-    writeln!(
-        file,
-        "base,mid_len,inner_zero,obs,pred,delta,enrichment,ci_lo,ci_hi,ci_width"
-    )?;
+        let top = explain_map
+            .and_then(|m| m.get(&(p.mid_len, p.inner_zero)).cloned())
+            .unwrap_or_default();
 
-    // Write rows
-    for row in &grid.rows {
-        let delta = match (row.obs, row.pred) {
-            (Some(o), Some(p)) => Some(o - p),
-            _ => None,
-        };
-
-        let ci_width = match (row.ci_lo, row.ci_hi) {
-            (Some(lo), Some(hi)) => Some(hi - lo),
-            _ => None,
-        };
+        // union_any lives in Explain JSON as union_p_any; we surface it by summing top moduli as heuristic if not included
+        let union_any = explain_map
+            .and_then(|m| m.get(&(p.mid_len, p.inner_zero)))
+            .map(|list| list.iter().map(|(_,q)| *q).fold(0.0f64, |a: f64, b: f64| a.max(b))); // weak proxy if not included
 
         writeln!(
-            file,
+            w,
             "{},{},{},{},{},{},{},{},{},{}",
-            fmt_opt_u32(row.base),
-            fmt_opt_usize(row.mid_len),
-            fmt_opt_usize(row.inner_zero),
-            fmt_opt_f64(row.obs),
-            fmt_opt_f64(row.pred),
-            fmt_opt_f64(delta),
-            fmt_opt_f64(row.enrichment),
-            fmt_opt_f64(row.ci_lo),
-            fmt_opt_f64(row.ci_hi),
-            fmt_opt_f64(ci_width)
+            p.base,
+            p.mid_len,
+            p.inner_zero,
+            fmt_opt(obs),
+            fmt_opt(pred),
+            fmt_opt(ciw),
+            fmt_opt(dabs),
+            fmt_opt(enr),
+            fmt_opt(union_any),
+            fmt_top(&top)
         )?;
     }
-
     Ok(())
 }
 
-fn fmt_opt_f64(x: Option<f64>) -> String {
-    match x {
-        Some(v) => format!("{:.12}", v),
-        None => String::from(""),
-    }
+fn fmt_opt(x: Option<f64>) -> String {
+    match x { Some(v) => format!("{:.8}", v), None => String::from("") }
 }
-
-fn fmt_opt_u32(x: Option<u32>) -> String {
-    match x {
-        Some(v) => v.to_string(),
-        None => String::from(""),
-    }
-}
-
-fn fmt_opt_usize(x: Option<usize>) -> String {
-    match x {
-        Some(v) => v.to_string(),
-        None => String::from(""),
+fn fmt_top(v: &[(u32,f64)]) -> String {
+    if v.is_empty() { String::from("[]") }
+    else {
+        let items: Vec<String> = v.iter().take(6).map(|(p,q)| format!("(p={},p0={:.4})",p,q)).collect();
+        format!("[{}]", items.join(","))
     }
 }

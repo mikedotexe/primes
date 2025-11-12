@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use primes::hzlib::{
     self, Axis, JoinedGrid, lineout, join_sample_and_model, load_explain_json,
@@ -122,25 +122,28 @@ impl From<AxisArg> for Axis {
 #[derive(Copy, Clone, Debug, ValueEnum)]
 enum Quantity { Obs, Pred, Enrichment }
 
-fn ensure_parent(path: &PathBuf) -> io::Result<()> {
+fn ensure_parent(path: &Path) -> io::Result<()> {
     if let Some(dir) = path.parent() {
         if !dir.exists() { fs::create_dir_all(dir)?; }
     }
     Ok(())
 }
 
-fn load_grid(sample: &PathBuf, model: &PathBuf) -> io::Result<JoinedGrid> {
+fn load_grid(sample: &Path, model: &Path) -> io::Result<JoinedGrid> {
     let s = hzlib::load_sample_csv(sample)?;
     let m = hzlib::load_model_csv(model)?;
     Ok(join_sample_and_model(&s, &m))
 }
 
+// Helper functions for Compare subcommand
 fn parse_f64(map: &HashMap<String,String>, k: &str) -> Option<f64> {
     map.get(k).and_then(|v| v.parse::<f64>().ok())
 }
+
 fn parse_usize(map: &HashMap<String,String>, k: &str) -> Option<usize> {
     map.get(k).and_then(|v| v.parse::<usize>().ok())
 }
+
 fn parse_u32(map: &HashMap<String,String>, k: &str) -> Option<u32> {
     map.get(k).and_then(|v| v.parse::<u32>().ok())
 }
@@ -158,6 +161,14 @@ fn intervals_overlap(a: (Option<f64>,Option<f64>), b: (Option<f64>,Option<f64>))
         ((Some(la), Some(ha)), (Some(lb), Some(hb))) => Some(!(ha < lb || hb < la)),
         _ => None,
     }
+}
+
+fn fmt_opt(x: Option<f64>) -> String {
+    match x { Some(v) => format!("{:.12}", v), None => String::from("") }
+}
+
+fn fmt_bool(x: Option<bool>) -> String {
+    match x { Some(true) => "true".into(), Some(false) => "false".into(), None => "".into() }
 }
 
 fn main() -> io::Result<()> {
@@ -243,8 +254,8 @@ fn main() -> io::Result<()> {
             let mut w = File::create(out)?;
             writeln!(w, "x,obs,pred,enrichment")?;
             for (x, obs, pred) in series {
-                let e = primes::hzlib::enrichment(obs, pred);
-                writeln!(w, "{},{:.12},{:.12},{:.12}", x, obs, pred, e)?;
+                let enr = primes::hzlib::enrichment(obs, pred);
+                writeln!(w, "{},{:.12},{:.12},{:.12}", x, obs, pred, enr)?;
             }
         }
 
@@ -330,11 +341,4 @@ fn main() -> io::Result<()> {
         }
     }
     Ok(())
-}
-
-fn fmt_opt(x: Option<f64>) -> String {
-    match x { Some(v) => format!("{:.12}", v), None => String::from("") }
-}
-fn fmt_bool(x: Option<bool>) -> String {
-    match x { Some(true) => "true".into(), Some(false) => "false".into(), None => "".into() }
 }
