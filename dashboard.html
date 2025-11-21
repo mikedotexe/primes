@@ -567,10 +567,113 @@
 
       <!-- Density Tab -->
       <section id="density" class="tab-content">
-        <div class="chart-container">
-          <h3>Density Grid: Observed vs Predicted</h3>
-          <div id="chart-density-grid" class="chart-placeholder">
-            Load grid_sample.csv and grid_model.csv from density-explorer
+        <!-- Density Grid Viewer (overlay_v2 integrated) -->
+        <div style="display: grid; grid-template-columns: 320px 1fr; grid-template-rows: auto 1fr 200px 40px; gap: 0; height: calc(100vh - 200px);">
+
+          <!-- Controls Sidebar -->
+          <aside style="background: var(--panel); border-right: 1px solid var(--border); padding: 12px; overflow: auto; grid-row: 1 / -1;">
+            <div>
+              <h3 style="margin: 10px 0 6px 0; font-size: 13px;">File Inputs</h3>
+              <div style="display: grid; gap: 8px; font-size: 12px;">
+                <label style="color: var(--ink-dim);">
+                  Sample CSV <input id="density-sample-a" type="file" accept=".csv" style="display: block; width: 100%; margin-top: 4px;"/>
+                </label>
+                <label style="color: var(--ink-dim);">
+                  Model CSV <input id="density-model" type="file" accept=".csv" style="display: block; width: 100%; margin-top: 4px;"/>
+                </label>
+                <label style="color: var(--ink-dim);">
+                  Explain JSON <input id="density-explain" type="file" accept=".json" style="display: block; width: 100%; margin-top: 4px;"/>
+                </label>
+                <label style="color: var(--ink-dim);">
+                  Sample B (optional) <input id="density-sample-b" type="file" accept=".csv" style="display: block; width: 100%; margin-top: 4px;"/>
+                </label>
+              </div>
+
+              <div style="height: 1px; background: var(--border); margin: 10px 0;"></div>
+
+              <h3 style="margin: 10px 0 6px 0; font-size: 13px;">Grid Info</h3>
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 4px 8px; font-size: 12px;">
+                <div>base</div><div id="density-meta-base">—</div>
+                <div>mid_len</div><div id="density-meta-mid">—</div>
+                <div>inner_zero</div><div id="density-meta-iz">—</div>
+                <div>cells</div><div id="density-meta-cells">—</div>
+              </div>
+
+              <div style="height: 1px; background: var(--border); margin: 10px 0;"></div>
+
+              <h3 style="margin: 10px 0 6px 0; font-size: 13px;">Map Controls</h3>
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 4px 8px; font-size: 12px;">
+                <div>mode</div>
+                <div>
+                  <select id="density-mode" style="width: 100%; background: #121521; border: 1px solid var(--border); color: var(--ink); padding: 4px; border-radius: 4px;">
+                    <option value="enr">Δ enrichment (A/pred − 1)</option>
+                    <option value="abs">Δ absolute (A − pred)</option>
+                    <option value="obs">Observed A</option>
+                    <option value="pred">Predicted</option>
+                    <option value="union">Union(any) obstruction</option>
+                    <option value="p0">Per‑prime P0(p)</option>
+                    <option value="ab">A→B delta (obsB − obsA)</option>
+                  </select>
+                </div>
+                <div>prime</div>
+                <div><select id="density-prime" style="width: 100%; background: #121521; border: 1px solid var(--border); color: var(--ink); padding: 4px; border-radius: 4px;"><option value="">—</option></select></div>
+                <div>clamp</div>
+                <div style="display: flex; gap: 4px;">
+                  <select id="density-clamp-kind" style="flex: 1; background: #121521; border: 1px solid var(--border); color: var(--ink); padding: 4px; border-radius: 4px;">
+                    <option value="q">quantile</option>
+                    <option value="abs">absolute</option>
+                  </select>
+                  <input id="density-clamp" type="number" step="0.01" value="0.98" style="width: 70px; background: #121521; border: 1px solid var(--border); color: var(--ink); padding: 4px; border-radius: 4px;"/>
+                </div>
+                <div></div>
+                <div style="font-size: 11px; color: var(--ink-dim);" id="density-clamp-help">(q: keep 2–98%)</div>
+              </div>
+
+              <div style="height: 1px; background: var(--border); margin: 10px 0;"></div>
+
+              <h3 style="margin: 10px 0 6px 0; font-size: 13px;">Render Options</h3>
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 4px 8px; font-size: 12px;">
+                <div>cell size</div>
+                <div><input id="density-cell-size" type="range" min="8" max="28" value="16" style="width: 100%;"/></div>
+                <div>grid lines</div>
+                <div><input id="density-show-grid" type="checkbox" checked/></div>
+                <div>fade by CI</div>
+                <div><input id="density-fade-ci" type="checkbox" checked/></div>
+                <div>crosshair</div>
+                <div><input id="density-crosshair" type="checkbox" checked/></div>
+              </div>
+
+              <div style="height: 1px; background: var(--border); margin: 10px 0;"></div>
+
+              <h3 style="margin: 10px 0 6px 0; font-size: 13px;">Inspect</h3>
+              <div id="density-info" style="font-size: 12px; color: var(--ink-dim);">Load files and mouse over a cell.</div>
+
+              <div style="height: 1px; background: var(--border); margin: 10px 0;"></div>
+
+              <div style="font-size: 11px; color: var(--ink-dim); line-height: 1.4;">
+                <strong>Controls:</strong><br>
+                Pan: drag • Zoom: Alt+Wheel<br>
+                Pin: P • Save: S • Export CSV: E
+              </div>
+            </div>
+          </aside>
+
+          <!-- Main Canvas Area -->
+          <div style="grid-column: 2; grid-row: 1 / 3; display: flex; flex-direction: column;">
+            <canvas id="density-heatmap" style="width: 100%; flex: 1; background: #0a0c12; image-rendering: pixelated;"></canvas>
+          </div>
+
+          <!-- Lineout Chart -->
+          <div style="grid-column: 2; grid-row: 3; background: #0b0d13;">
+            <canvas id="density-chart" style="width: 100%; height: 100%; background: #0b0d13;"></canvas>
+          </div>
+
+          <!-- Legend and Status -->
+          <div style="grid-column: 2; grid-row: 4; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-top: 1px solid var(--border); background: #0e1016; color: var(--ink-dim); font-size: 12px;">
+            <div>color</div>
+            <div style="width: 120px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, #2dd4bf, #1e293b 50%, #f43f5e);"></div>
+            <div style="font-size: 11px;">teal = model &gt; sample • rose = sample &gt; model (for Δ modes)</div>
+            <div id="density-status" style="margin-left: auto;"></div>
           </div>
         </div>
       </section>
@@ -1177,6 +1280,601 @@
 
       Plotly.newPlot(chartDiv, traces, layout, { responsive: true });
     }
+
+    // ================================================================================
+    // Density Grid Viewer (integrated from overlay_v2.html)
+    // ================================================================================
+
+    const densityState = {
+      sampleA: null,
+      sampleB: null,
+      model: null,
+      explain: null,
+      grid: null,
+      base: null,
+      mids: [],
+      izs: [],
+      mapCache: new Map(),
+      cell: { sz: 16, zoom: 1, ox: 0, oy: 0 },
+      pin: null,
+      hover: null,
+      primes: []
+    };
+
+    // CSV parser for density viewer (simpler than Papa Parse for this use case)
+    function parseDensityCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      const header = lines[0].split(',');
+      const out = [];
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        const parts = [];
+        let cur = '', d = 0;
+        for (const ch of lines[i]) {
+          if (ch === '[') d++;
+          if (ch === ']') d--;
+          if (ch === ',' && d === 0) { parts.push(cur); cur = ''; } else cur += ch;
+        }
+        parts.push(cur);
+        const row = {};
+        header.forEach((h, idx) => row[h] = parts[idx]);
+        out.push(row);
+      }
+      return out;
+    }
+
+    function densityKey(m, z) { return `${m}_${z}`; }
+
+    function loadDensityExplain(text) {
+      const js = JSON.parse(text);
+      const map = new Map();
+      const primes = new Set();
+      for (const e of js) {
+        const mid = e.mid_len, iz = e.inner_zero;
+        const entry = {
+          union: (e.union_p_any == null ? null : e.union_p_any),
+          p0: new Map()
+        };
+        if (Array.isArray(e.model_p0)) {
+          for (const [p, p0] of e.model_p0) {
+            entry.p0.set(+p, +p0);
+            primes.add(+p);
+          }
+        }
+        map.set(densityKey(mid, iz), entry);
+      }
+      densityState.primes = Array.from(primes).sort((a, b) => a - b);
+      return map;
+    }
+
+    function indexDensityGrid(sampleRows, modelRows) {
+      const mids = new Set(), izs = new Set();
+      const A = new Map(), M = new Map(), B = new Map();
+
+      for (const r of sampleRows) {
+        const m = +r.mid_len, z = +r.inner_zero;
+        mids.add(m); izs.add(z);
+        A.set(densityKey(m, z), r);
+      }
+      if (modelRows) {
+        for (const r of modelRows) {
+          const m = +r.mid_len, z = +r.inner_zero;
+          mids.add(m); izs.add(z);
+          M.set(densityKey(m, z), r);
+        }
+      }
+      if (densityState.sampleB) {
+        for (const r of densityState.sampleB) {
+          const m = +r.mid_len, z = +r.inner_zero;
+          B.set(densityKey(m, z), r);
+        }
+      }
+
+      const midsArr = Array.from(mids).sort((a, b) => a - b);
+      const izsArr = Array.from(izs).sort((a, b) => a - b);
+      const base = sampleRows.length ? +sampleRows[0].base : (modelRows.length ? +modelRows[0].base : 10);
+
+      const grid = [];
+      for (const z of izsArr) {
+        for (const m of midsArr) {
+          grid.push({
+            mid: m, iz: z,
+            A: A.get(densityKey(m, z)) || null,
+            M: M.get(densityKey(m, z)) || null,
+            B: B.get(densityKey(m, z)) || null
+          });
+        }
+      }
+      return { mids: midsArr, izs: izsArr, grid, base };
+    }
+
+    function clampDensityVals(vals, kind, c) {
+      if (!vals.length) return { min: 0, max: 1 };
+      if (kind === 'abs') {
+        const mx = Math.max(...vals.map(v => Math.abs(v)));
+        const mmx = Math.max(mx, 1e-16);
+        return { min: -mmx * c, max: mmx * c };
+      } else {
+        const s = vals.slice().sort((a, b) => a - b);
+        const lo = s[Math.floor((1 - c) * 0.5 * (s.length - 1))];
+        const hi = s[Math.ceil((1 + (c - 1) * 0.5) * (s.length - 1))];
+        return { min: lo, max: hi };
+      }
+    }
+
+    function colorDiverge(x, mn, mx) {
+      if (mx <= mn) return 'rgb(30,41,59)';
+      let t = (x - mn) / (mx - mn);
+      t = Math.max(0, Math.min(1, t));
+      const mid = 0.5;
+      if (t < mid) {
+        const k = t / mid;
+        const c0 = [45, 212, 191], c1 = [30, 41, 59];
+        const r = Math.round(c0[0] + (c1[0] - c0[0]) * k);
+        const g = Math.round(c0[1] + (c1[1] - c0[1]) * k);
+        const b = Math.round(c0[2] + (c1[2] - c0[2]) * k);
+        return `rgb(${r},${g},${b})`;
+      } else {
+        const k = (t - mid) / (1 - mid);
+        const c0 = [30, 41, 59], c1 = [244, 63, 94];
+        const r = Math.round(c0[0] + (c1[0] - c0[0]) * k);
+        const g = Math.round(c0[1] + (c1[1] - c0[1]) * k);
+        const b = Math.round(c0[2] + (c1[2] - c0[2]) * k);
+        return `rgb(${r},${g},${b})`;
+      }
+    }
+
+    function currentDensityMap() {
+      const mode = document.getElementById('density-mode').value;
+      const psel = +(document.getElementById('density-prime').value || '0');
+      const cacheKey = `${mode}:${psel}`;
+      if (densityState.mapCache.has(cacheKey)) return densityState.mapCache.get(cacheKey);
+
+      const vals = [];
+      const meta = [];
+
+      const take = (r, k) => (r && r[k] != null && r[k] !== '') ? +r[k] : null;
+
+      for (const cell of densityState.grid) {
+        const A = cell.A, M = cell.M, B = cell.B;
+        const obsA = take(A, 'prime_density');
+        const pred = (take(A, 'expected_density_local_exact') ?? take(A, 'expected_density_local')) ??
+          (take(M, 'expected_density_local_exact') ?? take(M, 'expected_density_local')) ?? null;
+        const ciw = (A && A.ci_lo && A.ci_hi) ? Math.abs(+A.ci_hi - +A.ci_lo) : null;
+
+        let v = null;
+        if (mode === 'obs') v = obsA;
+        else if (mode === 'pred') v = pred;
+        else if (mode === 'enr') v = (pred != null && pred > 0 && obsA != null) ? (obsA / pred - 1) : 0;
+        else if (mode === 'abs') v = (obsA != null && pred != null) ? (obsA - pred) : 0;
+        else if (mode === 'ab') {
+          const obsB = take(B, 'prime_density');
+          v = (obsA != null && obsB != null) ? (obsB - obsA) : 0;
+        } else if (mode === 'union') {
+          const ex = densityState.explain?.get(densityKey(cell.mid, cell.iz));
+          if (ex && ex.union != null) v = ex.union; else v = null;
+        } else if (mode === 'p0') {
+          if (!psel) v = null;
+          const ex = densityState.explain?.get(densityKey(cell.mid, cell.iz));
+          v = ex?.p0?.get(psel) ?? null;
+        }
+
+        vals.push({ v, ciw });
+        meta.push({ mid: cell.mid, iz: cell.iz, obsA, pred, ciw });
+      }
+
+      densityState.mapCache.set(cacheKey, { vals, meta });
+      return { vals, meta };
+    }
+
+    function refreshDensityPrimeList() {
+      const sel = document.getElementById('density-prime');
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">—</option>';
+      for (const p of densityState.primes) {
+        const opt = document.createElement('option');
+        opt.value = String(p);
+        opt.textContent = String(p);
+        sel.appendChild(opt);
+      }
+      if (densityState.primes.includes(+cur)) sel.value = cur;
+    }
+
+    function drawDensityHeatmap() {
+      const cvs = document.getElementById('density-heatmap');
+      const ctx = cvs.getContext('2d');
+      const sz = Math.round(+document.getElementById('density-cell-size').value * densityState.cell.zoom);
+      const pad = 28;
+      const W = Math.max(420, pad * 2 + densityState.mids.length * sz);
+      const H = Math.max(320, pad * 2 + densityState.izs.length * sz);
+      cvs.width = W;
+      cvs.height = H;
+      ctx.fillStyle = '#0a0c12';
+      ctx.fillRect(0, 0, W, H);
+
+      if (!densityState.grid || densityState.grid.length === 0) {
+        document.getElementById('density-status').textContent = 'Load sample+model+explain.';
+        return;
+      }
+
+      const { vals, meta } = currentDensityMap();
+      const mode = document.getElementById('density-mode').value;
+
+      const vraw = vals.map(o => (o.v == null ? 0 : o.v)).filter(Number.isFinite);
+      const clampKind = document.getElementById('density-clamp-kind').value;
+      const clampVal = +document.getElementById('density-clamp').value || 0.98;
+      const { min, max } = (mode === 'pred' || mode === 'obs' || mode === 'union' || mode === 'p0')
+        ? { min: Math.min(...vraw, 0), max: Math.max(...vraw, 1e-16) }
+        : clampDensityVals(vraw, clampKind, clampVal);
+
+      // Grid lines
+      if (document.getElementById('density-show-grid').checked) {
+        ctx.strokeStyle = '#1b2030';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= densityState.mids.length; i++) {
+          const x = pad + i * sz + densityState.cell.ox;
+          ctx.beginPath();
+          ctx.moveTo(x, pad + densityState.cell.oy);
+          ctx.lineTo(x, pad + densityState.izs.length * sz + densityState.cell.oy);
+          ctx.stroke();
+        }
+        for (let j = 0; j <= densityState.izs.length; j++) {
+          const y = pad + j * sz + densityState.cell.oy;
+          ctx.beginPath();
+          ctx.moveTo(pad + densityState.cell.ox, y);
+          ctx.lineTo(pad + densityState.mids.length * sz + densityState.cell.ox, y);
+          ctx.stroke();
+        }
+      }
+
+      // Cells
+      let idx = 0;
+      for (let j = 0; j < densityState.izs.length; j++) {
+        for (let i = 0; i < densityState.mids.length; i++, idx++) {
+          const v = vals[idx].v;
+          const x = pad + i * sz + densityState.cell.ox;
+          const y = pad + j * sz + densityState.cell.oy;
+          if (v == null) {
+            ctx.fillStyle = '#11131a';
+            ctx.fillRect(x, y, sz, sz);
+            continue;
+          }
+          let col;
+          if (mode === 'pred' || mode === 'obs' || mode === 'union' || mode === 'p0') {
+            const t = (v - min) / Math.max(max - min, 1e-16);
+            const g = Math.max(0, Math.min(1, t));
+            const c0 = [30, 41, 59], c1 = [148, 163, 184];
+            const r = Math.round(c0[0] + (c1[0] - c0[0]) * g);
+            const g2 = Math.round(c0[1] + (c1[1] - c0[1]) * g);
+            const b = Math.round(c0[2] + (c1[2] - c0[2]) * g);
+            col = `rgb(${r},${g2},${b})`;
+          } else {
+            col = colorDiverge(v, min, max);
+          }
+          ctx.fillStyle = col;
+          ctx.fillRect(x, y, sz, sz);
+
+          if (document.getElementById('density-fade-ci').checked && vals[idx].ciw != null && (mode === 'enr' || mode === 'abs' || mode === 'obs')) {
+            const ciw = vals[idx].ciw;
+            const fade = Math.max(0.15, Math.min(1.0, 1.0 - (ciw * 1000)));
+            ctx.fillStyle = `rgba(0,0,0,${1.0 - fade})`;
+            ctx.fillRect(x, y, sz, sz);
+          }
+        }
+      }
+
+      // Labels
+      ctx.fillStyle = '#9aa3b2';
+      ctx.font = '12px system-ui';
+      for (let i = 0; i < densityState.mids.length; i++) {
+        ctx.fillText(String(densityState.mids[i]), pad + i * sz + densityState.cell.ox + 3, pad - 8 + densityState.cell.oy);
+      }
+      for (let j = 0; j < densityState.izs.length; j++) {
+        ctx.fillText(String(densityState.izs[j]), 6 + densityState.cell.ox, pad + j * sz + 12 + densityState.cell.oy);
+      }
+
+      // Crosshair
+      const cur = densityState.hover || densityState.pin;
+      if (cur && document.getElementById('density-crosshair').checked) {
+        const i = densityState.mids.indexOf(cur.mid), j = densityState.izs.indexOf(cur.iz);
+        if (i >= 0 && j >= 0) {
+          const x = pad + i * sz + densityState.cell.ox;
+          const y = pad + j * sz + densityState.cell.oy;
+          ctx.strokeStyle = '#93c5fd';
+          ctx.strokeRect(x + 0.5, y + 0.5, sz - 1, sz - 1);
+          ctx.beginPath();
+          ctx.moveTo(x, pad + densityState.cell.oy);
+          ctx.lineTo(x, pad + densityState.izs.length * sz + densityState.cell.oy);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(pad + densityState.cell.ox, y);
+          ctx.lineTo(pad + densityState.mids.length * sz + densityState.cell.ox, y);
+          ctx.stroke();
+        }
+      }
+
+      // Meta info
+      document.getElementById('density-meta-cells').textContent = `${densityState.mids.length * densityState.izs.length}`;
+      document.getElementById('density-meta-mid').textContent = `${densityState.mids[0]}..${densityState.mids[densityState.mids.length - 1]}`;
+      document.getElementById('density-meta-iz').textContent = `${densityState.izs[0]}..${densityState.izs[densityState.izs.length - 1]}`;
+      document.getElementById('density-meta-base').textContent = densityState.base ?? '—';
+
+      // Status
+      document.getElementById('density-status').textContent = `mode=${mode} • clamp=[${min.toExponential(2)}, ${max.toExponential(2)}]`;
+    }
+
+    function densityLineoutSeries(mid, iz) {
+      const { grid, mids, izs } = densityState;
+      const seriesRow = [], seriesCol = [];
+      for (let i = 0; i < mids.length; i++) {
+        const g = grid[izs.indexOf(iz) * mids.length + i];
+        const obs = g.A ? +g.A.prime_density : null;
+        const pred = (g.A && g.A.expected_density_local_exact !== '') ? +g.A.expected_density_local_exact :
+          (g.A && g.A.expected_density_local !== '') ? +g.A.expected_density_local :
+            (g.M && g.M.expected_density_local_exact !== '') ? +g.M.expected_density_local_exact :
+              (g.M && g.M.expected_density_local !== '') ? +g.M.expected_density_local : null;
+        seriesRow.push({ x: mids[i], obs, pred });
+      }
+      for (let j = 0; j < izs.length; j++) {
+        const g = grid[j * mids.length + mids.indexOf(mid)];
+        const obs = g.A ? +g.A.prime_density : null;
+        const pred = (g.A && g.A.expected_density_local_exact !== '') ? +g.A.expected_density_local_exact :
+          (g.A && g.A.expected_density_local !== '') ? +g.A.expected_density_local :
+            (g.M && g.M.expected_density_local_exact !== '') ? +g.M.expected_density_local_exact :
+              (g.M && g.M.expected_density_local !== '') ? +g.M.expected_density_local : null;
+        seriesCol.push({ y: izs[j], obs, pred });
+      }
+      return { seriesRow, seriesCol };
+    }
+
+    function drawDensityChart() {
+      const cvs = document.getElementById('density-chart');
+      const ctx = cvs.getContext('2d');
+      const W = cvs.width = cvs.clientWidth | 0;
+      const H = cvs.height = cvs.clientHeight | 0;
+      ctx.fillStyle = '#0b0d13';
+      ctx.fillRect(0, 0, W, H);
+      const cur = densityState.hover || densityState.pin;
+      if (!cur) {
+        ctx.fillStyle = '#7b8796';
+        ctx.font = '12px system-ui';
+        ctx.fillText('hover or pin a cell to see lineouts', 12, 18);
+        return;
+      }
+
+      const { seriesRow, seriesCol } = densityLineoutSeries(cur.mid, cur.iz);
+      const all = [...seriesRow.map(s => [s.obs, s.pred]), ...seriesCol.map(s => [s.obs, s.pred])].flat().filter(x => x != null);
+      if (!all.length) return;
+      const ymin = Math.min(...all);
+      const ymax = Math.max(...all) * 1.02;
+
+      function plot(series, orient) {
+        const pad = 28;
+        const X = (t, i, n) => orient === 'row'
+          ? pad + (i / (n - 1)) * (W / 2 - pad * 1.6)
+          : W / 2 + pad + (i / (n - 1)) * (W / 2 - pad * 1.6);
+        const Y = v => H - 10 - ((v - ymin) / Math.max(ymax - ymin, 1e-16)) * (H - 26);
+
+        const x0 = orient === 'row' ? pad : W / 2 + pad;
+        ctx.strokeStyle = '#182033';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x0, 10);
+        ctx.lineTo(x0, H - 10);
+        ctx.stroke();
+
+        // Predicted line
+        ctx.strokeStyle = '#a5b4fc';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        series.forEach((s, i) => {
+          if (s.pred == null) return;
+          const x = X(null, i, series.length), y = Y(s.pred);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Observed line
+        ctx.strokeStyle = '#34d399';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        series.forEach((s, i) => {
+          if (s.obs == null) return;
+          const x = X(null, i, series.length), y = Y(s.obs);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Label
+        ctx.fillStyle = '#9aa3b2';
+        ctx.font = '12px system-ui';
+        ctx.fillText(orient === 'row' ? `mid_len @ iz=${cur.iz}` : `inner_zero @ mid=${cur.mid}`, x0, 12);
+      }
+
+      plot(seriesRow, 'row');
+      plot(seriesCol, 'col');
+    }
+
+    function pickDensityCell(clientX, clientY) {
+      const rect = document.getElementById('density-heatmap').getBoundingClientRect();
+      const x = clientX - rect.left, y = clientY - rect.top;
+      const sz = Math.round(+document.getElementById('density-cell-size').value * densityState.cell.zoom);
+      const pad = 28;
+      const i = Math.floor((x - pad - densityState.cell.ox) / sz);
+      const j = Math.floor((y - pad - densityState.cell.oy) / sz);
+      if (i < 0 || j < 0 || i >= densityState.mids.length || j >= densityState.izs.length) return null;
+      return { mid: densityState.mids[i], iz: densityState.izs[j], i, j };
+    }
+
+    function updateDensityInfo(cur) {
+      if (!cur) {
+        document.getElementById('density-info').innerHTML = '—';
+        return;
+      }
+      const k = densityKey(cur.mid, cur.iz);
+      const cell = densityState.grid[cur.j * densityState.mids.length + cur.i];
+      const obs = cell.A ? +cell.A.prime_density : null;
+      const ci_lo = cell.A ? +cell.A.ci_lo : null;
+      const ci_hi = cell.A ? +cell.A.ci_hi : null;
+      const pred = (cell.A && cell.A.expected_density_local_exact !== '') ? +cell.A.expected_density_local_exact :
+        (cell.A && cell.A.expected_density_local !== '') ? +cell.A.expected_density_local :
+          (cell.M && cell.M.expected_density_local_exact !== '') ? +cell.M.expected_density_local_exact :
+            (cell.M && cell.M.expected_density_local !== '') ? +cell.M.expected_density_local : null;
+      const enr = (obs != null && pred > 0) ? (obs / pred - 1) : null;
+      const ex = densityState.explain?.get(k);
+      const top = ex ? Array.from(ex.p0.entries()).sort((a, b) => b[1] - a[1]).slice(0, 6) : [];
+      const union = ex?.union ?? null;
+
+      const fmt = v => (v == null ? '—' : (v * 100).toFixed(3) + '%');
+
+      document.getElementById('density-info').innerHTML = `
+        <div style="display: grid; grid-template-columns: 120px 1fr; gap: 4px 8px; font-size: 12px;">
+          <div>mid_len</div><div><strong>${cur.mid}</strong></div>
+          <div>inner_zero</div><div><strong>${cur.iz}</strong></div>
+          <div>obs(A)</div><div>${fmt(obs)}</div>
+          <div>pred</div><div>${fmt(pred)}</div>
+          <div>enrichment</div><div>${enr == null ? '—' : (enr >= 0 ? '+' : '') + (enr * 100).toFixed(2) + '%'}</div>
+          <div>CI</div><div>${(ci_lo != null && ci_hi != null) ? (fmt(ci_lo) + ' .. ' + fmt(ci_hi)) : '—'}</div>
+        </div>
+        <div style="height: 1px; background: var(--border); margin: 10px 0;"></div>
+        <div style="font-size: 11px; color: var(--ink-dim);">dominant small‑mod contributors</div>
+        <div style="display: grid; grid-template-columns: 120px 1fr; gap: 4px 8px; font-size: 12px;">
+          ${top.map(([p, p0]) => `<div>p=${p}</div><div>${fmt(p0)}</div>`).join('')}
+          ${union != null ? `<div>union(any)</div><div>${fmt(union)}</div>` : ``}
+        </div>
+      `;
+    }
+
+    function exportDensityPNG() {
+      const a = document.createElement('a');
+      a.download = 'density_overlay.png';
+      a.href = document.getElementById('density-heatmap').toDataURL('image/png');
+      a.click();
+    }
+
+    function exportDensityCSV() {
+      const { vals, meta } = currentDensityMap();
+      let rows = ['mid_len,inner_zero,value,obs,pred,ci_width'];
+      for (let i = 0; i < meta.length; i++) {
+        const m = meta[i];
+        const v = vals[i].v;
+        const ciw = vals[i].ciw;
+        rows.push([m.mid, m.iz, v == null ? '' : v, m.obsA == null ? '' : m.obsA, m.pred == null ? '' : m.pred, ciw == null ? '' : ciw].join(','));
+      }
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'density_overlay_map.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function onDensityFilesChange() {
+      if (!densityState.sampleA || !densityState.model) {
+        drawDensityHeatmap();
+        return;
+      }
+      const { mids, izs, grid, base } = indexDensityGrid(densityState.sampleA, densityState.model);
+      densityState.mids = mids;
+      densityState.izs = izs;
+      densityState.grid = grid;
+      densityState.base = base;
+      densityState.mapCache.clear();
+      refreshDensityPrimeList();
+      drawDensityHeatmap();
+    }
+
+    // File input event listeners
+    document.getElementById('density-sample-a').addEventListener('change', e => {
+      const r = new FileReader();
+      r.onload = () => { densityState.sampleA = parseDensityCSV(r.result); onDensityFilesChange(); };
+      r.readAsText(e.target.files[0]);
+    });
+
+    document.getElementById('density-sample-b').addEventListener('change', e => {
+      const r = new FileReader();
+      r.onload = () => { densityState.sampleB = parseDensityCSV(r.result); onDensityFilesChange(); };
+      r.readAsText(e.target.files[0]);
+    });
+
+    document.getElementById('density-model').addEventListener('change', e => {
+      const r = new FileReader();
+      r.onload = () => { densityState.model = parseDensityCSV(r.result); onDensityFilesChange(); };
+      r.readAsText(e.target.files[0]);
+    });
+
+    document.getElementById('density-explain').addEventListener('change', e => {
+      const r = new FileReader();
+      r.onload = () => { densityState.explain = loadDensityExplain(r.result); refreshDensityPrimeList(); drawDensityHeatmap(); };
+      r.readAsText(e.target.files[0]);
+    });
+
+    // Control event listeners
+    document.getElementById('density-mode').addEventListener('change', () => { drawDensityHeatmap(); });
+    document.getElementById('density-prime').addEventListener('change', () => { drawDensityHeatmap(); });
+    document.getElementById('density-clamp-kind').addEventListener('change', () => {
+      const k = document.getElementById('density-clamp-kind').value;
+      document.getElementById('density-clamp-help').textContent = k === 'q' ? '(q: keep 2–98%)' : '(abs scale: ×mult of max |Δ|)';
+      drawDensityHeatmap();
+    });
+    document.getElementById('density-clamp').addEventListener('change', drawDensityHeatmap);
+    document.getElementById('density-cell-size').addEventListener('input', () => { densityState.mapCache.clear(); drawDensityHeatmap(); });
+    document.getElementById('density-show-grid').addEventListener('change', drawDensityHeatmap);
+    document.getElementById('density-fade-ci').addEventListener('change', drawDensityHeatmap);
+    document.getElementById('density-crosshair').addEventListener('change', drawDensityHeatmap);
+
+    // Mouse interaction
+    let densityPanning = false, densityLast = null;
+    document.getElementById('density-heatmap').addEventListener('mousedown', e => {
+      densityPanning = true;
+      densityLast = { x: e.clientX, y: e.clientY };
+    });
+    window.addEventListener('mouseup', () => {
+      densityPanning = false;
+      densityLast = null;
+    });
+    document.getElementById('density-heatmap').addEventListener('mousemove', e => {
+      if (!densityState.grid) return;
+      if (densityPanning) {
+        const dx = e.clientX - densityLast.x, dy = e.clientY - densityLast.y;
+        densityLast = { x: e.clientX, y: e.clientY };
+        densityState.cell.ox += dx;
+        densityState.cell.oy += dy;
+        drawDensityHeatmap();
+        return;
+      }
+      const cur = pickDensityCell(e.clientX, e.clientY);
+      if (cur) {
+        densityState.hover = cur;
+        updateDensityInfo(cur);
+        drawDensityChart();
+        drawDensityHeatmap();
+      }
+    });
+
+    // Zoom with Alt+Wheel
+    document.getElementById('density-heatmap').addEventListener('wheel', e => {
+      if (!e.altKey) return;
+      e.preventDefault();
+      const z = densityState.cell.zoom * (e.deltaY < 0 ? 1.1 : 0.9);
+      densityState.cell.zoom = Math.max(0.5, Math.min(2.0, z));
+      drawDensityHeatmap();
+    }, { passive: false });
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', e => {
+      if (e.key === 'p' || e.key === 'P') {
+        densityState.pin = densityState.hover ? { ...densityState.hover } : null;
+        drawDensityHeatmap();
+        drawDensityChart();
+      }
+      if (e.key === 's' || e.key === 'S') exportDensityPNG();
+      if (e.key === 'e' || e.key === 'E') exportDensityCSV();
+    });
+
+    // Initial render
+    drawDensityHeatmap();
   </script>
 </body>
 </html>
