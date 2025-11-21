@@ -78,7 +78,8 @@ def plot_elbow_dynamics(summary: pd.DataFrame, ax: plt.Axes) -> None:
     creating the "elbow room" phenomenon aligned with the honorary zero axis.
     """
     m_values = sorted(summary["M"].unique())
-    colors = plt.cm.viridis(np.linspace(0.2, 0.9, len(m_values)))
+    # Use a vibrant color scheme that stands out against dark background
+    colors = plt.cm.plasma(np.linspace(0.15, 0.85, len(m_values)))
 
     for i, m in enumerate(m_values):
         df_m = summary[summary["M"] == m].sort_values("k")
@@ -86,13 +87,16 @@ def plot_elbow_dynamics(summary: pd.DataFrame, ax: plt.Axes) -> None:
             df_m["k"],
             df_m["density"],
             marker="o",
-            linewidth=2,
-            markersize=8,
+            linewidth=2.5,
+            markersize=9,
+            markeredgewidth=0.5,
+            markeredgecolor="white",
             color=colors[i],
             label=f"M={m}",
+            alpha=0.9,
         )
 
-        # Mark optimal k*
+        # Mark optimal k* with white circle
         k_star = df_m.loc[df_m["density"].idxmax(), "k"]
         max_density = df_m["density"].max()
         ax.scatter(
@@ -105,10 +109,10 @@ def plot_elbow_dynamics(summary: pd.DataFrame, ax: plt.Axes) -> None:
             zorder=10,
         )
 
-    ax.set_xlabel("k (zero padding)", fontsize=12, fontweight="bold")
-    ax.set_ylabel("Prime Density ρ", fontsize=12, fontweight="bold")
-    ax.set_title("Elbow Dynamics: ρ vs k for each M", fontsize=14, fontweight="bold")
-    ax.legend(framealpha=0.8, loc="best")
+    ax.set_xlabel("k (zero padding)", fontsize=11, fontweight="bold")
+    ax.set_ylabel("Prime Density ρ", fontsize=11, fontweight="bold")
+    ax.set_title("Elbow Dynamics: ρ vs k for each M (⭕ = optimal k*)", fontsize=13, fontweight="bold")
+    ax.legend(framealpha=0.8, loc="best", fontsize=9, ncol=2)
     ax.grid(True, alpha=0.3)
 
 
@@ -127,14 +131,15 @@ def plot_density_heatmap(summary: pd.DataFrame, ax: plt.Axes) -> None:
         cmap="YlOrRd",
         annot=True,
         fmt=".3f",
+        annot_kws={"fontsize": 8},
         cbar_kws={"label": "Density ρ"},
         linewidths=0.5,
         linecolor="#222222",
     )
 
-    ax.set_xlabel("k (zero padding)", fontsize=12, fontweight="bold")
-    ax.set_ylabel("M (middle length)", fontsize=12, fontweight="bold")
-    ax.set_title("Density Landscape (M,k) → ρ", fontsize=14, fontweight="bold")
+    ax.set_xlabel("k (zero padding)", fontsize=11, fontweight="bold")
+    ax.set_ylabel("M (middle length)", fontsize=11, fontweight="bold")
+    ax.set_title("Density Landscape (M,k) → ρ", fontsize=13, fontweight="bold")
 
 
 def plot_legendre_distribution(summary: pd.DataFrame, ax: plt.Axes) -> None:
@@ -145,6 +150,13 @@ def plot_legendre_distribution(summary: pd.DataFrame, ax: plt.Axes) -> None:
     Higher values suggest more "favorable" residue patterns.
     """
     df_sorted = summary.sort_values("avg_positive_legendre", ascending=False)
+
+    # Limit to top 20 configurations if there are too many
+    if len(df_sorted) > 20:
+        df_sorted = df_sorted.head(20)
+        title_suffix = " (Top 20)"
+    else:
+        title_suffix = ""
 
     x_labels = [f"M={row.M}\nk={row.k}" for _, row in df_sorted.iterrows()]
     colors = plt.cm.coolwarm(df_sorted["avg_positive_legendre"] / df_sorted["avg_positive_legendre"].max())
@@ -157,12 +169,14 @@ def plot_legendre_distribution(summary: pd.DataFrame, ax: plt.Axes) -> None:
         linewidth=0.5,
     )
 
-    ax.set_xlabel("Configuration (M,k)", fontsize=12, fontweight="bold")
-    ax.set_ylabel("Avg Positive Legendre", fontsize=12, fontweight="bold")
-    ax.set_title("Residue Character Analysis", fontsize=14, fontweight="bold")
+    ax.set_xlabel("Configuration (M,k)", fontsize=11, fontweight="bold")
+    ax.set_ylabel("Avg Positive Legendre", fontsize=11, fontweight="bold")
+    ax.set_title(f"Residue Character Analysis{title_suffix}", fontsize=13, fontweight="bold")
     ax.set_xticks(range(len(df_sorted)))
-    ax.set_xticklabels(x_labels, rotation=45, ha="right", fontsize=8)
+    ax.set_xticklabels(x_labels, rotation=60, ha="right", fontsize=7)
     ax.grid(True, alpha=0.3, axis="y")
+    # Ensure labels don't get cut off
+    ax.tick_params(axis='x', which='major', pad=2)
 
 
 def plot_primality_pattern(detail: pd.DataFrame, ax: plt.Axes) -> None:
@@ -178,32 +192,35 @@ def plot_primality_pattern(detail: pd.DataFrame, ax: plt.Axes) -> None:
     primes = detail[detail["is_prime"] == True]
     composites = detail[detail["is_prime"] == False]
 
+    # Plot composites first (background)
     ax.scatter(
         composites["membrane_value"],
         composites["discriminant"],
-        c="#ff4444",
-        alpha=0.3,
-        s=20,
+        c="#dd3333",
+        alpha=0.25,
+        s=15,
         label=f"Composite ({len(composites)})",
         edgecolors="none",
     )
 
+    # Plot primes on top (foreground)
     ax.scatter(
         primes["membrane_value"],
-        primes["membrane_value"],
-        c="#44ff44",
-        alpha=0.7,
-        s=50,
+        primes["discriminant"],
+        c="#33ff88",
+        alpha=0.85,
+        s=60,
         label=f"Prime ({len(primes)})",
         edgecolors="white",
-        linewidths=0.5,
+        linewidths=0.8,
+        zorder=5,
     )
 
-    ax.set_xlabel("Membrane Value (log scale)", fontsize=12, fontweight="bold")
-    ax.set_ylabel("Discriminant Δ", fontsize=12, fontweight="bold")
-    ax.set_title("Prime vs Composite Distribution", fontsize=14, fontweight="bold")
+    ax.set_xlabel("Membrane Value (log scale)", fontsize=11, fontweight="bold")
+    ax.set_ylabel("Discriminant Δ", fontsize=11, fontweight="bold")
+    ax.set_title("Prime vs Composite Distribution", fontsize=13, fontweight="bold")
     ax.set_xscale("log")
-    ax.legend(framealpha=0.8)
+    ax.legend(framealpha=0.9, loc="upper left", fontsize=9)
     ax.grid(True, alpha=0.3)
 
 
@@ -218,8 +235,9 @@ def create_comprehensive_plot(
     if output_path is None:
         output_path = Path(__file__).parent / "membrane_density_plots.png"
 
-    fig = plt.figure(figsize=(16, 10))
-    gs = gridspec.GridSpec(2, 2, figure=fig, hspace=0.3, wspace=0.3)
+    fig = plt.figure(figsize=(18, 12))
+    gs = gridspec.GridSpec(2, 2, figure=fig, hspace=0.35, wspace=0.30,
+                          left=0.08, right=0.96, top=0.92, bottom=0.08)
 
     # Panel 1: Elbow dynamics (top-left)
     ax1 = fig.add_subplot(gs[0, 0])
@@ -241,13 +259,15 @@ def create_comprehensive_plot(
     config = summary.iloc[0]
     fig.suptitle(
         f"Membrane Density Analysis: base={config.base}, outer={config.outer}, inner={config.inner}",
-        fontsize=16,
+        fontsize=17,
         fontweight="bold",
         color="white",
+        y=0.97,
     )
 
-    plt.savefig(output_path, dpi=150, bbox_inches="tight", facecolor="#050509")
+    plt.savefig(output_path, dpi=200, facecolor="#050509")
     print(f"\n✓ Saved comprehensive plot to {output_path}")
+    print(f"  Resolution: {18*200}×{12*200} pixels (200 DPI)")
 
     return output_path
 
