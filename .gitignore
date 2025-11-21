@@ -50,3 +50,31 @@ __pycache__/
 
 # AI development output
 ai-output.txt
+
+# Agda build artifacts
+agda-proofs/_build/
+agda-proofs/MAlonzo/
+*.agdai
+
+# Generated media and animations
+media/
+animations/
+*.mp4
+*.png
+*.svg
+
+# Archive files
+*.zip
+Archive.zip
+primes.zip
+
+# Compiled binaries
+membrane_mvp_adapter
+membrane_scaling_cli
+
+# Backup and temporary directories
+collab.backup/
+*.backup/
+
+# Result snapshots (JSON)
+elbow_events.json

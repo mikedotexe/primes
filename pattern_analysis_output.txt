@@ -1,0 +1,201 @@
+   Compiling primes v1.0.0 (/Users/mikepurvis/Library/CloudStorage/Dropbox/Kairos/primes/prime-physics-engine)
+warning: multiple fields are never read
+  --> examples/pattern_analyzer.rs:24:5
+   |
+18 | struct ConfigData {
+   |        ---------- fields in this struct
+...
+24 |     total_candidates: u64,
+   |     ^^^^^^^^^^^^^^^^
+25 |     prime_count: u64,
+   |     ^^^^^^^^^^^
+26 |     density: f64,
+27 |     midpoint: f64,
+   |     ^^^^^^^^
+28 |     phi_base: u32,
+   |     ^^^^^^^^
+29 |     tau_base: u32,
+   |     ^^^^^^^^
+30 |     rad_base: u32,
+   |     ^^^^^^^^
+31 |     outer_gcd: u32,
+   |     ^^^^^^^^^
+32 |     inner_gcd: u32,
+   |     ^^^^^^^^^
+33 |     outer_is_prime: bool,
+   |     ^^^^^^^^^^^^^^
+34 |     inner_is_prime: bool,
+   |     ^^^^^^^^^^^^^^
+35 |     min_length: usize,
+   |     ^^^^^^^^^^
+36 |     max_length: usize,
+   |     ^^^^^^^^^^
+   |
+   = note: `ConfigData` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `unique_settings` is never read
+  --> examples/pattern_analyzer.rs:87:5
+   |
+85 | struct PatternSummary {
+   |        -------------- field in this struct
+86 |     total_configs: usize,
+87 |     unique_settings: usize,
+   |     ^^^^^^^^^^^^^^^
+
+warning: `primes` (example "pattern_analyzer") generated 2 warnings
+    Finished `release` profile [optimized] target(s) in 0.87s
+     Running `target/release/examples/pattern_analyzer`
+
+╔════════════════════════════════════════════════════════╗
+║        PATTERN ANALYZER: DATA-DRIVEN DISCOVERY        ║
+╚════════════════════════════════════════════════════════╝
+
+Loading solution space data...
+  ✓ Loaded 5616 configuration results
+
+Finding optimal k* for each configuration...
+  ✓ Analyzed 1404 unique configurations
+
+Discovering patterns...
+
+╔════════════════════════════════════════════════════════╗
+║           PATTERN DISCOVERY SUMMARY                   ║
+╚════════════════════════════════════════════════════════╝
+
+Total unique (base, M, outer, inner) configurations: 1404
+
+────────────────────────────────────────────────────────
+OVERALL k* DISTRIBUTION
+────────────────────────────────────────────────────────
+
+  k*=0: 1299 configs ( 92.5%) ██████████████████████████████████████████████
+  k*=1:   77 configs (  5.5%) ██
+  k*=2:   20 configs (  1.4%) 
+  k*=3:    8 configs (  0.6%) 
+
+────────────────────────────────────────────────────────
+k* BY MIDDLE LENGTH (M)
+────────────────────────────────────────────────────────
+
+  M=1: 468 total | k*=0: 367 (78.4%) | k*>0: 101
+  M=2: 468 total | k*=0: 464 (99.1%) | k*>0: 4
+  M=3: 468 total | k*=0: 468 (100.0%) | k*>0: 0
+
+────────────────────────────────────────────────────────
+k* BY BASE
+────────────────────────────────────────────────────────
+
+  Base  6: 6 configs | k*=0:    5 ( 83.3%) | k*>0:   1
+  Base  8: 36 configs | k*=0:   33 ( 91.7%) | k*>0:   3
+  Base 10: 36 configs | k*=0:   34 ( 94.4%) | k*>0:   2
+  Base 12: 36 configs | k*=0:   34 ( 94.4%) | k*>0:   2
+  Base 14: 90 configs | k*=0:   82 ( 91.1%) | k*>0:   8
+  Base 15: 168 configs | k*=0:  144 ( 85.7%) | k*>0:  24
+  Base 16: 168 configs | k*=0:  156 ( 92.9%) | k*>0:  12
+  Base 18: 90 configs | k*=0:   85 ( 94.4%) | k*>0:   5
+  Base 20: 168 configs | k*=0:  152 ( 90.5%) | k*>0:  16
+  Base 22: 270 configs | k*=0:  255 ( 94.4%) | k*>0:  15
+  Base 24: 168 configs | k*=0:  156 ( 92.9%) | k*>0:  12
+  Base 30: 168 configs | k*=0:  163 ( 97.0%) | k*>0:   5
+
+────────────────────────────────────────────────────────
+ANOMALIES: Configurations with k* > 0
+────────────────────────────────────────────────────────
+
+  Found 105 configurations with k*>0:
+
+  1. Base 22, M=1, (13,1) → k*=1 (density=0.1905)
+     Densities: k=1: 0.1905★ | k=2: 0.1429  | k=0: 0.0476  | k=3: 0.0476  | 
+  2. Base 15, M=1, (1,4) → k*=1 (density=0.1429)
+     Densities: k=1: 0.1429★ | k=0: 0.0714  | k=2: 0.0000  | k=3: 0.0000  | 
+  3. Base 22, M=1, (7,5) → k*=1 (density=0.1905)
+     Densities: k=1: 0.1905★ | k=0: 0.0952  | k=2: 0.0952  | k=3: 0.0000  | 
+  4. Base 15, M=1, (4,11) → k*=1 (density=0.1429)
+     Densities: k=1: 0.1429★ | k=2: 0.0714  | k=3: 0.0714  | k=0: 0.0000  | 
+  5. Base 10, M=1, (9,1) → k*=1 (density=0.1111)
+     Densities: k=1: 0.1111★ | k=0: 0.0000  | k=2: 0.0000  | k=3: 0.0000  | 
+  6. Base 8, M=1, (5,1) → k*=1 (density=0.1429)
+     Densities: k=1: 0.1429★ | k=3: 0.1429  | k=0: 0.0000  | k=2: 0.0000  | 
+  7. Base 30, M=1, (23,13) → k*=1 (density=0.2414)
+     Densities: k=1: 0.2414★ | k=0: 0.2069  | k=3: 0.1379  | k=2: 0.0690  | 
+  8. Base 15, M=1, (4,14) → k*=1 (density=0.1429)
+     Densities: k=1: 0.1429★ | k=0: 0.0714  | k=2: 0.0714  | k=3: 0.0000  | 
+  9. Base 22, M=1, (7,3) → k*=2 (density=0.1429)
+     Densities: k=2: 0.1429★ | k=0: 0.0952  | k=1: 0.0476  | k=3: 0.0476  | 
+  10. Base 22, M=1, (19,9) → k*=2 (density=0.0952)
+     Densities: k=2: 0.0952★ | k=3: 0.0952  | k=0: 0.0476  | k=1: 0.0476  | 
+  11. Base 22, M=1, (15,9) → k*=1 (density=0.1905)
+     Densities: k=1: 0.1905★ | k=0: 0.0952  | k=3: 0.0476  | k=2: 0.0000  | 
+  12. Base 24, M=1, (1,13) → k*=1 (density=0.2174)
+     Densities: k=1: 0.2174★ | k=0: 0.1304  | k=2: 0.1304  | k=3: 0.0435  | 
+  13. Base 22, M=1, (13,19) → k*=1 (density=0.1429)
+     Densities: k=1: 0.1429★ | k=2: 0.0476  | k=3: 0.0476  | k=0: 0.0000  | 
+  14. Base 22, M=1, (13,17) → k*=1 (density=0.1905)
+     Densities: k=1: 0.1905★ | k=0: 0.0476  | k=2: 0.0476  | k=3: 0.0476  | 
+  15. Base 18, M=1, (1,13) → k*=1 (density=0.1765)
+     Densities: k=1: 0.1765★ | k=0: 0.1176  | k=2: 0.0000  | k=3: 0.0000  | 
+  16. Base 15, M=1, (7,2) → k*=1 (density=0.1429)
+     Densities: k=1: 0.1429★ | k=2: 0.0714  | k=3: 0.0714  | k=0: 0.0000  | 
+  17. Base 16, M=1, (11,9) → k*=2 (density=0.0667)
+     Densities: k=2: 0.0667★ | k=0: 0.0000  | k=1: 0.0000  | k=3: 0.0000  | 
+  18. Base 18, M=1, (13,11) → k*=3 (density=0.1765)
+     Densities: k=3: 0.1765★ | k=0: 0.1176  | k=1: 0.0588  | k=2: 0.0588  | 
+  19. Base 15, M=1, (2,11) → k*=1 (density=0.1429)
+     Densities: k=1: 0.1429★ | k=2: 0.0714  | k=0: 0.0000  | k=3: 0.0000  | 
+  20. Base 24, M=1, (23,13) → k*=1 (density=0.2174)
+     Densities: k=1: 0.2174★ | k=2: 0.1304  | k=0: 0.0870  | k=3: 0.0000  | 
+
+  ... and 85 more anomalies
+
+╔════════════════════════════════════════════════════════╗
+║              ANOMALY DEEP DIVE                         ║
+╚════════════════════════════════════════════════════════╝
+
+Anomalies by Base:
+
+  Base 6: 1 anomalies
+    M distribution: M=1: 1 | 
+  Base 8: 3 anomalies
+    M distribution: M=1: 2 | M=2: 1 | 
+  Base 10: 2 anomalies
+    M distribution: M=1: 2 | 
+  Base 12: 2 anomalies
+    M distribution: M=1: 2 | 
+  Base 14: 8 anomalies
+    M distribution: M=1: 8 | 
+  Base 15: 24 anomalies
+    M distribution: M=1: 22 | M=2: 2 | 
+  Base 16: 12 anomalies
+    M distribution: M=1: 11 | M=2: 1 | 
+  Base 18: 5 anomalies
+    M distribution: M=1: 5 | 
+  Base 20: 16 anomalies
+    M distribution: M=1: 16 | 
+  Base 22: 15 anomalies
+    M distribution: M=1: 15 | 
+  Base 24: 12 anomalies
+    M distribution: M=1: 12 | 
+  Base 30: 5 anomalies
+    M distribution: M=1: 5 | 
+
+────────────────────────────────────────────────────────
+Do anomalies share common properties?
+────────────────────────────────────────────────────────
+
+  M values: M=2: 4 (3.8%) | M=1: 101 (96.2%) | 
+  k* values: k*=3: 8 (7.6%) | k*=2: 20 (19.0%) | k*=1: 77 (73.3%) | 
+
+
+╔════════════════════════════════════════════════════════╗
+║                   NEXT STEPS                           ║
+╚════════════════════════════════════════════════════════╝
+
+The data has revealed its patterns. Key observations:
+  1. What is the k*=0 percentage across all configs?
+  2. Are there any bases with consistent k*>0?
+  3. Does M value correlate with k* behavior?
+  4. What makes anomalies special (if any exist)?
+
+No hypotheses imposed. Just truth from data. 🔬
+

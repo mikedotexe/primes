@@ -1,0 +1,21 @@
+# Python Requirements for Elbow Room Animation Pipeline
+# Install with: pip install -r requirements.txt
+
+# Manim Community Edition - Animation framework
+# Version 0.18+ recommended for stability
+manim>=0.18.0
+
+# Core dependencies (usually installed with manim, but listed for clarity)
+numpy>=1.21.0
+scipy>=1.7.0
+pillow>=9.0.0
+pycairo>=1.21.0
+
+# Optional: For faster rendering (if using GPU acceleration)
+# moderngl>=5.6.0
+
+# Optional: For audio support (if adding narration)
+# pydub>=0.25.0
+
+# Development/Testing
+# pytest>=7.0.0  # Uncomment if writing tests for animation scripts

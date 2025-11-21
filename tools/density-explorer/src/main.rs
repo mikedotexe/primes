@@ -413,6 +413,40 @@ fn digits_to_biguint(digits: &[u32], base: u32) -> BigUint {
     acc
 }
 
+// Optimization (A): Sample digits first, delay BigUint construction
+fn sample_digits<R: Rng>(spec: &[Option<Vec<u32>>], mirror: bool, rng: &mut R) -> Vec<u32> {
+    let n = spec.len();
+    let mut digits: Vec<u32> = vec![0; n];
+    for (i, allowed_opt) in spec.iter().enumerate() {
+        match allowed_opt {
+            None => digits[i] = 0,
+            Some(allowed) => {
+                let idx = rng.gen_range(0..allowed.len());
+                digits[i] = allowed[idx];
+            }
+        }
+    }
+    if mirror {
+        for i in 0..(n / 2) {
+            let j = n - 1 - i;
+            digits[j] = digits[i];
+        }
+    }
+    digits
+}
+
+#[inline]
+fn horner_mod(digits: &[u32], base: u32, m: u32) -> u32 {
+    if m == 0 { return 0; }
+    if m == 1 { return 0; }
+    let mut acc: u64 = 0;
+    let b = (base as u64) % (m as u64);
+    for &d in digits {
+        acc = ((acc * b) + (d as u64)) % (m as u64);
+    }
+    acc as u32
+}
+
 // ---------------- Optimization (C): Spec-aware model helpers ----------------
 
 // Optimization (D): O(n) weight generation (replaces pow_mod_u32 calls)
@@ -665,7 +699,13 @@ fn gcd_u32(mut a: u32, mut b: u32) -> u32 { while b != 0 { let t = a % b; a = b;
 fn coprime_digits(base: u32) -> Vec<u32> {
     (0..base).filter(|&d| gcd_u32(d, base) == 1).collect()
 }
-fn lcm_u32(a: u32, b: u32) -> u32 { a / gcd_u32(a, b) * b }
+fn lcm_u32(a: u32, b: u32) -> u32 {
+    if a == 0 || b == 0 { return 0; }
+    let g = gcd_u32(a, b);
+    if g == 0 { return 0; }
+    let l = (a as u64 / g as u64).saturating_mul(b as u64);
+    if l > u32::MAX as u64 { 0 } else { l as u32 }
+}
 fn lcm_list(mods: &[u32]) -> u32 { mods.iter().copied().filter(|&m| m>=2).fold(1u32, |acc,m| lcm_u32(acc,m)) }
 
 // exact P(n ≡ 0 mod m)
@@ -1034,22 +1074,33 @@ fn explain_for_pattern(p: &Pattern, track: &[u32]) -> ExplainReport {
     let open_mask: Vec<u8> = spec.iter().map(|s| if s.is_some() { 1 } else { 0 }).collect();
     let allowed_lens: Vec<usize> = spec.iter().map(|s| s.as_ref().map(|v| v.len()).unwrap_or(0)).collect();
 
+    let spec_wrapped = build_spec(p);
+
+    // Use LCM vector path for model_p0 when possible (Optimization F)
+    let model_p0_vec: Vec<(u32, f64)> = if let Some((_l, pairs)) =
+        residue_null_vector_via_lcm_with_spec(&spec_wrapped, p.base, track)
+    {
+        pairs
+    } else {
+        // Fallback: per-prime DP when LCM too large
+        track.iter().filter(|&&m| m >= 2)
+            .map(|&m| (m, residue_null_probability_with_spec(&spec_wrapped, p.base, m)))
+            .collect()
+    };
+
     let mut weights: Vec<(u32, Vec<u32>)> = Vec::new();
-    let mut model_p0: Vec<(u32, f64)> = Vec::new();
     let mut orders: Vec<(u32, Option<u32>)> = Vec::new();
     for &m in track {
         if m >= 2 {
-            let base = p.base % m;
-            let mut wvec = vec![0u32; n];
-            for i in 0..n {
-                let exp = n - 1 - i;
-                wvec[i] = pow_mod_u32(base, exp, m);
-            }
+            let base_mod = p.base % m;
+            // Use streaming weights (Optimization D) instead of pow_mod_u32
+            let wvec = weights_streaming(n, base_mod, m);
             weights.push((m, wvec));
-            model_p0.push((m, residue_null_probability(p, m)));
             orders.push((m, multiplicative_order(p.base % m, m)));
         }
     }
+
+    let model_p0: Vec<(u32, f64)> = model_p0_vec;
 
     let (l, p_any) = union_null_probability_lcm(p, track);
     let l_opt = if l == 0 { None } else { Some(l) };
@@ -1080,26 +1131,51 @@ fn do_sample(p: &Pattern, samples: usize, seed: u64, parallel: bool, track: &[u3
     let mid_len = match p.midpoint { Midpoint::Free(l) | Midpoint::Zeros(l) => l };
     let inner_zero = p.layers.first().map(|L| L.zero).unwrap_or(0);
     let spec = build_digit_spec(p);
+    let spec_wrapped = build_spec(p);
 
-    let model_p0: Vec<f64> = track.iter().map(|&m| if m >= 2 { residue_null_probability(p, m) } else { 0.0 }).collect();
+    // Use LCM vector path when possible (Optimization F)
+    let model_p0: Vec<f64> = if let Some((_l, pairs)) =
+        residue_null_vector_via_lcm_with_spec(&spec_wrapped, p.base, track)
+    {
+        track.iter().map(|&m|
+            if m < 2 { 0.0 }
+            else { pairs.iter().find(|(pm,_)| *pm==m).map(|(_,q)| *q).unwrap_or(0.0) }
+        ).collect()
+    } else {
+        // Fallback: per-prime DP when LCM too large
+        track.iter().map(|&m| if m>=2 {
+            residue_null_probability_with_spec(&spec_wrapped, p.base, m)
+        } else { 0.0 }).collect()
+    };
     let expected_pnt = expected_density_pnt_conditional(p);
     let expected_local = expected_density_local(p, track);
     let expected_local_exact = expected_density_local_exact(p, track);
-
-    // Optimization (B): Pre-convert tracked moduli to BigUint once
-    let track_big: Vec<BigUint> = track.iter().map(|&m| BigUint::from(m)).collect();
 
     let start = std::time::Instant::now();
     let (primes, counts): (usize, Vec<usize>) = if parallel {
         (0..samples).into_par_iter().map(|i| {
             let mut rng = StdRng::seed_from_u64(seed ^ (i as u64).wrapping_mul(0x9E3779B97F4A7C15));
-            let n = sample_number(p, &spec, &mut rng);
+            let digits = sample_digits(&spec, p.mirror, &mut rng);
+
+            // Compute residues first (no BigUint yet)
             let mut div = vec![0usize; track.len()];
             let mut blocked = false;
-            for (j, m_big) in track_big.iter().enumerate() {
-                if track[j] >= 2 && (&n % m_big).is_zero() { div[j] = 1; if pre_sieve { blocked = true; } }
+            for (j, &m) in track.iter().enumerate() {
+                if m >= 2 {
+                    if horner_mod(&digits, p.base, m) == 0 {
+                        div[j] = 1;
+                        if pre_sieve { blocked = true; }
+                    }
+                }
             }
-            let is_prime = if pre_sieve && blocked { 0usize } else { is_probable_prime(&n) as usize };
+
+            // Only construct BigUint if passes pre-sieve
+            let is_prime = if pre_sieve && blocked {
+                0usize
+            } else {
+                let n = digits_to_biguint(&digits, p.base);
+                is_probable_prime(&n) as usize
+            };
             (is_prime, div)
         }).reduce(|| (0usize, vec![0usize; track.len()]), |(p1, mut c1), (p2, c2)| {
             for (i, v) in c2.iter().enumerate() { c1[i] += *v; }
@@ -1110,12 +1186,24 @@ fn do_sample(p: &Pattern, samples: usize, seed: u64, parallel: bool, track: &[u3
         let mut counts = vec![0usize; track.len()];
         for i in 0..samples {
             let mut rng = StdRng::seed_from_u64(seed ^ (i as u64).wrapping_mul(0x9E3779B97F4A7C15));
-            let n = sample_number(p, &spec, &mut rng);
+            let digits = sample_digits(&spec, p.mirror, &mut rng);
+
+            // Compute residues first (no BigUint yet)
             let mut blocked = false;
-            for (j, m_big) in track_big.iter().enumerate() {
-                if track[j] >= 2 && (&n % m_big).is_zero() { counts[j] += 1; if pre_sieve { blocked = true; } }
+            for (j, &m) in track.iter().enumerate() {
+                if m >= 2 {
+                    if horner_mod(&digits, p.base, m) == 0 {
+                        counts[j] += 1;
+                        if pre_sieve { blocked = true; }
+                    }
+                }
             }
-            if !(pre_sieve && blocked) && is_probable_prime(&n) { primes += 1; }
+
+            // Only construct BigUint if passes pre-sieve
+            if !(pre_sieve && blocked) {
+                let n = digits_to_biguint(&digits, p.base);
+                if is_probable_prime(&n) { primes += 1; }
+            }
         }
         (primes, counts)
     };
@@ -1491,7 +1579,21 @@ fn main() {
                     };
                     track.sort_unstable(); track.dedup();
 
-                    let model_p0: Vec<f64> = track.iter().map(|&m| if m >= 2 { residue_null_probability(&p, m) } else { 0.0 }).collect();
+                    // Use LCM vector path when possible (Optimization F)
+                    let spec_wrapped = build_spec(&p);
+                    let model_p0: Vec<f64> = if let Some((_l, pairs)) =
+                        residue_null_vector_via_lcm_with_spec(&spec_wrapped, p.base, &track)
+                    {
+                        track.iter().map(|&m|
+                            if m < 2 { 0.0 }
+                            else { pairs.iter().find(|(pm,_)| *pm==m).map(|(_,q)| *q).unwrap_or(0.0) }
+                        ).collect()
+                    } else {
+                        // Fallback: per-prime DP when LCM too large
+                        track.iter().map(|&m| if m>=2 {
+                            residue_null_probability_with_spec(&spec_wrapped, p.base, m)
+                        } else { 0.0 }).collect()
+                    };
                     let expected_pnt = expected_density_pnt_conditional(&p);
                     let expected_local = expected_density_local(&p, &track);
                     let expected_local_exact = expected_density_local_exact(&p, &track);
@@ -1667,7 +1769,21 @@ fn main() {
                     track.sort_unstable(); track.dedup();
 
                     if model_only {
-                        let model_p0: Vec<f64> = track.iter().map(|&m| if m>=2 { residue_null_probability(&p, m) } else { 0.0 }).collect();
+                        // Use LCM vector path when possible (Optimization F)
+                        let spec_wrapped = build_spec(&p);
+                        let model_p0: Vec<f64> = if let Some((_l, pairs)) =
+                            residue_null_vector_via_lcm_with_spec(&spec_wrapped, p.base, &track)
+                        {
+                            track.iter().map(|&m|
+                                if m < 2 { 0.0 }
+                                else { pairs.iter().find(|(pm,_)| *pm==m).map(|(_,q)| *q).unwrap_or(0.0) }
+                            ).collect()
+                        } else {
+                            // Fallback: per-prime DP when LCM too large
+                            track.iter().map(|&m| if m>=2 {
+                                residue_null_probability_with_spec(&spec_wrapped, p.base, m)
+                            } else { 0.0 }).collect()
+                        };
                         let expected_pnt = expected_density_pnt_conditional(&p);
                         let expected_local = expected_density_local(&p, &track);
                         let expected_local_exact = expected_density_local_exact(&p, &track);
@@ -1723,7 +1839,21 @@ fn main() {
                     track.sort_unstable(); track.dedup();
 
                     if model_only {
-                        let model_p0: Vec<f64> = track.iter().map(|&m| if m>=2 { residue_null_probability(&p, m) } else { 0.0 }).collect();
+                        // Use LCM vector path when possible (Optimization F)
+                        let spec_wrapped = build_spec(&p);
+                        let model_p0: Vec<f64> = if let Some((_l, pairs)) =
+                            residue_null_vector_via_lcm_with_spec(&spec_wrapped, p.base, &track)
+                        {
+                            track.iter().map(|&m|
+                                if m < 2 { 0.0 }
+                                else { pairs.iter().find(|(pm,_)| *pm==m).map(|(_,q)| *q).unwrap_or(0.0) }
+                            ).collect()
+                        } else {
+                            // Fallback: per-prime DP when LCM too large
+                            track.iter().map(|&m| if m>=2 {
+                                residue_null_probability_with_spec(&spec_wrapped, p.base, m)
+                            } else { 0.0 }).collect()
+                        };
                         let expected_pnt = expected_density_pnt_conditional(&p);
                         let expected_local = expected_density_local(&p, &track);
                         let expected_local_exact = expected_density_local_exact(&p, &track);
@@ -2034,7 +2164,21 @@ fn main() {
                                 };
                                 track.sort_unstable(); track.dedup();
 
-                                let model_p0: Vec<f64> = track.iter().map(|&m| if m >= 2 { residue_null_probability(&p, m) } else { 0.0 }).collect();
+                                // Use LCM vector path when possible (Optimization F)
+                                let spec_wrapped = build_spec(&p);
+                                let model_p0: Vec<f64> = if let Some((_l, pairs)) =
+                                    residue_null_vector_via_lcm_with_spec(&spec_wrapped, p.base, &track)
+                                {
+                                    track.iter().map(|&m|
+                                        if m < 2 { 0.0 }
+                                        else { pairs.iter().find(|(pm,_)| *pm==m).map(|(_,q)| *q).unwrap_or(0.0) }
+                                    ).collect()
+                                } else {
+                                    // Fallback: per-prime DP when LCM too large
+                                    track.iter().map(|&m| if m>=2 {
+                                        residue_null_probability_with_spec(&spec_wrapped, p.base, m)
+                                    } else { 0.0 }).collect()
+                                };
                                 let expected_pnt = expected_density_pnt_conditional(&p);
                                 let expected_local = expected_density_local(&p, &track);
                                 let expected_local_exact = expected_density_local_exact(&p, &track);
@@ -2152,7 +2296,21 @@ fn main() {
                                 track.sort_unstable(); track.dedup();
 
                                 if model_only {
-                                    let model_p0: Vec<f64> = track.iter().map(|&m| if m>=2 { residue_null_probability(&p, m) } else { 0.0 }).collect();
+                                    // Use LCM vector path when possible (Optimization F)
+                                    let spec_wrapped = build_spec(&p);
+                                    let model_p0: Vec<f64> = if let Some((_l, pairs)) =
+                                        residue_null_vector_via_lcm_with_spec(&spec_wrapped, p.base, &track)
+                                    {
+                                        track.iter().map(|&m|
+                                            if m < 2 { 0.0 }
+                                            else { pairs.iter().find(|(pm,_)| *pm==m).map(|(_,q)| *q).unwrap_or(0.0) }
+                                        ).collect()
+                                    } else {
+                                        // Fallback: per-prime DP when LCM too large
+                                        track.iter().map(|&m| if m>=2 {
+                                            residue_null_probability_with_spec(&spec_wrapped, p.base, m)
+                                        } else { 0.0 }).collect()
+                                    };
                                     let expected_pnt = expected_density_pnt_conditional(&p);
                                     let expected_local = expected_density_local(&p, &track);
                                     let expected_local_exact = expected_density_local_exact(&p, &track);
@@ -2205,7 +2363,21 @@ fn main() {
                                 track.sort_unstable(); track.dedup();
 
                                 if model_only {
-                                    let model_p0: Vec<f64> = track.iter().map(|&m| if m>=2 { residue_null_probability(&p, m) } else { 0.0 }).collect();
+                                    // Use LCM vector path when possible (Optimization F)
+                                    let spec_wrapped = build_spec(&p);
+                                    let model_p0: Vec<f64> = if let Some((_l, pairs)) =
+                                        residue_null_vector_via_lcm_with_spec(&spec_wrapped, p.base, &track)
+                                    {
+                                        track.iter().map(|&m|
+                                            if m < 2 { 0.0 }
+                                            else { pairs.iter().find(|(pm,_)| *pm==m).map(|(_,q)| *q).unwrap_or(0.0) }
+                                        ).collect()
+                                    } else {
+                                        // Fallback: per-prime DP when LCM too large
+                                        track.iter().map(|&m| if m>=2 {
+                                            residue_null_probability_with_spec(&spec_wrapped, p.base, m)
+                                        } else { 0.0 }).collect()
+                                    };
                                     let expected_pnt = expected_density_pnt_conditional(&p);
                                     let expected_local = expected_density_local(&p, &track);
                                     let expected_local_exact = expected_density_local_exact(&p, &track);

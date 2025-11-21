@@ -1,0 +1,165 @@
+   Compiling primes v1.0.0 (/Users/mikepurvis/Library/CloudStorage/Dropbox/Kairos/primes/prime-physics-engine)
+warning: field `k_inner` is never read
+  --> examples/base12_midpoint_test.rs:82:5
+   |
+80 | struct TestResult {
+   |        ---------- field in this struct
+81 |     k_outer: u32,
+82 |     k_inner: u32,
+   |     ^^^^^^^
+   |
+   = note: `TestResult` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `primes` (example "base12_midpoint_test") generated 1 warning
+    Finished `release` profile [optimized] target(s) in 1.51s
+     Running `target/release/examples/base12_midpoint_test`
+╔═══════════════════════════════════════════════════════════════╗
+║     BASE 12 MIDPOINT THRESHOLD TEST: BELOW CHAOS BOUNDARY    ║
+╠═══════════════════════════════════════════════════════════════╣
+║  Base 12 = 2²×3 (midpoint m=6)                               ║
+║  Testing: Does m<7 allow k*>0 exceptions like Base 10?      ║
+║  Critical M=2 regime                                         ║
+╚═══════════════════════════════════════════════════════════════╝
+
+🎯 MIDPOINT-7 CHAOS THRESHOLD HYPOTHESIS
+======================================================================
+
+Known data:
+  Base 10 (m=5):  M=2 shows k*=1 (+5.9pp advantage)
+  Base 14 (m=7):  M=2 shows k*=0 (-6.2pp for k=1)
+
+Base 12 prediction:
+  If m<7 allows exceptions → Base 12 may show k*>0
+  If Base 10 is unique    → Base 12 shows k*=0
+
+Testing with THREE coprime boundary pairs for robustness...
+
+════════════════════════════════════════════════════════════════════
+PAIR 1: Base 12, M=2, (1,5) - Testing k∈{0,1,2}
+════════════════════════════════════════════════════════════════════
+
+Testing k=0 (n=1000 samples)...
+  → Primes found: 204/1000 (20.4%)
+
+Testing k=1 (n=1000 samples)...
+  → Primes found: 142/1000 (14.2%)
+
+Testing k=2 (n=1000 samples)...
+  → Primes found: 93/1000 (9.3%)
+
+📊 RESULTS FOR PAIR (1,5):
+┌───────┬─────────┬──────────┬──────────┐
+│   k   │ Samples │  Primes  │ Density  │
+├───────┼─────────┼──────────┼──────────┤
+│   0   │  1000   │   204    │  20.4% ★│
+│   1   │  1000   │   142    │  14.2%  │
+│   2   │  1000   │    93    │  9.3%  │
+└───────┴─────────┴──────────┴──────────┘
+
+🎯 Optimal padding for (1,5): k* = 0
+
+📈 Statistical Analysis (k=0 vs k=1):
+  Δ = -6.20 percentage points
+  Z-score = 3.665
+  p-value ≈ 0.001
+  ✅ SIGNIFICANT: k=0 outperforms k=1
+
+════════════════════════════════════════════════════════════════════
+PAIR 2: Base 12, M=2, (5,7) - Testing k∈{0,1,2}
+════════════════════════════════════════════════════════════════════
+
+Testing k=0 (n=1000 samples)...
+  → Primes found: 193/1000 (19.3%)
+
+Testing k=1 (n=1000 samples)...
+  → Primes found: 150/1000 (15.0%)
+
+Testing k=2 (n=1000 samples)...
+  → Primes found: 70/1000 (7.0%)
+
+📊 RESULTS FOR PAIR (5,7):
+┌───────┬─────────┬──────────┬──────────┐
+│   k   │ Samples │  Primes  │ Density  │
+├───────┼─────────┼──────────┼──────────┤
+│   0   │  1000   │   193    │  19.3% ★│
+│   1   │  1000   │   150    │  15.0%  │
+│   2   │  1000   │    70    │  7.0%  │
+└───────┴─────────┴──────────┴──────────┘
+
+🎯 Optimal padding for (5,7): k* = 0
+
+📈 Statistical Analysis (k=0 vs k=1):
+  Δ = -4.30 percentage points
+  Z-score = 2.551
+  p-value ≈ 0.050
+  ✅ SIGNIFICANT: k=0 outperforms k=1
+
+════════════════════════════════════════════════════════════════════
+PAIR 3: Base 12, M=2, (7,11) - Testing k∈{0,1,2}
+════════════════════════════════════════════════════════════════════
+
+Testing k=0 (n=1000 samples)...
+  → Primes found: 239/1000 (23.9%)
+
+Testing k=1 (n=1000 samples)...
+  → Primes found: 92/1000 (9.2%)
+
+Testing k=2 (n=1000 samples)...
+  → Primes found: 93/1000 (9.3%)
+
+📊 RESULTS FOR PAIR (7,11):
+┌───────┬─────────┬──────────┬──────────┐
+│   k   │ Samples │  Primes  │ Density  │
+├───────┼─────────┼──────────┼──────────┤
+│   0   │  1000   │   239    │  23.9% ★│
+│   1   │  1000   │    92    │  9.2%  │
+│   2   │  1000   │    93    │  9.3%  │
+└───────┴─────────┴──────────┴──────────┘
+
+🎯 Optimal padding for (7,11): k* = 0
+
+📈 Statistical Analysis (k=0 vs k=1):
+  Δ = -14.70 percentage points
+  Z-score = 8.845
+  p-value ≈ 0.001
+  ✅ SIGNIFICANT: k=0 outperforms k=1
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║            MIDPOINT THRESHOLD HYPOTHESIS EVALUATION           ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Base 12 (m=6) M=2 results across 3 boundary pairs:
+  (Check if majority show k*>0 or k*=0)
+
+🔬 INTERPRETATION GUIDE:
+
+If k*>0 for majority of pairs:
+  → Midpoint m<7 allows exceptions (hypothesis SUPPORTED)
+  → Base 10 (m=5) and Base 12 (m=6) both show k*>0
+  → Threshold at m=7 is REAL
+
+If k*=0 for majority of pairs:
+  → Base 10 is uniquely special (hypothesis REFUTED)
+  → Midpoint is NOT the determining factor
+  → Focus on Base-10-specific mechanisms
+
+⏱️  Total runtime: 15.49ms
+
+╔═══════════════════════════════════════════════════════════════╗
+║                        CSV OUTPUT                             ║
+╚═══════════════════════════════════════════════════════════════╝
+
+base,M,outer,inner,k,samples,primes,density,midpoint
+12,2,1,5,0,1000,230,0.230000,6
+12,2,1,5,1,1000,122,0.122000,6
+12,2,1,5,2,1000,111,0.111000,6
+12,2,5,7,0,1000,178,0.178000,6
+12,2,5,7,1,1000,138,0.138000,6
+12,2,5,7,2,1000,75,0.075000,6
+12,2,7,11,0,1000,208,0.208000,6
+12,2,7,11,1,1000,88,0.088000,6
+12,2,7,11,2,1000,95,0.095000,6
+
+🏁 Base 12 Midpoint Threshold Test Complete!
