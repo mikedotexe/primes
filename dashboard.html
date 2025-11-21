@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prime Physics Engine - Interactive Dashboard</title>
+
+  <!-- External Libraries (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5"></script>
+
+  <style>
+    /* Dark Theme - Matching overlay_v2.html */
+    :root {
+      --bg: #0b0c11;
+      --panel: #0f1117;
+      --panel-hover: #14151d;
+      --ink: #e6e9f2;
+      --ink-dim: #9098b0;
+      --accent: #60e0d0;
+      --accent-dim: #3a7f76;
+      --border: #1e2029;
+      --warn: #ff6b9d;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    header {
+      background: var(--panel);
+      border-bottom: 2px solid var(--border);
+      padding: 1.5rem 2rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--ink-dim);
+      margin-bottom: 1rem;
+    }
+
+    /* Navigation */
+    nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    nav button {
+      padding: 0.6rem 1.2rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--ink-dim);
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    nav button:hover {
+      background: var(--panel-hover);
+      color: var(--ink);
+      border-color: var(--accent-dim);
+    }
+
+    nav button.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    /* File Upload */
+    .file-upload {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .file-upload input[type="file"] {
+      display: none;
+    }
+
+    .file-upload label {
+      padding: 0.5rem 1rem;
+      background: var(--accent-dim);
+      color: var(--ink);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+
+    .file-upload label:hover {
+      background: var(--accent);
+    }
+
+    #file-status {
+      font-size: 0.85rem;
+      color: var(--ink-dim);
+    }
+
+    /* Main Layout */
+    main {
+      display: flex;
+      height: calc(100vh - 200px);
+    }
+
+    /* Sidebar */
+    aside {
+      width: 280px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    aside h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .filter-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--ink-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .filter-group select,
+    .filter-group input[type="range"] {
+      width: 100%;
+      padding: 0.5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .range-value {
+      display: inline-block;
+      margin-left: 0.5rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .filter-actions button {
+      flex: 1;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-apply {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .btn-apply:hover {
+      opacity: 0.9;
+    }
+
+    .btn-reset {
+      background: var(--panel);
+      color: var(--ink-dim);
+    }
+
+    .btn-reset:hover {
+      background: var(--panel-hover);
+      color: var(--ink);
+    }
+
+    /* Content Area */
+    .content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Welcome Screen */
+    .welcome {
+      max-width: 800px;
+      margin: 2rem auto;
+      text-align: center;
+    }
+
+    .welcome h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .welcome p {
+      color: var(--ink-dim);
+      margin-bottom: 2rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--ink-dim);
+      margin-top: 0.5rem;
+    }
+
+    /* Chart Container */
+    .chart-container {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-container h3 {
+      font-size: 1.2rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .chart-placeholder {
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-dim);
+      font-style: italic;
+    }
+
+    /* Data Table */
+    .data-table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead {
+      background: var(--panel);
+      position: sticky;
+      top: 0;
+    }
+
+    th {
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--accent);
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr:hover {
+      background: var(--panel-hover);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      padding: 1rem 2rem;
+      font-size: 0.85rem;
+      color: var(--ink-dim);
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .provenance {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .provenance-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .provenance-badge {
+      background: var(--bg);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    /* Links */
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    a:hover {
+      opacity: 0.8;
+    }
+
+    /* Loading Indicator */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Utility */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-success {
+      color: #4ecdc4;
+    }
+
+    .text-warn {
+      color: var(--warn);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Prime Physics Engine</h1>
+    <p class="subtitle">Interactive Dashboard for Membrane Prime Analysis</p>
+
+    <nav>
+      <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="membranes">Membranes</button>
+      <button class="tab-btn" data-tab="density">Density</button>
+      <button class="tab-btn" data-tab="crossbase">Cross-Base</button>
+      <button class="tab-btn" data-tab="data">Data Explorer</button>
+    </nav>
+
+    <div class="file-upload">
+      <label for="file-input">📁 Load CSV Files</label>
+      <input type="file" id="file-input" accept=".csv,.json" multiple>
+      <span id="file-status">No files loaded</span>
+    </div>
+  </header>
+
+  <main>
+    <aside>
+      <h3>🎛️ Filters</h3>
+
+      <div class="filter-group">
+        <label>Base:</label>
+        <select id="filter-base" multiple size="6">
+          <option value="6">Base 6</option>
+          <option value="10">Base 10</option>
+          <option value="12">Base 12</option>
+          <option value="14">Base 14</option>
+          <option value="15">Base 15</option>
+          <option value="18">Base 18</option>
+          <option value="22">Base 22</option>
+          <option value="30">Base 30</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Middle Length (M):</label>
+        <input type="range" id="filter-m-min" min="1" max="10" value="1">
+        <span class="range-value" id="m-min-value">1</span>
+        to
+        <input type="range" id="filter-m-max" min="1" max="10" value="10">
+        <span class="range-value" id="m-max-value">10</span>
+      </div>
+
+      <div class="filter-group">
+        <label>Padding (k):</label>
+        <input type="range" id="filter-k-min" min="0" max="5" value="0">
+        <span class="range-value" id="k-min-value">0</span>
+        to
+        <input type="range" id="filter-k-max" min="0" max="5" value="5">
+        <span class="range-value" id="k-max-value">5</span>
+      </div>
+
+      <div class="filter-group">
+        <label>Options:</label>
+        <div class="checkbox-group">
+          <label>
+            <input type="checkbox" id="filter-coprime">
+            Coprime only
+          </label>
+          <label>
+            <input type="checkbox" id="filter-prime">
+            Primes only
+          </label>
+          <label>
+            <input type="checkbox" id="filter-elbow">
+            Elbow events only
+          </label>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-apply" onclick="applyFilters()">Apply</button>
+        <button class="btn-reset" onclick="resetFilters()">Reset</button>
+      </div>
+
+      <div class="filter-group" style="margin-top: 2rem;">
+        <label>Loaded Data:</label>
+        <div id="loaded-files" style="font-size: 0.8rem; color: var(--ink-dim);">
+          None
+        </div>
+      </div>
+    </aside>
+
+    <div class="content">
+      <!-- Overview Tab -->
+      <section id="overview" class="tab-content active">
+        <div class="welcome">
+          <h2>🌌 Prime Physics Engine Dashboard</h2>
+          <p>Explore membrane prime generation patterns, Hardy-Littlewood predictions, and cross-base correlations.</p>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-value" id="stat-configs">—</span>
+              <span class="stat-label">Configurations Tested</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value text-success" id="stat-primes">—</span>
+              <span class="stat-label">Primes Found</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value" id="stat-density">—</span>
+              <span class="stat-label">Avg Density</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value text-warn" id="stat-elbows">—</span>
+              <span class="stat-label">Elbow Events</span>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <h3>Top Performing Configurations</h3>
+            <div id="chart-top-configs" class="chart-placeholder">
+              Load data files to see visualizations
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Membranes Tab -->
+      <section id="membranes" class="tab-content">
+        <div class="chart-container">
+          <h3>Elbow Dynamics: ρ vs k for each M</h3>
+          <div id="chart-elbow-dynamics" class="chart-placeholder">
+            Load membrane_density_summary.csv
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <h3>Density Heatmap: (M, k) → ρ</h3>
+          <div id="chart-density-heatmap" class="chart-placeholder">
+            Load membrane_density_summary.csv
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <h3>Primality Scatter: Value vs Discriminant</h3>
+          <div id="chart-primality-scatter" class="chart-placeholder">
+            Load membrane_density_detail.csv
+          </div>
+        </div>
+      </section>
+
+      <!-- Density Tab -->
+      <section id="density" class="tab-content">
+        <div class="chart-container">
+          <h3>Density Grid: Observed vs Predicted</h3>
+          <div id="chart-density-grid" class="chart-placeholder">
+            Load grid_sample.csv and grid_model.csv from density-explorer
+          </div>
+        </div>
+      </section>
+
+      <!-- Cross-Base Tab -->
+      <section id="crossbase" class="tab-content">
+        <div class="chart-container">
+          <h3>iz* Evolution Across Bases</h3>
+          <div id="chart-iz-evolution" class="chart-placeholder">
+            Load ridge_base*.csv files
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <h3>Base Correlation Heatmap</h3>
+          <div id="chart-base-correlation" class="chart-placeholder">
+            Load ridge_base*.csv files
+          </div>
+        </div>
+      </section>
+
+      <!-- Data Explorer Tab -->
+      <section id="data" class="tab-content">
+        <div class="chart-container">
+          <h3>Data Table</h3>
+          <div class="data-table-container">
+            <table id="data-table">
+              <thead id="table-head"></thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+          <div id="table-pagination" style="margin-top: 1rem; text-align: center;">
+            <button onclick="prevPage()">← Prev</button>
+            <span id="page-info" style="margin: 0 1rem;"></span>
+            <button onclick="nextPage()">Next →</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="provenance" id="provenance">
+        <span>No data loaded</span>
+      </div>
+      <div>
+        <a href="https://github.com/anthropics/prime-physics-engine" target="_blank">GitHub</a> |
+        <a href="./README.md">Documentation</a> |
+        <span id="version">v1.0.0</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Global state
+    let loadedData = {};
+    let filteredData = null;
+    let currentPage = 0;
+    const rowsPerPage = 100;
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabName = btn.dataset.tab;
+
+        // Update button states
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        document.getElementById(tabName).classList.add('active');
+      });
+    });
+
+    // File upload
+    document.getElementById('file-input').addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      const status = document.getElementById('file-status');
+
+      status.innerHTML = `<span class="loading"></span> Loading ${files.length} file(s)...`;
+
+      let loaded = 0;
+      files.forEach(file => {
+        if (file.name.endsWith('.csv')) {
+          Papa.parse(file, {
+            header: true,
+            dynamicTyping: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+              loadedData[file.name] = results.data;
+              loaded++;
+
+              if (loaded === files.length) {
+                status.innerHTML = `<span class="text-success">✓</span> Loaded ${files.length} file(s)`;
+                updateAllVisualizations();
+                updateLoadedFilesList();
+                updateProvenance();
+              }
+            },
+            error: (error) => {
+              console.error(`Error loading ${file.name}:`, error);
+              status.innerHTML = `<span class="text-warn">✗</span> Error loading files`;
+            }
+          });
+        } else if (file.name.endsWith('.json')) {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            try {
+              loadedData[file.name] = JSON.parse(evt.target.result);
+              loaded++;
+
+              if (loaded === files.length) {
+                status.innerHTML = `<span class="text-success">✓</span> Loaded ${files.length} file(s)`;
+                updateAllVisualizations();
+                updateLoadedFilesList();
+                updateProvenance();
+              }
+            } catch (error) {
+              console.error(`Error parsing ${file.name}:`, error);
+              status.innerHTML = `<span class="text-warn">✗</span> Error loading files`;
+            }
+          };
+          reader.readAsText(file);
+        }
+      });
+    });
+
+    // Range slider updates
+    ['m-min', 'm-max', 'k-min', 'k-max'].forEach(id => {
+      document.getElementById(`filter-${id}`).addEventListener('input', (e) => {
+        document.getElementById(`${id}-value`).textContent = e.target.value;
+      });
+    });
+
+    // Filter functions
+    function applyFilters() {
+      // This will be implemented in Phase 3
+      console.log('Applying filters...');
+      updateAllVisualizations();
+    }
+
+    function resetFilters() {
+      document.getElementById('filter-m-min').value = 1;
+      document.getElementById('filter-m-max').value = 10;
+      document.getElementById('filter-k-min').value = 0;
+      document.getElementById('filter-k-max').value = 5;
+      document.getElementById('filter-coprime').checked = false;
+      document.getElementById('filter-prime').checked = false;
+      document.getElementById('filter-elbow').checked = false;
+
+      ['m-min', 'm-max', 'k-min', 'k-max'].forEach(id => {
+        const input = document.getElementById(`filter-${id}`);
+        document.getElementById(`${id}-value`).textContent = input.value;
+      });
+
+      applyFilters();
+    }
+
+    // Visualization update functions (Phase 2)
+    function updateAllVisualizations() {
+      updateOverviewStats();
+      updateDataTable();
+      // More visualizations will be added in Phase 2
+    }
+
+    function updateOverviewStats() {
+      // Find any loaded configuration data
+      const configData = Object.values(loadedData).find(data =>
+        Array.isArray(data) && data[0] && 'density' in data[0]
+      );
+
+      if (!configData) {
+        return;
+      }
+
+      const totalConfigs = configData.length;
+      const primeConfigs = configData.filter(row => row.prime_count > 0).length;
+      const avgDensity = (configData.reduce((sum, row) => sum + (row.density || 0), 0) / totalConfigs).toFixed(3);
+
+      document.getElementById('stat-configs').textContent = totalConfigs.toLocaleString();
+      document.getElementById('stat-primes').textContent = primeConfigs.toLocaleString();
+      document.getElementById('stat-density').textContent = avgDensity;
+      document.getElementById('stat-elbows').textContent = '—';
+    }
+
+    function updateDataTable() {
+      // Get first available dataset
+      const datasets = Object.entries(loadedData);
+      if (datasets.length === 0) return;
+
+      const [fileName, data] = datasets[0];
+      if (!Array.isArray(data) || data.length === 0) return;
+
+      // Build table header
+      const columns = Object.keys(data[0]);
+      const thead = document.getElementById('table-head');
+      thead.innerHTML = `<tr>${columns.map(col => `<th>${col}</th>`).join('')}</tr>`;
+
+      // Build table body (paginated)
+      const start = currentPage * rowsPerPage;
+      const end = start + rowsPerPage;
+      const pageData = data.slice(start, end);
+
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = pageData.map(row =>
+        `<tr>${columns.map(col => `<td>${row[col] ?? '—'}</td>`).join('')}</tr>`
+      ).join('');
+
+      // Update pagination
+      document.getElementById('page-info').textContent =
+        `Page ${currentPage + 1} of ${Math.ceil(data.length / rowsPerPage)} (${data.length} rows)`;
+    }
+
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        updateDataTable();
+      }
+    }
+
+    function nextPage() {
+      const datasets = Object.entries(loadedData);
+      if (datasets.length === 0) return;
+
+      const [_, data] = datasets[0];
+      const maxPage = Math.ceil(data.length / rowsPerPage) - 1;
+
+      if (currentPage < maxPage) {
+        currentPage++;
+        updateDataTable();
+      }
+    }
+
+    function updateLoadedFilesList() {
+      const filesList = document.getElementById('loaded-files');
+      const files = Object.keys(loadedData);
+
+      if (files.length === 0) {
+        filesList.innerHTML = 'None';
+        return;
+      }
+
+      filesList.innerHTML = files.map(name =>
+        `<div style="margin: 0.25rem 0;">• ${name}</div>`
+      ).join('');
+    }
+
+    function updateProvenance() {
+      const prov = document.getElementById('provenance');
+      const files = Object.entries(loadedData);
+
+      if (files.length === 0) {
+        prov.innerHTML = '<span>No data loaded</span>';
+        return;
+      }
+
+      prov.innerHTML = files.map(([name, data]) => {
+        const rows = Array.isArray(data) ? data.length : Object.keys(data).length;
+        return `
+          <div class="provenance-item">
+            <span class="provenance-badge">${name}</span>
+            <span>${rows.toLocaleString()} rows</span>
+          </div>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>
