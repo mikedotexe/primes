@@ -736,8 +736,12 @@
     // Visualization update functions (Phase 2)
     function updateAllVisualizations() {
       updateOverviewStats();
+      updateTopConfigsChart();
+      updateElbowDynamics();
+      updateDensityHeatmap();
+      updatePrimalityScatter();
+      updateIzEvolution();
       updateDataTable();
-      // More visualizations will be added in Phase 2
     }
 
     function updateOverviewStats() {
@@ -840,6 +844,230 @@
           </div>
         `;
       }).join('');
+    }
+
+    // ============================================================================
+    // PHASE 2: VISUALIZATION FUNCTIONS
+    // ============================================================================
+
+    function updateTopConfigsChart() {
+      const configData = Object.values(loadedData).find(data =>
+        Array.isArray(data) && data[0] && 'density' in data[0]
+      );
+
+      if (!configData) return;
+
+      // Get top 10 configs by density
+      const topConfigs = configData
+        .filter(row => row.density > 0)
+        .sort((a, b) => b.density - a.density)
+        .slice(0, 10);
+
+      if (topConfigs.length === 0) return;
+
+      const chartDiv = document.getElementById('chart-top-configs');
+
+      const trace = {
+        x: topConfigs.map((_, i) => `#${i + 1}`),
+        y: topConfigs.map(r => r.density),
+        type: 'bar',
+        marker: {
+          color: topConfigs.map(r => r.density),
+          colorscale: 'Plasma',
+          line: { color: '#60e0d0', width: 1 }
+        },
+        text: topConfigs.map(r =>
+          `Base ${r.base}, (${r.outer},${r.inner}), M=${r.M}, k=${r.k}<br>ρ=${r.density.toFixed(4)}`
+        ),
+        hovertemplate: '%{text}<extra></extra>'
+      };
+
+      const layout = {
+        paper_bgcolor: '#0f1117',
+        plot_bgcolor: '#0b0c11',
+        font: { color: '#e6e9f2', family: 'system-ui' },
+        xaxis: { title: 'Rank', color: '#9098b0' },
+        yaxis: { title: 'Prime Density ρ', color: '#9098b0' },
+        margin: { t: 20, b: 40, l: 60, r: 20 },
+        height: 350
+      };
+
+      Plotly.newPlot(chartDiv, [trace], layout, { responsive: true });
+    }
+
+    function updateElbowDynamics() {
+      const summaryData = loadedData['membrane_density_summary.csv'];
+      if (!summaryData) return;
+
+      const chartDiv = document.getElementById('chart-elbow-dynamics');
+
+      // Group by M
+      const mValues = [...new Set(summaryData.map(r => r.M))].sort((a, b) => a - b);
+      const colors = d3.scaleSequential(d3.interpolatePlasma)
+        .domain([0, mValues.length - 1]);
+
+      const traces = mValues.map((m, i) => {
+        const mData = summaryData.filter(r => r.M === m).sort((a, b) => a.k - b.k);
+
+        return {
+          x: mData.map(r => r.k),
+          y: mData.map(r => r.density),
+          mode: 'lines+markers',
+          name: `M=${m}`,
+          line: { width: 3, color: colors(i) },
+          marker: { size: 10, line: { color: 'white', width: 1 } }
+        };
+      });
+
+      // Add optimal k* markers
+      mValues.forEach((m, i) => {
+        const mData = summaryData.filter(r => r.M === m);
+        const optimal = mData.reduce((max, r) => r.density > max.density ? r : max);
+
+        traces.push({
+          x: [optimal.k],
+          y: [optimal.density],
+          mode: 'markers',
+          marker: {
+            size: 16,
+            symbol: 'circle-open',
+            color: colors(i),
+            line: { color: 'white', width: 3 }
+          },
+          showlegend: false,
+          hovertext: `Optimal k*=${optimal.k}, ρ=${optimal.density.toFixed(4)}`,
+          hoverinfo: 'text'
+        });
+      });
+
+      const layout = {
+        paper_bgcolor: '#0f1117',
+        plot_bgcolor: '#0b0c11',
+        font: { color: '#e6e9f2', family: 'system-ui' },
+        xaxis: { title: 'k (zero padding)', color: '#9098b0' },
+        yaxis: { title: 'Prime Density ρ', color: '#9098b0' },
+        margin: { t: 30, b: 50, l: 60, r: 20 },
+        height: 400,
+        legend: { x: 1, xanchor: 'right', y: 1 }
+      };
+
+      Plotly.newPlot(chartDiv, traces, layout, { responsive: true });
+    }
+
+    function updateDensityHeatmap() {
+      const summaryData = loadedData['membrane_density_summary.csv'];
+      if (!summaryData) return;
+
+      const chartDiv = document.getElementById('chart-density-heatmap');
+
+      // Create pivot table
+      const mValues = [...new Set(summaryData.map(r => r.M))].sort((a, b) => a - b);
+      const kValues = [...new Set(summaryData.map(r => r.k))].sort((a, b) => a - b);
+
+      const z = mValues.map(m =>
+        kValues.map(k => {
+          const row = summaryData.find(r => r.M === m && r.k === k);
+          return row ? row.density : null;
+        })
+      );
+
+      const trace = {
+        x: kValues,
+        y: mValues,
+        z: z,
+        type: 'heatmap',
+        colorscale: 'YlOrRd',
+        colorbar: { title: 'Density ρ', titlefont: { color: '#e6e9f2' } },
+        hovertemplate: 'M=%{y}, k=%{x}<br>ρ=%{z:.4f}<extra></extra>'
+      };
+
+      const layout = {
+        paper_bgcolor: '#0f1117',
+        plot_bgcolor: '#0b0c11',
+        font: { color: '#e6e9f2', family: 'system-ui' },
+        xaxis: { title: 'k (zero padding)', color: '#9098b0' },
+        yaxis: { title: 'M (middle length)', color: '#9098b0' },
+        margin: { t: 30, b: 50, l: 60, r: 80 },
+        height: 400
+      };
+
+      Plotly.newPlot(chartDiv, [trace], layout, { responsive: true });
+    }
+
+    function updatePrimalityScatter() {
+      const detailData = loadedData['membrane_density_detail.csv'];
+      if (!detailData) return;
+
+      const chartDiv = document.getElementById('chart-primality-scatter');
+
+      const primes = detailData.filter(r => r.is_prime === true || r.is_prime === 'true');
+      const composites = detailData.filter(r => r.is_prime === false || r.is_prime === 'false');
+
+      const traces = [
+        {
+          x: composites.map(r => r.membrane_value),
+          y: composites.map(r => r.discriminant),
+          mode: 'markers',
+          name: `Composite (${composites.length})`,
+          marker: { size: 4, color: '#dd3333', opacity: 0.3 }
+        },
+        {
+          x: primes.map(r => r.membrane_value),
+          y: primes.map(r => r.discriminant),
+          mode: 'markers',
+          name: `Prime (${primes.length})`,
+          marker: { size: 8, color: '#33ff88', opacity: 0.9, line: { color: 'white', width: 1 } }
+        }
+      ];
+
+      const layout = {
+        paper_bgcolor: '#0f1117',
+        plot_bgcolor: '#0b0c11',
+        font: { color: '#e6e9f2', family: 'system-ui' },
+        xaxis: { title: 'Membrane Value (log scale)', type: 'log', color: '#9098b0' },
+        yaxis: { title: 'Discriminant Δ', color: '#9098b0' },
+        margin: { t: 30, b: 50, l: 60, r: 20 },
+        height: 400,
+        legend: { x: 0, y: 1 }
+      };
+
+      Plotly.newPlot(chartDiv, traces, layout, { responsive: true });
+    }
+
+    function updateIzEvolution() {
+      const ridgeFiles = Object.keys(loadedData).filter(name => name.startsWith('ridge_base'));
+      if (ridgeFiles.length === 0) return;
+
+      const chartDiv = document.getElementById('chart-iz-evolution');
+
+      const colors = d3.scaleOrdinal(d3.schemeCategory10);
+
+      const traces = ridgeFiles.map((fileName, i) => {
+        const data = loadedData[fileName];
+        const base = fileName.match(/ridge_base(\d+)/)[1];
+
+        return {
+          x: data.map(r => r.mid_len),
+          y: data.map(r => r.iz_best),
+          mode: 'lines+markers',
+          name: `Base ${base}`,
+          line: { width: 3 },
+          marker: { size: 8, line: { color: 'white', width: 1 } }
+        };
+      });
+
+      const layout = {
+        paper_bgcolor: '#0f1117',
+        plot_bgcolor: '#0b0c11',
+        font: { color: '#e6e9f2', family: 'system-ui' },
+        xaxis: { title: 'Middle Length M', color: '#9098b0' },
+        yaxis: { title: 'Optimal Inner-Zero iz*', color: '#9098b0' },
+        margin: { t: 30, b: 50, l: 60, r: 20 },
+        height: 400,
+        legend: { x: 1, xanchor: 'right', y: 1 }
+      };
+
+      Plotly.newPlot(chartDiv, traces, layout, { responsive: true });
     }
   </script>
 </body>
