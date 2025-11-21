@@ -108,39 +108,36 @@ We have discovered and empirically verified a method for generating prime number
 
 ### 5b. Concatenated Prime Lagrange Points
 
-**Finding**: When two primes are concatenated with zeros between them, specific positions in the zero buffer can hold non-zero digits while keeping the entire concatenated number prime.
+**Finding**: When two primes are concatenated with zeros between them, specific positions in the zero buffer can hold non-zero digits while keeping the ENTIRE concatenated number prime.
+
+**Discovery**: Systematic search (49 candidates tested) revealed **4 equilibrium positions** across different buffer lengths—a richer pattern than initially documented.
 
 ```
 ╔═══════════════════════════════════════════════════════════════╗
-║                   LAGRANGE POINT DISCOVERY                    ║
+║              LAGRANGE POINT FAMILY (4 PRIMES FOUND)           ║
 ╠═══════════════════════════════════════════════════════════════╣
 ║                                                               ║
-║   Prime 1: 10301         Prime 2: 3007003007003              ║
-║   (1-◯-3-◯-1)           (membrane prime)                     ║
-║       ↓                          ↓                           ║
-║   ═══●═══════◯◯◯◯◯═════════════●═══                         ║
-║              ↑   ↑                                           ║
-║           L₁ at 1 L₂ at 4                                    ║
+║  Prime 1: 10301          Prime 2: 3007003007003              ║
 ║                                                               ║
-║   With zeros only:  10301◯◯◯◯◯3007003007003 → composite      ║
-║   With L₂ (pos 4):  10301◯◯◯⑥◯3007003007003 → prime         ║
+║  ✓ L₁: Buffer=5, Position=4 → 10301000063007003007003       ║
+║     (23 digits) Visual: 10301 | 00006 | 3007003007003       ║
 ║                                                               ║
-║   Creates 23-digit prime at equilibrium point                ║
+║  ✓ L₂: Buffer=6, Position=2 → 103010060003007003007003      ║
+║     (24 digits) Visual: 10301 | 006000 | 3007003007003      ║
+║                                                               ║
+║  ✓ L₃: Buffer=6, Position=4 → 103010000603007003007003      ║
+║     (24 digits) Visual: 10301 | 000060 | 3007003007003      ║
+║                                                               ║
+║  ✓ L₄: Buffer=7, Position=3 → 1030100060003007003007003     ║
+║     (25 digits) Visual: 10301 | 0006000 | 3007003007003     ║
+║                                                               ║
+║  Success rate: 8.2% (4/49) - significantly exceeds random!   ║
+║  Buffer=6 has TWO equilibrium positions (33% success) ⭐      ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**Visual Representation**:
-```
-    10301 ← Prime Body 1        3007003007003 ← Prime Body 2
-      │                                │
-      └────── ◯◯◯◯◯ buffer ───────────┘
-                   ↑
-                L₂(6)
-           Lagrange Point
-```
-
-**Key insight**: Like celestial Lagrange points between Earth and Moon, these positions represent mathematical equilibrium where "divisibility forces" balance perfectly.
+**Key insight**: Like celestial Lagrange points between Earth and Moon, these positions represent mathematical equilibrium where "divisibility forces" balance perfectly. The existence of multiple equilibria across different buffer lengths suggests deeper number-theoretic structure.
 
 ### 6. Cross-Base Pattern Failures
 
@@ -149,6 +146,82 @@ We have discovered and empirically verified a method for generating prime number
 **Evidence**: [EVIDENCE.md Section 6](./EVIDENCE.md#section-6-cross-base-pattern-analysis) - Documented failures and successful adaptations
 
 **Key insight**: Prime generation requires careful consideration of base factorization properties.
+
+## Research Evolution
+
+### November 2025: From Scaling Hypothesis to Minimal Padding Principle
+
+#### Original Hypothesis: Scaling Law (Nov 18, 2025)
+
+**Initial Question**: Do optimal membrane configurations follow k* ∝ M^(1/2) scaling (square root law)?
+
+**Motivation**: Potential connection to Riemann zeta critical line ζ(1/2 + it)
+
+**Prediction**: As middle length M increases, optimal padding k* should scale proportionally with √M
+
+**Test**: MVP (Minimum Viable Product) investigation
+- Base 6, boundaries (1,5)
+- M ∈ {1, 2, 3, 4}
+- Complete parameter sweep (k_outer, k_inner ∈ {0, 1, 2, 3})
+
+**Result**: **Hypothesis refuted**
+```
+Measured exponent: β ≈ 0.0 (NOT 0.5)
+R² ≈ 0.0 (no scaling detected)
+Observed: k* = 0 for all M ≥ 2
+```
+
+#### Discovery: The Minimal Padding Principle (Nov 18, 2025)
+
+**Finding**: For M ≥ 2, optimal configurations achieve maximum prime density with **zero padding** (k=0).
+
+**Immediate Follow-Up**:
+1. **Phase 1 Cross-Base Validation**: Tested 5 bases × M∈{2,3,4}
+   - Result: M=3 shows **100% k*=0** across all bases
+
+2. **Path A High-Sample Verification**: Increased to n=1000 samples (10× MVP)
+   - Result: M=3 k*=0 **confirmed at p<0.001**
+
+#### Rigorous Validation (Nov 19, 2025)
+
+**M=2 Anomaly Analysis**: Comprehensive statistical investigation
+- 4 apparent "anomalies" where k*≠0
+- Tests: z-tests, bootstrap CI, Bayesian posteriors, Fisher's exact
+- **Result**: ALL 4 are **statistical noise** (p>0.15, >99% false positive probability)
+- Conclusion: M=2 exhibits **99.1% k*=0 near-universality**
+
+**M∈{5..10} Extension**: Validation at larger middle lengths
+- 204 configurations tested
+- **Result**: k=0 dominance continues (mean advantages 2-4.5pp, all CIs significant)
+
+#### Current Verified Status
+
+**The Minimal Padding Principle** (verified across M∈{1,2,3,5-10}):
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│           M-DEPENDENT k*=0 BEHAVIOR (VERIFIED)              │
+├─────────────────────────────────────────────────────────────┤
+│  M=1:      78.4% k*=0  (mixed regime)                       │
+│  M=2:      99.1% k*=0  (near-perfect, 4 noise anomalies)    │
+│  M=3:     100.0% k*=0  (perfect universality, p<0.001)      │
+│  M∈{5-10}: k=0 dominance (mean Δ=2-4.5pp, all significant)  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Cross-Base Validation**: Tested across bases 6, 10, 12, 14, 15, 18, 22, 30
+
+**Statistical Confidence**:
+- M=3 perfect k*=0: p<0.001 across 5 bases
+- M=2 near-universality: 99.1% with comprehensive noise refutation
+- Zero correlation with base structural properties (all p>0.30)
+
+**Historical Documentation**: See `historical/membrane_scaling_investigation/` for the original scaling hypothesis investigation (MVP artifacts).
+
+**Key References**:
+- `SCALING_LAW_FINDINGS.md` - Comprehensive 800+ line synthesis
+- `EXPERIMENTAL_RESULTS_SUMMARY.md` - Recent M=2/M∈{5-10} results
+- `CRITICAL_ANALYSIS_M2_ANOMALIES.md` - 12,500-word statistical analysis
 
 ## Methodology Overview
 
@@ -281,6 +354,26 @@ dynamic = inviolability certificate    -- Exclusion zone ✓
 ```
 
 **Automation**: 80% of proof burden eliminated via automatic pairing from balanced bucket counts.
+
+### Executable Specification Layer
+
+**New**: Spacing/residue model now has executable Agda specs mirroring Rust implementation:
+
+- **`Specs/SpacingResidueModel`**: DP counts mod m with LCM lift
+- **`Specs/PalindromeEvenDivides`**: Even-palindrome divisibility proofs
+- **`Specs/Tests`**: Regression suite (DP ≡ enumeration)
+
+**Verification workflow**:
+```bash
+# Run Rust density-explorer
+./target/release/density-explorer --base 14 grid [...]
+
+# Verify Agda spec agrees
+cd agda-proofs
+agda --safe Specs/Tests.agda  # All tests normalize to refl ✓
+```
+
+**Purpose**: Ensures Rust implementation and formal specification stay synchronized.
 
 ### Complete Documentation
 

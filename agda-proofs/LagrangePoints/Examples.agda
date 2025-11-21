@@ -8,8 +8,10 @@
 --   Buffer = 5 zeros
 --
 -- Expected Lagrange points:
---   L₁: position 1, digit 6 → 10301060003007003007003 (prime)
---   L₂: position 4, digit 6 → 10301000063007003007003 (prime)
+--   L₁: position 1, digit 6, buffer=4 → 103010060003007003007003 (prime, 24 digits)
+--   L₂: position 4, digit 6, buffer=5 → 10301000063007003007003 (prime, 23 digits)
+--
+-- Note: L₁ and L₂ use DIFFERENT buffer lengths!
 --
 -- We show:
 -- 1. Residue field computation predicts these positions

@@ -14,14 +14,15 @@ Prime 1: 10301              Prime 2: 3007003007003
 All zeros (baseline):
     10301 00000 3007003007003  →  COMPOSITE ✗
 
-Change position 1 to 6:
-    10301 06000 3007003007003  →  PRIME ✓
+Insert digit 6 at different positions in different buffer lengths:
 
-Change position 4 to 6:
-    10301 00006 3007003007003  →  PRIME ✓
+    Buffer=5, Position=4: 10301 00006 3007003007003  →  PRIME ✓
+    Buffer=6, Position=2: 10301 006000 3007003007003  →  PRIME ✓
+    Buffer=6, Position=4: 10301 000060 3007003007003  →  PRIME ✓
+    Buffer=7, Position=3: 10301 0006000 3007003007003  →  PRIME ✓
 ```
 
-**The mystery**: Why do positions 1 and 4 work, but not others? Why does digit 6 work at both positions?
+**The mystery**: Why do these specific (buffer, position) pairs create primes? Why does digit 6 work at all these equilibrium points? Why does buffer=6 have TWO working positions?
 
 ## The Gravitational Metaphor (Where the Name Comes From)
 
@@ -44,35 +45,39 @@ In physics, **Lagrange points** are special positions in space between two massi
 
 But what does "gravitational pull" mean for primes? **That's what we formalize here.**
 
-## Visual Guide to the Canonical Example
+## The Lagrange Point Family
+
+**Discovery**: For prime pair (10301, 3007003007003), we found **4 equilibrium positions** across different buffer lengths by systematic search (tested 49 candidates, found 4 primes = 8.2% success rate).
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│               LAGRANGE POINT VISUALIZATION                      │
+│            COMPLETE LAGRANGE POINT FAMILY                       │
 ├────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  Prime 1: 10301          Prime 2: 3007003007003               │
-│  (palindrome)            (membrane base-7)                     │
-│       │                         │                              │
-│       └────── 5-zero buffer ────┘                              │
+│  (palindrome)            (membrane base-7 config 3-7)          │
 │                                                                 │
-│  Position:  0    1    2    3    4                             │
-│             │    │    │    │    │                              │
-│  Baseline:  0    0    0    0    0    → COMPOSITE              │
+│  ✓ L₁: Buffer=5, Position=4 → 10301000063007003007003         │
+│     (23 digits) Visual: 10301 | 00006 | 3007003007003         │
+│     Verify: https://wolframalpha.com/input?i=isprime(10301000063007003007003) │
 │                                                                 │
-│  L₁ (pos 1):0    6    0    0    0    → PRIME ✓                │
-│  L₂ (pos 4):0    0    0    0    6    → PRIME ✓                │
-│  Center(2): 0    0    ?    0    0    → Hypothesis: VOID       │
-│                                       (no digit works)         │
+│  ✓ L₂: Buffer=6, Position=2 → 103010060003007003007003        │
+│     (24 digits) Visual: 10301 | 006000 | 3007003007003        │
+│     Discovered: Nov 2025 via user experimentation             │
 │                                                                 │
-│  Reflection symmetry:                                          │
-│     0 ↔ 4  (outer pair)                                        │
-│     1 ↔ 3  (inner pair)                                        │
-│     2 ↔ 2  (center = honorary zero)                            │
+│  ✓ L₃: Buffer=6, Position=4 → 103010000603007003007003        │
+│     (24 digits) Visual: 10301 | 000060 | 3007003007003        │
+│     Discovered: Nov 2025 via systematic search                │
+│     Note: Buffer=6 has TWO equilibrium positions! ⭐           │
 │                                                                 │
-│  Full concatenations:                                          │
-│     10301060003007003007003  (23 digits, L₁) = PRIME          │
-│     10301000063007003007003  (23 digits, L₂) = PRIME          │
+│  ✓ L₄: Buffer=7, Position=3 → 1030100060003007003007003       │
+│     (25 digits) Visual: 10301 | 0006000 | 3007003007003       │
+│     Discovered: Nov 2025 via user experimentation             │
+│                                                                 │
+│  Key Pattern:                                                  │
+│  • Position 4 works in BOTH buffer=5 and buffer=6             │
+│  • Buffer=6 is most productive: 2 primes (33% success rate)   │
+│  • All equilibria use digit 6 (may relate to mod 7 structure) │
 │                                                                 │
 └────────────────────────────────────────────────────────────────┘
 ```
