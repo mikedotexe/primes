@@ -287,6 +287,11 @@ Open `viewer/overlay_v2.html` in a browser and load:
 - Export PNG (S key) and CSV (E key) for reproducibility
 - CI fade: confidence intervals visualized as opacity
 
+**Formal Specification**: The residue counting model is formalized in Agda:
+- `agda-proofs/Specs/SpacingResidueModel.agda` - executable DP spec
+- `agda-proofs/Specs/Tests.agda` - regression tests (DP vs enumeration)
+- See [agda-proofs/README.md](../../agda-proofs/README.md#executable-specification-layer)
+
 ## hz
 
 **Purpose**: Post-processing CLI for prime-density grid analysis with Fourier, polynomial fitting, and verification.

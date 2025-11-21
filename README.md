@@ -521,6 +521,12 @@ For complete verification methods, see [EVIDENCE.md](../EVIDENCE.md) (parent dir
 - [Unified CLI Guide](tools/README.md) - CCRT and midpoint density analysis
 - Zero external dependencies, locked CSV schemas
 
+### Formal Verification
+- **Executable Specs** (`agda-proofs/Specs/`): Formal specifications mirroring Rust DP implementation
+  - Regression tests ensure Rust and Agda agree on residue counting
+  - Palindrome divisibility proofs justify mirror-mode obstructions
+  - See [agda-proofs/README.md](agda-proofs/README.md#executable-specification-layer)
+
 ### Research Context (Parent Directory)
 - [CLAUDE.md](../CLAUDE.md) - Comprehensive research findings and executive summary
 - [EVIDENCE.md](../EVIDENCE.md) - Empirical verification data and external validation

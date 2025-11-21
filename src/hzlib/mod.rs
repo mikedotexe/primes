@@ -3,6 +3,41 @@ pub mod harmonic_overtones;
 pub mod harmonic_lagrange;
 pub mod symmetry_breaking;
 
+// Statistical and mathematical utilities
+pub mod hardy_littlewood;
+pub mod sieve;
+pub mod stats;
+pub mod density;
+pub mod orthogonality;
+pub mod crt_patterns;
+
+// Re-export commonly used items
+pub use hardy_littlewood::{
+    PairCount, C2, kappa,
+    singular_series_goldbach_multiplicative,
+    hl_goldbach_lambda,
+    hl_goldbach_lambda_truncated,
+    goldbach_coverage_from_lambda,
+    count_pairs_for_n,
+};
+
+pub use sieve::{
+    sieve_bool,
+    sieve_primes,
+    sieve_spf,
+    segmented_sieve,
+};
+
+pub use stats::{
+    hedges_g,
+    cliffs_delta,
+    spearman_rho,
+    linreg,
+    linreg_with_ci,
+    welch_t,
+    benjamini_hochberg,
+};
+
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};

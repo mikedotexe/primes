@@ -77,6 +77,34 @@ agda-proofs/
     └── Divisibility.agda
 ```
 
+### Executable Specification Layer
+
+The `Specs/` directory contains **executable specifications** that mirror the Rust implementation exactly:
+
+- **`Specs/SpacingResidueModel`**: Core DP algorithm for counting residue classes
+  - `countsDP`: Dynamic programming over residues (matches Rust implementation)
+  - `countsEnum`: Brute-force enumerator for validation
+  - `countZeroViaL`: LCM lift (single DP at L → per-prime counts)
+  - Executable tests: `Test₁/₂/₃` verify DP ≡ enumeration on small specs
+
+- **`Specs/PalindromeEvenDivides`**: Even-palindrome divisibility theorem
+  - Proves: even-length palindrome ⟹ (b+1) ∣ n
+  - Characterizes 2-digit exception (when b+1 is prime)
+  - Justifies `mirror && even-length → obstructed` in density-explorer
+
+- **`Specs/Tests`**: Unified test harness
+  - Smoke tests for DP correctness
+  - Palindrome divisibility sanity checks
+  - Hook for extending formal guarantees
+
+**Purpose**: These modules serve as a **single source of truth** for the spacing/residue model, ensuring Rust and Agda agree exactly.
+
+```bash
+# Verify executable specs
+cd agda-proofs
+agda --safe Specs/Tests.agda  # All tests normalize to refl ✓
+```
+
 ## Verification Priority
 
 ### Phase 1: Quick Wins (Weeks 1-2)
