@@ -1,0 +1,190 @@
+   Compiling primes v1.0.0 (/Users/mikepurvis/Library/CloudStorage/Dropbox/Kairos/primes/prime-physics-engine)
+warning: unused import: `std::fs::File`
+  --> examples/multi_layer_predictor.rs:29:5
+   |
+29 | use std::fs::File;
+   |     ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::io::Write`
+  --> examples/multi_layer_predictor.rs:30:5
+   |
+30 | use std::io::Write;
+   |     ^^^^^^^^^^^^^^
+
+warning: multiple fields are never read
+   --> examples/multi_layer_predictor.rs:241:5
+    |
+239 | struct PrimalityPrediction {
+    |        ------------------- fields in this struct
+240 |     // Input parameters
+241 |     base: u32,
+    |     ^^^^
+242 |     outer: u32,
+    |     ^^^^^
+243 |     inner: u32,
+    |     ^^^^^
+244 |     m: usize,
+    |     ^
+245 |     k: u32,
+    |     ^
+246 |     seed: u64,
+    |     ^^^^
+...
+249 |     discriminant: i128,
+    |     ^^^^^^^^^^^^
+250 |     perfect_square_lock: bool,       // true = LOCKED (100% composite)
+251 |     discriminant_quality: f64,       // 0.0-1.0
+    |     ^^^^^^^^^^^^^^^^^^^^
+...
+254 |     coprime_to_base: bool,           // gcd(outer, base) = 1
+    |     ^^^^^^^^^^^^^^^
+...
+258 |     symmetry_index: f64,             // 0.0-1.0 (1.0 = perfect mirror)
+    |     ^^^^^^^^^^^^^^
+...
+261 |     digit_count: usize,
+    |     ^^^^^^^^^^^
+262 |     length_adjustment: f64,          // PNT-based baseline
+    |     ^^^^^^^^^^^^^^^^^
+    |
+    = note: `PrimalityPrediction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `primes` (example "multi_layer_predictor") generated 3 warnings (run `cargo fix --example "multi_layer_predictor"` to apply 2 suggestions)
+    Finished `release` profile [optimized] target(s) in 7.32s
+     Running `target/release/examples/multi_layer_predictor`
+🔬 Multi-Layer Composite Predictor
+Combining all discovered constraints into unified model...
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║         MULTI-LAYER COMPOSITE PREDICTOR                      ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Validating 4-layer prediction model across multiple configs...
+
+
+Base 6 (1,5) M=2 k=0 - champion
+
+═══════════════════════════════════════════════════════════════
+Config: Base 6 (1,5) M=2 k=0
+═══════════════════════════════════════════════════════════════
+
+Prediction tier breakdown:
+Tier               Count Actual Prime   Pred Prime   Accuracy
+------------------------------------------------------------
+OBSTRUCTED             5            0            0     100.0%
+UNFAVORABLE           25            8            0      32.0%
+
+Overall statistics:
+  Total seeds tested: 30
+  Actual primes: 8 (26.7%)
+  Perfect square locked: 0 (0.0%)
+  Mirror obstructed: 5 (16.7%)
+
+Deterministic constraint validation:
+  Perfect square lock violations: 0 (should be 0)
+  Mirror obstruction violations: 0 (should be 0)
+  ✅ All deterministic constraints hold!
+
+Base 10 (3,7) M=2 k=0 - standard
+
+═══════════════════════════════════════════════════════════════
+Config: Base 10 (3,7) M=2 k=0
+═══════════════════════════════════════════════════════════════
+
+Prediction tier breakdown:
+Tier               Count Actual Prime   Pred Prime   Accuracy
+------------------------------------------------------------
+LOCKED                 1            0            0     100.0%
+OBSTRUCTED             9            0            0     100.0%
+UNFAVORABLE           80           19            0      23.8%
+
+Overall statistics:
+  Total seeds tested: 90
+  Actual primes: 19 (21.1%)
+  Perfect square locked: 1 (1.1%)
+  Mirror obstructed: 9 (10.0%)
+
+Deterministic constraint validation:
+  Perfect square lock violations: 0 (should be 0)
+  Mirror obstruction violations: 0 (should be 0)
+  ✅ All deterministic constraints hold!
+
+Base 10 (3,7) M=2 k=1 - comparison
+
+═══════════════════════════════════════════════════════════════
+Config: Base 10 (3,7) M=2 k=1
+═══════════════════════════════════════════════════════════════
+
+Prediction tier breakdown:
+Tier               Count Actual Prime   Pred Prime   Accuracy
+------------------------------------------------------------
+LOCKED                 1            0            0     100.0%
+UNFAVORABLE           89            9            0      10.1%
+
+Overall statistics:
+  Total seeds tested: 90
+  Actual primes: 9 (10.0%)
+  Perfect square locked: 1 (1.1%)
+  Mirror obstructed: 0 (0.0%)
+
+Deterministic constraint validation:
+  Perfect square lock violations: 0 (should be 0)
+  Mirror obstruction violations: 0 (should be 0)
+  ✅ All deterministic constraints hold!
+
+Base 12 (1,5) M=2 k=0 - universal
+
+═══════════════════════════════════════════════════════════════
+Config: Base 12 (1,5) M=2 k=0
+═══════════════════════════════════════════════════════════════
+
+Prediction tier breakdown:
+Tier               Count Actual Prime   Pred Prime   Accuracy
+------------------------------------------------------------
+OBSTRUCTED            11            0            0     100.0%
+UNFAVORABLE          121           29            0      24.0%
+
+Overall statistics:
+  Total seeds tested: 132
+  Actual primes: 29 (22.0%)
+  Perfect square locked: 0 (0.0%)
+  Mirror obstructed: 11 (8.3%)
+
+Deterministic constraint validation:
+  Perfect square lock violations: 0 (should be 0)
+  Mirror obstruction violations: 0 (should be 0)
+  ✅ All deterministic constraints hold!
+
+Base 30 (11,7) M=2 k=0 - high performer
+
+═══════════════════════════════════════════════════════════════
+Config: Base 30 (11,7) M=2 k=0
+═══════════════════════════════════════════════════════════════
+
+Prediction tier breakdown:
+Tier               Count Actual Prime   Pred Prime   Accuracy
+------------------------------------------------------------
+LOCKED                 1            0            0     100.0%
+OBSTRUCTED            29            0            0     100.0%
+UNFAVORABLE          840          168            0      20.0%
+
+Overall statistics:
+  Total seeds tested: 870
+  Actual primes: 168 (19.3%)
+  Perfect square locked: 1 (0.1%)
+  Mirror obstructed: 29 (3.3%)
+
+Deterministic constraint validation:
+  Perfect square lock violations: 0 (should be 0)
+  Mirror obstruction violations: 0 (should be 0)
+  ✅ All deterministic constraints hold!
+
+═══════════════════════════════════════════════════════════════
+Validation complete!
+═══════════════════════════════════════════════════════════════
+
+✅ Predictor validation complete!

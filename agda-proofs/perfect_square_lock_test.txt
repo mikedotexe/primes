@@ -1,0 +1,92 @@
+   Compiling primes v1.0.0 (/Users/mikepurvis/Library/CloudStorage/Dropbox/Kairos/primes/prime-physics-engine)
+    Finished `release` profile [optimized] target(s) in 5.61s
+     Running `target/release/examples/perfect_square_lock_universal`
+🔬 Perfect Square Lock - Universal Validation
+Testing algebraic constraint across 8 bases...
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║       PERFECT SQUARE LOCK - UNIVERSAL VALIDATION             ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Testing hypothesis: Δ = perfect square → composite
+
+Testing 11 configurations × 3 M values...
+
+  Testing: Base 6 champion M=1 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 6 champion M=2 k=0 ... ○ No perfect squares found
+  Testing: Base 6 champion M=3 k=0 ... ○ No perfect squares found
+  Testing: Base 6 inverted M=1 k=0 ... ○ No perfect squares found
+  Testing: Base 6 inverted M=2 k=0 ... ✓ Lock holds (2 perfect squares, 0 prime)
+  Testing: Base 6 inverted M=3 k=0 ... ○ No perfect squares found
+  Testing: Base 10 standard M=1 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 10 standard M=2 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 10 standard M=3 k=0 ... ○ No perfect squares found
+  Testing: Base 10 minimal M=1 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 10 minimal M=2 k=0 ... ○ No perfect squares found
+  Testing: Base 10 minimal M=3 k=0 ... ○ No perfect squares found
+  Testing: Base 12 universal M=1 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 12 universal M=2 k=0 ... ○ No perfect squares found
+  Testing: Base 12 universal M=3 k=0 ... ○ No perfect squares found
+  Testing: Base 12 variant M=1 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 12 variant M=2 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 12 variant M=3 k=0 ... ○ No perfect squares found
+  Testing: Base 14 high performer M=1 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 14 high performer M=2 k=0 ... ○ No perfect squares found
+  Testing: Base 14 high performer M=3 k=0 ... ○ No perfect squares found
+  Testing: Base 15 odd base M=1 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 15 odd base M=2 k=0 ... ○ No perfect squares found
+  Testing: Base 15 odd base M=3 k=0 ... ○ No perfect squares found
+  Testing: Base 18 universal M=1 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 18 universal M=2 k=0 ... ○ No perfect squares found
+  Testing: Base 18 universal M=3 k=0 ... ○ No perfect squares found
+  Testing: Base 22 large base M=1 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 22 large base M=2 k=0 ... ○ No perfect squares found
+  Testing: Base 22 large base M=3 k=0 ... ○ No perfect squares found
+  Testing: Base 30 champion M=1 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 30 champion M=2 k=0 ... ✓ Lock holds (1 perfect squares, 0 prime)
+  Testing: Base 30 champion M=3 k=0 ... ○ No perfect squares found
+
+═══════════════════════════════════════════════════════════════
+SUMMARY STATISTICS
+═══════════════════════════════════════════════════════════════
+
+Configurations tested: 33
+Configs with perfect square discriminants: 14
+Total perfect square discriminants found: 15
+Perfect square discriminants that were prime: 0
+
+Violation rate: 0.00% (0/15)
+
+✅ PERFECT SQUARE LOCK CONFIRMED:
+   100% of perfect square discriminants → composite
+   This is a UNIVERSAL algebraic constraint!
+
+═══════════════════════════════════════════════════════════════
+BASELINE COMPARISON (non-perfect-square discriminants)
+═══════════════════════════════════════════════════════════════
+
+Non-perfect-square discriminants: 39197
+Non-perfect-square primes: 5980
+Baseline prime density: 15.26%
+
+═══════════════════════════════════════════════════════════════
+EXPORTING RESULTS
+═══════════════════════════════════════════════════════════════
+
+✅ Exported results to: perfect_square_lock_results.csv
+
+═══════════════════════════════════════════════════════════════
+PER-BASE SUMMARY
+═══════════════════════════════════════════════════════════════
+
+Base  6: ✓ Lock holds (3 perfect squares, 0 prime)
+Base 10: ✓ Lock holds (3 perfect squares, 0 prime)
+Base 12: ✓ Lock holds (3 perfect squares, 0 prime)
+Base 14: ✓ Lock holds (1 perfect squares, 0 prime)
+Base 15: ✓ Lock holds (1 perfect squares, 0 prime)
+Base 18: ✓ Lock holds (1 perfect squares, 0 prime)
+Base 22: ✓ Lock holds (1 perfect squares, 0 prime)
+Base 30: ✓ Lock holds (2 perfect squares, 0 prime)
+
+✅ Comprehensive test complete!

@@ -1,0 +1,99 @@
+   Compiling primes v1.0.0 (/Users/mikepurvis/Library/CloudStorage/Dropbox/Kairos/primes/prime-physics-engine)
+warning: fields `seed`, `k`, and `membrane` are never read
+   --> examples/k_dependent_mechanism_hunter.rs:146:5
+    |
+145 | struct MechanismAnalysis {
+    |        ----------------- fields in this struct
+146 |     seed: u64,
+    |     ^^^^
+147 |     k: u32,
+    |     ^
+...
+150 |     membrane: BigUint,
+    |     ^^^^^^^^
+    |
+    = note: `MechanismAnalysis` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `primes` (example "k_dependent_mechanism_hunter") generated 1 warning
+    Finished `release` profile [optimized] target(s) in 6.36s
+     Running `/Users/mikepurvis/Library/CloudStorage/Dropbox/Kairos/primes/prime-physics-engine/target/release/examples/k_dependent_mechanism_hunter`
+🔬 K-Dependent Mechanism Hunter
+Finding what causes k=0 to outperform k=1...
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║          K-DEPENDENT MECHANISM HUNTER                         ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Configuration: Base 10, (3,7), M=2
+Hunting for the mechanism that makes k=0 outperform k=1...
+
+Analyzing 90 seeds for each k value...
+
+═══════════════════════════════════════════════════════════════
+HYPOTHESIS 1: Length Penalty (Prime Number Theorem)
+═══════════════════════════════════════════════════════════════
+
+Average digit count:
+  k=0: 6.0 digits
+  k=1: 10.0 digits
+
+PNT predicts density ratio ≈ length ratio:
+  Length ratio: 0.600×
+  Observed density ratio: 2.111×
+  Match: 28.4%
+
+❌ LENGTH PENALTY does NOT fully explain the difference
+   Residual: 3.5× unexplained
+
+═══════════════════════════════════════════════════════════════
+HYPOTHESIS 2: Mirror Symmetry Obstruction
+═══════════════════════════════════════════════════════════════
+
+Mirror symmetry index (1.0 = perfect palindrome):
+  k=0: 0.700
+  k=1: 0.820
+  Δ: +0.120 (+17.1%)
+
+Zero percentage:
+  k=0: 1.7%
+  k=1: 41.0%
+  Δ: +39.3pp
+
+Prime density for highly symmetric (>0.7) membranes:
+  k=0: 0.0% (0/9)
+  k=1: 10.0% (9/90)
+
+❌ No clear symmetry obstruction pattern
+
+═══════════════════════════════════════════════════════════════
+HYPOTHESIS 3: Higher-Order Modular Obstructions
+═══════════════════════════════════════════════════════════════
+
+Mod 3 distribution:
+  Max difference: ±0 at residue 0
+  ✓ Similar distributions
+Mod 7 distribution:
+  Max difference: ±0 at residue 0
+  ✓ Similar distributions
+Mod 11 distribution:
+  Max difference: ±0 at residue 0
+  ✓ Similar distributions
+Mod 13 distribution:
+  Max difference: ±1 at residue 4
+  ✓ Similar distributions
+
+═══════════════════════════════════════════════════════════════
+MECHANISM IDENTIFICATION SUMMARY
+═══════════════════════════════════════════════════════════════
+
+Observed density ratio: 2.11× (k=0 / k=1)
+Explained by length penalty: 0.60×
+Residual: 3.52×
+
+❓ COMPLEX INTERACTION:
+   Length penalty alone insufficient
+   Multiple mechanisms likely interacting
+
+✅ Hunt complete!
