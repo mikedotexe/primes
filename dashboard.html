@@ -711,9 +711,76 @@
 
     // Filter functions
     function applyFilters() {
-      // This will be implemented in Phase 3
-      console.log('Applying filters...');
+      // Get filter values
+      const baseSelect = document.getElementById('filter-base');
+      const selectedBases = Array.from(baseSelect.selectedOptions).map(opt => parseInt(opt.value));
+
+      const mMin = parseInt(document.getElementById('filter-m-min').value);
+      const mMax = parseInt(document.getElementById('filter-m-max').value);
+      const kMin = parseInt(document.getElementById('filter-k-min').value);
+      const kMax = parseInt(document.getElementById('filter-k-max').value);
+
+      const coprimeOnly = document.getElementById('filter-coprime').checked;
+      const primeOnly = document.getElementById('filter-prime').checked;
+      const elbowOnly = document.getElementById('filter-elbow').checked;
+
+      // Apply filters to all loaded data
+      Object.keys(loadedData).forEach(fileName => {
+        const data = loadedData[fileName];
+        if (!Array.isArray(data) || data.length === 0) return;
+
+        const originalData = loadedData[`${fileName}_original`] || data;
+        loadedData[`${fileName}_original`] = originalData;
+
+        const filtered = originalData.filter(row => {
+          // Base filter
+          if (selectedBases.length > 0 && row.base && !selectedBases.includes(row.base)) {
+            return false;
+          }
+
+          // M range filter
+          if (row.M !== undefined && (row.M < mMin || row.M > mMax)) {
+            return false;
+          }
+
+          // k range filter
+          if (row.k !== undefined && (row.k < kMin || row.k > kMax)) {
+            return false;
+          }
+
+          // Coprime filter (outer must be coprime to base)
+          if (coprimeOnly && row.base && row.outer) {
+            if (gcd(row.outer, row.base) !== 1) return false;
+          }
+
+          // Prime filter
+          if (primeOnly && row.is_prime !== undefined) {
+            if (row.is_prime === false || row.is_prime === 'false') return false;
+          }
+
+          // Elbow event filter
+          if (elbowOnly && row.is_elbow !== undefined) {
+            if (!row.is_elbow) return false;
+          }
+
+          return true;
+        });
+
+        loadedData[fileName] = filtered;
+      });
+
       updateAllVisualizations();
+      console.log('Filters applied');
+    }
+
+    // Helper: GCD for coprimality check
+    function gcd(a, b) {
+      while (b !== 0) {
+        const temp = b;
+        b = a % b;
+        a = temp;
+      }
+      return a;
     }
 
     function resetFilters() {
@@ -766,7 +833,7 @@
 
     function updateDataTable() {
       // Get first available dataset
-      const datasets = Object.entries(loadedData);
+      const datasets = Object.entries(loadedData).filter(([name, _]) => !name.endsWith('_original'));
       if (datasets.length === 0) return;
 
       const [fileName, data] = datasets[0];
@@ -775,7 +842,7 @@
       // Build table header
       const columns = Object.keys(data[0]);
       const thead = document.getElementById('table-head');
-      thead.innerHTML = `<tr>${columns.map(col => `<th>${col}</th>`).join('')}</tr>`;
+      thead.innerHTML = `<tr>${columns.map(col => `<th>${col}</th>`).join('')}<th>Actions</th></tr>`;
 
       // Build table body (paginated)
       const start = currentPage * rowsPerPage;
@@ -783,13 +850,54 @@
       const pageData = data.slice(start, end);
 
       const tbody = document.getElementById('table-body');
-      tbody.innerHTML = pageData.map(row =>
-        `<tr>${columns.map(col => `<td>${row[col] ?? '—'}</td>`).join('')}</tr>`
-      ).join('');
+      tbody.innerHTML = pageData.map(row => {
+        const cells = columns.map(col => {
+          const value = row[col];
+          // Format numbers
+          if (typeof value === 'number') {
+            return `<td>${value < 1 && value > 0 ? value.toFixed(6) : value.toLocaleString()}</td>`;
+          }
+          return `<td>${value ?? '—'}</td>`;
+        }).join('');
+
+        // Add action buttons
+        let actions = '';
+        if (row.membrane_value || row.prime_value) {
+          const value = row.membrane_value || row.prime_value;
+          actions += `<button onclick="verifyPrime('${value}')" style="padding: 0.25rem 0.5rem; background: var(--accent-dim); border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 0.75rem;">Verify Prime</button>`;
+        }
+
+        return `<tr>${cells}<td>${actions || '—'}</td></tr>`;
+      }).join('');
 
       // Update pagination
       document.getElementById('page-info').textContent =
         `Page ${currentPage + 1} of ${Math.ceil(data.length / rowsPerPage)} (${data.length} rows)`;
+    }
+
+    // WolframAlpha prime verification
+    function verifyPrime(value) {
+      const url = `https://www.wolframalpha.com/input?i=is+${value}+prime`;
+      window.open(url, '_blank');
+    }
+
+    // Export filtered data as CSV
+    function exportCSV() {
+      const datasets = Object.entries(loadedData).filter(([name, _]) => !name.endsWith('_original'));
+      if (datasets.length === 0) {
+        alert('No data to export');
+        return;
+      }
+
+      const [fileName, data] = datasets[0];
+      const csv = Papa.unparse(data);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `filtered_${fileName}`;
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
     function prevPage() {
