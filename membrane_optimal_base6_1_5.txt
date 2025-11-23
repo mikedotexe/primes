@@ -1,0 +1,10 @@
+# Membrane Scaling Analysis Summary
+# Base: 6, Boundaries: (1, 5)
+
+middle_length,optimal_k_outer,optimal_k_inner,optimal_k_total,max_density,primes_found,mean_gap
+1,0,2,2,0.33333333,2,2592.0000
+2,0,0,0,0.27777778,10,132.0000
+3,0,0,0,0.26851852,58,134.5263
+4,0,0,0,0.22376543,290,161.0657
+5,0,0,0,0.20306070,1579,177.1027
+6,0,0,0,0.17881944,8343,201.2496
