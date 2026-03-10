@@ -1,4 +1,10 @@
-//! Spacetime and base-dependent metrics
+//! # Spacetime Metrics -- Visualization Metaphor
+//!
+//! **Layer**: Simulation / visualization (not core math)
+//!
+//! Defines base-dependent curvature values for the [`crate::gravity`]
+//! particle simulation. These are arbitrary heuristics for visualization,
+//! not mathematical results.
 
 /// Base-dependent spacetime metric
 #[derive(Debug, Clone)]

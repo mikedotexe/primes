@@ -163,8 +163,8 @@ fn main() {
     let mut configs_with_primes = 0;
     let mut total_primes = 0;
 
-    for outer in vec![1, 3, 5, 7, 9] {
-        for inner in vec![1, 3, 5, 7, 9] {
+    for outer in [1, 3, 5, 7, 9] {
+        for inner in [1, 3, 5, 7, 9] {
             if gcd(outer, 10) == 1 && gcd(inner, 10) == 1 {
                 // Only coprime digits
                 for k_out in 0..=2 {

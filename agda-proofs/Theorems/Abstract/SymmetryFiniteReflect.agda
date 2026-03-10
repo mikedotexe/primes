@@ -13,10 +13,11 @@ module Theorems.Abstract.SymmetryFiniteReflect where
 open import Data.Product     using (Σ; _,_; proj₁; proj₂)
 open import Relation.Binary.PropositionalEquality  using (_≡_; refl; sym; cong)
 open import Data.Empty     using (⊥)
-open import Data.Nat       using (ℕ; _+_; _*_ ; _∸_)
+open import Data.Nat       using (ℕ; _+_; _*_ ; _∸_; NonZero)
 open import Data.Nat               using (_<_ ; _≤_ ; z≤n ; s≤s)
 open import Data.Nat.DivMod        using (_mod_)
 open import Data.Fin               using (Fin; toℕ; fromℕ<)
+open import Data.Nat.Base          using () renaming (NonZero to NonZero-inst)
 open import Relation.Nullary       using (Dec; yes; no)
 
 -- Import abstract framework
@@ -30,24 +31,20 @@ open import Theorems.Abstract.SymmetryFromList
 -- FINITE-BASE REFLECTION: inv r = (2·mid - r) mod m on B = Fin m
 ------------------------------------------------------------------------
 
--- Standard modular arithmetic lemma (postulated for now)
-postulate
-  modLess : ∀ (m k : ℕ) → (k mod m) < m
-
 -- The reflection involution: r ↦ (2·mid - r) mod m
 -- This is the concrete implementation used in coordinate constellation analysis
-reflect : ∀ {m} → (mid : Fin m) → Fin m → Fin m
+-- Note: In stdlib 2.3, _mod_ returns Fin m directly, so no conversion needed!
+reflect : ∀ {m} → .⦃ _ : NonZero m ⦄ → (mid : Fin m) → Fin m → Fin m
 reflect {m} mid r =
   let a   = 2 * toℕ mid + m      -- Add m to ensure non-negative
       raw = a ∸ toℕ r            -- Compute 2·mid - r
-      k   = raw mod m            -- Take modulo m
-  in fromℕ< k (modLess m k)
+  in raw mod m                   -- Returns Fin m directly in stdlib 2.3
 
 -- Properties of reflection (postulated - provable by arithmetic)
 postulate
-  reflect-involutive : ∀ {m} (mid : Fin m) (r : Fin m)
+  reflect-involutive : ∀ {m} → .⦃ _ : NonZero m ⦄ → (mid : Fin m) (r : Fin m)
                      → reflect mid (reflect mid r) ≡ r
-  reflect-mid        : ∀ {m} (mid : Fin m)
+  reflect-mid        : ∀ {m} → .⦃ _ : NonZero m ⦄ → (mid : Fin m)
                      → reflect mid mid ≡ mid
 
 ------------------------------------------------------------------------
@@ -55,7 +52,7 @@ postulate
 --
 -- This is the canonical SymmetryData for modular arithmetic!
 
-mkSymReflect : ∀ {m} → (mid : Fin m) → SymmetryData (Fin m)
+mkSymReflect : ∀ {m} → .⦃ _ : NonZero m ⦄ → (mid : Fin m) → SymmetryData (Fin m)
 mkSymReflect mid =
   record
     { mid            = mid

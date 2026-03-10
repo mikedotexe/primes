@@ -33,8 +33,8 @@ jobs:
       - name: Run tests
         run: cargo test
 
-  # Agda verification (unsafed mode - 348 postulates remain)
-  # Safe Agda disabled to enable type-checking with Agda 2.8.0
+  # Agda verification (best-effort -- Agda version on ubuntu-latest may differ)
+  # See agda-proofs/STATUS.md for ground truth (verified locally with Agda 2.8.0)
   agda-verification:
     uses: ./.github/workflows/agda-verification.yml
 
@@ -64,7 +64,6 @@ jobs:
             "lagrange_full_verification"
             "membrane_showcase"
             "comprehensive_base_analysis"
-            "educational_explorer"
             "prime_verification_report"
           )
 

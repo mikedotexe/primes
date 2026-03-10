@@ -50,7 +50,7 @@ fn main() {
     let mut metric = Metric::Norm;
 
     let mut i = 1;
-    while i + 1 <= args.len() {
+    while i < args.len() {
         match args.get(i).map(|s| s.as_str()) {
             Some("--N") => {
                 n_max = args[i + 1].parse().expect("--N expects integer");
@@ -203,15 +203,13 @@ fn main() {
     println!("╚══════════════════════════════════════════════════════════════╝");
     println!();
     println!("Top Babylonian Gaps (human-convenient):");
-    for i in 0..3.min(bab_indexed.len()) {
-        let (g, score) = bab_indexed[i];
+    for (i, &(g, score)) in bab_indexed.iter().enumerate().take(3) {
         println!("  #{}: gap {:>3}  score {:>6.2}", i + 1, g, score);
     }
     println!();
 
     println!("Top Prime Harmony Gaps (nature's patterns):");
-    for i in 0..3.min(harm_indexed.len()) {
-        let (g, score) = harm_indexed[i];
+    for (i, &(g, score)) in harm_indexed.iter().enumerate().take(3) {
         println!("  #{}: gap {:>3}  score {:>6.2}", i + 1, g, score);
     }
     println!();

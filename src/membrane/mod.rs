@@ -1,7 +1,9 @@
 //! # Membrane Construction Module
 //!
-//! This module implements all variations of symmetric membrane construction
-//! for generating prime numbers with specific structural patterns.
+//! **Layer**: Math core (verified, tested)
+//!
+//! Implements symmetric membrane construction for generating prime numbers
+//! with specific structural patterns.
 //!
 //! ## Core Concept
 //!
@@ -908,5 +910,247 @@ fn gcd(a: u32, b: u32) -> u32 {
         a
     } else {
         gcd(b, a % b)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use num_bigint::BigUint;
+    use std::str::FromStr;
+
+    // --- MembraneConfig::new ---
+
+    #[test]
+    fn test_new_coprime_config() {
+        let cfg = MembraneConfig::new(10, 3, 7, 1, 1);
+        assert_eq!(cfg.base, 10);
+        assert_eq!(cfg.outer, 3);
+        assert_eq!(cfg.inner, 7);
+        assert_eq!(cfg.k_outer, 1);
+        assert_eq!(cfg.k_inner, 1);
+        assert_eq!(cfg.middle_length, 1);
+        assert!(
+            cfg.expected_density > 0.0,
+            "coprime config should have positive density"
+        );
+    }
+
+    #[test]
+    fn test_new_non_coprime_config() {
+        // outer=2 shares factor 2 with base=10
+        let cfg = MembraneConfig::new(10, 2, 7, 0, 0);
+        assert_eq!(
+            cfg.expected_density, 0.0,
+            "non-coprime config should have zero density"
+        );
+    }
+
+    // --- is_valid ---
+
+    #[test]
+    fn test_is_valid_coprime() {
+        let cfg = MembraneConfig::new(10, 3, 7, 0, 0);
+        assert!(cfg.is_valid());
+    }
+
+    #[test]
+    fn test_is_valid_non_coprime_outer() {
+        let cfg = MembraneConfig::new(10, 5, 7, 0, 0);
+        assert!(!cfg.is_valid(), "outer=5 shares factor 5 with base=10");
+    }
+
+    #[test]
+    fn test_is_valid_non_coprime_inner() {
+        let cfg = MembraneConfig::new(6, 1, 3, 0, 0);
+        assert!(!cfg.is_valid(), "inner=3 shares factor 3 with base=6");
+    }
+
+    #[test]
+    fn test_is_valid_base6_champion() {
+        let cfg = MembraneConfig::new(6, 1, 5, 0, 0);
+        assert!(cfg.is_valid(), "(1,5) in base 6 should be valid");
+    }
+
+    // --- total_digits ---
+
+    #[test]
+    fn test_total_digits_symmetric_k00() {
+        let cfg = MembraneConfig::new(10, 3, 7, 0, 0);
+        // 4 boundary digits + 0 padding + 1 middle = 5
+        assert_eq!(cfg.total_digits(), 5);
+    }
+
+    #[test]
+    fn test_total_digits_symmetric_k11() {
+        let cfg = MembraneConfig::new(10, 3, 7, 1, 1);
+        // 4 boundary + 2*(1+1)=4 padding + 1 middle = 9
+        assert_eq!(cfg.total_digits(), 9);
+    }
+
+    #[test]
+    fn test_total_digits_symmetric_k21() {
+        let cfg = MembraneConfig::new(10, 3, 7, 2, 1);
+        // 4 boundary + 2*(2+1)=6 padding + 1 middle = 11
+        assert_eq!(cfg.total_digits(), 11);
+    }
+
+    #[test]
+    fn test_total_digits_breathing() {
+        let cfg = MembraneConfig::breathing(10, 3, 7, 2, 1, 1, 0);
+        // 4 boundary + (2+1+1+0)=4 padding + 1 middle = 9
+        assert_eq!(cfg.total_digits(), 9);
+    }
+
+    // --- construct_number ---
+
+    #[test]
+    fn test_construct_number_k00() {
+        let cfg = MembraneConfig::new(10, 3, 7, 0, 0);
+        let num = cfg.construct_number(5).unwrap();
+        // 3-7-5-7-3 = 37573
+        assert_eq!(num, BigUint::from(37573u64));
+    }
+
+    #[test]
+    fn test_construct_number_k11() {
+        let cfg = MembraneConfig::new(10, 3, 7, 1, 1);
+        let num = cfg.construct_number(5).unwrap();
+        // 3-0-7-0-5-0-7-0-3 = 307050703
+        assert_eq!(num, BigUint::from(307050703u64));
+    }
+
+    #[test]
+    fn test_construct_number_k21() {
+        let cfg = MembraneConfig::new(10, 3, 7, 2, 1);
+        let num = cfg.construct_number(5).unwrap();
+        // 3-00-7-0-5-0-7-00-3 = 30070507003 (11 digits)
+        assert_eq!(num, BigUint::from_str("30070507003").unwrap());
+    }
+
+    #[test]
+    fn test_construct_known_prime_307050703() {
+        let cfg = MembraneConfig::new(10, 3, 7, 1, 1);
+        let num = cfg.construct_number(5).unwrap();
+        assert_eq!(num, BigUint::from(307050703u64));
+        assert!(crate::is_prime(&num), "307050703 should be prime");
+    }
+
+    // --- construct_membrane_number ---
+
+    #[test]
+    fn test_construct_membrane_string_symmetric() {
+        let cfg = MembraneConfig::new(10, 3, 7, 1, 1);
+        let result = construct_membrane_number(&cfg, "5").unwrap();
+        assert_eq!(result, "307050703");
+    }
+
+    #[test]
+    fn test_construct_membrane_string_breathing() {
+        let cfg = MembraneConfig::breathing(10, 3, 3, 0, 1, 0, 1);
+        let result = construct_membrane_number(&cfg, "5").unwrap();
+        assert_eq!(result, "3305033");
+    }
+
+    // --- estimate_density ---
+
+    #[test]
+    fn test_density_coprime_positive() {
+        let d = estimate_density(10, 3, 7, 0, 0);
+        assert!(d > 0.0, "coprime config should have positive density");
+    }
+
+    #[test]
+    fn test_density_non_coprime_zero() {
+        let d = estimate_density(10, 2, 7, 0, 0);
+        assert_eq!(d, 0.0, "non-coprime config should have zero density");
+    }
+
+    #[test]
+    fn test_density_k00_beats_k11() {
+        let d00 = estimate_density(10, 3, 7, 0, 0);
+        let d11 = estimate_density(10, 3, 7, 1, 1);
+        assert!(d00 > d11, "k=(0,0) should have higher density than k=(1,1)");
+    }
+
+    #[test]
+    fn test_density_base6_champion() {
+        let d = estimate_density(6, 1, 5, 0, 0);
+        assert!(d >= 0.30, "base 6 (1,5) k=(0,0) should estimate >= 30%");
+    }
+
+    // --- best_for_base ---
+
+    #[test]
+    fn test_best_for_base_10() {
+        let configs = MembraneConfig::best_for_base(10);
+        assert!(!configs.is_empty(), "should return at least one config");
+        for cfg in &configs {
+            assert!(cfg.is_valid(), "all best configs should be valid (coprime)");
+            assert_eq!(cfg.base, 10);
+        }
+    }
+
+    #[test]
+    fn test_best_for_base_6() {
+        let configs = MembraneConfig::best_for_base(6);
+        assert!(!configs.is_empty());
+        // The champion config (1,5) should be among them
+        let has_champion = configs
+            .iter()
+            .any(|c| (c.outer == 1 && c.inner == 5) || (c.outer == 5 && c.inner == 1));
+        assert!(
+            has_champion,
+            "base 6 best configs should include (1,5) or (5,1)"
+        );
+    }
+
+    // --- is_high_performance ---
+
+    #[test]
+    fn test_is_high_performance() {
+        let cfg = MembraneConfig::new(6, 1, 5, 0, 0);
+        assert!(
+            cfg.is_high_performance(),
+            "base 6 champion should be high performance"
+        );
+    }
+
+    #[test]
+    fn test_not_high_performance() {
+        let cfg = MembraneConfig::new(10, 2, 7, 0, 0);
+        assert!(
+            !cfg.is_high_performance(),
+            "non-coprime config should not be high performance"
+        );
+    }
+
+    // --- summary ---
+
+    #[test]
+    fn test_summary_contains_base() {
+        let cfg = MembraneConfig::new(10, 3, 7, 1, 1);
+        let s = cfg.summary();
+        assert!(s.contains("10"), "summary should contain base");
+        assert!(s.contains("3"), "summary should contain outer digit");
+        assert!(s.contains("7"), "summary should contain inner digit");
+    }
+
+    // --- edge cases ---
+
+    #[test]
+    fn test_construct_number_seed_zero() {
+        let cfg = MembraneConfig::new(10, 3, 7, 0, 0);
+        let num = cfg.construct_number(0).unwrap();
+        // 3-7-0-7-3 = 37073
+        assert_eq!(num, BigUint::from(37073u64));
+    }
+
+    #[test]
+    fn test_construct_number_seed_nine() {
+        let cfg = MembraneConfig::new(10, 3, 7, 0, 0);
+        let num = cfg.construct_number(9).unwrap();
+        // 3-7-9-7-3 = 37973
+        assert_eq!(num, BigUint::from(37973u64));
     }
 }

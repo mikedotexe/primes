@@ -15,7 +15,7 @@ use num_bigint::BigUint;
 use num_traits::Zero;
 use primes::is_prime;
 use std::fs::File;
-use std::io::{Write as IoWrite, BufWriter};
+use std::io::{BufWriter, Write as IoWrite};
 use std::time::Instant;
 
 // ============================================================================
@@ -38,9 +38,9 @@ struct ConfigResult {
 
     // Base properties
     midpoint: f64,
-    phi_base: u32,       // Euler's totient
-    tau_base: u32,       // Number of divisors
-    rad_base: u32,       // Radical (product of distinct primes)
+    phi_base: u32, // Euler's totient
+    tau_base: u32, // Number of divisors
+    rad_base: u32, // Radical (product of distinct primes)
 
     // Boundary properties
     outer_gcd: u32,
@@ -49,8 +49,8 @@ struct ConfigResult {
     inner_is_prime: bool,
 
     // Structural
-    min_length: usize,   // Minimum digit length
-    max_length: usize,   // Maximum digit length
+    min_length: usize, // Minimum digit length
+    max_length: usize, // Maximum digit length
 }
 
 // ============================================================================
@@ -72,8 +72,8 @@ fn euler_totient(n: u32) -> u32 {
     let mut p = 2;
 
     while p * p <= n {
-        if n % p == 0 {
-            while n % p == 0 {
+        if n.is_multiple_of(p) {
+            while n.is_multiple_of(p) {
                 n /= p;
             }
             result -= result / p;
@@ -93,7 +93,7 @@ fn count_divisors(n: u32) -> u32 {
     let mut i = 1;
 
     while i * i <= n {
-        if n % i == 0 {
+        if n.is_multiple_of(i) {
             count += 1;
             if i != n / i {
                 count += 1;
@@ -111,9 +111,9 @@ fn radical(n: u32) -> u32 {
     let mut p = 2;
 
     while p * p <= n {
-        if n % p == 0 {
+        if n.is_multiple_of(p) {
             rad *= p;
-            while n % p == 0 {
+            while n.is_multiple_of(p) {
                 n /= p;
             }
         }
@@ -131,14 +131,7 @@ fn radical(n: u32) -> u32 {
 // Membrane Construction
 // ============================================================================
 
-fn construct_membrane(
-    base: u32,
-    outer: u32,
-    inner: u32,
-    m: usize,
-    k: u32,
-    seed: u64,
-) -> BigUint {
+fn construct_membrane(base: u32, outer: u32, inner: u32, m: usize, k: u32, seed: u64) -> BigUint {
     let base_big = BigUint::from(base);
     let mut result = BigUint::zero();
     let mut position = 0;
@@ -150,9 +143,13 @@ fn construct_membrane(
 
     // Structure: outer [k×0] inner [k×0] SEED [k×0] inner [k×0] outer
     add_digit(outer);
-    for _ in 0..k { add_digit(0); }
+    for _ in 0..k {
+        add_digit(0);
+    }
     add_digit(inner);
-    for _ in 0..k { add_digit(0); }
+    for _ in 0..k {
+        add_digit(0);
+    }
 
     // Middle (seed in base representation)
     let mut seed_val = seed;
@@ -162,16 +159,22 @@ fn construct_membrane(
     }
 
     // Mirror
-    for _ in 0..k { add_digit(0); }
+    for _ in 0..k {
+        add_digit(0);
+    }
     add_digit(inner);
-    for _ in 0..k { add_digit(0); }
+    for _ in 0..k {
+        add_digit(0);
+    }
     add_digit(outer);
 
     result
 }
 
 fn digit_length(n: &BigUint, base: u32) -> usize {
-    if n.is_zero() { return 1; }
+    if n.is_zero() {
+        return 1;
+    }
 
     let mut len = 0;
     let mut temp = n.clone();
@@ -189,18 +192,16 @@ fn digit_length(n: &BigUint, base: u32) -> usize {
 // Configuration Testing
 // ============================================================================
 
-fn test_configuration(
-    base: u32,
-    outer: u32,
-    inner: u32,
-    m: usize,
-    k: u32,
-) -> ConfigResult {
+fn test_configuration(base: u32, outer: u32, inner: u32, m: usize, k: u32) -> ConfigResult {
     let mut prime_count = 0u64;
     let mut total_candidates = 0u64;
 
     // Calculate seed range
-    let seed_min = if m > 1 { base.pow((m - 1) as u32) as u64 } else { 1 };
+    let seed_min = if m > 1 {
+        base.pow((m - 1) as u32) as u64
+    } else {
+        1
+    };
     let seed_max = base.pow(m as u32) as u64;
 
     let mut min_length = usize::MAX;
@@ -268,11 +269,17 @@ fn generate_coprime_pairs(base: u32) -> Vec<(u32, u32)> {
     let mut pairs = Vec::new();
 
     for outer in 1..base {
-        if gcd(outer, base) != 1 { continue; }
+        if gcd(outer, base) != 1 {
+            continue;
+        }
 
         for inner in 1..base {
-            if gcd(inner, base) != 1 { continue; }
-            if outer == inner { continue; }  // Require distinct boundaries
+            if gcd(inner, base) != 1 {
+                continue;
+            }
+            if outer == inner {
+                continue;
+            } // Require distinct boundaries
 
             pairs.push((outer, inner));
         }
@@ -359,8 +366,13 @@ fn main() -> std::io::Result<()> {
 
         // Test each configuration
         for &m in &m_values {
-            println!("\n  M={}: Testing {} pairs × {} k values = {} configs",
-                m, pairs.len(), k_values.len(), pairs.len() * k_values.len());
+            println!(
+                "\n  M={}: Testing {} pairs × {} k values = {} configs",
+                m,
+                pairs.len(),
+                k_values.len(),
+                pairs.len() * k_values.len()
+            );
 
             let m_start = Instant::now();
             let mut configs_tested = 0;
@@ -383,7 +395,11 @@ fn main() -> std::io::Result<()> {
             }
 
             let m_duration = m_start.elapsed();
-            println!("\n    Completed {} configs in {:.2}s", configs_tested, m_duration.as_secs_f64());
+            println!(
+                "\n    Completed {} configs in {:.2}s",
+                configs_tested,
+                m_duration.as_secs_f64()
+            );
         }
 
         writer.flush()?;
@@ -399,8 +415,14 @@ fn main() -> std::io::Result<()> {
     println!("Statistics:");
     println!("  Total configurations tested: {}", total_configs);
     println!("  Total primality tests:       {}", total_tests);
-    println!("  Total runtime:               {:.2}s", total_duration.as_secs_f64());
-    println!("  Average per config:          {:.3}s", total_duration.as_secs_f64() / total_configs as f64);
+    println!(
+        "  Total runtime:               {:.2}s",
+        total_duration.as_secs_f64()
+    );
+    println!(
+        "  Average per config:          {:.3}s",
+        total_duration.as_secs_f64() / total_configs as f64
+    );
 
     println!("\nOutput:");
     println!("  File: solution_space_complete.csv");

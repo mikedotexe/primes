@@ -245,7 +245,7 @@ fn main() {
     let champion = MembraneConfig::new(12, 1, 1, 0, 0);
     println!("Using Base 12 Champion (1,1) k=(0,0):");
 
-    for seed in vec![1, 4, 5, 6, 7] {
+    for seed in [1, 4, 5, 6, 7] {
         if let Some(prime) = factory.generate_with_config(&champion, seed) {
             let membrane = build_membrane_string(&champion, seed);
             println!(

@@ -1,5 +1,9 @@
-// src/optimization/mod.rs
-//! Holistic optimization framework for self-improving performance
+//! # Performance Optimization Framework
+//!
+//! **Layer**: Infrastructure
+//!
+//! Runtime prediction, strategy selection, and telemetry for performance
+//! tuning. Designed for extensibility; most code paths are currently unused.
 
 #![allow(dead_code)] // Framework designed for future extensibility
 

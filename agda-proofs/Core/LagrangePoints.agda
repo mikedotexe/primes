@@ -72,7 +72,16 @@ toℕ record { prime1 = p1 ; prime2 = p2 ; buffer-length = b } =
   in p1 * (10 ^ (b + p2-digits)) + p2
   where
     countDigits : ℕ → ℕ
-    countDigits n = {!!}  -- Count decimal digits
+    countDigits zero = 1
+    countDigits (suc n) = go (suc n) 0
+      where
+        go : ℕ → ℕ → ℕ
+        go zero acc = acc
+        go m acc = go (m / 10) (suc acc)
+          where
+            _/_ : ℕ → ℕ → ℕ
+            _/_ = Data.Nat.DivMod._/_
+            open import Data.Nat.DivMod
 
 -- | Concatenation with zeros only (baseline)
 --

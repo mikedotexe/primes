@@ -14,7 +14,7 @@
 //!   cargo run --example scan_connectors -- <prime1> <prime2> <min_len> <max_len>
 
 use num_bigint::BigUint;
-use num_traits::{One, Zero, ToPrimitive};
+use num_traits::{One, ToPrimitive, Zero};
 use std::collections::HashMap;
 use std::env;
 use std::str::FromStr;
@@ -55,12 +55,10 @@ fn is_probably_prime(n: &BigUint, rounds: u32) -> bool {
     // Use deterministic bases (sufficient for most practical ranges)
     let bases: [u32; 12] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37];
 
-    let mut used_rounds = 0u32;
-    for &a_u32 in bases.iter() {
-        if used_rounds >= rounds {
+    for (used_rounds, &a_u32) in bases.iter().enumerate() {
+        if used_rounds as u32 >= rounds {
             break;
         }
-        used_rounds += 1;
 
         if BigUint::from(a_u32) >= n_minus_one {
             continue;
@@ -93,6 +91,7 @@ fn is_probably_prime(n: &BigUint, rounds: u32) -> bool {
 // ========================================
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct ConnectorInfo {
     length: usize,
     pattern: String,
@@ -139,12 +138,7 @@ struct ScanResults {
 // SCANNER ENGINE
 // ========================================
 
-fn scan_connectors(
-    p1_str: &str,
-    p2_str: &str,
-    min_len: usize,
-    max_len: usize,
-) -> ScanResults {
+fn scan_connectors(p1_str: &str, p2_str: &str, min_len: usize, max_len: usize) -> ScanResults {
     let start_time = Instant::now();
 
     let p1 = BigUint::from_str(p1_str).expect("invalid prime1");
@@ -373,7 +367,7 @@ fn analyze_by_length(connectors: &[ConnectorInfo]) {
     let mut by_length: HashMap<usize, Vec<&ConnectorInfo>> = HashMap::new();
 
     for conn in connectors {
-        by_length.entry(conn.length).or_insert_with(Vec::new).push(conn);
+        by_length.entry(conn.length).or_default().push(conn);
     }
 
     let mut sorted_lengths: Vec<_> = by_length.keys().collect();
@@ -476,13 +470,19 @@ fn main() {
 
     println!("\n✨ Mathematical Insights:");
     println!("=========================");
-    println!("• Mod-3 filter eliminated {:.1}% of candidates before primality testing",
-        (results.total_skipped_mod3 as f64 / results.total_candidates as f64) * 100.0);
-    println!("• Average connector density: {:.2}%",
-        (results.connectors.len() as f64 / results.total_tested as f64) * 100.0);
+    println!(
+        "• Mod-3 filter eliminated {:.1}% of candidates before primality testing",
+        (results.total_skipped_mod3 as f64 / results.total_candidates as f64) * 100.0
+    );
+    println!(
+        "• Average connector density: {:.2}%",
+        (results.connectors.len() as f64 / results.total_tested as f64) * 100.0
+    );
 
     if results.connectors.len() > 100 {
-        println!("• Exceptional density detected! This prime pair shows remarkable connector abundance.");
+        println!(
+            "• Exceptional density detected! This prime pair shows remarkable connector abundance."
+        );
     }
 
     println!("\n💡 Next Steps:");

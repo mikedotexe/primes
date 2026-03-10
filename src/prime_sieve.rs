@@ -1,13 +1,12 @@
-// src/prime_sieve.rs
-//! Bit‑packed Segmented Sieve of Eratosthenes
-//! -----------------------------------------
-//! • Memory:  n/16  bytes  (only odds, 1‑bit each)
-//! • Cache:   strided writes avoid thrash; segment size tunable
-//! • Speed:   ~350 ns per prime ≤10 million on M‑series P‑core
+//! # Segmented Sieve of Eratosthenes
 //!
-//! In addition to the classic `primes_up_to(n)` helper we expose
-//! `visit_primes()` – a zero‑alloc iterator you can use as a cache
-//! excitation pattern for the MLP‑in‑the‑Cache demo.
+//! **Layer**: Math core (verified, tested)
+//!
+//! Bit-packed segmented sieve with cache-aware design.
+//!
+//! - Memory: n/16 bytes (odds only, 1 bit each)
+//! - Segment size: 32 KiB (fits M1/M2 L1D cache)
+//! - Verified: matches OEIS A000720 reference counts up to pi(10^7)
 
 use crate::PhysicsError;
 

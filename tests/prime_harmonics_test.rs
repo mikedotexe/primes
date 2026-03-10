@@ -8,13 +8,12 @@
 //!
 //! Run with: cargo test --features prime-harmonics --test prime_harmonics_test
 
-use num_bigint::BigUint;
 #[cfg(feature = "prime-harmonics")]
 use primes::harmonics::{fourier_transform, power_spectrum, HarmonicAnalyzer};
-use primes::{is_prime, prime_sieve::BitSieve};
-use std::f64::consts::PI;
+use primes::prime_sieve::BitSieve;
 
 /// Helper to create a prime indicator sequence
+#[allow(dead_code)]
 fn create_prime_sequence(limit: usize) -> Vec<f64> {
     let sieve = BitSieve::new(limit);
     let primes = sieve.primes();

@@ -7,8 +7,8 @@
 //! - Random baseline
 
 use num_bigint::BigUint;
-use rand::{Rng, SeedableRng};
 use rand::seq::SliceRandom;
+use rand::{Rng, SeedableRng};
 
 /// Trait for prime construction methods
 pub trait PrimeConstructor: Send + Sync {
@@ -20,9 +20,7 @@ pub trait PrimeConstructor: Send + Sync {
 
     /// Generate many candidates
     fn generate_many(&self, count: usize) -> Vec<BigUint> {
-        (0..count as u64)
-            .map(|seed| self.generate(seed))
-            .collect()
+        (0..count as u64).map(|seed| self.generate(seed)).collect()
     }
 
     /// Generate many primes (filter candidates through primality test)
@@ -215,14 +213,14 @@ impl ZeroHeavyConnectorConstructor {
         let mut positions: Vec<usize> = (0..self.connector_length).collect();
         positions.shuffle(&mut rng);
 
-        for i in 0..num_nonzero {
-            let pos = positions[i];
+        for &pos in positions.iter().take(num_nonzero) {
             // Choose from {3, 6} with equal probability
             connector[pos] = if rng.gen_bool(0.5) { 3 } else { 6 };
         }
 
         // Convert to string
-        let connector_str: String = connector.iter()
+        let connector_str: String = connector
+            .iter()
             .map(|&d| char::from_digit(d as u32, 10).unwrap())
             .collect();
 
@@ -343,12 +341,10 @@ fn is_probably_prime(n: &BigUint, rounds: u32) -> bool {
     // Deterministic bases
     let bases: [u32; 12] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37];
 
-    let mut used_rounds = 0u32;
-    for &a_u32 in bases.iter() {
-        if used_rounds >= rounds {
+    for (used_rounds, &a_u32) in bases.iter().enumerate() {
+        if used_rounds as u32 >= rounds {
             break;
         }
-        used_rounds += 1;
 
         if BigUint::from(a_u32) >= n_minus_one {
             continue;

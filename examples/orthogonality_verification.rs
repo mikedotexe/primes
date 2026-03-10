@@ -362,7 +362,7 @@ fn print_predictions() {
     println!("│ Base │ Spectral │ Density │ Predicted │ Observed │ Error │");
     println!("├──────┼──────────┼─────────┼───────────┼──────────┼───────┤");
 
-    let bases = vec![
+    let bases: Vec<(i32, f64, f64, f64)> = vec![
         (6, 0.40, 0.667, 33.0),
         (10, 0.45, 0.400, 18.5),
         (14, 0.52, 0.571, 27.0),
@@ -372,7 +372,7 @@ fn print_predictions() {
 
     for (base, spectral, density, observed) in &bases {
         let predicted = (alpha * spectral + beta * density + gamma) * 100.0;
-        let error = (((predicted - observed) / observed * 100.0) as f64).abs();
+        let error: f64 = ((predicted - observed) / observed * 100.0).abs();
 
         println!(
             "│ {:4} │   {:.2}   │  {:.3}  │   {:.1}%   │  {:.1}%   │ {:.1}% │",
@@ -482,7 +482,7 @@ fn interpret_correlation(label: &str, r: f64) {
 }
 
 fn is_2p(base: u32) -> bool {
-    if base % 2 != 0 {
+    if !base.is_multiple_of(2) {
         return false;
     }
     let p = base / 2;
@@ -496,13 +496,13 @@ fn is_prime_simple(n: u32) -> bool {
     if n == 2 {
         return true;
     }
-    if n % 2 == 0 {
+    if n.is_multiple_of(2) {
         return false;
     }
 
     let limit = (n as f64).sqrt() as u32;
     for i in (3..=limit).step_by(2) {
-        if n % i == 0 {
+        if n.is_multiple_of(i) {
             return false;
         }
     }
@@ -515,7 +515,7 @@ fn factorize(mut n: u32) -> String {
 
     while d * d <= n {
         let mut count = 0;
-        while n % d == 0 {
+        while n.is_multiple_of(d) {
             n /= d;
             count += 1;
         }

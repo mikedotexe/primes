@@ -1,6 +1,6 @@
 # Prime Physics Engine - Quick Reference Glossary
 
-**For detailed explanations, see [RESEARCHER_QUICKSTART.md](RESEARCHER_QUICKSTART.md) or [CLAUDE.md](../CLAUDE.md)**
+**For detailed explanations, see [CLAUDE.md](CLAUDE.md)**
 
 ---
 
@@ -161,19 +161,20 @@ Positions in the zero buffer between two concatenated primes where specific non-
 
 **Analogy**: Like gravitational Lagrange points between Earth and Moon where objects remain stable, these are "mathematical equilibrium points" between prime "masses."
 
-**Example**:
+**Example** (verified):
 ```
-Prime 1:  97
-Buffer:   00000 (7 zeros)
-Prime 2:  303050303
+Prime 1:  10301
+Buffer:   5 zeros
+Prime 2:  3007003007003
 
-With all zeros: 97000000303050303 → COMPOSITE ✗
-With digit at L₁: 97009000303050303 → PRIME ✓
+With all zeros: 10301000003007003007003 → COMPOSITE (div by 11, 13) ✗
+With digit 6 at position 4: 10301000063007003007003 → PRIME ✓
 ```
 
 **Requirements**: Needs TWO primes (single primes don't create this effect)
 
-**Status**: 100% clustering success across 24 tested prime pairs
+**Status**: 4 verified equilibrium positions for the (10301, 3007003007003) pair.
+See EVIDENCE.md Section 5b for the complete verified family.
 
 ---
 
@@ -355,13 +356,11 @@ Visual representation of zero in membrane patterns for clarity
 
 ## For More Information
 
-- **Getting Started**: [RESEARCHER_QUICKSTART.md](RESEARCHER_QUICKSTART.md) - 15-minute guided tour
-- **Full Context**: [../CLAUDE.md](../CLAUDE.md) - Executive summary of all discoveries
-- **Empirical Data**: [EVIDENCE.md](EVIDENCE.md) - Detailed proofs and verification
-- **The 3-5-7 Mystery**: [FIVE_SEVEN_MYSTERY.md](FIVE_SEVEN_MYSTERY.md) - Why these digits appear everywhere
-- **Command Reference**: [COMMAND_REFERENCE.md](COMMAND_REFERENCE.md) - Quick lookup for all examples
+- **Full Context**: [CLAUDE.md](CLAUDE.md) - Executive summary of all discoveries
+- **Claim Registry**: [CLAIMS.md](CLAIMS.md) - Status and evidence for every major claim
+- **Empirical Data**: [EVIDENCE.md](EVIDENCE.md) - Detailed data tables and verification
 
 ---
 
-**Last Updated**: 2025-10-29
-**Status**: Living document - will be updated as new concepts emerge
+**Last Updated**: 2026-03-09
+**Status**: Living document - updated during Tranche 8 hardening (false Lagrange example corrected)

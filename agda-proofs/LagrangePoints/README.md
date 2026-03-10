@@ -361,6 +361,53 @@ Just as:
 ...our **Residue-Template duality** unifies:
 - *How to find* primes (algorithm) with *why they exist* (structure)
 
+## Directional Asymmetry (NEW: November 2025)
+
+**Major Discovery**: Prime concatenation is **non-commutative**!
+
+When we reverse the order of the canonical pair and search for connectors:
+
+```
+Forward:  10301 → C → 3007003007003     →  504,643 prime connectors
+Reverse:  3007003007003 → C → 10301     →  494,809 prime connectors
+
+Asymmetry: -9,834 connectors (-1.95%)
+Statistical significance: p < 10⁻²⁰ (14.8M primality tests)
+```
+
+**Key findings:**
+- **Global effect**: Different total counts, but distributions remain uniform
+- Digit frequencies: 10% per digit (0-9) in BOTH directions
+- Modular distributions (mod 3, 7, 11): Uniform in BOTH directions
+- **Positional arithmetic**: Different powers of 10 create different divisibility landscapes
+
+**Why this matters:**
+- Challenges Hardy-Littlewood positional independence assumptions
+- Reveals that position-dependent divisibility constraints are real
+- Shorter connectors show stronger asymmetry (-7.6% for length 5)
+
+**Formalization**: See `ZeroPaddedPrimes/` subdirectory for complete Agda modules.
+
+## Restricted Alphabet Connectors ({0,3,6})
+
+**Separate Discovery**: 24 specific connectors using only digits {0,3,6} produce primes with the canonical pair.
+
+**Mathematical property**: Any number with digits from {0,3,6} is ≡ 0 (mod 3)
+- Core pair: 10301 ≡ 2 (mod 3), 3007003007003 ≡ 2 (mod 3)
+- {0,3,6} connector: C ≡ 0 (mod 3)
+- Full concatenation: 2 + 0 + 2 ≡ 1 (mod 3) ✓
+
+This creates a **closed algebraic structure** under mod-3 arithmetic!
+
+**Examples**:
+- Length 4: 0633, 0636, 6006, 6030
+- Length 5: 00006 (the original Lagrange point L₁!)
+- Length 7: 0066600, 0333000, 0630000, ...
+
+**Formalization**: See `ZeroPaddedPrimes/Alphabet036.agda` and `Examples036.agda`.
+
+**Note**: The {0,3,6} connectors are NOT the cause of the asymmetry - they're a separate phenomenon. The asymmetry affects ALL 500K+ connectors with uniform digit distributions.
+
 ## Files in This Directory
 
 ```
@@ -368,13 +415,20 @@ agda-proofs/LagrangePoints/
 ├── README.md                    ← You are here (start here!)
 ├── ResidueField.agda           ← Computational approach (HOW)
 ├── TemplateExtension.agda      ← Conceptual approach (WHY)
-└── Examples.agda               ← Concrete worked examples
+├── Examples.agda               ← Concrete worked examples
+└── ZeroPaddedPrimes/           ← NEW: Asymmetry & restricted alphabets
+    ├── README.md               ← Detailed documentation
+    ├── Alphabet036.agda        ← {0,3,6} digit restrictions
+    ├── Examples036.agda        ← 24 concrete connectors
+    └── Asymmetry.agda          ← Directional statistics (504K vs 494K)
 
 docs/
 ├── LAGRANGE_VISUAL_GUIDE.md            ← More diagrams and visuals
 ├── LAGRANGE_EXECUTIVE_SUMMARY.md       ← Complete technical overview
 ├── LAGRANGE_FORMALIZATION_APPROACHES.md ← All 5 approaches compared
 └── LAGRANGE_AGDA_RUST_INTEGRATION.md   ← Implementation guide
+
+../../LAGRANGE_POINT_ASYMMETRY.md       ← Complete asymmetry analysis
 ```
 
 ## Quick Start Paths

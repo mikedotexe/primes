@@ -35,7 +35,7 @@ fn analyze_lagrange_mechanics(prime1: &str, prime2: &str, space_size: usize) -> 
         for digit in 1..=9 {
             let mut test_str = zeros.clone();
             let bytes = unsafe { test_str.as_bytes_mut() };
-            bytes[position] = b'0' + digit as u8;
+            bytes[position] = b'0' + digit;
 
             let full_number = format!("{}{}{}", prime1, test_str, prime2);
             let num = full_number.parse::<BigUint>().unwrap();
@@ -93,10 +93,7 @@ fn visualize_lagrange_field(analysis: &LagrangeAnalysis) {
     let mut position_map: HashMap<usize, Vec<u8>> = HashMap::new();
     for lp in &analysis.lagrange_points {
         if lp.creates_prime {
-            position_map
-                .entry(lp.position)
-                .or_insert(Vec::new())
-                .push(lp.digit);
+            position_map.entry(lp.position).or_default().push(lp.digit);
         }
     }
 
@@ -223,7 +220,7 @@ fn main() {
         if lp.creates_prime {
             let mut zeros = "0".repeat(analysis.space_size);
             let bytes = unsafe { zeros.as_bytes_mut() };
-            bytes[lp.position] = b'0' + lp.digit as u8;
+            bytes[lp.position] = b'0' + lp.digit;
 
             let prime = format!("{}{}{}", analysis.body1, zeros, analysis.body2);
             println!("\n   Position {}, Digit {}: ", lp.position, lp.digit);

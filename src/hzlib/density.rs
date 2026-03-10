@@ -240,6 +240,8 @@ impl BaseAccum {
             return None;
         }
 
+        // Binary search for the first ends[i] > p.
+        // ends[i] == bands[i].s_next, so ends[lo] > p means p < bands[lo].s_next.
         let mut lo = 0usize;
         let mut hi = self.ends.len();
 
@@ -252,15 +254,16 @@ impl BaseAccum {
             }
         }
 
-        if lo == 0 {
+        // lo is the first index where ends[lo] > p, i.e. p < bands[lo].s_next.
+        // If lo == ends.len(), p is beyond all bands.
+        if lo >= self.bands.len() {
             return None;
         }
 
-        let idx = lo - 1;
-        let bd = &self.bands[idx];
+        let bd = &self.bands[lo];
 
         if p >= bd.s && p < bd.s_next {
-            Some(idx)
+            Some(lo)
         } else {
             None
         }

@@ -1,4 +1,4 @@
-use crate::hzlib::{JoinedGrid, Axis};
+use crate::hzlib::{Axis, JoinedGrid};
 
 pub struct Ridge {
     pub key: usize,
@@ -6,11 +6,7 @@ pub struct Ridge {
     pub value: f64,
 }
 
-pub fn ridge_trough(
-    grid: &JoinedGrid,
-    axis: Axis,
-    quantity: &str,
-) -> Vec<Ridge> {
+pub fn ridge_trough(grid: &JoinedGrid, axis: Axis, quantity: &str) -> Vec<Ridge> {
     match axis {
         Axis::Mid => {
             let mut out = Vec::with_capacity(grid.izs.len());
@@ -19,9 +15,15 @@ pub fn ridge_trough(
                 for &m in &grid.mids {
                     let idx = grid.idx(m, z).unwrap();
                     let v = val(&grid.pairs[idx], quantity);
-                    if v < best.1 { best = (m, v); }
+                    if v < best.1 {
+                        best = (m, v);
+                    }
                 }
-                out.push(Ridge{ key: z, argmin: best.0, value: best.1 });
+                out.push(Ridge {
+                    key: z,
+                    argmin: best.0,
+                    value: best.1,
+                });
             }
             out
         }
@@ -32,9 +34,15 @@ pub fn ridge_trough(
                 for &z in &grid.izs {
                     let idx = grid.idx(m, z).unwrap();
                     let v = val(&grid.pairs[idx], quantity);
-                    if v < best.1 { best = (z, v); }
+                    if v < best.1 {
+                        best = (z, v);
+                    }
                 }
-                out.push(Ridge{ key: m, argmin: best.0, value: best.1 });
+                out.push(Ridge {
+                    key: m,
+                    argmin: best.0,
+                    value: best.1,
+                });
             }
             out
         }

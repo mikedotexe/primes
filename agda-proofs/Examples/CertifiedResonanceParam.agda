@@ -19,9 +19,12 @@ module Examples.CertifiedResonanceParam where
 open import Data.Product     using (Σ; _,_; proj₁; proj₂)
 open import Relation.Binary.PropositionalEquality  using (_≡_; refl)
 open import Data.Empty     using (⊥)
-open import Data.Nat       using (Nat ; zero ; suc)
+open import Data.Nat       using (ℕ ; zero ; suc ; NonZero)
 open import Data.Fin               using (Fin ; zero ; suc)
+open import Data.Fin.Properties    using () renaming (_≟_ to _≟Fin_)
 open import Data.Vec               using (Vec ; [] ; _∷_)
+open import Function               using (_∘_)
+open import Relation.Nullary       using (Dec; yes; no)
 
 open import Theorems.Abstract.SymmetryImpliesRepulsion
   using ( SymmetryData
@@ -42,7 +45,7 @@ _≢_ : ∀ {A : Set} → A → A → Set
 x ≢ y = (x ≡ y) → ⊥
 
 -- Vector indexing
-indexer : ∀ {A n} → Vec A n → Fin n → A
+indexer : ∀ {A : Set} {n} → Vec A n → Fin n → A
 indexer {A} {zero}     []       ()
 indexer {A} {suc n}    (x ∷ xs) zero    = x
 indexer {A} {suc n}    (x ∷ xs) (suc i) = indexer xs i
@@ -51,15 +54,11 @@ indexer {A} {suc n}    (x ∷ xs) (suc i) = indexer xs i
 -- RESIDUE COUNTING (for balanced bucket verification)
 
 -- Count occurrences of residue b in f : Fin n → Fin m
-countResid : ∀ {m n} → (Fin n → Fin m) → Fin m → Nat
+countResid : ∀ {m n} → (Fin n → Fin m) → Fin m → ℕ
 countResid {m} {zero}  f b = zero
-countResid {m} {suc n} f b with f zero Data.Fin.≟ b
+countResid {m} {suc n} f b with (f zero) ≟Fin b
 ... | yes _ = suc (countResid (f ∘ suc) b)
 ... | no  _ = countResid (f ∘ suc) b
-  where
-    postulate _≟_ : ∀ {n} → (x y : Fin n) → Dec (x ≡ y)
-    _∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
-    (g ∘ h) x = g (h x)
 
 ------------------------------------------------------------------------
 -- AUTO-PERFECT BUCKETS (from balanced counts + midVoid)
@@ -84,7 +83,7 @@ postulate
 -- - buckets: Perfect pairing witness
 -- - voidOK: Honorary zero certificate (midpoint is provably empty)
 
-record ResonanceCertificate {m n : Nat}
+record ResonanceCertificate {m n : ℕ}
        (mid : Fin m) (f : Fin n → Fin m) : Set where
   field
     S        : SymmetryData (Fin m)
@@ -100,6 +99,7 @@ record ResonanceCertificate {m n : Nat}
 
 certifyFromResid
   : ∀ {m n}
+  → .⦃ _ : NonZero m ⦄
   → (mid : Fin m)
   → (f   : Fin n → Fin m)
   → (midVoid  : ∀ i → f i ≢ mid)
@@ -124,6 +124,7 @@ certifyFromResid {m} {n} mid f midVoid balanced =
 
 certifyFromVec
   : ∀ {m n}
+  → .⦃ _ : NonZero m ⦄
   → (mid : Fin m)
   → (xs  : Vec (Fin m) n)
   → (midVoid  : ∀ i → indexer xs i ≢ mid)
@@ -223,6 +224,8 @@ This closes the complete loop:
 
 module Example-Base6-n4 where
 
+  open import Data.Fin using () renaming (zero to fzero ; suc to fsuc)
+
   -- Concrete data from CertifiedResonanceComplete
   example-mid : Fin 6
   example-mid = suc (suc (suc zero))  -- 3
@@ -235,16 +238,86 @@ module Example-Base6-n4 where
     suc (suc (suc (suc zero))) ∷       -- 4
     []
 
-  -- Witnesses (would be auto-generated for real windows)
-  postulate
-    proof-midVoid : ∀ i → indexer example-residues i ≢ example-mid
-    proof-balanced : (S : SymmetryData (Fin 6))
-                   → ∀ b → countResid (indexer example-residues) b
-                          ≡ countResid (indexer example-residues) (SymmetryData.inv S b)
+  -- DIRECT CERTIFICATE CONSTRUCTION
+  -- Instead of going through autoPerfectBuckets (postulated), we construct
+  -- the PerfectBuckets witness directly, reusing the same technique as
+  -- CertifiedResonanceComplete (explicit fzero/fsuc case analysis).
 
-  -- ONE-LINE CERTIFICATION:
+  -- Concrete involution: r -> (6 - r) mod 6
+  inv-fn : Fin 6 → Fin 6
+  inv-fn fzero                                         = fzero
+  inv-fn (fsuc fzero)                                  = fsuc (fsuc (fsuc (fsuc (fsuc fzero))))
+  inv-fn (fsuc (fsuc fzero))                           = fsuc (fsuc (fsuc (fsuc fzero)))
+  inv-fn (fsuc (fsuc (fsuc fzero)))                    = fsuc (fsuc (fsuc fzero))
+  inv-fn (fsuc (fsuc (fsuc (fsuc fzero))))             = fsuc (fsuc fzero)
+  inv-fn (fsuc (fsuc (fsuc (fsuc (fsuc fzero)))))      = fsuc fzero
+
+  inv-involutive : ∀ r → inv-fn (inv-fn r) ≡ r
+  inv-involutive fzero                                         = refl
+  inv-involutive (fsuc fzero)                                  = refl
+  inv-involutive (fsuc (fsuc fzero))                           = refl
+  inv-involutive (fsuc (fsuc (fsuc fzero)))                    = refl
+  inv-involutive (fsuc (fsuc (fsuc (fsuc fzero))))             = refl
+  inv-involutive (fsuc (fsuc (fsuc (fsuc (fsuc fzero)))))      = refl
+
+  inv-mid : inv-fn example-mid ≡ example-mid
+  inv-mid = refl
+
+  S* : SymmetryData (Fin 6)
+  S* = record
+    { mid            = example-mid
+    ; inv            = inv-fn
+    ; inv-involutive = inv-involutive
+    ; inv-mid        = inv-mid
+    }
+
+  -- Pairing: 0 <-> 1, 2 <-> 3
+  mate-fn : Fin 4 → Fin 4
+  mate-fn fzero                          = fsuc fzero
+  mate-fn (fsuc fzero)                   = fzero
+  mate-fn (fsuc (fsuc fzero))            = fsuc (fsuc (fsuc fzero))
+  mate-fn (fsuc (fsuc (fsuc fzero)))     = fsuc (fsuc fzero)
+
+  involutive-mate : ∀ i → mate-fn (mate-fn i) ≡ i
+  involutive-mate fzero                          = refl
+  involutive-mate (fsuc fzero)                   = refl
+  involutive-mate (fsuc (fsuc fzero))            = refl
+  involutive-mate (fsuc (fsuc (fsuc fzero)))     = refl
+
+  no-fixed-mate : ∀ i → mate-fn i ≢ i
+  no-fixed-mate fzero                          ()
+  no-fixed-mate (fsuc fzero)                   ()
+  no-fixed-mate (fsuc (fsuc fzero))            ()
+  no-fixed-mate (fsuc (fsuc (fsuc fzero)))     ()
+
+  equivariant-res : ∀ i → inv-fn (indexer example-residues i) ≡ indexer example-residues (mate-fn i)
+  equivariant-res fzero                          = refl
+  equivariant-res (fsuc fzero)                   = refl
+  equivariant-res (fsuc (fsuc fzero))            = refl
+  equivariant-res (fsuc (fsuc (fsuc fzero)))     = refl
+
+  residue-distinct : ∀ i → indexer example-residues (mate-fn i) ≢ indexer example-residues i
+  residue-distinct fzero                          ()
+  residue-distinct (fsuc fzero)                   ()
+  residue-distinct (fsuc (fsuc fzero))            ()
+  residue-distinct (fsuc (fsuc (fsuc fzero)))     ()
+
+  PB : PerfectBuckets S* (indexer example-residues)
+  PB = record
+    { mate             = mate-fn
+    ; involutive       = involutive-mate
+    ; no-fixed         = no-fixed-mate
+    ; equivariant      = equivariant-res
+    ; residue-distinct = residue-distinct
+    }
+
+  -- ONE-LINE CERTIFICATION (direct construction, no postulates):
   example-certificate : ResonanceCertificate example-mid (indexer example-residues)
-  example-certificate = certifyFromVec example-mid example-residues proof-midVoid proof-balanced
+  example-certificate = record
+    { S       = S*
+    ; buckets = PB
+    ; voidOK  = honoraryZeroFromPerfect S* (indexer example-residues) PB
+    }
 
   -- Extract proofs:
   example-voidOK : HonoraryZero
@@ -253,7 +326,11 @@ module Example-Base6-n4 where
   example-voidOK = ResonanceCertificate.voidOK example-certificate
 
   {-
-  If this type-checks → Honorary zero certified for Base 6 example! ✓
+  This type-checks with ZERO postulates in the Example module.
+
+  The general framework still has autoPerfectBuckets as a postulate,
+  but this concrete example bypasses it by constructing PerfectBuckets
+  directly via case analysis (same technique as CertifiedResonanceComplete).
 
   This is the pattern that external jobs replicate per window.
   -}

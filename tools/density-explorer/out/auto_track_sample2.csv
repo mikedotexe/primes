@@ -1,2 +1,0 @@
-pattern,base,total_len,mid_len,inner_zero,samples,primes,prime_density,ci_lo,ci_hi,expected_density_pnt_cond,expected_density_local,expected_density_local_exact,enrichment_vs_pnt_cond,enrichment_vs_local,enrichment_vs_local_exact,elapsed_ms,tracked_moduli,divisible_counts,model_p0
-mid=free:5|layers=[0:1,0:1]|base=10,10,9,5,0,40000,5026,0.12565000,0.11554848,0.13582342,0.12773367,0.02450036,0.02450036,0.98368738,5.12849510,5.12849521,51,[3, 7, 11, 13],[13267, 5795, 3617, 3000],[0.3333333333333333, 0.1428571416666667, 0.09090908888888896, 0.07692307500000002]

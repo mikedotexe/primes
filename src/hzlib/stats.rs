@@ -645,7 +645,7 @@ mod tests {
         assert!(slope_ci3 > slope_ci2, "99% CI should be wider than 95%");
 
         // Insufficient data
-        let (s, i, r, sci, ici, se) = linreg_with_ci(&vec![1.0, 2.0], &vec![2.0, 4.0], 0.95);
+        let (s, i, r, _sci, _ici, _se) = linreg_with_ci(&[1.0, 2.0], &[2.0, 4.0], 0.95);
         assert!(
             s.is_nan() && i.is_nan() && r.is_nan(),
             "Should return NaN for n<3"
@@ -678,14 +678,14 @@ mod tests {
 
     #[test]
     fn test_mean() {
-        assert_eq!(mean(&vec![1.0, 2.0, 3.0, 4.0, 5.0]), 3.0);
-        assert_eq!(mean(&vec![10.0]), 10.0);
-        assert!(mean(&vec![]).is_nan());
+        assert_eq!(mean(&[1.0, 2.0, 3.0, 4.0, 5.0]), 3.0);
+        assert_eq!(mean(&[10.0]), 10.0);
+        assert!(mean(&[]).is_nan());
     }
 
     #[test]
     fn test_variance() {
-        let x = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let x = [1.0, 2.0, 3.0, 4.0, 5.0];
         let v = variance(&x);
         // Var = E[(X - μ)²] with Bessel correction
         // For 1..5: mean=3, var = [(1-3)² + (2-3)² + (3-3)² + (4-3)² + (5-3)²]/(5-1)
@@ -693,14 +693,14 @@ mod tests {
         assert!((v - 2.5).abs() < 1e-10);
 
         // Insufficient data
-        assert!(variance(&vec![1.0]).is_nan());
-        assert!(variance(&vec![]).is_nan());
+        assert!(variance(&[1.0]).is_nan());
+        assert!(variance(&[]).is_nan());
     }
 
     #[test]
     fn test_hedges_g() {
-        let a = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-        let b = vec![6.0, 7.0, 8.0, 9.0, 10.0];
+        let a = [1.0, 2.0, 3.0, 4.0, 5.0];
+        let b = [6.0, 7.0, 8.0, 9.0, 10.0];
 
         let g = hedges_g(&a, &b);
         // Large negative effect (a < b)
@@ -711,14 +711,14 @@ mod tests {
         assert!((g_same).abs() < 0.01, "Same groups should give g ≈ 0");
 
         // Insufficient data
-        assert!(hedges_g(&vec![1.0], &vec![2.0, 3.0]).is_nan());
+        assert!(hedges_g(&[1.0], &[2.0, 3.0]).is_nan());
     }
 
     #[test]
     fn test_cliffs_delta() {
         // Perfect separation
-        let a = vec![1.0, 2.0, 3.0];
-        let b = vec![4.0, 5.0, 6.0];
+        let a = [1.0, 2.0, 3.0];
+        let b = [4.0, 5.0, 6.0];
         assert_eq!(cliffs_delta(&a, &b), -1.0, "All a < b should give δ = -1");
         assert_eq!(cliffs_delta(&b, &a), 1.0, "All b > a should give δ = 1");
 
@@ -726,13 +726,14 @@ mod tests {
         assert_eq!(cliffs_delta(&a, &a), 0.0, "Same groups should give δ = 0");
 
         // Partial overlap
-        let c = vec![2.0, 3.0, 4.0];
+        let c = [2.0, 3.0, 4.0];
         let d = cliffs_delta(&a, &c);
         assert!(d < 0.0 && d > -1.0, "Partial overlap: -1 < δ < 0");
 
         // Empty sets
-        assert!(cliffs_delta(&vec![], &b).is_nan());
-        assert!(cliffs_delta(&a, &vec![]).is_nan());
+        let empty: [f64; 0] = [];
+        assert!(cliffs_delta(&empty, &b).is_nan());
+        assert!(cliffs_delta(&a, &empty).is_nan());
     }
 
     #[test]
@@ -760,10 +761,10 @@ mod tests {
         assert!(rho_rand.abs() < 1.0, "Random should give |ρ| < 1");
 
         // Mismatched lengths
-        assert!(spearman_rho(&xs, &vec![1.0, 2.0]).is_nan());
+        assert!(spearman_rho(&xs, &[1.0, 2.0]).is_nan());
 
         // Insufficient data
-        assert!(spearman_rho(&vec![1.0], &vec![2.0]).is_nan());
+        assert!(spearman_rho(&[1.0], &[2.0]).is_nan());
     }
 
     #[test]
@@ -802,7 +803,7 @@ mod tests {
         }
 
         // Empty input
-        assert_eq!(benjamini_hochberg(&vec![], 0.05).len(), 0);
+        assert_eq!(benjamini_hochberg(&[], 0.05).len(), 0);
     }
 
     #[test]

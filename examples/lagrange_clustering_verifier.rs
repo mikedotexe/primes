@@ -7,14 +7,14 @@ fn is_prime(n: &BigUint) -> bool {
     if n == &BigUint::from(2u32) {
         return true;
     }
-    if n.bit(0) == false {
+    if !n.bit(0) {
         return false;
     }
 
     // Simple trial division for verification
     let mut i = BigUint::from(3u32);
     let sqrt = n.sqrt();
-    while &i <= &sqrt {
+    while i <= sqrt {
         if n % &i == BigUint::from(0u32) {
             return false;
         }
@@ -51,7 +51,7 @@ fn main() {
     let mut current = start.clone();
     while current <= end {
         if is_prime(&current) {
-            let distance = if &current >= &l1 {
+            let distance = if current >= l1 {
                 &current - &l1
             } else {
                 &l1 - &current

@@ -24,9 +24,9 @@
   STATUS: Proof scaffolding with key lemmas outlined
 -}
 
-module Radical where
+module Core.Radical where
 
-open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _≤_; _<_; _≡ᵇ_)
+open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _≤_; _<_; _≡ᵇ_; _^_; _>_; s≤s; z≤n)
 open import Data.Nat.Properties using (+-comm; *-comm; +-assoc; *-assoc; *-identityˡ; *-identityʳ)
 open import Data.Nat.Divisibility using (_∣_; divides; ∣-refl; ∣-trans)
 open import Data.Nat.GCD using (gcd; GCD; gcd-comm)
@@ -38,6 +38,19 @@ open import Data.Maybe using (Maybe; just; nothing)
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; sym; trans; cong; subst)
 open import Relation.Nullary using (¬_; Dec; yes; no)
 open import Function using (_∘_; id)
+open import Data.Unit using (⊤)
+open import Data.Empty using (⊥)
+open import Data.Sum using (_⊎_)
+open import Data.Rational using (ℚ)
+open import Data.List using (applyUpTo)
+
+-------------------------------------------------------------------------------
+-- UTILITY FUNCTIONS
+-------------------------------------------------------------------------------
+
+-- Generate list of naturals from 0 to n-1
+range : ℕ → List ℕ
+range n = applyUpTo (_+ 0) n
 
 -------------------------------------------------------------------------------
 -- PART 1: PRIME FACTORIZATION
@@ -62,7 +75,7 @@ record Factorization (n : ℕ) : Set where
 -- Product of prime factors with exponents
 product-of-factors : List PrimeFactor → ℕ
 product-of-factors [] = 1
-product-of-factors ((p ^ e is-prime _) ∷ rest) = (p Data.Nat.^ e) * product-of-factors rest
+product-of-factors ((p ^ e is-prime _) ∷ rest) = (p ^ e) * product-of-factors rest
 
 -- No duplicate primes in factorization
 NoDuplicatePrimes : List PrimeFactor → Set
@@ -262,6 +275,10 @@ prime-implies-coprime-to-radical n b prime-n n>b = {!
 
 -- The correct primality density formula uses rad, not φ
 postulate
+  _≈_ : ℚ → ℚ → Set  -- approximate equality
+  _≉_ : ℚ → ℚ → Set  -- not approximately equal
+  _/_ : ℕ → ℕ → ℚ    -- division producing rational
+
   prime-density-correct : ∀ b →
     let viable-residues = filter (λ r → gcd r (radical b) ≡ 1) (range b)
     in prime-density-in-base b ≈ (length viable-residues) / b

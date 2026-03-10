@@ -1,16 +1,13 @@
-//! # Tidal Physics Module
+//! # Tidal Analysis -- Visualization Metaphor
 //!
-//! Based on our discovery that tidal strength ~12.9 optimally organizes primes
-//! without destroying them - the inverse of the classical Roche limit!
+//! **Layer**: Simulation / visualization (not core math)
 //!
-//! ## Key Discovery
+//! Computes tidal-like forces in the prime particle simulation. The "optimal
+//! tidal strength" (~12.9) is an empirical observation within the simulation
+//! metaphor, not a number-theoretic result.
 //!
-//! - Too weak (<5): Can't organize primes into patterns
-//! - Optimal (10-15): Creates structure without destruction  
-//! - Too strong (>15): Fragments existing clusters
-//!
-//! This suggests primes have inherent "cohesion strength" that responds
-//! to tidal stress by crystallizing into patterns.
+//! See [`crate::gravity`] for the underlying particle model and
+//! [`crate::hzlib`] for the actual mathematical analysis tools.
 
 use crate::gravity::PrimeParticle;
 use crate::{PhysicsError, PhysicsResult};

@@ -131,10 +131,22 @@ pub fn compute_modular_profile(numbers: &[BigUint]) -> ModularProfile {
 
     let mod3_dist: Vec<f64> = profiles[&3].iter().map(|&count| count as f64 / n).collect();
     let mod7_dist: Vec<f64> = profiles[&7].iter().map(|&count| count as f64 / n).collect();
-    let mod11_dist: Vec<f64> = profiles[&11].iter().map(|&count| count as f64 / n).collect();
-    let mod13_dist: Vec<f64> = profiles[&13].iter().map(|&count| count as f64 / n).collect();
-    let mod17_dist: Vec<f64> = profiles[&17].iter().map(|&count| count as f64 / n).collect();
-    let mod19_dist: Vec<f64> = profiles[&19].iter().map(|&count| count as f64 / n).collect();
+    let mod11_dist: Vec<f64> = profiles[&11]
+        .iter()
+        .map(|&count| count as f64 / n)
+        .collect();
+    let mod13_dist: Vec<f64> = profiles[&13]
+        .iter()
+        .map(|&count| count as f64 / n)
+        .collect();
+    let mod17_dist: Vec<f64> = profiles[&17]
+        .iter()
+        .map(|&count| count as f64 / n)
+        .collect();
+    let mod19_dist: Vec<f64> = profiles[&19]
+        .iter()
+        .map(|&count| count as f64 / n)
+        .collect();
 
     ModularProfile {
         mod3: mod3_dist,
@@ -151,8 +163,8 @@ pub fn compute_modular_profile(numbers: &[BigUint]) -> ModularProfile {
 pub struct GapStatistics {
     pub mean_gap: f64,
     pub var_gap: f64,
-    pub small_gap_excess: f64,  // Fraction < 0.5 * mean
-    pub large_gap_excess: f64,  // Fraction > 2.0 * mean
+    pub small_gap_excess: f64, // Fraction < 0.5 * mean
+    pub large_gap_excess: f64, // Fraction > 2.0 * mean
 }
 
 /// Compute gap statistics for residues under a given modulus
@@ -176,25 +188,30 @@ pub fn compute_gap_statistics(numbers: &[BigUint], modulus: u32) -> GapStatistic
     }
 
     // Compute gaps
-    let gaps: Vec<u32> = residues
-        .windows(2)
-        .map(|w| w[1] - w[0])
-        .collect();
+    let gaps: Vec<u32> = residues.windows(2).map(|w| w[1] - w[0]).collect();
 
     // Statistics
     let mean_gap = gaps.iter().sum::<u32>() as f64 / gaps.len() as f64;
-    let var_gap = gaps.iter()
+    let var_gap = gaps
+        .iter()
         .map(|&g| {
             let diff = g as f64 - mean_gap;
             diff * diff
         })
-        .sum::<f64>() / gaps.len() as f64;
+        .sum::<f64>()
+        / gaps.len() as f64;
 
     let small_threshold = 0.5 * mean_gap;
     let large_threshold = 2.0 * mean_gap;
 
-    let small_count = gaps.iter().filter(|&&g| (g as f64) < small_threshold).count();
-    let large_count = gaps.iter().filter(|&&g| (g as f64) > large_threshold).count();
+    let small_count = gaps
+        .iter()
+        .filter(|&&g| (g as f64) < small_threshold)
+        .count();
+    let large_count = gaps
+        .iter()
+        .filter(|&&g| (g as f64) > large_threshold)
+        .count();
 
     GapStatistics {
         mean_gap,
@@ -224,7 +241,11 @@ mod tests {
 
         // Each residue class should have ~1/7 ≈ 0.143
         for &prob in &profile.mod7 {
-            assert!((prob - 0.1428).abs() < 0.01, "Expected ~0.143, got {}", prob);
+            assert!(
+                (prob - 0.1428).abs() < 0.01,
+                "Expected ~0.143, got {}",
+                prob
+            );
         }
     }
 

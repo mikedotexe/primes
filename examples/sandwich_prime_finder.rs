@@ -20,12 +20,7 @@ fn main() {
 
     for k in 0..=20 {
         for meatball in 1u8..=9 {
-            let sandwich = format!(
-                "1{}{}{}1",
-                "0".repeat(k),
-                meatball,
-                "0".repeat(k)
-            );
+            let sandwich = format!("1{}{}{}1", "0".repeat(k), meatball, "0".repeat(k));
 
             let num: BigUint = sandwich.parse().unwrap();
             if is_prime(&num) {

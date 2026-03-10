@@ -1,14 +1,10 @@
-//! # Validation and Statistical Analysis
+//! # Validation and Baseline Comparison
 //!
-//! This module provides rigorous statistical validation of our prime generation methods
-//! compared to random baselines. It addresses the critical question: "Are we just getting lucky?"
+//! **Layer**: Math core (testing infrastructure)
 //!
-//! ## Key Components
-//!
-//! - **Random baseline generation**: Multiple strategies for comparison
-//! - **Statistical significance testing**: Chi-square, KS tests, bootstrap CI
-//! - **Exhaustive search tracking**: Proof we're not cherry-picking
-//! - **Failure analysis**: Learning from what doesn't work
+//! Provides random baseline generation and statistical significance testing
+//! for comparing membrane prime density against chance. Complements the
+//! statistical tools in [`crate::hzlib::stats`].
 
 pub mod exhaustive_tracker;
 pub mod failure_analysis;

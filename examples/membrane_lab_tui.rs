@@ -300,7 +300,7 @@ fn draw_ui(f: &mut Frame, state: &mut LabState) {
 }
 
 fn draw_parameters_tab(f: &mut Frame, state: &mut LabState, area: Rect) {
-    let params = vec![
+    let params = [
         ("Base", state.base),
         ("Outer", state.outer),
         ("Inner", state.inner),
@@ -419,11 +419,11 @@ fn draw_statistics_tab(f: &mut Frame, state: &mut LabState, area: Rect) {
 
 fn adjust_parameter(state: &mut LabState, delta: i32) {
     match state.selected_param {
-        0 => state.base = (state.base as i32 + delta).max(2).min(30) as u32,
-        1 => state.outer = (state.outer as i32 + delta).max(1).min(9) as u32,
-        2 => state.inner = (state.inner as i32 + delta).max(1).min(9) as u32,
-        3 => state.k_outer = (state.k_outer as i32 + delta).max(0).min(5) as u32,
-        4 => state.k_inner = (state.k_inner as i32 + delta).max(0).min(5) as u32,
+        0 => state.base = (state.base as i32 + delta).clamp(2, 30) as u32,
+        1 => state.outer = (state.outer as i32 + delta).clamp(1, 9) as u32,
+        2 => state.inner = (state.inner as i32 + delta).clamp(1, 9) as u32,
+        3 => state.k_outer = (state.k_outer as i32 + delta).clamp(0, 5) as u32,
+        4 => state.k_inner = (state.k_inner as i32 + delta).clamp(0, 5) as u32,
         _ => {}
     }
 }

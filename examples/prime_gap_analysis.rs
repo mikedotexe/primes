@@ -179,7 +179,7 @@ fn main() {
         println!("    Gap  │ Count │ Percent │ Type");
         println!("  ───────┼───────┼─────────┼──────────────────");
 
-        for (i, (&gap, &count)) in gap_vec.iter().take(10).enumerate() {
+        for (&gap, &count) in gap_vec.iter().take(10) {
             let pct = count as f64 / total_gaps as f64 * 100.0;
             let gap_type = match gap {
                 2 => "Twin".to_string(),

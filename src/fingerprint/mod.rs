@@ -1,20 +1,17 @@
-//! Prime Fingerprinting Infrastructure
+//! # Prime Fingerprinting
 //!
-//! This module provides spectral/modular fingerprinting for prime construction methods.
-//! It enables classification and comparison of different prime generators based on their
-//! modular arithmetic signatures, digit distributions, and structural properties.
+//! **Layer**: Analysis tools
 //!
-//! Key concepts:
-//! - **Modular Profile**: Distribution of residues across multiple moduli
-//! - **Constructor Signature**: Complete fingerprint including modular, digit, and structural features
-//! - **Fingerprint Atlas**: Labeled dataset of signatures for ML classification
+//! Modular arithmetic fingerprinting for classifying and comparing prime
+//! construction methods. Generates residue distributions and structural
+//! signatures for different membrane configurations.
 
-pub mod profile;
-pub mod signature;
 pub mod constructors;
 pub mod export;
+pub mod profile;
+pub mod signature;
 
-pub use profile::{ModularProfile, compute_modular_profile};
-pub use signature::{PrimeConstructorSignature, SignatureFeatures};
 pub use constructors::PrimeConstructor;
-pub use export::{export_ndjson, export_csv};
+pub use export::{export_csv, export_ndjson};
+pub use profile::{compute_modular_profile, ModularProfile};
+pub use signature::{PrimeConstructorSignature, SignatureFeatures};

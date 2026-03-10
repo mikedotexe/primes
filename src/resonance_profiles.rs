@@ -1,18 +1,13 @@
-//! Resonance Profiles: Multi-Configuration View of Membrane Primes
+//! # Resonance Profiles
 //!
-//! This module implements the discovery that each base has multiple "resonant configurations"
-//! that can generate primes - like an atom having multiple stable electron orbitals.
+//! **Layer**: Analysis tools (uses physics metaphor for naming)
 //!
-//! # Core Concepts
+//! Surveys the full parameter space of membrane configurations for a given
+//! base, recording which (outer, inner, k_outer, k_inner) tuples generate
+//! primes and at what density. Useful for discovering optimal configurations.
 //!
-//! - **Resonance Profile**: The complete set of configurations that generate primes for a base
-//! - **Seed Map**: Which seeds work with which configurations (like quantum selection rules)
-//! - **Exclusive Configurations**: Special cases where only ONE seed can generate primes
-//! - **Configuration Space**: The full parameter landscape of (outer, inner, k_outer, k_inner)
-//!
-//! # Physics Metaphor
-//!
-//! Just as atoms have multiple stable electron orbitals (s, p, d, f), each base has multiple
+//! The "resonance" terminology is metaphorical -- this is a parameter sweep,
+//! not a physical resonance phenomenon.
 //! stable membrane configurations. Some configurations are "exclusive" - only allowing one
 //! specific seed to resonate (like a forbidden transition that only works for specific states).
 

@@ -1,7 +1,13 @@
-//! Lagrange point analysis and clustering
+//! # Lagrange Point Analysis -- Visualization Metaphor
 //!
-//! This module implements hardened Lagrange point analysis based on empirical
-//! verification that showed 100% clustering success across 24 prime pairs.
+//! **Layer**: Simulation / visualization (not core math)
+//!
+//! Finds equilibrium positions in the [`crate::gravity`] particle simulation
+//! by analogy with celestial Lagrange points. The "100% clustering" result
+//! is an observation within the simulation, not a number-theoretic proof.
+//!
+//! For concatenated-prime connector analysis (the empirically verified
+//! Lagrange point research), see [`crate::connector`].
 
 use crate::gravity::{GravitationalField, PrimeParticle};
 use crate::{PhysicsError, PhysicsResult};

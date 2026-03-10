@@ -1,12 +1,15 @@
 //! Standalone test file for prime-harmonics feature
 //! Run with: cargo test --features prime-harmonics --test harmonics_standalone_test
 
+#[cfg(feature = "prime-harmonics")]
 use num_bigint::BigUint;
 #[cfg(feature = "prime-harmonics")]
 use primes::harmonics::{fourier_transform, power_spectrum, HarmonicAnalyzer};
+#[cfg(feature = "prime-harmonics")]
 use primes::{is_prime, prime_sieve::BitSieve};
 
 /// Helper function to create a prime indicator sequence
+#[cfg(feature = "prime-harmonics")]
 fn create_prime_sequence(limit: usize) -> Vec<f64> {
     let sieve = BitSieve::new(limit);
     let primes = sieve.primes();

@@ -1,4 +1,4 @@
-use crate::hzlib::{JoinedGrid, Axis};
+use crate::hzlib::{Axis, JoinedGrid};
 
 pub fn dft_real(xs: &[f64]) -> Vec<(usize, f64, f64)> {
     let n = xs.len();
@@ -12,7 +12,7 @@ pub fn dft_real(xs: &[f64]) -> Vec<(usize, f64, f64)> {
             re += x * ang.cos();
             im -= x * ang.sin();
         }
-        let amp = (re*re + im*im).sqrt() / (n as f64);
+        let amp = (re * re + im * im).sqrt() / (n as f64);
         let phase = im.atan2(re);
         out.push((k, amp, phase));
     }
@@ -27,22 +27,26 @@ pub fn overtone_spectrum(
     quantity: &str,
 ) -> Vec<(usize, f64)> {
     let series: Vec<f64> = match axis {
-        Axis::Mid => {
-            grid.mids.iter().map(|&m| {
+        Axis::Mid => grid
+            .mids
+            .iter()
+            .map(|&m| {
                 let idx = grid.idx(m, fixed_iz).unwrap();
                 val_of(&grid.pairs[idx], quantity)
-            }).collect()
-        }
-        Axis::InnerZero => {
-            grid.izs.iter().map(|&z| {
+            })
+            .collect(),
+        Axis::InnerZero => grid
+            .izs
+            .iter()
+            .map(|&z| {
                 let idx = grid.idx(fixed_mid, z).unwrap();
                 val_of(&grid.pairs[idx], quantity)
-            }).collect()
-        }
+            })
+            .collect(),
     };
     let spec = dft_real(&series);
-    let mut amps: Vec<(usize, f64)> = spec.into_iter().map(|(k,a,_)| (k,a)).collect();
-    amps.sort_by(|a,b| b.1.partial_cmp(&a.1).unwrap());
+    let mut amps: Vec<(usize, f64)> = spec.into_iter().map(|(k, a, _)| (k, a)).collect();
+    amps.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
     amps
 }
 

@@ -1,15 +1,10 @@
-//! # Educational Module: Understanding Prime Atoms
+//! # Educational Module
 //!
-//! This module explains the "nuts and bolts" of prime construction through
-//! membrane patterns, making it accessible to audiences from moderate to
-//! graduate-level physics and mathematics backgrounds.
+//! **Layer**: Presentation / onboarding
 //!
-//! ## Core Concepts
-//!
-//! 1. **Middle Nucleus**: The central digit(s) that form the core
-//! 2. **Membranes**: Boundary layers with specific digit patterns
-//! 3. **Zero Padding**: "Empty space" between membranes (like electron shells)
-//! 4. **Base Metrics**: How different number bases create different "physics"
+//! Provides explanatory content about membrane prime construction for
+//! educational examples and interactive tools. Uses physics analogies
+//! (nucleus, shells) as pedagogical aids.
 
 pub mod base_metrics;
 

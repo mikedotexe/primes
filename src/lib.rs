@@ -1,56 +1,52 @@
 //! # Prime Physics Engine
 //!
-//! High-performance membrane prime generator with mathematical foundations.
-//! Public re-exports for the "Tier-1" API.
+//! Membrane-based prime number generator with sieve infrastructure and
+//! Hardy-Littlewood statistical analysis.
 //!
 //! ## Core Components
 //!
-//! - [`BitSieve`] – In-L2 cache classic sieve for prime generation
-//! - [`Wheel30Sieve`] – Compressed 30-wheel variant for optimized filtering  
-//! - [`SegmentedSieve`] – Multi-core, NUMA-friendly parallel processing
-//! - [`MembraneConfig`] – Symmetric membrane structures for prime generation
-//! - [`PrimeUniverse`] – Physics-based gravitational prime modeling
+//! **Math layer** (the verified core):
+//! - [`BitSieve`] -- Sieve of Eratosthenes for prime generation
+//! - [`MembraneConfig`] -- Symmetric membrane structures for prime construction
+//! - [`hzlib`] -- Hardy-Littlewood framework, sieves, statistics, number theory
+//! - [`is_prime`] -- Miller-Rabin primality test (20 rounds)
+//!
+//! **Simulation layer** (physics metaphor for visualization):
+//! - [`PrimeUniverse`] -- N-body gravitational model over primes
+//! - [`GravitationalField`], [`PrimeParticle`] -- Force-based prime modeling
+//! - [`LagrangePoint`], [`TidalField`] -- Equilibrium and tidal analysis
 //!
 //! ## Compile-time Features
 //!
-//! | Feature          | Default | Purpose                    |
-//! |------------------|---------|----------------------------|
-//! | `wheel30`        | ✔︎       | 30-wheel compression       |
-//! | `simd`           | ✔︎       | NEON / AVX-512 clear-bit   |
-//! | `wasm`           | ✗       | `wasm-bindgen` wrappers    |
-//! | `gpu`            | ✗       | Metal compute kernels      |
-//! | `prime-harmonics`| ✗       | Fourier analysis support   |
+//! | Feature          | Default | Purpose                              |
+//! |------------------|---------|--------------------------------------|
+//! | `wheel30`        | yes     | 30-wheel sieve compression           |
+//! | `visualization`  | yes     | Terminal UI (ratatui/crossterm)       |
+//! | `dvfs-adaptive`  | yes     | DVFS-aware performance monitoring    |
+//! | `metal`          | no      | Apple Metal GPU kernels (macOS only)  |
+//! | `wasm`           | no      | WebAssembly / `wasm-bindgen`         |
+//! | `prime-harmonics`| no      | Fourier analysis (`num-complex`)     |
+//! | `phase4`         | no      | ARM AMX/SME backend                  |
 //!
-//! ## Performance Characteristics
+//! ## Empirical Results
 //!
-//! **Verified Performance** (on Apple M1 Max):
-//! - Base 6, Config (1,5): **33% prime generation success**
-//! - Base 30, Config (11,7): **30% prime generation success**  
-//! - Standard sieve: Up to 10M primes/second
-//! - GPU acceleration: 50x speedup for large ranges
+//! Membrane prime generation success rates (Miller-Rabin, 20 rounds, n=1000):
+//! - Base 6, Config (1,5) k=(0,0): ~33% prime density
+//! - Base 30, Config (11,7) k=(0,0): ~30% prime density
+//! - Random baseline: ~5% prime density
 //!
 //! ## Quick Start
 //!
-//! ```rust
+//! ```rust,no_run
 //! use primes::{BitSieve, MembraneConfig};
 //!
-//! // Basic prime generation
+//! // Basic prime generation via sieve
 //! let sieve = BitSieve::new(1000);
 //! let primes = sieve.primes();
+//! assert_eq!(primes.len(), 168); // pi(1000) = 168
 //!
-//! // Membrane-based prime construction
-//! let config = MembraneConfig::new(1, 5, 0, 0);
-//! // Generate prime candidates using membrane patterns
-//! ```
-//!
-//! ## Architecture
-//!
-//! ```text
-//! PrimeUniverse
-//! ├── Particles (PrimeParticle)
-//! ├── Forces (GravitationalField)
-//! ├── Spacetime (BaseMetric)
-//! └── Dynamics (TimeEvolution)
+//! // Membrane configuration: base 10, boundary digits (3,7), k=(0,0)
+//! let config = MembraneConfig::new(10, 3, 7, 0, 0);
 //! ```
 
 use num_bigint::BigUint;
@@ -58,63 +54,59 @@ use num_traits::{One, ToPrimitive, Zero};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub mod ascii_art;
+// ── Math core ──────────────────────────────────────────────────────
+pub mod connector;
+pub mod hzlib;
+pub mod membrane;
+pub mod prime_sieve;
+pub mod validation;
+
+// ── Analysis tools ─────────────────────────────────────────────────
+pub mod fingerprint;
+pub mod resonance_profiles;
+
+// ── Simulation / visualization metaphor ────────────────────────────
 pub mod chaos;
-pub mod education;
 pub mod gravity;
 pub mod integrators;
 pub mod lagrange;
-pub mod membrane;
-pub mod nibble_pack;
-pub mod prime_lut;
-pub mod prime_lut_recip;
-pub mod resonance_profiles;
 pub mod spacetime;
 pub mod tidal;
-pub mod validation;
 
-#[cfg(feature = "metal")]
-pub mod metal_host;
+// ── Presentation / infrastructure ──────────────────────────────────
+pub mod ascii_art;
+pub mod dvfs;
+pub mod education;
+pub mod harmonics;
+pub mod nibble_pack;
+pub mod optimization;
+pub mod performance;
+pub mod prime_lut;
+pub mod prime_lut_recip;
+pub mod tui;
 
+// ── Feature-gated modules ──────────────────────────────────────────
 #[cfg(feature = "metal")]
 pub mod gpu;
-
 #[cfg(feature = "metal")]
 pub mod gpu_optimized;
+#[cfg(feature = "metal")]
+pub mod metal_host;
 
 #[cfg(feature = "visualization")]
 pub mod visualization;
 
-pub mod tui;
-
-// WebAssembly bindings
 #[cfg(all(target_arch = "wasm32", feature = "wasm"))]
 pub mod wasm;
 
-// High-performance prime sieve
-pub mod dvfs;
-pub mod prime_sieve;
-
-// Performance monitoring
-pub mod performance;
-
-// Harmonic analysis (requires prime-harmonics feature)
-pub mod harmonics;
-
-// Phase 4: AMX/SME backend
 #[cfg(feature = "phase4")]
 pub mod phase4;
 
-// Holistic optimization framework
-pub mod optimization;
-
-// Hardy-Littlewood framework for mathematical foundations
-pub mod hzlib;
-
-// Prelude for convenient imports
+// ── Prelude ────────────────────────────────────────────────────────
 pub mod prelude;
 
 // Re-export key types for convenience
+pub use connector::{ConcatenationSystem, Direction};
 pub use gravity::{ForceCalculator, GravitationalField, PrimeParticle};
 pub use lagrange::{ClusterAnalysis, LagrangePoint, TidalForce};
 pub use membrane::{MembraneBuilder, MembraneConfig};

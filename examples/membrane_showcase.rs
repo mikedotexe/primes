@@ -283,21 +283,7 @@ fn to_base_string(mut n: u32, base: u32) -> String {
 
 fn visualize_membrane(s: &str) -> String {
     s.chars()
-        .enumerate()
-        .map(|(i, c)| {
-            if c == '0' {
-                '◯'
-            } else if i > 0 && i < s.len() - 1 && s.chars().nth(i - 1) != Some(c) {
-                // Add separator before different digits
-                if s.chars().nth(i - 1) == Some('0') || c == '0' {
-                    c
-                } else {
-                    c
-                }
-            } else {
-                c
-            }
-        })
+        .map(|c| if c == '0' { '◯' } else { c })
         .map(|c| c.to_string())
         .collect::<Vec<_>>()
         .join("-")

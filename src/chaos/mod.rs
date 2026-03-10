@@ -1,4 +1,9 @@
-//! Chaos theory analysis for prime dynamics
+//! # Chaos Analysis -- Visualization Metaphor
+//!
+//! **Layer**: Simulation / visualization (not core math)
+//!
+//! Lyapunov exponent and variance tracking for the [`crate::gravity`]
+//! particle simulation. Used by interactive TUI demos.
 
 pub mod config_particles;
 pub mod lyapunov;

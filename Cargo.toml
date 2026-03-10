@@ -86,31 +86,9 @@ console_error_panic_hook = { version = "0.1", optional = true }
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
 
-# Examples are automatically detected from examples/ directory
+# Examples are automatically detected from examples/ directory.
 # Run with: cargo run --example <name>
-#
-# Available examples:
-# - educational_explorer: Simple introduction for the adventurous and curious
-# - membrane_lab_tui: Interactive membrane laboratory with real-time parameter tuning
-# - prime_discovery_dashboard: Comprehensive dashboard with physics simulation
-# - findings_visualization: Beautiful ASCII art summary of verified results
-# - prime_atoms_tutorial: 5-part educational journey
-# - unified_explorer: Complete system demonstration
-# - tidal_organization: Tidal physics in action
-# - validation_demo: Statistical validation against random baselines
-# - membrane_visualization: Shows all configurations for a base/seed
-# - multi_atom_stability: Multi-prime interaction experiments
-# - wave_function_calculator: Prime wave mechanics with interference patterns
-# - interference_zone_explorer: Chirality-based constructive/destructive zones
-# - resonance_frequency_analyzer: Harmonic frequencies in prime generation
-# - inverse_square_emergence: How 1/r² law emerges from wave mechanics
-#
-# Experimental examples (examples/experimental/):
-# - prime_density_midpoint: PNT-based symmetric window analysis around digit-block midpoints
-
-# Future examples (not yet implemented):
-# - trinity_chaos: Three-body prime dynamics
-# - lagrange_hunting: L-point discovery
+# See examples/README.md for the full curated list (32 examples).
 
 [[bench]]
 name = "sieve_bench"

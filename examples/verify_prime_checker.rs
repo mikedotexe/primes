@@ -86,7 +86,7 @@ fn main() {
 
         // Quick factor check for small primes
         for p in &[2u32, 3, 5, 7, 11, 13, 17, 19, 23, 29] {
-            if &num % p == 0u32.into() && &num != &(*p).into() {
+            if &num % p == 0u32.into() && num != (*p).into() {
                 println!("    Divisible by {}", p);
             }
         }

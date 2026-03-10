@@ -24,7 +24,8 @@ open import Data.Nat.DivMod using (_mod_; _div_)
 open import Data.Nat.GCD using (gcd)
 open import Data.Nat.Divisibility using (_∣_; divides)
 open import Data.Product using (_×_; _,_; ∃; Σ-syntax; proj₁; proj₂)
-open import Data.List using (List; []; _∷_; filter; length; deduplicate)
+open import Data.List using (List; []; _∷_; filter; length)
+open import Data.List.Base using (deduplicateᵇ)
 open import Data.Fin using (Fin; toℕ; fromℕ<)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong₂)
 open import Relation.Nullary using (¬_; Dec; yes; no)
@@ -49,15 +50,28 @@ open import Data.Empty using (⊥; ⊥-elim)
 -- Count distinct residues when mapping {0..base-1} mod divisor
 distinct-residues : (base : ℕ) → (divisor : ℕ) → ℕ
 distinct-residues base divisor =
-  length (deduplicate _≡ᵇ_ (map-mod base divisor))
+  length (deduplicateᵇ _≡ᵇ_ (map-mod base divisor))
   where
     -- Map each digit {0..base-1} to its residue mod divisor
     map-mod : ℕ → ℕ → List ℕ
     map-mod zero _ = []
     map-mod (suc n) d = (n mod d) ∷ map-mod n d
 
-    postulate
-      deduplicate : {A : Set} → (A → A → Bool) → List A → List A
+{-|
+  CollapseStructure captures the collapse phenomenon for a specific
+  base and divisor pair.
+-}
+record CollapseStructure (base : ℕ) (divisor : ℕ) : Set where
+  field
+    -- Divisor actually divides the base
+    divides : divisor ∣ base
+
+    -- Count of distinct residue classes
+    distinct-classes : ℕ
+
+    -- This count matches the combinatorial computation
+    distinct-classes-correct :
+      distinct-classes ≡ distinct-residues base divisor
 
 -------------------------------------------------------------------------------
 -- PART 2: THE COLLAPSE THEOREM
@@ -74,32 +88,44 @@ distinct-residues base divisor =
   - The other (d - g) classes are unreachable!
 -}
 
+{-|
+  NOTE: The original theorem statement is INCORRECT!
+
+  The correct statement is more nuanced:
+  - When base ≥ divisor, all divisor residue classes appear
+  - The collapse is about FREQUENCY distribution, not count
+
+  For now, we prove a weaker but correct theorem.
+-}
+
+-- All residue classes appear when base ≥ divisor
+all-residues-appear : ∀ base divisor →
+  divisor > 0 →
+  base ≥ divisor →
+  distinct-residues base divisor ≡ divisor
+all-residues-appear base divisor d>0 base≥div = {!
+  When base ≥ divisor:
+  The sequence {0, 1, ..., base-1} mod divisor
+  contains {0, 1, ..., divisor-1} at least once each
+
+  Therefore distinct-residues counts exactly divisor classes
+!}
+
+-- Original (incorrect) theorem - marked for revision
 collapse-theorem : ∀ base divisor →
   divisor > 0 →
   base > 0 →
   distinct-residues base divisor ≡ gcd base divisor
 collapse-theorem base divisor d>0 b>0 = {!
-  PROOF STRATEGY:
+  COUNTEREXAMPLE:
+  base = 10, divisor = 3
+  gcd(10,3) = 1
+  But distinct-residues 10 3 = 3 (not 1!)
 
-  Let g = gcd(base, divisor)
-  Write base = g·b', divisor = g·d' where gcd(b',d') = 1
+  The residues {0,1,2,0,1,2,0,1,2,0} have all 3 classes
 
-  For digit k ∈ {0, 1, ..., base-1}:
-    k mod divisor = k mod (g·d')
-
-  Consider the sequence:
-    0 mod (g·d'), 1 mod (g·d'), 2 mod (g·d'), ..., (g·b'-1) mod (g·d')
-
-  Key observation:
-    Every g-th element has the same residue mod g
-    So residues cycle with period g
-
-  Therefore: only g distinct values appear
-
-  Formal proof requires:
-  1. GCD factorization property
-  2. Cycle length lemma
-  3. Counting distinct elements
+  LESSON: This theorem is FALSE as stated.
+  See collapse-regularity-theorem for correct formulation.
 !}
 
 -------------------------------------------------------------------------------
@@ -361,8 +387,11 @@ residue-frequency base divisor r =
     map-residues zero _ = []
     map-residues (suc n) d = (n mod d) ∷ map-residues n d
 
-    postulate
-      count-occurrences : ℕ → List ℕ → ℕ
+    count-occurrences : ℕ → List ℕ → ℕ
+    count-occurrences x [] = 0
+    count-occurrences x (y ∷ ys) with x ≡ᵇ y
+    ... | true = 1 + count-occurrences x ys
+    ... | false = count-occurrences x ys
 
 -- Regularity measure: variance of frequencies
 frequency-variance : (base : ℕ) → (divisor : ℕ) → ℕ

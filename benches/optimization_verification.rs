@@ -111,7 +111,9 @@ fn bench_throughput_variance(c: &mut Criterion) {
     group.bench_function("static_scheduling", |b| {
         b.iter_custom(|iters| {
             let mut total_duration = Duration::ZERO;
+            #[allow(unused_variables, unused_mut, unused_assignments)]
             let mut variance_sum = 0.0;
+            #[allow(unused_variables, unused_mut, unused_assignments)]
             let mut variance_sum_sq = 0.0;
 
             for _ in 0..iters {

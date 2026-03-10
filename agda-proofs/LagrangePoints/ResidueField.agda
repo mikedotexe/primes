@@ -294,7 +294,13 @@ scan-all-positions concat =
   where
   -- Generate list [start, start+1, ..., end-1]
   range : ℕ → ℕ → List ℕ
-  range start end = {!!}  -- TODO: implement
+  range start end = go start end []
+    where
+      go : ℕ → ℕ → List ℕ → List ℕ
+      go s zero acc = reverse acc
+      go s (suc e) acc with s ≟ (suc e)
+      ... | yes _ = reverse acc
+      ... | no  _ = go (suc s) (suc e) (s ∷ acc)
 
   -- Filter and map combined
   filterMap : {A B : Set} → (A → Maybe B) → List A → List B

@@ -292,7 +292,7 @@ mod harmonics_tests {
 }
 
 #[cfg(not(feature = "prime-harmonics"))]
-mod harmonics_tests {
+mod harmonics_disabled {
     #[test]
     fn test_harmonics_feature_disabled() {
         use primes::harmonics::HarmonicAnalyzer;

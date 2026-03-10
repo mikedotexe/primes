@@ -50,7 +50,7 @@ fn residues_blocked(gap: u64, p: u64) -> u64 {
     // Actually, ν_p counts residue classes where the pattern CAN'T all be prime
     // For pair (n, n+gap): blocked if n ≡ 0 or n ≡ -gap (mod p)
 
-    if gap % p == 0 {
+    if gap.is_multiple_of(p) {
         // If p divides gap, then n and n+gap hit same residue
         1 // Only one residue class blocked (the 0)
     } else {
@@ -61,7 +61,7 @@ fn residues_blocked(gap: u64, p: u64) -> u64 {
 
 // Local factor at prime p for constellation with given gap
 fn local_factor(gap: u64, p: u64) -> f64 {
-    let k = 2.0; // We're looking at pairs
+    let _k = 2.0; // We're looking at pairs
     let nu_p = residues_blocked(gap, p) as f64;
     let p_f = p as f64;
 

@@ -1,230 +1,78 @@
-# Phase 2: Hardy-Littlewood Normalized Fingerprinting - Collaboration Package
+# Collaborator Reference
 
-**Date**: November 22, 2025
-**Status**: Complete, ready for review/publication
+**Updated**: 2026-03-09
+**Repository**: prime-physics-engine
 
-This directory contains a **flat, self-contained** collection of all Phase 2 fingerprinting work for easy sharing and collaboration.
+This folder contains curated synthesis documents for collaborators. For the
+full codebase, see the repo root.
 
-## Quick Start
+## Start Here
 
-**View the summary first**:
-```
-FINGERPRINTING_PHASE2_SUMMARY.md  - Executive overview and key findings
-```
+### The Most Important Finding
 
-**Understand the math**:
-```
-HL_FEATURE_REFERENCE.md           - Mathematical definitions and formulas
-```
+**[THEORETICAL_CLOSURE.md](./THEORETICAL_CLOSURE.md)** -- The membrane efficiency
+gains (3-7x over random) are **fully explained by classical coprimality filtering**
+(Euler + Mertens + PNT). The membrane structure itself contributes no statistically
+significant advantage beyond guaranteeing gcd(candidate, base) = 1. This was
+confirmed by a structure stability test: membrane vs random-coprime efficiency
+ratio = 1.020 +/- 0.053, not significantly different from 1.0 (p > 0.05).
 
-**Use the system**:
-```
-FINGERPRINT_ATLAS_README.md       - Usage guide for fingerprinting
-```
+This means the project's value lies not in "special membrane magic" but in:
+1. A convenient construction that guarantees coprimality
+2. The systematic empirical methodology that led to this understanding
+3. The Hardy-Littlewood statistical framework for prime density analysis
+4. The honest falsification record (multiple hypotheses tested and refuted)
 
-## Contents
+### Practical Guide
 
-### Documentation (3 files)
+**[PRIMORIAL_MEMBRANE_OPTIMIZATION_GUIDE.md](./PRIMORIAL_MEMBRANE_OPTIMIZATION_GUIDE.md)**
+-- If you want to generate primes efficiently, this guide covers three optimization
+axes: base selection (primorials), boundary digits (L=1), and seed length (period-6
+resonance). Combined efficiency up to ~5.2x PNT.
 
-1. **FINGERPRINTING_PHASE2_SUMMARY.md** (15K, 300+ lines)
-   - Executive summary of Phase 2 achievements
-   - Key findings: 3.5σ outlier detection, feature orthogonality
-   - Empirical validation: 504K connector scan results
-   - Theoretical connections and future work
+### Discovery Narrative
 
-2. **HL_FEATURE_REFERENCE.md** (11K)
-   - Complete mathematical definitions
-   - Implementation details with code snippets
-   - Empirical distribution statistics
-   - Validation cases and diagnostic guidelines
+**[EXPLORATION_SYNTHESIS.md](./EXPLORATION_SYNTHESIS.md)** -- The material landscape
+framework: orthogonal X-Y axes (geometric quality vs cycle purity), Prime Core
+Fraction metric, and the path from "what works" to "why it works."
 
-3. **FINGERPRINT_ATLAS_README.md** (18K)
-   - User guide for the fingerprinting system
-   - Complete feature description (115D space)
-   - Example usage and interpretation
-   - Troubleshooting guide
+**[PERIOD6_RESONANCE_DISCOVERY.md](./PERIOD6_RESONANCE_DISCOVERY.md)** -- Period-6
+resonance in primorial membranes. Real effect (~24% gain) but optimal phase requires
+empirical testing per base. Nuanced: the 31% figure in the original report was
+pre-stability-testing.
 
-### Implementation (4 Rust files)
+## Key Repo Artifacts (Not in This Folder)
 
-4. **fingerprint_signature.rs** (11K)
-   - Core signature computation (115D feature vectors)
-   - HL feature calculation (divergence + coverage)
-   - Feature vector serialization
+These are the repo's strongest verified documents:
 
-5. **fingerprint_constructors.rs** (11K)
-   - PrimeConstructor trait definition
-   - Membrane, Belphegor, Connector implementations
-   - ZeroHeavyConnectorConstructor (demonstrates outlier)
+| Document | What It Contains |
+|----------|-----------------|
+| [VERIFIED_FACTS_VS_SPECULATION.md](../VERIFIED_FACTS_VS_SPECULATION.md) | Rigorous fact/speculation separation with p-values and falsifiability criteria |
+| [EVIDENCE.md](../EVIDENCE.md) | Empirical data tables and Wolfram Alpha verification URLs |
+| [examples/README.md](../examples/README.md) | 32 curated examples organized by category |
+| [src/hzlib/](../src/hzlib/) | Hardy-Littlewood framework, stats, sieves, density analysis |
+| [ROADMAP.md](../ROADMAP.md) | Current hardening status and track progress |
 
-6. **fingerprint_export.rs** (3.5K)
-   - NDJSON and CSV export functions
-   - Feature header generation (115 columns)
+## Quick Verification
 
-7. **fingerprint_profile.rs** (7K)
-   - Modular residue profiling
-   - Gap statistics computation
-   - Supporting infrastructure
-
-### Examples (2 Rust files)
-
-8. **generate_fingerprint_atlas.rs** (6.7K)
-   - Main tool for generating fingerprint datasets
-   - Configurable sample size and candidate limits
-   - Generates both NDJSON and CSV outputs
-
-9. **scan_connectors.rs** (14K)
-   - Exhaustive connector space scanner
-   - Validates bulk distribution uniformity
-   - Found 504,643 primes with perfect 10% digit distribution
-
-### Analysis Tools (3 Python scripts)
-
-10. **analyze_hl_features.py** (11K)
-    - HL-specific feature analysis
-    - Scatter plots (divergence vs coverage)
-    - Outlier detection with z-scores
-    - Correlation analysis
-
-11. **compare_connector_patterns.py** (5.3K)
-    - Compare uniform vs zero-heavy connectors
-    - Violin plots of discriminating features
-    - Digit distribution analysis
-
-12. **plot_fingerprints.py** (8.1K)
-    - PCA/t-SNE/UMAP visualization
-    - Pairwise distance heatmaps
-    - Variance analysis
-
-### Data & Visualizations
-
-13. **fingerprints.csv** (11K, 149 samples × 115 features)
-    - Complete fingerprint atlas
-    - 15 constructors × ~10 samples each
-    - Ready for ML classification
-
-14. **hl_feature_scatter.png** (288K)
-    - 2D HL feature space visualization
-    - Constructor families clearly separated
-    - Zero-Heavy L5 visible as extreme outlier
-
-15. **hl_feature_bars.png** (293K)
-    - Ranked bar charts
-    - Divergence and coverage comparisons
-    - Color-coded by constructor family
-
-16. **variance_analysis.png** (130K)
-    - PCA variance explained
-    - Shows 96% variance in first component
-    - Cumulative variance plot
-
-## Key Results At a Glance
-
-### Outlier Detection
-```
-Zero-Heavy L5:  106.67 divergence (3.5σ outlier!) 🚨
-Mean:            20.13 divergence
-Next highest:    22.70 divergence (4.7× lower)
-
-→ {0,3,6} restriction immediately flagged
-```
-
-### Feature Independence
-```
-r(divergence, coverage) = 0.203
-→ Features are orthogonal (capture different aspects)
-```
-
-### Validation
-```
-Connector Scan: 504,643 primes
-Digit uniformity: 10.0% per digit (perfect!)
-Zero-heavy patterns: <0.01% of space (rare outliers)
-```
-
-### Constructor Classification
-```
-Natural (low divergence):    Membranes 8-23
-Forced (high divergence):    Zero-Heavy 28-107
-Efficient (high coverage):   Belphegor 69.5
-Aligned (low coverage):      B6(1,5) 10.3
-```
-
-## How to Use This Package
-
-### For Reviewers
-1. Read `FINGERPRINTING_PHASE2_SUMMARY.md` for the big picture
-2. Check `HL_FEATURE_REFERENCE.md` for mathematical rigor
-3. Examine visualizations for empirical evidence
-
-### For Developers
-1. Review Rust implementation files (`fingerprint_*.rs`)
-2. Run `generate_fingerprint_atlas.rs` to reproduce data
-3. Use Python scripts for analysis and visualization
-
-### For Researchers
-1. Load `fingerprints.csv` into your ML framework
-2. Validate against documented statistics
-3. Extend with additional constructors or features
-
-## Dependencies
-
-**Rust**:
-- `num-bigint` - Arbitrary precision arithmetic
-- `serde` - Serialization
-- `rand` - Random number generation (for constructors)
-
-**Python**:
-- `pandas` - Data manipulation
-- `numpy` - Numerical computing
-- `matplotlib` - Plotting
-- `seaborn` - Statistical visualization
-- `scikit-learn` - PCA/t-SNE/UMAP
-
-## Reproduction
-
-### Generate fingerprints:
 ```bash
-cargo run --release --example generate_fingerprint_atlas -- \
-    --samples 10 --max-candidates 1000
+cargo test --lib                                    # 174 tests pass
+cargo run --example prime_count_smoke_test           # Sieve vs OEIS reference
+cargo run --example proper_membrane_generator        # Generate membrane primes
+cargo run --example prime_verification_report        # Full verification report
 ```
 
-### Analyze HL features:
-```bash
-python analyze_hl_features.py fingerprints.csv
-```
+## What We Know For Certain
 
-### Compare patterns:
-```bash
-python compare_connector_patterns.py fingerprints.csv
-```
+1. Membrane constructions achieve 3-7x prime density over random (empirical, n=1000, p<0.001)
+2. The efficiency is fully explained by coprimality filtering (classical, December 2025)
+3. Coprimality of boundary digits to the base is required (empirical, 100% of top configs)
+4. k=0 padding dominates for seed length M >= 2 (empirical, 8 bases, p<0.001)
+5. Base 10 M=2 is a uniquely isolated exception (1/8 bases, p<0.05)
 
-### Visualize:
-```bash
-python plot_fingerprints.py fingerprints.csv
-```
+## What Remains Open
 
-## Citation
-
-If you use this work, please cite:
-
-```
-Prime Physics Engine Collaboration (2025)
-"Hardy-Littlewood Normalized Fingerprinting for Prime Constructor Classification"
-Phase 2 Implementation Report
-```
-
-## Contact
-
-For questions, issues, or collaboration:
-- Repository: `prime-physics-engine/`
-- Documentation: See main `CLAUDE.md` in parent directory
-
-## License
-
-Part of the Prime Physics Engine project.
-
----
-
-**Generated**: November 22, 2025
-**Package Version**: Phase 2 v1.0
-**Total Size**: ~1.7 MB (16 files)
+1. Why is Base 10 M=2 exceptional? (No structural explanation found)
+2. Does the period-6 resonance have a deeper explanation beyond ord(10)?
+3. Can the HL framework predict membrane density a priori?
+4. What do the Agda formal proofs actually establish? (32 of 80 modules type-check; 20 clean, 12 with postulates)

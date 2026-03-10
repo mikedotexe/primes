@@ -55,8 +55,9 @@ record IsPerfectSquare (d : ℤ) : Set where
     root : ℤ
     proof : root ℤ* root ≡ d
 
--- Decision procedure for perfect squares (to be implemented)
--- isPerfectSquare? : ∀ (d : ℤ) → Dec (IsPerfectSquare d)
+-- Decision procedure for perfect squares
+isPerfectSquare? : ∀ (d : ℤ) → Dec (IsPerfectSquare d)
+isPerfectSquare? d = {!!}  -- Complex to implement efficiently, leaving as stub for now
 
 ------------------------------------------------------------------------
 -- Polynomial Evaluation
@@ -80,16 +81,18 @@ N = evaluatePolynomial
 --
 -- For integer roots, this means N(X) is composite for X > max(|α|, |β|)
 
--- Placeholder for divisibility (to be imported from standard library)
--- _∣_ : ℕ → ℕ → Set
+-- Import divisibility from standard library
+open import Data.Nat.Divisibility using (_∣_)
 
--- Theorem (informal statement, to be formalized and proven):
--- If discriminant is a perfect square AND roots are integers,
+-- Theorem: If discriminant is a perfect square AND roots are integers,
 -- then for sufficiently large X, N(X) is composite
---
--- algebraicLockTheorem : ∀ (A S : ℕ)
---                      → IsPerfectSquare (Δ A S)
---                      → ∃[ d ] (d > 1 × ∀ (X : ℕ) → X > threshold → d ∣ N A S X)
+open import Data.Product using (∃; _,_)
+
+algebraicLockTheorem : ∀ (A S : ℕ) → A > 0 →
+                       IsPerfectSquare (Δ A S) →
+                       ∃[ threshold ] ∃[ d ] ((d > 1) ×
+                         (∀ (X : ℕ) → X > threshold → d ∣ N A S X))
+algebraicLockTheorem A S A>0 pf = {!!}  -- Proof requires showing factorization
 
 ------------------------------------------------------------------------
 -- Quality Score via Legendre Symbols
@@ -105,7 +108,8 @@ data LegendreSymbol : Set where
 
 -- Compute Legendre symbol (Δ/p) for discriminant Δ and prime p
 -- Uses Euler's criterion: (a/p) ≡ a^((p-1)/2) (mod p)
--- legendreSymbol : ℤ → ℕ → LegendreSymbol  -- to be implemented
+legendreSymbol : ℤ → ℕ → LegendreSymbol
+legendreSymbol d p = {!!}  -- Complex implementation requiring modular exponentiation
 
 -- Quality score based on Legendre symbols for small primes
 -- Higher score → better expected prime density
@@ -153,16 +157,16 @@ record DiscriminantQuality (d : ℤ) : Set where
   score : ℤ
   score = (+ admissible-count) - (+ obstructed-count) - (+ (5 ℕ* divisible-count))
 
--- Compute quality for a given configuration (to be implemented)
--- analyzeQuality : ℕ → ℕ → DiscriminantQuality (Δ A S)
--- analyzeQuality A S =
---   let d = Δ A S
---   in quality
---       (legendreSymbol d 3)
---       (legendreSymbol d 5)
---       (legendreSymbol d 7)
---       (legendreSymbol d 11)
---       (legendreSymbol d 13)
+-- Compute quality for a given configuration
+analyzeQuality : ℕ → ℕ → DiscriminantQuality (Δ A S)
+analyzeQuality A S =
+  let d = Δ A S
+  in quality
+      (legendreSymbol d 3)
+      (legendreSymbol d 5)
+      (legendreSymbol d 7)
+      (legendreSymbol d 11)
+      (legendreSymbol d 13)
 
 ------------------------------------------------------------------------
 -- Connection to Honorary Zero Framework

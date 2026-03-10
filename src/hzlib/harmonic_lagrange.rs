@@ -1,4 +1,4 @@
-use crate::hzlib::{JoinedGrid, Axis};
+use crate::hzlib::{Axis, JoinedGrid};
 
 pub fn lagrange_interpolate(xs: &[f64], ys: &[f64], x: f64) -> f64 {
     let n = xs.len();
@@ -6,7 +6,9 @@ pub fn lagrange_interpolate(xs: &[f64], ys: &[f64], x: f64) -> f64 {
     for i in 0..n {
         let mut li = 1.0;
         for j in 0..n {
-            if i==j { continue; }
+            if i == j {
+                continue;
+            }
             li *= (x - xs[j]) / (xs[i] - xs[j]);
         }
         sum += ys[i] * li;
@@ -25,18 +27,24 @@ pub fn fit_lineout_poly(
     let (xs_u, ys_u) = match axis {
         Axis::Mid => {
             let xs = grid.mids.clone();
-            let ys: Vec<f64> = xs.iter().map(|&m| {
-                let idx = grid.idx(m, fixed_iz).unwrap();
-                val_of(&grid.pairs[idx], quantity)
-            }).collect();
+            let ys: Vec<f64> = xs
+                .iter()
+                .map(|&m| {
+                    let idx = grid.idx(m, fixed_iz).unwrap();
+                    val_of(&grid.pairs[idx], quantity)
+                })
+                .collect();
             (xs, ys)
         }
         Axis::InnerZero => {
             let xs = grid.izs.clone();
-            let ys: Vec<f64> = xs.iter().map(|&z| {
-                let idx = grid.idx(fixed_mid, z).unwrap();
-                val_of(&grid.pairs[idx], quantity)
-            }).collect();
+            let ys: Vec<f64> = xs
+                .iter()
+                .map(|&z| {
+                    let idx = grid.idx(fixed_mid, z).unwrap();
+                    val_of(&grid.pairs[idx], quantity)
+                })
+                .collect();
             (xs, ys)
         }
     };
@@ -44,13 +52,15 @@ pub fn fit_lineout_poly(
     let n = xs_u.len();
     let d = degree.min(n.saturating_sub(1));
     // choose d+1 Chebyshev-like nodes from the discrete set for stability.
-    let mut idxs = Vec::with_capacity(d+1);
+    let mut idxs = Vec::with_capacity(d + 1);
     for i in 0..=d {
-        let t = ((2*i + 1) as f64) / (2*(d+1)) as f64;
-        let pos = ((n as f64 - 1.0) * 0.5 * (1.0 - (std::f64::consts::PI * (1.0 - t)).cos())).round() as usize;
-        idxs.push(pos.min(n-1));
+        let t = ((2 * i + 1) as f64) / (2 * (d + 1)) as f64;
+        let pos = ((n as f64 - 1.0) * 0.5 * (1.0 - (std::f64::consts::PI * (1.0 - t)).cos()))
+            .round() as usize;
+        idxs.push(pos.min(n - 1));
     }
-    idxs.sort_unstable(); idxs.dedup();
+    idxs.sort_unstable();
+    idxs.dedup();
 
     let xs: Vec<f64> = idxs.iter().map(|&i| xs_u[i] as f64).collect();
     let ys: Vec<f64> = idxs.iter().map(|&i| ys_u[i]).collect();

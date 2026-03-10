@@ -234,7 +234,7 @@ fn render_vertical_structure(
     // Render the membrane structure vertically
     let mut y_offset = center_y.saturating_sub(atom.structure.len() as u16 / 2);
 
-    for (_i, &ch) in atom.structure.iter().enumerate() {
+    for &ch in atom.structure.iter() {
         if y_offset < area.y || y_offset >= area.y + area.height {
             continue;
         }
@@ -368,6 +368,7 @@ fn draw_circle(f: &mut Frame, area: Rect, center_x: u16, center_y: u16, radius: 
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn place_orbital_digit(
     f: &mut Frame,
     area: Rect,

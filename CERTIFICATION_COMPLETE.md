@@ -1,8 +1,32 @@
-# Certification Framework: COMPLETE ✓
+# Certification Framework
 
-**Date**: 2025-11-09
-**Status**: Production-Ready
-**Achievement**: Complete formal verification framework for coordinate constellation primes
+**Date**: 2025-11-09 (original), updated 2026-03-09
+**Status**: **PARTIALLY FUNCTIONAL** -- see correction below
+
+> **CORRECTION (2026-03-09, updated after repair):**
+>
+> A comprehensive audit of all 80 Agda modules found 32 passing (19 clean, 13 with
+> postulates) and 48 failing. After repairing SymmetryFromList.agda (missing
+> `residue-distinct` field in PerfectBuckets record) and BucketsAutoMatch.agda
+> (same issue in `perfectFromBalanced`), the 9-module certification stack is
+> now fully operational:
+>
+> - **Clean (no postulates)**: SymmetryImpliesRepulsion, SymmetryFromList,
+>   ConstrainedOrbitals (3 of 9)
+> - **With postulates**: SymmetryFiniteReflect (1), BucketsAutoMatch (5),
+>   WindowCertificate (5), CertifiedResonanceComplete (6),
+>   CertifiedResonanceParam (2), CertifiedResonanceParamDyn (2) -- 6 of 9
+>
+> The claims about "complete, production-ready" certification in the document
+> below remain overstated -- the stack works but relies on 21 postulates across
+> 6 modules. Those postulates are assumed axioms, not machine-checked proofs.
+>
+> See `agda-proofs/STATUS.md` for the full ground truth.
+
+---
+
+The document below is preserved as-is from its original writing in November 2025.
+It describes the intended design, not the current verified state.
 
 ---
 
@@ -336,33 +360,17 @@ cargo run --example correlate_certificates \
 
 ---
 
-## 📚 Documentation Suite
+## Documentation
 
-1. **COMPLETE_CERTIFICATION_ARCHITECTURE.md** (this was just created)
-   - Master reference for entire framework
-   - Complete module dependency graph
-   - Workflow documentation
-   - Integration patterns
+Current references:
+- **[agda-proofs/STATUS.md](agda-proofs/STATUS.md)** -- Module-by-module compilation status (ground truth)
+- **[QUICK_START_VERIFICATION.md](QUICK_START_VERIFICATION.md)** -- 3 commands, 10 minutes
 
-2. **ABSTRACT_FRAMEWORK_INTEGRATION.md**
-   - Abstract vs concrete comparison
-   - Integration points
-   - Usage patterns
-   - Advantages of abstraction
-
-3. **COMPLETE_VERIFICATION_FRAMEWORK.md**
-   - 3-layer pipeline (Compute → Rationalize → Verify)
-   - Base 14 complete walkthrough
-   - Usage guide for different roles
-
-4. **STATIC_TO_DYNAMIC_INVARIANTS.md**
-   - 10-part pedagogical progression
-   - From familiar (static) to novel (dynamic)
-   - Why both are necessary
-
-5. **QUICK_START_VERIFICATION.md**
-   - 3 commands, 10 minutes
-   - Practical troubleshooting
+Archived design documents (in `historical/docs/`):
+- COMPLETE_CERTIFICATION_ARCHITECTURE.md -- Framework design (Nov 2025)
+- ABSTRACT_FRAMEWORK_INTEGRATION.md -- Abstract theory design
+- COMPLETE_VERIFICATION_FRAMEWORK.md -- 3-layer pipeline design
+- STATIC_TO_DYNAMIC_INVARIANTS.md -- Pedagogical progression
    - Common issues and fixes
 
 6. **CERTIFICATION_COMPLETE.md** (this file)

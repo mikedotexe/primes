@@ -76,11 +76,7 @@ record Pairing {B : Set} (S : SymmetryData B) (M : MS B) : Set where
     involutive      : ∀ x → π (π x) ≡ x
     no-fixed        : ∀ x → (π x ≡ x) → ⊥
     equivariant     : ∀ x → SymmetryData.inv S (MS.res M x) ≡ MS.res M (π x)
-
--- residue-distinct as a separate postulate (works around parser bug with nested qualified names)
-postulate
-  residue-distinct : ∀ {B} {S : SymmetryData B} {M : MS B} (P : Pairing S M)
-                   → ∀ x → (MS.res M (Pairing.π P x) ≡ MS.res M x) → ⊥
+    residue-distinct : ∀ x → (MS.res M (π x) ≡ MS.res M x) → ⊥
 
 ------------------------------------------------------------------------
 -- HONORARY ZERO: The midpoint void
@@ -112,7 +108,7 @@ SymmetryImpliesRepulsion
   → HonoraryZero S M
 SymmetryImpliesRepulsion {B} S M P (x , resx≡mid) =
   let open SymmetryData S using (mid; inv; inv-mid)
-      open Pairing      P using (π; equivariant)
+      open Pairing      P using (π; equivariant; residue-distinct)
 
       -- Step 1: inv (MS.res M x) ≡ inv mid
       h₁ : inv (MS.res M x) ≡ inv mid
@@ -130,7 +126,7 @@ SymmetryImpliesRepulsion {B} S M P (x , resx≡mid) =
       e₄ : MS.res M (π x) ≡ MS.res M x
       e₄ = e₃ ∙ sym resx≡mid
 
-  in residue-distinct P x e₄  -- Contradiction!
+  in residue-distinct x e₄  -- Contradiction!
 
 ------------------------------------------------------------------------
 -- INTERPRETATION

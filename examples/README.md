@@ -1,126 +1,91 @@
-# Prime Physics Engine Examples
+# Examples
 
-## Directory Structure
+All 32 top-level examples compile and are maintained. Run any example with:
 
-This directory contains **94 total examples** organized as follows:
-
-### Main Directory - Research & Verification Tools (63 examples)
-
-**Core working examples** including:
-- Prime verification and testing tools
-- Membrane construction and generation
-- Lagrange point discovery and analysis
-- Base comparison and optimization
-- Statistical analysis tools
-- Interactive TUI applications
-
-**Usage:**
 ```bash
-# Run any example from main directory
 cargo run --example <name>
-
-# With specific features
-cargo run --example <name> --features "visualization wheel30"
+# or for performance-sensitive examples:
+cargo run --release --example <name>
 ```
 
-**Recommended Starting Point:** See `../RESEARCHER_QUICKSTART.md` for the 5-command tour
-
-### `verified/` - Legacy Production Examples (25 examples)
-
-**Older working examples** from earlier development phases:
-- Basic membrane demonstrations
-- Performance benchmarking tools
-- GPU readiness testing
-- Educational explorers
-
-**Note:** Most actively maintained examples have moved to the main directory.
-
-### `experimental/` - Advanced Research Tools (6 examples)
-
-**Hardy-Littlewood framework** and advanced statistical analysis:
-- Goldbach conjecture analysis
-- Phase 2 density analysis
-- Lagrange clustering verification
-- Prime density midpoint studies
-
-**Status**: Cutting-edge research tools, may require specific configurations.
-
-## Quick Start
-
-### The 5-Command Tour (15 minutes)
-
-For a comprehensive introduction, follow the **RESEARCHER_QUICKSTART.md** guide. Here's the essential sequence:
+## Quick Start (5 minutes)
 
 ```bash
-# 1. Validate installation (30 seconds)
-cargo run --example prime_count_smoke_test
-
-# 2. Generate membrane primes (1 minute)
-cargo run --example proper_membrane_generator
-
-# 3. Witness Lagrange discovery (2 minutes)
-cargo run --example lagrange_full_verification
-
-# 4. See base-6 champion (1 minute)
-cargo run --example statistical_prime_generator
-
-# 5. Verify all claims (1 minute)
-cargo run --example prime_verification_report
+cargo run --example prime_count_smoke_test      # Validate sieve against OEIS
+cargo run --example proper_membrane_generator   # Generate membrane primes
+cargo run --example lagrange_full_verification  # See concatenated prime Lagrange points
+cargo run --example statistical_prime_generator # Statistical prime generation
+cargo run --example prime_verification_report   # Verify all documented claims
 ```
 
-**Expected result:** You'll see verified 33% prime density and Lagrange point equilibrium.
+## Verification and Core Tools
 
-### Additional Research Tools
+| Example | Description |
+|---------|-------------|
+| `check_prime` | Simple CLI prime checker (reads from stdin) |
+| `prime_count_smoke_test` | Deterministic prime-counting tests against OEIS A000720 |
+| `prime_verification_report` | Verification report for all documented membrane primes |
+| `verify_prime_checker` | Validates the Miller-Rabin checker against known primes and composites |
 
-```bash
-# Interactive membrane construction (requires terminal)
-cargo run --example membrane_lab_tui
-cargo run --example lagrange_educational_tui
-cargo run --example prime_atom_tui
+## Membrane Generation
 
-# Base-specific investigations
-cargo run --example base6_investigation
-cargo run --example comprehensive_base_analysis
+| Example | Description |
+|---------|-------------|
+| `comprehensive_base_analysis` | Systematic membrane config testing across multiple bases |
+| `membrane_showcase` | Demonstration of membrane prime patterns across different bases |
+| `membrane_vs_random` | Compares membrane-structured numbers against random coprime numbers |
+| `membrane_vs_random_fast` | Fast version of membrane-vs-random using base 30 |
+| `proper_membrane_generator` | Deterministic membrane generator using seeds (not random search) |
+| `solution_space_explorer` | Systematic parameter space mapping (base, M, k_outer, k_inner) |
+| `statistical_prime_factory` | Production-ready prime generator using verified membrane patterns |
+| `statistical_prime_generator` | Statistical prime generator using empirically-derived patterns |
+| `statistical_sampling_demo` | Demonstrates proper statistical sampling of membrane configurations |
 
-# Lagrange point mechanics
-cargo run --example lagrange_mechanics
-cargo run --example concatenated_lagrange_explorer
+## Lagrange Points and Connectors
 
-# Statistical and verification tools
-cargo run --example check_prime  # Interactive: check any number
-cargo run --example membrane_showcase
+| Example | Description |
+|---------|-------------|
+| `connector_utility_demo` | Demonstrates the connector concatenation API |
+| `lagrange_clustering_verifier` | Verifies prime clustering around Lagrange points between prime pairs |
+| `lagrange_full_verification` | Verifies entire concatenated strings for primality |
+| `lagrange_mechanics` | Explores Lagrange point mechanics with position/digit analysis |
+| `lagrange_verification` | Tests Lagrange point insertions between concatenated primes |
+| `scan_connectors` | CLI tool to discover prime connectors between two primes |
 
-# Hardy-Littlewood framework (advanced)
-cargo run --example experimental/goldbach_hl_analysis -- --min-base 60 --max-base 80
-cargo run --example experimental/hz_phase2_density -- --bases 6,30,10
+## Hardy-Littlewood and Statistical Analysis
 
-# Legacy examples (in verified/)
-cargo run --example verified/educational_explorer
-cargo run --example verified/sieve_benchmark
-cargo run --example verified/harmonic_viewer
-```
+| Example | Description |
+|---------|-------------|
+| `babylonian_prime_orthogonality` | Demonstrates orthogonality of human-convenient vs prime-harmonic metrics |
+| `empirical_verification_pipeline` | Joins sample/model CSVs and runs verification pipeline |
+| `hardy_littlewood_validation` | Computes HL singular series and compares with empirical observations |
+| `harmonic_lagrange_explorer` | Polynomial fitting for harmonic Lagrange lineout data |
+| `harmonic_overtones_explorer` | Overtone spectrum computation from sample/model data |
+| `orthogonality_verification` | Tests independence of spectral regularity and phase lock density |
+| `prime_gap_analysis` | Prime gap distributions in coordinate constellations |
+| `symmetry_breaking_explorer` | Ridge/trough analysis of symmetry-breaking patterns |
 
-## Example Categories
+## Interactive TUI Applications
 
-**By Purpose:**
-- **Verification**: `prime_count_smoke_test`, `prime_verification_report`, `check_prime`
-- **Membrane Generation**: `proper_membrane_generator`, `statistical_prime_generator`, `membrane_showcase`
-- **Lagrange Points**: `lagrange_full_verification`, `lagrange_mechanics`, `concatenated_lagrange_explorer`
-- **Base Analysis**: `base6_investigation`, `comprehensive_base_analysis`
-- **Interactive TUI**: `membrane_lab_tui`, `lagrange_educational_tui`, `prime_atom_tui`
-- **Statistical**: `experimental/goldbach_hl_analysis`, `experimental/hz_phase2_density`
+These require a terminal (will show "Device not configured" if run without one).
 
-**By Experience Level:**
-- **Beginner**: Start with the 5-command tour in `RESEARCHER_QUICKSTART.md`
-- **Intermediate**: Explore base analysis and interactive tools
-- **Advanced**: Hardy-Littlewood framework and custom research
+| Example | Description |
+|---------|-------------|
+| `lagrange_tui_demo` | Research-grade TUI for exploring prime connectors |
+| `membrane_lab_tui` | Interactive membrane laboratory with real-time parameter tuning |
+| `prime_atom_tui` | Visualizes membrane primes as atomic structures |
 
-## Current Status
+## Special-Purpose Tools
 
-- **Main directory**: 63 examples, all verified working
-- **Verified directory**: 25 legacy examples, production-ready
-- **Experimental directory**: 6 advanced research tools
-- **Total**: 94 examples across all categories
+| Example | Description |
+|---------|-------------|
+| `belphegor_scanner` | Palindromic prime scanner inspired by Numberphile |
+| `sandwich_prime_finder` | Finds primes with 1[zeros]meatball[zeros]1 structure |
 
-All examples compile successfully. The core mathematical functionality is production-ready and thoroughly tested.
-EOF < /dev/null
+## Historical Examples
+
+174 exploration scripts, hypothesis tests, and one-off investigations have been
+moved to `historical/examples/`. This includes the former `examples/verified/`
+(25 files, 24 broken) and `examples/experimental/` (7 files, 4 broken)
+subdirectories, whose compiling members were duplicates of top-level examples.
+Historical examples are preserved for reference but are not maintained.

@@ -13,7 +13,7 @@ echo "Creating archive of ${PROJECT_NAME}..."
 # Remove old archive if it exists
 [ -f "${ARCHIVE_NAME}" ] && rm "${ARCHIVE_NAME}"
 
-# Create archive excluding build artifacts, caches, and temporary files
+# Create archive excluding build artifacts, caches, videos, and temporary files
 zip -r "${ARCHIVE_NAME}" . \
     -x "target/*" \
     -x "*/target/*" \
@@ -26,8 +26,10 @@ zip -r "${ARCHIVE_NAME}" . \
     -x ".git/*" \
     -x "node_modules/*" \
     -x "agda-proofs/_build/*" \
-    -x "hz_res/*" \
-    -x "hz_out/*" \
+    -x "media/videos/*" \
+    -x "media/videos/**/*" \
+    -x "animations/media/*" \
+    -x "animations/media/**/*" \
     -x "debug.log" \
     -x "ai-output.txt" \
     -x "*.db" \
@@ -38,7 +40,8 @@ zip -r "${ARCHIVE_NAME}" . \
     -x "*.swp" \
     -x "*~" \
     -x ".env" \
-    -x ".env.*"
+    -x ".env.*" \
+    -x "collab/directional_ghosts.csv"
 
 # Display archive info
 if [ -f "${ARCHIVE_NAME}" ]; then

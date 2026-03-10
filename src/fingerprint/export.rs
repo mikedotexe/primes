@@ -110,10 +110,7 @@ mod tests {
 
     #[test]
     fn test_export_ndjson() {
-        let numbers: Vec<BigUint> = vec![
-            BigUint::from(101u32),
-            BigUint::from(103u32),
-        ];
+        let numbers: Vec<BigUint> = vec![BigUint::from(101u32), BigUint::from(103u32)];
         let sig = PrimeConstructorSignature::from_numbers("test".to_string(), &numbers);
 
         let temp_path = "/tmp/test_fingerprint.ndjson";

@@ -1,10 +1,9 @@
-//! Numerical Integration Methods for Prime Dynamics
-//! ================================================
+//! # Numerical Integrators -- Visualization Metaphor
 //!
-//! Provides various integration schemes optimized for different scenarios:
-//! - Symplectic integrators for energy conservation
-//! - Adaptive methods for handling close encounters
-//! - High-order methods for precision studies
+//! **Layer**: Simulation / visualization (not core math)
+//!
+//! Provides integration schemes (symplectic, adaptive, RK4) for the
+//! [`crate::gravity`] N-body particle simulation.
 
 use crate::gravity::PrimeParticle;
 use crate::PhysicsResult;

@@ -1,8 +1,11 @@
 # Prime Construction Project - Empirical Evidence Database
 
-**Purpose**: Detailed proofs, data tables, and verification URLs supporting claims in CLAUDE.md  
-**Last Updated**: July 2025  
-**Auto-Generated**: All data derived from reproducible verification scripts  
+**Purpose**: Detailed proofs, data tables, and verification URLs supporting claims in CLAUDE.md
+**Last Updated**: July 2025
+**Spot-Checked**: March 2026 -- Two rounds of spot-checking.
+Round 1 found 5 of 14 primality claims were false and corrected them.
+Round 2 audited the Section 2.1, 4.1, and 4.2 data tables and found multiple
+incorrect success rates and working seed lists. See corrections inline.
 
 ---
 
@@ -10,7 +13,7 @@
 
 ### 1.1 Cross-Base Analysis Results
 
-**Verification Script**: `cargo run --example base_digit_discovery`
+**Verification Script**: ~~`cargo run --example base_digit_discovery`~~ (does not exist)
 
 | Base | Optimal Digit | Success Rate | Total Configs | Verification Status |
 |------|---------------|--------------|---------------|-------------------|
@@ -40,9 +43,9 @@ Digit 5: 15.0% success (18/120 configs)
 | 8    | Power of 2 | 2³ | 5 | First odd prime |
 
 **Verification URLs**:
-- Base 10 optimal (3,3): [307050703](https://www.wolframalpha.com/input/?i=isprime%28307050703%29)
-- Base 11 optimal (2,2): [20302](https://www.wolframalpha.com/input/?i=isprime%2820302%29)
-- Base 12 optimal (5,5): [50505](https://www.wolframalpha.com/input/?i=isprime%2850505%29)
+- Base 10 optimal (3,3): [307050703](https://www.wolframalpha.com/input/?i=isprime%28307050703%29) -- verified prime
+- Base 11 optimal (2,2): ~~[20302]~~ **CORRECTED March 2026**: 20302 is composite (divisible by 2). No verified prime example available for this configuration.
+- Base 12 optimal (5,5): ~~[50505]~~ **CORRECTED March 2026**: 50505 is composite (divisible by 3, 5, 7, 13, 37). No verified prime example available for this configuration.
 
 ---
 
@@ -50,22 +53,23 @@ Digit 5: 15.0% success (18/120 configs)
 
 ### 2.1 Asymmetric vs Symmetric Comparison
 
-**Verification Script**: `cargo run --example breathing_membrane_verifier`
+**Verification Script**: ~~`cargo run --example breathing_membrane_verifier`~~ (does not exist)
 
 | Configuration | Type | Success Rate | Working Seeds | Improvement Factor |
 |---------------|------|--------------|---------------|-------------------|
-| (3,3) k=(0,1) | Breathing | 30.0% | [1,2,5,7,8] | 3.0x |
+| (3,3) k=(0,1) | Breathing | 30.0% | [4,5,7] (**corrected** March 2026; originally claimed [1,2,5,7,8]) | 3.0x |
 | (3,3) k=(1,1) | Symmetric | 10.0% | [5] | Baseline |
-| (3,3) k=(1,0) | Breathing | 20.0% | [1,3,8] | 2.0x |
-| (3,7) k=(0,1) | Breathing | 25.0% | [1,3,5,9] | 2.5x |
+| (3,3) k=(1,0) | Breathing | ~~20.0%~~ **CORRECTED March 2026**: 0% at length 1 (0/10 seeds prime). | ~~[1,3,8]~~ **none** | ~~2.0x~~ N/A |
+| (3,7) k=(0,1) | Breathing | ~~25.0%~~ **CORRECTED March 2026**: 20% (2/10). | ~~[1,3,5,9]~~ **[8,9]** | 2.0x |
 | (3,7) k=(1,1) | Symmetric | 10.0% | [5] | Baseline |
 
 ### 2.2 Breathing Pattern Examples
 
 **High-Density Breathing (3,3) k=(0,1)**:
-- Seed 5: `3305033` → [Verify Prime](https://www.wolframalpha.com/input/?i=isprime%283305033%29)
-- Seed 7: `3307033` → [Verify Prime](https://www.wolframalpha.com/input/?i=isprime%283307033%29)
-- Seed 8: `3308033` → [Verify Prime](https://www.wolframalpha.com/input/?i=isprime%283308033%29)
+- Seed 5: `3305033` → [Verify Prime](https://www.wolframalpha.com/input/?i=isprime%283305033%29) -- verified prime
+- Seed 7: `3307033` → [Verify Prime](https://www.wolframalpha.com/input/?i=isprime%283307033%29) -- verified prime
+- ~~Seed 8: `3308033`~~ **CORRECTED March 2026**: 3308033 is composite (19 x 174107). Replaced with:
+- Seed 4: `3304033` → [Verify Prime](https://www.wolframalpha.com/input/?i=isprime%283304033%29) -- verified prime
 
 **Structure Breakdown**:
 ```
@@ -86,7 +90,7 @@ Symmetric:  3 + 1×0 + 3 + 1×0 + seed + 1×0 + 3 + 1×0 + 3
 
 ### 3.1 Deterministic Prime Generation
 
-**Verification Script**: `cargo run --example exclusive_config_verifier`
+**Verification Script**: ~~`cargo run --example exclusive_config_verifier`~~ (does not exist)
 
 | Configuration | Exclusive Seed | Generated Prime | Verification URL | Other Seeds |
 |---------------|----------------|-----------------|------------------|-------------|
@@ -98,7 +102,7 @@ Symmetric:  3 + 1×0 + 3 + 1×0 + seed + 1×0 + 3 + 1×0 + 3
 **Configuration (3,3) k=(1,1) Seed Testing**:
 ```
 Seed 0: 303000303 → Composite (3 × 101000101)
-Seed 1: 303010303 → Composite (3 × 101003434 + 1)
+Seed 1: 303010303 → Composite (23 × 13174361)
 Seed 2: 303020303 → Composite (divides by 3)
 Seed 3: 303030303 → Composite (divides by 3)
 Seed 4: 303040303 → Composite (divides by 3)
@@ -117,23 +121,31 @@ Seed 9: 303090303 → Composite (divides by 3)
 
 ### 4.1 Length Transition Data
 
-**Verification Script**: `cargo run --example configuration_migration_tracker`
+**Verification Script**: ~~`cargo run --example configuration_migration_tracker`~~ (does not exist)
 
 | Original Config | Length 1 Density | Migrated Config | Length 2 Density | Retention Rate |
 |----------------|------------------|-----------------|------------------|----------------|
 | (3,3) k=(0,1) | 30.0% | (3,3) k=(1,0) | 20.0% | 67% |
-| (3,7) k=(1,1) | 10.0% | (3,7) k=(0,1) | 15.0% | 150% |
-| (1,9) k=(0,1) | 25.0% | (1,9) k=(1,0) | 18.0% | 72% |
+| (3,7) k=(1,1) | 10.0% | (3,7) k=(0,1) | ~~15.0%~~ **CORRECTED March 2026**: 20% (seeds [08,09]) | ~~150%~~ 200% |
+| (1,9) k=(0,1) | ~~25.0%~~ **CORRECTED March 2026**: 30% (seeds [3,8,9]) | (1,9) k=(1,0) | ~~18.0%~~ **CORRECTED March 2026**: 10% (seed [03] only) | ~~72%~~ 33% |
+
+**Note on (3,3) k=(1,0)**: At length 1, this configuration yields 0% density (no
+seeds 0-9 produce a prime). At length 2, 2 of 10 two-digit seeds produce primes
+(seeds "01" and "08"), giving the 20% in the table above. The original Section 2.1
+claimed 20% at length 1 with seeds [1,3,8] -- this was false.
 
 ### 4.2 Length Specialist Discovery
 
 **Length-2 Champions** (outperform length-1):
-- **(1,2) k=(0,0)**: 40.0% density at length 2
+- **(1,2) k=(0,0)**: ~~40.0%~~ **CORRECTED March 2026**: 20% density at length 2 (seeds [01,07])
   - Example: Seed "01" → `120121` → [Verify](https://www.wolframalpha.com/input/?i=isprime%28120121%29)
-- **(1,4) k=(1,0)**: 35.0% density at length 2  
-  - Example: Seed "03" → `1040301` → [Verify](https://www.wolframalpha.com/input/?i=isprime%281040301%29)
+  - Example: Seed "07" → `120721` → [Verify](https://www.wolframalpha.com/input/?i=isprime%28120721%29) -- verified prime
+- **(1,4) k=(1,0)**: ~~35.0%~~ **CORRECTED March 2026**: 10% density at length 2 (seed [09] only)
+  - ~~Example: Seed "03" → `1040301`~~ **CORRECTED March 2026**: 1040301 is composite (divisible by 3).
+  - ~~Example: Seed "01" → `1040101`~~ **CORRECTED March 2026**: 1040101 does not match the (1,4) k=(1,0) membrane structure (which produces 10401401 for seed "01", also composite). Actual working example: Seed "09" → `10409401` → [Verify](https://www.wolframalpha.com/input/?i=isprime%2810409401%29) -- verified prime
 
-**Revolutionary Finding**: Some configurations are **natively optimized** for longer seeds.
+**Observation**: Some configurations perform better at length 2 than length 1, but
+the original success rates were substantially inflated.
 
 ### 4.3 Migration Pattern Examples
 
@@ -155,7 +167,7 @@ Length 2: (3,3) k=(1,0) + seed "08" → 30308303 (PRIME)
 
 ### 5.1 Systematic Clustering Results
 
-**Verification Script**: `cargo run --example lagrange_point_verifier`
+**Verification Script**: ~~`cargo run --example lagrange_point_verifier`~~ (does not exist)
 
 **Overall Statistics**:
 - **Total Prime Pairs Tested**: 24
@@ -215,7 +227,7 @@ Length 2: (3,3) k=(1,0) + seed "08" → 30308303 (PRIME)
 
 ### 6.1 Base Failure Documentation
 
-**Verification Script**: `cargo run --example cross_base_verifier`
+**Verification Script**: ~~`cargo run --example cross_base_verifier`~~ (does not exist)
 
 | Base | Failed Config | Expected | Actual | Reason |
 |------|---------------|----------|--------|--------|
@@ -226,9 +238,9 @@ Length 2: (3,3) k=(1,0) + seed "08" → 30308303 (PRIME)
 ### 6.2 Successful Cross-Base Examples
 
 **Base 11 Optimal**:
-- Config: (2,2) k=(1,1)  
+- Config: (2,2) k=(1,1)
 - Success Rate: 18.2%
-- Example: Seed 5 → `20205202` → [Verify Prime](https://www.wolframalpha.com/input/?i=isprime%2820205202%29)
+- ~~Example: Seed 5 → `20205202`~~ **CORRECTED March 2026**: 20205202 is composite (divisible by 2). No verified prime example available for this configuration.
 
 **Base 12 Bridge Config**:
 - Config: (5,1) k=(1,1)
@@ -241,13 +253,24 @@ Length 2: (3,3) k=(1,0) + seed "08" → 30308303 (PRIME)
 
 ### 7.1 Available Scripts
 
-| Script | Purpose | Command |
-|--------|---------|---------|
-| `claude_md_claim_verifier.rs` | Test all CLAUDE.md claims | `cargo run --example claude_md_claim_verifier` |
-| `lagrange_point_verifier.rs` | Verify L-point clustering | `cargo run --example lagrange_point_verifier` |
-| `configuration_migration_tracker.rs` | Prove adaptive behavior | `cargo run --example configuration_migration_tracker` |
-| `concrete_prime_examples.rs` | Show real prime examples | `cargo run --example concrete_prime_examples` |
-| `base_digit_discovery.rs` | Cross-base optimal digits | `cargo run --example base_digit_discovery` |
+**NOTE (March 2026)**: The following scripts were referenced in the original
+EVIDENCE.md but do not exist in the repository. They were either planned but
+never written, or were named differently. The table below is retained for
+reference but none of these commands will work.
+
+| Script (DOES NOT EXIST) | Intended Purpose |
+|-------------------------|-----------------|
+| `claude_md_claim_verifier.rs` | Test all CLAUDE.md claims |
+| `lagrange_point_verifier.rs` | Verify L-point clustering |
+| `configuration_migration_tracker.rs` | Prove adaptive behavior |
+| `concrete_prime_examples.rs` | Show real prime examples |
+| `base_digit_discovery.rs` | Cross-base optimal digits |
+
+**Working verification examples** (see [examples/README.md](examples/README.md)):
+- `cargo run --example prime_verification_report` -- verify documented claims
+- `cargo run --example prime_count_smoke_test` -- sieve accuracy vs OEIS
+- `cargo run --example verify_prime_checker` -- Miller-Rabin validation
+- `cargo run --example check_prime` -- interactive primality checker
 
 ### 7.2 Primality Testing Standards
 
@@ -282,25 +305,22 @@ primal = "0.3"
 
 ### 8.2 Full Verification Sequence
 
+**NOTE (March 2026)**: The scripts below do not exist in the repository.
+Use the working examples listed in Section 7.1 instead.
+
 ```bash
-# Core claim verification
-cargo run --example claude_md_claim_verifier
+# These commands will NOT work -- the examples were never created:
+# cargo run --example claude_md_claim_verifier
+# cargo run --example breathing_membrane_verifier
+# cargo run --example configuration_migration_tracker
+# cargo run --example lagrange_point_verifier
+# cargo run --example cross_base_verifier
 
-# Breathing membrane analysis  
-cargo run --example breathing_membrane_verifier
-
-# Configuration migration proof
-cargo run --example configuration_migration_tracker
-
-# Lagrange point clustering
-cargo run --example lagrange_point_verifier
-
-# Cross-base analysis
-cargo run --example cross_base_verifier
+# Working alternatives:
+cargo run --example prime_verification_report
+cargo run --example prime_count_smoke_test
+cargo run --example verify_prime_checker
 ```
-
-**Expected Runtime**: ~5 minutes total  
-**Expected Results**: 78.6% claim verification rate
 
 ### 8.3 Verification URLs
 
@@ -314,4 +334,5 @@ All prime examples include Wolfram Alpha verification URLs in format:
 
 ---
 
-**Auto-Update Command**: `cargo run --example generate_evidence_md` (regenerates this file from latest verification results)
+**Note**: The original auto-update command (`cargo run --example generate_evidence_md`)
+referenced a script that does not exist. This file is maintained manually.

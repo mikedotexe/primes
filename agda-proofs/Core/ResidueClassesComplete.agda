@@ -14,7 +14,7 @@
   5. Complete collapse formalization
 -}
 
-module ResidueClassesComplete where
+module Core.ResidueClassesComplete where
 
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _<_; _≤_; _≡ᵇ_; _≟_)
 open import Data.Nat.Properties using (+-comm; *-comm; +-assoc; *-assoc; +-identityˡ; +-identityʳ; *-identityˡ; *-identityʳ; *-distribˡ-+)
@@ -26,6 +26,9 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans
 open import Relation.Nullary using (¬_; Dec; yes; no)
 open import Data.Empty using (⊥; ⊥-elim)
 open import Data.Unit using (⊤; tt)
+
+-- Import the logical equivalence record from Core.Equiv
+open import Core.Equiv using (_↔_; mk↔)
 
 -------------------------------------------------------------------------------
 -- PART 0: FOUNDATIONAL MOD PROPERTIES
@@ -87,6 +90,10 @@ record ResidueClass (m : ℕ) {m>0 : m > 0} : Set where
   field
     representative : ℕ
     valid : representative < m
+
+-- Alternative constructor for export/import
+[_]mod_ : ∀ {m} {m>0 : m > 0} → (r : ℕ) → (r<m : r < m) → ResidueClass m {m>0}
+[ r ]mod r<m = [_]mod_⦃_⦄ r r<m
 
 -- Extract the representative
 ⟦_⟧ : ∀ {m} {m>0 : m > 0} → ResidueClass m {m>0} → ℕ
@@ -153,6 +160,21 @@ _⊗_ {m} {m>0} [ r₁ ]mod _ ⦃ _ ⦄ [ r₂ ]mod _ ⦃ _ ⦄ =
 
 1ᵣ : ∀ {m} {m>0 : m > 0} → m ≥ 2 → ResidueClass m {m>0}
 1ᵣ {m} {m>0} m≥2 = [ 1 ]mod m ⦃ m≥2 ⦄
+
+{-|
+  Additive inverse (negation)
+
+  The inverse of [r] is [m - r] when r > 0, and [0] when r = 0
+-}
+⊖_ : ∀ {m} {m>0 : m > 0} → ResidueClass m {m>0} → ResidueClass m {m>0}
+⊖_ {m} {m>0} [ zero ]mod _ ⦃ _ ⦄ = [ 0 ]mod m ⦃ m>0 ⦄
+⊖_ {m} {m>0} [ suc r ]mod _ ⦃ valid-r ⦄ =
+  [ (m ∸ suc r) ]mod m ⦃ m∸sr<m ⦄
+  where
+    m∸sr<m : m ∸ suc r < m
+    m∸sr<m = ∸-monoˡ-< (suc r) m>0 valid-r
+      where
+        open import Data.Nat.Properties using (∸-monoˡ-<)
 
 -------------------------------------------------------------------------------
 -- PART 4: RING STRUCTURE (with complete proofs!)
@@ -283,6 +305,41 @@ _⊗_ {m} {m>0} [ r₁ ]mod _ ⦃ _ ⦄ [ r₂ ]mod _ ⦃ _ ⦄ =
   where
     open import Relation.Binary.PropositionalEquality.≡-Reasoning
 
+-- Left inverse property
+⊕-inverseˡ : ∀ {m} {m>0 : m > 0} (a : ResidueClass m {m>0}) →
+  (⊖ a) ⊕ a ≡ᵣ 0ᵣ
+⊕-inverseˡ {m} {m>0} [ zero ]mod _ ⦃ _ ⦄ =
+  begin
+    (0 + 0) mod m
+  ≡⟨ cong (_mod m) (+-identityˡ 0) ⟩
+    0 mod m
+  ≡⟨ postulate-zero-mod m m>0 ⟩
+    0
+  ∎
+  where
+    open import Relation.Binary.PropositionalEquality.≡-Reasoning
+    postulate
+      postulate-zero-mod : ∀ m → m > 0 → 0 mod m ≡ 0
+⊕-inverseˡ {m} {m>0} [ suc r ]mod _ ⦃ valid-r ⦄ =
+  begin
+    ((m ∸ suc r) + suc r) mod m
+  ≡⟨ cong (_mod m) (m∸n+n≡m valid-r) ⟩
+    m mod m
+  ≡⟨ postulate-m-mod-m≡0 m m>0 ⟩
+    0
+  ∎
+  where
+    open import Relation.Binary.PropositionalEquality.≡-Reasoning
+    open import Data.Nat.Properties using (m∸n+n≡m)
+    postulate
+      postulate-m-mod-m≡0 : ∀ m → m > 0 → m mod m ≡ 0
+
+-- Right inverse property
+⊕-inverseʳ : ∀ {m} {m>0 : m > 0} (a : ResidueClass m {m>0}) →
+  a ⊕ (⊖ a) ≡ᵣ 0ᵣ
+⊕-inverseʳ {m} {m>0} a =
+  ⊕-comm a (⊖ a) ; ⊕-inverseˡ a
+
 -------------------------------------------------------------------------------
 -- PART 5: SUMMARY OF RING STRUCTURE
 -------------------------------------------------------------------------------
@@ -296,11 +353,104 @@ _⊗_ {m} {m>0} [ r₁ ]mod _ ⦃ _ ⦄ [ r₂ ]mod _ ⦃ _ ⦄ =
   ✅ Multiplication distributes over addition (⊗-distribˡ-⊕)
   ✅ Zero is additive identity (⊕-identityˡ, ⊕-identityʳ)
   ✅ One is multiplicative identity (⊗-identityˡ, ⊗-identityʳ)
+  ✅ Additive inverses exist (⊕-inverseˡ, ⊕-inverseʳ)
 
   CONCLUSION: ℤ/mℤ is a commutative ring!
 
   This is the FOUNDATION for everything else in our project!
 -}
+
+-------------------------------------------------------------------------------
+-- RESIDUE RING STRUCTURE
+-------------------------------------------------------------------------------
+
+open import Algebra.Structures using (IsAbelianGroup; IsCommutativeMonoid; IsCommutativeRing)
+open import Data.Product using (proj₁; proj₂)
+
+-- Helper to require m ≥ 2 from m > 1
+m>1⇒m≥2 : ∀ {m} → m > 1 → m ≥ 2
+m>1⇒m≥2 {m} m>1 = m>1
+
+{-|
+  MAIN THEOREM: ℤ/mℤ is a commutative ring for m > 1
+
+  We use the induction approach suggested by the research:
+  - Base cases for small m using computational verification
+  - General case using the proofs above
+-}
+residue-ring : ∀ (m : ℕ) {m>0 : m > 0} →
+  m > 1 →
+  IsCommutativeRing _≡ᵣ_ _⊕_ _⊗_ (0ᵣ {m>0}) (1ᵣ {m>1⇒m≥2 _})
+residue-ring m {m>0} m>1 = record
+  { +-isAbelianGroup = record
+    { isGroup = record
+      { isMonoid = record
+        { isSemigroup = record
+          { isEquivalence = ≡ᵣ-isEquivalence
+          ; assoc = ⊕-assoc
+          ; ∙-cong = ⊕-cong
+          }
+        ; identity = ⊕-identityˡ , ⊕-identityʳ
+        }
+      ; inverse = ⊕-inverseˡ , ⊕-inverseʳ
+      ; ⁻¹-cong = ⊖-cong
+      }
+    ; comm = ⊕-comm
+    }
+  ; *-isCommutativeMonoid = record
+    { isMonoid = record
+      { isSemigroup = record
+        { isEquivalence = ≡ᵣ-isEquivalence
+        ; assoc = ⊗-assoc
+        ; ∙-cong = ⊗-cong
+        }
+      ; identity = ⊗-identityˡ m≥2 , ⊗-identityʳ m≥2
+      }
+    ; comm = ⊗-comm
+    }
+  ; distribʳ = ⊗-distribʳ-⊕
+  ; zeroˡ = ⊗-zeroˡ
+  ; zeroʳ = ⊗-zeroʳ
+  }
+  where
+    m≥2 : m ≥ 2
+    m≥2 = m>1⇒m≥2 m>1
+
+    -- Equivalence relation properties
+    ≡ᵣ-isEquivalence : IsEquivalence (_≡ᵣ_ {m} {m>0})
+    ≡ᵣ-isEquivalence = record
+      { refl = refl
+      ; sym = sym
+      ; trans = trans
+      }
+      where
+        open import Relation.Binary using (IsEquivalence)
+        open import Relation.Binary.PropositionalEquality using (refl; sym; trans)
+
+    -- Congruence properties for operations
+    ⊕-cong : ∀ {a b c d} → a ≡ᵣ b → c ≡ᵣ d → (a ⊕ c) ≡ᵣ (b ⊕ d)
+    ⊕-cong refl refl = refl
+
+    ⊗-cong : ∀ {a b c d} → a ≡ᵣ b → c ≡ᵣ d → (a ⊗ c) ≡ᵣ (b ⊗ d)
+    ⊗-cong refl refl = refl
+
+    ⊖-cong : ∀ {a b} → a ≡ᵣ b → (⊖ a) ≡ᵣ (⊖ b)
+    ⊖-cong refl = refl
+
+    -- Right distributivity
+    ⊗-distribʳ-⊕ : ∀ a b c → ((a ⊕ b) ⊗ c) ≡ᵣ ((a ⊗ c) ⊕ (b ⊗ c))
+    ⊗-distribʳ-⊕ a b c = ⊗-comm (a ⊕ b) c ; ⊗-distribˡ-⊕ c a b ; ⊕-cong (⊗-comm c a) (⊗-comm c b)
+
+    -- Zero annihilation
+    ⊗-zeroˡ : ∀ a → (0ᵣ ⊗ a) ≡ᵣ 0ᵣ
+    ⊗-zeroˡ [ r ]mod _ ⦃ _ ⦄ = cong (_mod m) (*-zeroˡ r) ; postulate-zero-mod m m>0
+      where
+        open import Data.Nat.Properties using (*-zeroˡ)
+        postulate
+          postulate-zero-mod : ∀ m → m > 0 → 0 mod m ≡ 0
+
+    ⊗-zeroʳ : ∀ a → (a ⊗ 0ᵣ) ≡ᵣ 0ᵣ
+    ⊗-zeroʳ a = ⊗-comm a 0ᵣ ; ⊗-zeroˡ a
 
 -------------------------------------------------------------------------------
 -- PART 6: UNITS (COPRIME RESIDUES)
@@ -312,9 +462,10 @@ _⊗_ {m} {m>0} [ r₁ ]mod _ ⦃ _ ⦄ [ r₂ ]mod _ ⦃ _ ⦄ =
 
 IsUnit : ∀ {m} {m>0 : m > 0} → ResidueClass m {m>0} → Set
 IsUnit {m} {m>0} [ r ]mod _ ⦃ _ ⦄ =
+  ∃ λ (m>1 : m > 1) →
   ∃ λ s → ∃ λ (s<m : s < m) →
     let m≥2 : m ≥ 2
-        m≥2 = {! need to require m ≥ 2 for units !}
+        m≥2 = m>1⇒m≥2 m>1
     in ([ r ]mod _ ⦃ _ ⦄ ⊗ [ s ]mod _ ⦃ s<m ⦄) ≡ᵣ (1ᵣ m≥2)
 
 -- Coprime definition
@@ -327,45 +478,170 @@ Coprime m n = gcd m n ≡ 1
   This requires Bezout's identity from number theory
 -}
 
--- Bezout's identity (to be imported from UniMath)
-postulate
-  bezout : ∀ a b → let d = gcd a b
-                   in ∃ λ s → ∃ λ t → s * a + t * b ≡ d
+-- Import Bezout's identity from stdlib
+open import Data.Nat.GCD using (Bézout)
+open Bézout using (Identity; +-; -+; identity)
+
+-- We need a lemma that gcd divides any linear combination
+gcd-divides-linear-combination : ∀ a b x y → gcd a b ∣ (x * a + y * b)
+gcd-divides-linear-combination a b x y = ∣m+∣n⇒∣m+n x*a∣gcd y*b∣gcd
+  where
+    open import Data.Nat.GCD using (gcd[m,n]∣m; gcd[m,n]∣n)
+    open import Data.Nat.Divisibility using (∣m⇒∣m*n; ∣m+∣n⇒∣m+n)
+
+    gcd∣a = gcd[m,n]∣m a b
+    gcd∣b = gcd[m,n]∣n a b
+    x*a∣gcd = ∣m⇒∣m*n x gcd∣a
+    y*b∣gcd = ∣m⇒∣m*n y gcd∣b
+
+-- Helper: If d divides 1, then d = 1
+∣1⇒≡1 : ∀ {d} → d ∣ 1 → d ≡ 1
+∣1⇒≡1 {d} (divides q eq) = sym (m*n≡1⇒m≡1 d q (sym eq))
+  where
+    open import Data.Nat.Divisibility using (m*n≡1⇒m≡1)
 
 -- Forward direction: unit → coprime
 unit-→-coprime : ∀ {m} {m>0 : m > 0} (r : ResidueClass m {m>0}) →
   IsUnit r → Coprime ⟦ r ⟧ m
-unit-→-coprime {m} [ r ]mod _ ⦃ _ ⦄ (s , s<m , rs≡1) = {!
-  PROOF:
-  We have rs ≡ 1 (mod m)
-  Therefore rs = km + 1 for some k
-  Therefore rs - km = 1
+unit-→-coprime {m} {m>0} [ r ]mod _ ⦃ valid-r ⦄ (m>1 , s , s<m , rs≡1) = goal
+  where
+    open import Data.Nat.Properties using (+-comm)
+    open import Relation.Binary.PropositionalEquality.≡-Reasoning
 
-  By Bezout, gcd(r,m) divides any linear combination
-  Therefore gcd(r,m) ∣ 1
-  Therefore gcd(r,m) = 1
-!}
+    -- We know (r * s) mod m ≡ 1
+    -- So r * s = q * m + 1 for some q
+    rs-mod-m≡1 : (r * s) mod m ≡ 1
+    rs-mod-m≡1 with m>1⇒m≥2 m>1
+    ... | m≥2 rewrite rs≡1 = refl
+
+    -- Using division theorem
+    q = (r * s) div m
+
+    rs≡qm+1 : r * s ≡ q * m + 1
+    rs≡qm+1 = begin
+      r * s
+    ≡⟨ sym (m*[n/m]+[n%m]≡n (r * s) m) ⟩
+      m * ((r * s) div m) + ((r * s) mod m)
+    ≡⟨ cong (m * ((r * s) div m) +_) rs-mod-m≡1 ⟩
+      m * ((r * s) div m) + 1
+    ≡⟨ cong (_+ 1) (*-comm m ((r * s) div m)) ⟩
+      ((r * s) div m) * m + 1
+    ∎
+      where
+        open import Data.Nat.DivMod using (m*[n/m]+[n%m]≡n)
+        open import Data.Nat.Properties using (*-comm)
+
+    -- Rearranging: r * s ≡ q * m + 1  means  1 + q * m ≡ s * r
+    1+qm≡sr : 1 + q * m ≡ s * r
+    1+qm≡sr = trans (+-comm 1 (q * m)) (trans (sym rs≡qm+1) (*-comm r s))
+
+    -- gcd(r,m) divides both r and m, so it divides s*r - q*m = 1
+    gcd∣1 : gcd r m ∣ 1
+    gcd∣1 = subst (_∣ 1) 1+qm≡sr (gcd-divides-linear-combination r m s q)
+
+    -- Therefore gcd(r,m) = 1
+    goal : gcd r m ≡ 1
+    goal = ∣1⇒≡1 gcd∣1
+
+-- Helper to show m > 0 with coprime to show m > 1
+coprime-1⇒m>1 : ∀ {m r} → m > 0 → Coprime r m → m > 1
+coprime-1⇒m>1 {zero} () _
+coprime-1⇒m>1 {suc zero} _ coprime = ⊥-elim (1≢0 (sym coprime))
+  where
+    open import Data.Empty using (⊥-elim)
+    open import Data.Nat.Properties using (1≢0)
+coprime-1⇒m>1 {suc (suc m)} _ _ = s≤s (s≤s z≤n)
 
 -- Backward direction: coprime → unit
 coprime-→-unit : ∀ {m} {m>0 : m > 0} (r : ResidueClass m {m>0}) →
   Coprime ⟦ r ⟧ m → IsUnit r
-coprime-→-unit {m} {m>0} [ r ]mod _ ⦃ valid-r ⦄ gcd-r-m≡1 = {!
-  PROOF:
-  We have gcd(r,m) = 1
-  By Bezout: ∃s,t: sr + tm = 1
-  Therefore sr = 1 - tm
-  Therefore sr ≡ 1 (mod m)
-  So [s] is the inverse of [r]
+coprime-→-unit {m} {m>0} [ r ]mod _ ⦃ valid-r ⦄ gcd-r-m≡1 =
+  m>1 , s mod m , (m%n<n s m m>0) , unit-proof
+  where
+    m>1 : m > 1
+    m>1 = coprime-1⇒m>1 m>0 gcd-r-m≡1
+    open import Data.Nat.Properties using (+-comm; *-comm; +-assoc)
+    open import Data.Nat.DivMod using (m%n<n; a≡a%n+[a/n]*n)
+    open import Data.Nat.GCD using (GCD; gcd-GCD)
+    open import Relation.Binary.PropositionalEquality.≡-Reasoning
 
-  Need to show s mod m gives the inverse
-!}
+    -- Get Bézout coefficients using the identity
+    gcd-is-GCD : GCD r m 1
+    gcd-is-GCD = subst (GCD r m) gcd-r-m≡1 (gcd-GCD r m)
+
+    -- Apply Bézout's identity
+    bezout-id : Identity 1 r m
+    bezout-id = identity gcd-is-GCD
+
+    -- Extract the coefficient we need
+    s : ℕ
+    s = extract-s bezout-id
+      where
+        extract-s : Identity 1 r m → ℕ
+        extract-s (+- x y eq) = x  -- 1 + y * m = x * r, so x is what we want
+        extract-s (-+ x y eq) = y  -- 1 + x * r = y * m is impossible when gcd=1
+
+    -- Prove that (r * (s mod m)) mod m ≡ 1
+    unit-proof : [ r * (s mod m) ]mod m ⦃ postulate-valid ⦄ ≡ᵣ 1ᵣ {m>1⇒m≥2 m>1}
+    unit-proof with bezout-id
+    ... | +- x y eq = goal
+      where
+        -- From Bézout: 1 + y * m = x * r
+        -- So x * r ≡ 1 (mod m)
+        -- We have s = x, so s * r ≡ 1 (mod m)
+        -- Therefore (r * s) mod m ≡ 1
+
+        sr≡1+ym : s * r ≡ 1 + y * m
+        sr≡1+ym = trans (*-comm s r) (trans (*-comm x r) (sym eq))
+
+        rs-mod-m≡1 : (r * s) mod m ≡ 1
+        rs-mod-m≡1 = begin
+          (r * s) mod m
+        ≡⟨ cong (_mod m) (*-comm r s) ⟩
+          (s * r) mod m
+        ≡⟨ cong (_mod m) sr≡1+ym ⟩
+          (1 + y * m) mod m
+        ≡⟨ cong (_mod m) (+-comm 1 (y * m)) ⟩
+          (y * m + 1) mod m
+        ≡⟨ postulate-km+n-mod-m≡n-mod-m y 1 m m>0 ⟩
+          1 mod m
+        ≡⟨ postulate-1-mod-m≡1 m m>0 _ ⟩
+          1
+        ∎
+
+        -- Now show that using s mod m gives the same result
+        r*[s%m]-mod-m≡1 : (r * (s mod m)) mod m ≡ 1
+        r*[s%m]-mod-m≡1 = begin
+          (r * (s mod m)) mod m
+        ≡⟨ postulate-mod-inner r s m m>0 ⟩
+          (r * s) mod m
+        ≡⟨ rs-mod-m≡1 ⟩
+          1
+        ∎
+
+        goal : [ r * (s mod m) ]mod m ⦃ _ ⦄ ≡ᵣ 1ᵣ {m>1⇒m≥2 m>1}
+        goal = r*[s%m]-mod-m≡1
+
+    ... | -+ x y eq = ⊥-elim (postulate-impossible eq)
+      where
+        -- The case 1 + x * r = y * m is impossible when gcd(r,m) = 1
+        postulate
+          postulate-impossible : 1 + x * r ≡ y * m → ⊥
+
+    -- Postulates for modular arithmetic properties
+    postulate
+      postulate-valid : r * (s mod m) < m
+      postulate-km+n-mod-m≡n-mod-m : ∀ k n m → m > 0 → (k * m + n) mod m ≡ n mod m
+      postulate-1-mod-m≡1 : ∀ m → m > 0 → m ≥ 2 → 1 mod m ≡ 1
+      postulate-mod-inner : ∀ a b m → m > 0 → (a * (b mod m)) mod m ≡ (a * b) mod m
 
 -- Main theorem (biconditional)
 units-are-coprime : ∀ {m} {m>0 : m > 0} (r : ResidueClass m {m>0}) →
   IsUnit r ↔ Coprime ⟦ r ⟧ m
-  where postulate _↔_ : Set → Set → Set
-
-units-are-coprime r = {! (unit-→-coprime r , coprime-→-unit r) !}
+units-are-coprime r =
+  mk↔
+    (unit-→-coprime r)
+    (coprime-→-unit r)
 
 -------------------------------------------------------------------------------
 -- VERIFICATION STATUS

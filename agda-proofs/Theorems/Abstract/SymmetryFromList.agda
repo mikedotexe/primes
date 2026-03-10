@@ -61,13 +61,7 @@ record PerfectBuckets {B : Set} {n : ℕ}
     involutive      : ∀ i → mate (mate i) ≡ i
     no-fixed        : ∀ i → (mate i ≡ i) → ⊥
     equivariant     : ∀ i → SymmetryData.inv S (f i) ≡ f (mate i)
-
--- residue-distinct moved outside (parser bug workaround)
-postulate
-  perfectBuckets-residue-distinct : ∀ {B : Set} {n : ℕ}
-                                  → {S : SymmetryData B} {f : Fin n → B}
-                                  → (PB : PerfectBuckets S f)
-                                  → ∀ i → (f (PerfectBuckets.mate PB i) ≡ f i) → ⊥
+    residue-distinct : ∀ i → (f (mate i) ≡ f i) → ⊥
 
 ------------------------------------------------------------------------
 -- CONVERT PERFECT BUCKETS TO PAIRING
@@ -86,8 +80,8 @@ pairingFromPerfect S f pb =
     ; involutive      = PerfectBuckets.involutive pb
     ; no-fixed        = PerfectBuckets.no-fixed pb
     ; equivariant     = PerfectBuckets.equivariant pb
+    ; residue-distinct = PerfectBuckets.residue-distinct pb
     }
-  -- Note: residue-distinct is now a separate postulate, not part of Pairing record
 
 ------------------------------------------------------------------------
 -- AUTOMATIC HONORARY ZERO CERTIFICATE

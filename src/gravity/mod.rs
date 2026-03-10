@@ -1,22 +1,23 @@
-//! # Gravitational Dynamics Engine
+//! # Gravitational Dynamics -- Visualization Metaphor
 //!
-//! This module implements the revolutionary discovery that prime numbers behave
-//! like massive particles following gravitational physics laws.
+//! **Layer**: Simulation / visualization (not core math)
 //!
-//! ## Core Physics
+//! This module models prime numbers as massive particles in a 2D gravitational
+//! simulation. It is a **metaphor for visualization**, not a claim that primes
+//! obey Newtonian physics. The actual prime generation math is in [`crate::membrane`]
+//! and [`crate::hzlib`].
 //!
-//! - **Prime Mass**: M(p) = L × ln(b) × R(s, c)
-//! - **Gravitational Force**: F = G × M₁ × M₂ / r²
-//! - **Charge Interaction**: F_charge = q₁ × q₂ × C(b₁, b₂) / r²
-//! - **Base Metrics**: Different bases create spacetime curvature
-//! - **Chaos Dynamics**: Three-body systems exhibit sensitive dependence
+//! ## Provides
 //!
-//! ## Discovered Phenomena
+//! - [`PrimeParticle`]: Prime number with position/velocity for N-body simulation
+//! - [`GravitationalField`]: Force field computation over particles
+//! - [`ForceCalculator`]: F = G M1 M2 / r^2 force calculation
+//! - [`ChaosDetector`]: Lyapunov-like chaos indicators
 //!
-//! - **Trinity Chaos**: Bases 10, 11, 12 create chaotic trajectories
-//! - **Gravitational Slingshots**: Velocity increases of 600%+
-//! - **Energy Generation**: Systems gain energy (592% drift observed)
-//! - **Lagrange Points**: Equilibrium positions where small primes cluster
+//! ## When to use this vs [`crate::hzlib`]
+//!
+//! Use `gravity` for interactive TUI demos and visualization.
+//! Use `hzlib` for statistical analysis, primality testing, and reproducible research.
 
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};

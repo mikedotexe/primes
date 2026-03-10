@@ -260,11 +260,9 @@ fn single_body_comparison() {
 
             let full = format!("{}{}", prime, suffix_str);
             if let Ok(num) = BigUint::from_str(&full) {
-                if is_prime(&num) {
-                    if !found {
-                        println!("Position {}: Found primes", position);
-                        found = true;
-                    }
+                if is_prime(&num) && !found {
+                    println!("Position {}: Found primes", position);
+                    found = true;
                 }
             }
         }

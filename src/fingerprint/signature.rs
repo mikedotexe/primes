@@ -6,7 +6,7 @@
 //! - Structural features (zero fraction, palindrome rate, etc.)
 //! - Hardy-Littlewood normalized features (theoretical alignment)
 
-use super::profile::{ModularProfile, GapStatistics, compute_gap_statistics};
+use super::profile::{compute_gap_statistics, GapStatistics, ModularProfile};
 use num_bigint::BigUint;
 use std::collections::HashMap;
 
@@ -119,10 +119,14 @@ impl PrimeConstructorSignature {
     /// Compute spectral weirdness score relative to baseline
     pub fn weirdness_score(&self, baseline: &PrimeConstructorSignature) -> f64 {
         // Chi-squared distance in modular space
-        let modular_dist = self.modular_profile.chi_squared_distance(&baseline.modular_profile);
+        let modular_dist = self
+            .modular_profile
+            .chi_squared_distance(&baseline.modular_profile);
 
         // L2 distance in digit space
-        let digit_dist: f64 = self.features.digit_distribution
+        let digit_dist: f64 = self
+            .features
+            .digit_distribution
             .iter()
             .zip(&baseline.features.digit_distribution)
             .map(|(a, b)| (a - b).powi(2))
@@ -155,7 +159,7 @@ fn compute_features(numbers: &[BigUint]) -> SignatureFeatures {
     let strings: Vec<String> = numbers.iter().map(|n| n.to_string()).collect();
 
     // Digit distribution
-    let mut digit_counts = vec![0usize; 10];
+    let mut digit_counts = [0usize; 10];
     let mut total_digits = 0;
 
     for s in &strings {
@@ -200,7 +204,8 @@ fn compute_features(numbers: &[BigUint]) -> SignatureFeatures {
             let diff = c - mean_digit_count;
             diff * diff
         })
-        .sum::<f64>() / numbers.len() as f64;
+        .sum::<f64>()
+        / numbers.len() as f64;
 
     // Special pattern rates
     let zero_three_only = strings
@@ -257,7 +262,8 @@ fn compute_hl_features(numbers: &[BigUint]) -> (f64, f64) {
         let expected = numbers.len() as f64 / modulus as f64;
 
         // Chi-squared: Σ (observed - expected)² / expected
-        let chi_sq: f64 = residue_counts.iter()
+        let chi_sq: f64 = residue_counts
+            .iter()
             .map(|&count| {
                 let diff = count as f64 - expected;
                 (diff * diff) / expected
@@ -271,9 +277,11 @@ fn compute_hl_features(numbers: &[BigUint]) -> (f64, f64) {
 
     // Compute coverage deviation: compare actual vs HL-predicted prime density
     // For simplicity, we use average digit length and assume even distribution
-    let avg_digits = numbers.iter()
+    let avg_digits = numbers
+        .iter()
         .map(|n| n.to_string().len() as f64)
-        .sum::<f64>() / numbers.len() as f64;
+        .sum::<f64>()
+        / numbers.len() as f64;
 
     // Rough HL prediction: 1/ln(10^d) for d-digit numbers
     let avg_magnitude = 10_f64.powf(avg_digits);

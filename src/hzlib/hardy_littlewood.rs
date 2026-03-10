@@ -541,4 +541,211 @@ mod tests {
         // 30 = 7+23 (excluded, 7<20) 11+19 (excluded, 11<20) 13+17 (excluded, 13<20)
         assert_eq!(count_pairs_for_n(30, 20, &is_prime), 0);
     }
+
+    /// Validate HL predictions against actual Goldbach pair counts.
+    ///
+    /// This is the key end-to-end test: do the HL lambda values correlate
+    /// with actual pair counts? The asymptotic formula is not exact for
+    /// small n, but it should be positively correlated and in the right
+    /// ballpark.
+    #[test]
+    fn test_hl_prediction_vs_actual_counts() {
+        let limit = 2000;
+        let spf = sieve_spf(limit);
+        let is_prime = sieve_bool(limit);
+
+        let mut predicted = Vec::new();
+        let mut actual = Vec::new();
+
+        // Collect data for even n from 10 to limit
+        for n in (10..=limit).step_by(2) {
+            let lambda = hl_goldbach_lambda(n, &spf, PairCount::Unordered);
+            let pairs = count_pairs_for_n(n, 2, &is_prime);
+
+            predicted.push(lambda);
+            actual.push(pairs as f64);
+        }
+
+        // 1. Correlation should be strongly positive (HL tracks actual counts)
+        let n = predicted.len();
+        let mean_p: f64 = predicted.iter().sum::<f64>() / n as f64;
+        let mean_a: f64 = actual.iter().sum::<f64>() / n as f64;
+
+        let mut cov = 0.0f64;
+        let mut var_p = 0.0f64;
+        let mut var_a = 0.0f64;
+
+        for i in 0..n {
+            let dp = predicted[i] - mean_p;
+            let da = actual[i] - mean_a;
+            cov += dp * da;
+            var_p += dp * dp;
+            var_a += da * da;
+        }
+
+        let r = cov / (var_p.sqrt() * var_a.sqrt());
+        assert!(
+            r > 0.90,
+            "HL prediction should be strongly correlated with actual counts, got r = {:.4}",
+            r
+        );
+
+        // 2. Mean ratio (actual/predicted) should be near 1.0.
+        //    The asymptotic formula overestimates for small n, so we expect
+        //    the ratio to be somewhat less than 1.0, but not wildly off.
+        let ratios: Vec<f64> = predicted
+            .iter()
+            .zip(actual.iter())
+            .filter(|(p, _)| **p > 1.0) // skip cases where prediction is tiny
+            .map(|(p, a)| a / p)
+            .collect();
+
+        let mean_ratio: f64 = ratios.iter().sum::<f64>() / ratios.len() as f64;
+        assert!(
+            mean_ratio > 0.5 && mean_ratio < 2.0,
+            "Mean actual/predicted ratio should be between 0.5 and 2.0, got {:.4}",
+            mean_ratio
+        );
+    }
+
+    /// Validate that the truncated HL prediction tracks restricted pair counts.
+    ///
+    /// For a given base (minimum prime value), the truncated lambda should
+    /// predict the restricted pair count better than the unrestricted lambda.
+    #[test]
+    fn test_truncated_prediction_tracks_restricted_counts() {
+        let limit = 2000;
+        let spf = sieve_spf(limit);
+        let is_prime = sieve_bool(limit);
+        let base = 50; // Only count pairs where both primes >= 50
+
+        let mut trunc_pred = Vec::new();
+        let mut actual = Vec::new();
+
+        for n in ((2 * base)..=limit).step_by(2) {
+            let lambda = hl_goldbach_lambda_truncated(n, base, &spf, PairCount::Unordered);
+            let pairs = count_pairs_for_n(n, base, &is_prime);
+
+            trunc_pred.push(lambda);
+            actual.push(pairs as f64);
+        }
+
+        // The truncated prediction should correlate with restricted counts
+        let n = trunc_pred.len();
+        let mean_t: f64 = trunc_pred.iter().sum::<f64>() / n as f64;
+        let mean_a: f64 = actual.iter().sum::<f64>() / n as f64;
+
+        let mut cov = 0.0f64;
+        let mut var_t = 0.0f64;
+        let mut var_a = 0.0f64;
+
+        for i in 0..n {
+            let dt = trunc_pred[i] - mean_t;
+            let da = actual[i] - mean_a;
+            cov += dt * da;
+            var_t += dt * dt;
+            var_a += da * da;
+        }
+
+        let r = cov / (var_t.sqrt() * var_a.sqrt());
+        assert!(
+            r > 0.80,
+            "Truncated HL should correlate with restricted counts, got r = {:.4}",
+            r
+        );
+    }
+
+    /// Verify the singular series multiplicative factor for highly composite n.
+    ///
+    /// For n with many odd prime factors, S2(n) should be noticeably > 1,
+    /// reflecting that such n have more Goldbach representations.
+    #[test]
+    fn test_singular_series_highly_composite() {
+        let spf = sieve_spf(10000);
+
+        // n = 2310 = 2 * 3 * 5 * 7 * 11
+        // S2(2310) = (3-1)/(3-2) * (5-1)/(5-2) * (7-1)/(7-2) * (11-1)/(11-2)
+        //          = 2/1 * 4/3 * 6/5 * 10/9
+        //          = 2 * 1.333 * 1.2 * 1.111 = 3.556
+        let s2310 = singular_series_goldbach_multiplicative(2310, &spf);
+        let expected = 2.0 * (4.0 / 3.0) * (6.0 / 5.0) * (10.0 / 9.0);
+        assert!(
+            (s2310 - expected).abs() < 1e-10,
+            "S₂(2310) = {}, expected {}",
+            s2310,
+            expected
+        );
+
+        // Highly composite n should have higher pair counts per unit
+        // than n with few prime factors, all else being equal
+        assert!(s2310 > 3.0, "S₂(2310) should be > 3.0");
+
+        // n = 4 = 2^2, only factor is 2 (which is excluded)
+        // S2(4) = 1.0 (no odd prime factors)
+        let s4 = singular_series_goldbach_multiplicative(4, &spf);
+        assert!(
+            (s4 - 1.0).abs() < 1e-12,
+            "S₂(4) should be exactly 1.0, got {}",
+            s4
+        );
+
+        // n with more odd prime factors should have higher S2
+        assert!(
+            s2310 > s4,
+            "S₂(2310) = {} should exceed S₂(4) = {}",
+            s2310,
+            s4
+        );
+    }
+
+    /// Verify predict_goldbach_pairs with empirical k_hat.
+    ///
+    /// Fit k_hat from actual data, then verify it produces reasonable predictions.
+    #[test]
+    fn test_predict_goldbach_pairs_with_fitted_khat() {
+        let limit = 1000;
+        let spf = sieve_spf(limit);
+        let is_prime = sieve_bool(limit);
+
+        // Compute actual pair counts for calibration
+        let mut sum_ratio = 0.0f64;
+        let mut count = 0;
+
+        for n in (100..=limit).step_by(2) {
+            let actual = count_pairs_for_n(n, 2, &is_prime) as f64;
+            // Compute the HL prediction without the front constant
+            let s2 = singular_series_goldbach_multiplicative(n, &spf);
+            let ln = (n as f64).ln();
+            let raw = s2 * (n as f64) / (ln * ln);
+
+            if raw > 0.1 {
+                sum_ratio += actual / raw;
+                count += 1;
+            }
+        }
+
+        let k_hat = sum_ratio / count as f64;
+
+        // k_hat should be in the neighborhood of C2 (for unordered pairs)
+        // or 2*C2 (for ordered pairs). Since count_pairs_for_n uses p<=q
+        // (unordered), k_hat should be near C2.
+        assert!(
+            k_hat > 0.3 && k_hat < 1.5,
+            "Fitted k_hat = {:.4}, expected near C₂ = {:.4}",
+            k_hat,
+            C2
+        );
+
+        // Now verify that predict_goldbach_pairs with this k_hat is reasonable
+        let pred_500 = predict_goldbach_pairs(500, &spf, k_hat);
+        let actual_500 = count_pairs_for_n(500, 2, &is_prime) as f64;
+
+        // Allow generous tolerance (within 3x) since this is a heuristic
+        assert!(
+            pred_500 > actual_500 * 0.3 && pred_500 < actual_500 * 3.0,
+            "Prediction {:.1} should be within 3x of actual {:.0} for n=500",
+            pred_500,
+            actual_500
+        );
+    }
 }

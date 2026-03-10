@@ -23,8 +23,10 @@ fn test_validation_with_single_config() {
     assert_eq!(config.k_inner, 2);
 
     // Test with validation context
-    let mut context = ValidationContext::default();
-    context.verbose = false; // Quiet for tests
+    let mut context = ValidationContext {
+        verbose: false,
+        ..Default::default()
+    };
 
     // Create random baseline comparator
     let mut baseline = RandomBaseline::new(&mut context);
@@ -80,12 +82,9 @@ fn test_exhaustive_tracker() {
         // Generate some test results
         let mut results = Vec::new();
         for middle in 0..10 {
-            match config.construct_number(middle) {
-                Ok(num) => {
-                    let is_prime = primes::is_prime(&num);
-                    results.push((num, is_prime));
-                }
-                Err(_) => {} // Skip invalid
+            if let Ok(num) = config.construct_number(middle) {
+                let is_prime = primes::is_prime(&num);
+                results.push((num, is_prime));
             }
         }
 
@@ -214,9 +213,11 @@ fn test_full_validation_pipeline() {
     let start = Instant::now();
 
     // 1. Setup
-    let mut context = ValidationContext::default();
-    context.verbose = false;
-    context.bootstrap_iterations = 100; // Faster for tests
+    let mut context = ValidationContext {
+        verbose: false,
+        bootstrap_iterations: 100, // Faster for tests
+        ..Default::default()
+    };
 
     let mut tracker = ExhaustiveTracker::new();
     let mut analyzer = FailureAnalyzer::new();

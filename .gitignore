@@ -32,6 +32,15 @@ test_output/
 *_output.log
 *_analysis.log
 
+# Generated data files (CSV, JSON, NDJSON)
+*.csv
+*.ndjson
+/*.json
+fingerprints/
+hz_out/
+tools/density-explorer/out/
+visualizations/ridge_statistics.txt
+
 # Generated documentation
 PRIME_MAIN_ISSUES.md
 
@@ -51,6 +60,12 @@ __pycache__/
 # AI development output
 ai-output.txt
 
+# External content / generated HTML at root
+numberphile-transcript.html
+/dashboard.html
+/index.html
+/index-tailwind.html
+
 # Agda build artifacts
 agda-proofs/_build/
 agda-proofs/MAlonzo/
@@ -65,8 +80,9 @@ animations/
 
 # Archive files
 *.zip
-Archive.zip
-primes.zip
+*.tar.gz
+*.tar
+*.7z
 
 # Compiled binaries
 membrane_mvp_adapter
@@ -76,5 +92,5 @@ membrane_scaling_cli
 collab.backup/
 *.backup/
 
-# Result snapshots (JSON)
+# Result snapshots
 elbow_events.json

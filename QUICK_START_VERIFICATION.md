@@ -2,6 +2,15 @@
 
 **TL;DR**: Run examples, generate witnesses, verify in Agda.
 
+> **AGDA VERIFICATION STATUS (2026-03-09, updated after repair):**
+>
+> Of 80 Agda modules, **19 pass cleanly** and **13 pass with postulates** (32 total).
+> 48 modules fail to type-check. The 9-module certification stack is fully
+> operational after repair of SymmetryFromList and BucketsAutoMatch. The 6 non-core
+> modules in the stack use postulates (assumed axioms).
+>
+> See `agda-proofs/STATUS.md` for the complete ground truth.
+
 ---
 
 ## 1. Run the Witness Generator (5 minutes)
@@ -73,20 +82,31 @@ Base 7: 6 unique coordinates per dimension
 
 ## 4. Verify in Agda (instant)
 
-The test suite is already written! Just verify it type-checks:
+**Currently working modules** (verified Nov 23, 2025):
 
 ```bash
 cd agda-proofs
-agda Tests/InvariantTests.agda
+
+# Core abstract framework (working)
+agda Theorems/Abstract/SymmetryImpliesRepulsion.agda
+agda Theorems/Abstract/SymmetryFromList.agda
+agda Theorems/TotientDensity.agda
+agda Theorems/Abstract/ConstrainedOrbitals.agda
+
+# Executable specs (working)
+agda Specs/Tests.agda
 ```
 
 **What it verifies**:
-- ✓ All 30+ test cases type-check
-- ✓ Static invariants (honorary zero)
-- ✓ Dynamic invariants (stable orbitals)
-- ✓ Dual certificates (both together)
+- ✓ Core symmetry → repulsion theorem (SymmetryImpliesRepulsion)
+- ✓ List-based symmetry construction (SymmetryFromList)
+- ✓ Totient density analysis (TotientDensity)
+- ✓ Dynamic orbital constraints (ConstrainedOrbitals)
+- ✓ Executable specification tests (Specs/Tests)
 
-**If you see no errors → all proofs verified!**
+**Note**: Additional modules (Tests/InvariantTests, BucketsAutoMatch, CertifiedResonance*) need fixes for Agda 2.8.0 compatibility. See `agda-proofs/STATUS.md` for details and fix roadmap.
+
+**If you see no errors → core proofs verified!**
 
 ---
 
