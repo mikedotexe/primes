@@ -25,36 +25,48 @@ module Theorems.TotientDensity where
 
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _≤_; _∸_; s≤s; z≤n)
 open import Data.Nat.Properties using (+-comm; *-comm; ≤-refl; ≤-trans)
+open import Data.Nat.Primality using (Prime)
+open import Data.Nat.GCD using (gcd)
+open import Data.Nat.Coprimality as NatCoprime
+  using ()
+  renaming
+  ( coprime? to std-coprime?
+  ; coprime⇒gcd≡1 to std-coprime⇒gcd≡1
+  ; gcd≡1⇒coprime to std-gcd≡1⇒coprime
+  )
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong)
 open import Data.Product using (Σ; _,_; proj₁; proj₂; ∃)
 open import Data.Empty using (⊥)
 open import Function using (_∘_)
-open import Relation.Nullary using (¬_; Dec; yes; no)
+open import Relation.Nullary using (¬_; Dec; yes; no; map′)
 open import Data.Bool using (Bool; true; false; if_then_else_)
+open import Theorems.RationalStatistics using (ℚ; _/_; _+ℚ_; absℚ)
+open import Theorems.RationalStatistics as RS using ()
 
 ------------------------------------------------------------------------
--- Basic Mathematical Structures (Postulated for now)
+-- Basic Mathematical Structures
 ------------------------------------------------------------------------
 
--- Rationals (for density calculations)
-postulate ℚ : Set
-postulate fromℕ : ℕ → ℚ
-postulate _÷ℚ_ : ℚ → ℚ → ℚ
-postulate _*ℚ_ : ℚ → ℚ → ℚ
-postulate _-ℚ_ : ℚ → ℚ → ℚ
-postulate _+ℚ_ : ℚ → ℚ → ℚ
-postulate abs-ℚ : ℚ → ℚ
-postulate _<ℚ_ : ℚ → ℚ → Set
-postulate _>ℚ_ : ℚ → ℚ → Set
+fromℕ : ℕ → ℚ
+fromℕ n = n / 1
 
--- Prime numbers
-postulate Prime : ℕ → Set
-postulate prime-to-nat : ∀ {n} → Prime n → ℕ
+_*ℚ_ : ℚ → ℚ → ℚ
+(n₁ / d₁) *ℚ (n₂ / d₂) = (n₁ * n₂) / (d₁ * d₂)
 
--- GCD (greatest common divisor)
-postulate gcd : ℕ → ℕ → ℕ
-postulate gcd-comm : ∀ m n → gcd m n ≡ gcd n m
-postulate gcd-1 : ∀ n → gcd 1 n ≡ 1
+_÷ℚ_ : ℚ → ℚ → ℚ
+(n₁ / d₁) ÷ℚ (n₂ / d₂) = (n₁ * d₂) / (d₁ * n₂)
+
+_-ℚ_ : ℚ → ℚ → ℚ
+x -ℚ y = absℚ x y
+
+abs-ℚ : ℚ → ℚ
+abs-ℚ q = q
+
+_<ℚ_ : ℚ → ℚ → Set
+x <ℚ y = RS._<ℚ_ x y ≡ true
+
+_>ℚ_ : ℚ → ℚ → Set
+x >ℚ y = y <ℚ x
 
 ------------------------------------------------------------------------
 -- Euler's Totient Function
@@ -65,7 +77,9 @@ Coprime : ℕ → ℕ → Set
 Coprime m n = gcd m n ≡ 1
 
 -- Decidable coprimality (helper for counting)
-postulate coprime? : (m n : ℕ) → Dec (Coprime m n)
+coprime? : (m n : ℕ) → Dec (Coprime m n)
+coprime? m n =
+  map′ std-coprime⇒gcd≡1 std-gcd≡1⇒coprime (std-coprime? m n)
 
 -- Count numbers coprime to n in range [1..n]
 -- (Constructive definition - counts totatives)
@@ -89,7 +103,8 @@ euler-totient (suc n) = count-coprime (suc n) (suc n)
 ------------------------------------------------------------------------
 
 -- φ(1) = 1 (only 1 is coprime to 1)
-postulate totient-1 : φ 1 ≡ 1
+totient-1 : φ 1 ≡ 1
+totient-1 = refl
 
 -- φ(p) = p-1 for prime p (all non-multiples are coprime)
 postulate totient-prime : ∀ {p} → Prime p → φ p ≡ p ∸ 1

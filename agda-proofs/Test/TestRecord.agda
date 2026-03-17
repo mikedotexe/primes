@@ -22,4 +22,4 @@ record TestPairing {B : Set} (TD : TestData B) (M : MS B) : Set where
   open MS M using (X; res)
   field
     π               : X → X
-    residue-distinct: (x : X) → res (π x) ≢ res x
+    residue-distinct : (x : X) → res (π x) ≢ res x

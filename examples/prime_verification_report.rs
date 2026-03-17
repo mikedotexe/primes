@@ -10,7 +10,7 @@
 //! # Expected Output
 //!
 //! ```text
-//! === Prime Physics Engine - Verification Report ===
+//! === Membrane Prime Toolkit - Verification Report ===
 //!
 //! Small membrane primes:
 //! 1-5-1                                    151                 ✅ PRIME
@@ -70,7 +70,7 @@ fn verify_number(num_str: &str, description: &str) -> bool {
 }
 
 fn main() {
-    println!("=== Prime Physics Engine - Verification Report ===\n");
+    println!("=== Membrane Prime Toolkit - Verification Report ===\n");
 
     let mut all_correct = true;
 

@@ -71,6 +71,10 @@ data Any {A : Set}(P : A → Set) : List A → Set where
   here  : ∀ {x xs} → P x → Any P (x ∷ xs)
   there : ∀ {x xs} → Any P xs → Any P (x ∷ xs)
 
+data All {A : Set}(P : A → Set) : List A → Set where
+  all[]  : All P []
+  _all∷_ : ∀ {x xs} → P x → All P xs → All P (x ∷ xs)
+
 ------------------------------------------------------------------------
 -- STABLE ORBITAL: Indexed inductive type
 --
@@ -92,6 +96,64 @@ data StableOrbital (R mid : ℕ) : List ℕ → Set where
 -- InZone: Existential - some position violates the bound
 InZone : ∀ (R mid : ℕ) → List ℕ → Set
 InZone R mid xs = Any (InPos R mid) xs
+
+------------------------------------------------------------------------
+-- Pointwise safety contract
+--
+-- Preferred maintained helper path for generated callers:
+--   pointwiseSafeNil
+--   pointwiseSafeCons
+--   pointwiseSafeSingleton
+--   pointwiseSafeFromAll
+
+record PointwiseSafe (R mid : ℕ) (xs : List ℕ) : Set where
+  field
+    safe-each : All (SafePos R mid) xs
+
+pointwiseSafeNil
+  : ∀ {R mid}
+  → PointwiseSafe R mid []
+pointwiseSafeNil = record { safe-each = all[] }
+
+pointwiseSafeCons
+  : ∀ {R mid x xs}
+  → SafePos R mid x
+  → PointwiseSafe R mid xs
+  → PointwiseSafe R mid (x ∷ xs)
+pointwiseSafeCons px safe =
+  record { safe-each = px all∷ PointwiseSafe.safe-each safe }
+
+pointwiseSafeSingleton
+  : ∀ {R mid x}
+  → SafePos R mid x
+  → PointwiseSafe R mid (x ∷ [])
+pointwiseSafeSingleton px = pointwiseSafeCons px pointwiseSafeNil
+
+pointwiseSafeFromAll
+  : ∀ {R mid xs}
+  → All (SafePos R mid) xs
+  → PointwiseSafe R mid xs
+pointwiseSafeFromAll pxs = record { safe-each = pxs }
+
+pointwiseSafe⇒StableOrbital
+  : ∀ {R mid xs}
+  → PointwiseSafe R mid xs
+  → StableOrbital R mid xs
+pointwiseSafe⇒StableOrbital {xs = []} safe = stableNil
+pointwiseSafe⇒StableOrbital {R} {mid} {xs = x ∷ xs} safe
+  with PointwiseSafe.safe-each safe
+... | px all∷ pxs =
+  stableCons px
+    (pointwiseSafe⇒StableOrbital
+       (pointwiseSafeFromAll pxs))
+
+stableOrbital⇒PointwiseSafe
+  : ∀ {R mid xs}
+  → StableOrbital R mid xs
+  → PointwiseSafe R mid xs
+stableOrbital⇒PointwiseSafe stableNil = pointwiseSafeNil
+stableOrbital⇒PointwiseSafe (stableCons px pxs) =
+  pointwiseSafeCons px (stableOrbital⇒PointwiseSafe pxs)
 
 ------------------------------------------------------------------------
 -- Arithmetic contradiction: R ≤ d and d < R cannot coexist
@@ -120,6 +182,14 @@ Inviolability
 -- Inviolability stableNil           (there ())   -- Empty list can't have tail
 Inviolability (stableCons px pxs) (here  q)    = no≤and< px q  -- Head contradiction
 Inviolability (stableCons _  pxs) (there q)    = Inviolability pxs q  -- Recurse
+
+inviolabilityFromPointwiseSafe
+  : ∀ {R mid xs}
+  → PointwiseSafe R mid xs
+  → InZone R mid xs
+  → ⊥
+inviolabilityFromPointwiseSafe safe =
+  Inviolability (pointwiseSafe⇒StableOrbital safe)
 
 ------------------------------------------------------------------------
 -- INTEGRATION WITH STATIC INVARIANT

@@ -1,96 +1,38 @@
-# Agda Import Compatibility Fix
+# Agda Import Compatibility Notes
 
-## Problem
+This note captures the import-style drift that shows up when older Agda files
+are brought forward to the current local toolchain.
 
-The Agda proof files use outdated import paths that don't exist in modern Agda (2.8.0+):
+## Current Local Baseline
 
-```agda
--- ❌ DOESN'T EXIST in Agda 2.8.0
-open import Agda.Builtin.Empty using (⊥)
-open import Agda.Builtin.Sigma using (Σ; _,_)
-open import Agda.Builtin.Equality using (_≡_; refl)
-open import Agda.Builtin.Nat using (Nat; zero; suc)
-```
+- Agda `2.8.0`
+- standard library `2.3`
 
-## Solution
+See [`STATUS.md`](STATUS.md) for the audited module results under that setup.
 
-Replace with standard library imports:
+## Common Import Repairs
 
-```agda
--- ✅ CORRECT for Agda 2.8.0 + stdlib 2.1
-open import Data.Empty using (⊥)
-open import Data.Product using (Σ; _,_; proj₁; proj₂)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl)
-open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
-```
+| Older style | Current stdlib style |
+|-------------|----------------------|
+| `Agda.Builtin.Empty` | `Data.Empty` |
+| `Agda.Builtin.Sigma` | `Data.Product` |
+| `Agda.Builtin.Equality` | `Relation.Binary.PropositionalEquality` |
+| `Agda.Builtin.Nat` | `Data.Nat` |
+| `Nat` | `ℕ` |
 
-## Automated Fix
+## Local Helper Script
 
-Run this script to fix all imports:
+From the `agda-proofs/` directory:
 
 ```bash
 ./scripts/fix-agda-imports.sh
 ```
 
-## Manual Fix Reference
+Use it as a bulk starting point, then rerun the specific module you are trying
+to repair.
 
-### Common Replacements
+## Scope
 
-| Old Import | New Import |
-|------------|------------|
-| `Agda.Builtin.Empty` | `Data.Empty` |
-| `Agda.Builtin.Sigma` | `Data.Product` |
-| `Agda.Builtin.Equality` | `Relation.Binary.PropositionalEquality` |
-| `Agda.Builtin.Nat` | `Data.Nat` |
-| `Agda.Builtin.Bool` | `Data.Bool` |
-| `Agda.Builtin.List` | `Data.List` |
-
-### Type Name Changes
-
-Some types also need renaming:
-
-| Old | New |
-|-----|-----|
-| `Nat` | `ℕ` (in most stdlib modules) |
-
-## Verification Workflow
-
-After fixing imports:
-
-```bash
-# Test single module
-cd agda-proofs
-agda --safe Theorems/Abstract/SymmetryImpliesRepulsion.agda
-
-# Test all core modules
-./scripts/verify-agda-core.sh
-
-# Generate full verification report
-./scripts/verify-agda-all.sh
-```
-
-## CI Integration
-
-Once imports are fixed, the CI workflow in `.github/workflows/agda-verification.yml` will:
-
-1. ✓ Install Agda 2.8.0 + stdlib 2.1
-2. ✓ Verify core abstract framework (Tier 1)
-3. ✓ Verify concrete examples (Tier 2)
-4. ✓ Verify all ~50 modules (Tier 3)
-5. ✓ Generate HTML documentation
-6. ✓ Upload artifacts for inspection
-
-## Timeline Estimate
-
-- **Automated fix script**: 10 minutes to write
-- **Run script + test**: 5 minutes
-- **Manual fixups if needed**: 30-60 minutes
-- **Full verification test**: 10-20 minutes
-
-**Total**: 1-2 hours to complete
-
-## Why This Happened
-
-The Agda proofs were written for an older Agda version where some types were built-in primitives. In Agda 2.6+, these were moved to the standard library to provide better organization and more features.
-
-This is a **one-time fix** - once updated, the proofs will work with all modern Agda versions.
+- this is troubleshooting guidance, not proof coverage
+- successful import repair does not imply the repaired module type-checks
+- broader proof status remains centralized in [`STATUS.md`](STATUS.md)

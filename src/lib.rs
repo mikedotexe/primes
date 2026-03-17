@@ -1,7 +1,6 @@
-//! # Prime Physics Engine
+//! # `primes`: Membrane Prime Toolkit
 //!
-//! Membrane-based prime number generator with sieve infrastructure and
-//! Hardy-Littlewood statistical analysis.
+//! Rust crate for constructing and analyzing structured prime candidates.
 //!
 //! ## Core Components
 //!
@@ -11,7 +10,7 @@
 //! - [`hzlib`] -- Hardy-Littlewood framework, sieves, statistics, number theory
 //! - [`is_prime`] -- Miller-Rabin primality test (20 rounds)
 //!
-//! **Simulation layer** (physics metaphor for visualization):
+//! **Optional metaphor / visualization layer**:
 //! - [`PrimeUniverse`] -- N-body gravitational model over primes
 //! - [`GravitationalField`], [`PrimeParticle`] -- Force-based prime modeling
 //! - [`LagrangePoint`], [`TidalField`] -- Equilibrium and tidal analysis
@@ -28,12 +27,17 @@
 //! | `prime-harmonics`| no      | Fourier analysis (`num-complex`)     |
 //! | `phase4`         | no      | ARM AMX/SME backend                  |
 //!
-//! ## Empirical Results
+//! ## Measured Results
 //!
-//! Membrane prime generation success rates (Miller-Rabin, 20 rounds, n=1000):
+//! Representative membrane densities against a naive random baseline
+//! (Miller-Rabin, 20 rounds, `n=1000`):
 //! - Base 6, Config (1,5) k=(0,0): ~33% prime density
 //! - Base 30, Config (11,7) k=(0,0): ~30% prime density
 //! - Random baseline: ~5% prime density
+//!
+//! Current repo controls indicate that most of the observed lift is explained by
+//! coprimality filtering and size effects. A membrane-specific lift beyond
+//! matched coprime controls remains open rather than proven here.
 //!
 //! ## Quick Start
 //!
@@ -118,10 +122,10 @@ pub use resonance_profiles::{
 pub use spacetime::{BaseMetric, PhaseSpace, PotentialField};
 pub use tidal::{OrganizationZone, TidalAnalyzer, TidalField, TidalZone, OPTIMAL_TIDAL_STRENGTH};
 
-/// Core result type for the physics engine
+/// Core result type for the toolkit
 pub type PhysicsResult<T> = Result<T, PhysicsError>;
 
-/// Errors that can occur in the physics engine
+/// Errors that can occur across the toolkit
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum PhysicsError {
     #[error("Invalid membrane configuration: {0}")]
@@ -146,7 +150,7 @@ pub enum PhysicsError {
     InvalidConfiguration(String),
 }
 
-/// Physical constants for the prime universe
+/// Legacy metaphor constants for the optional `PrimeUniverse` layer
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PhysicalConstants {
     /// Gravitational constant (dimensionless in prime space)
@@ -177,7 +181,7 @@ impl Default for PhysicalConstants {
     }
 }
 
-/// The main physics engine that orchestrates all subsystems
+/// Optional simulation and visualization layer built around the legacy metaphor API
 #[derive(Debug, Clone)]
 #[non_exhaustive]
 pub struct PrimeUniverse {

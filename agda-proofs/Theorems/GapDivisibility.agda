@@ -91,43 +91,21 @@ extreme-threshold = 900000 / SCALE  -- 0.90 = 90%
 -- VERIFIED THEOREMS
 --------------------------------------------------------------------------------
 
--- Theorem: Base 18 shows EXTREME divisibility by 6
-base18-extreme-div6 : gaps-div6-pct-base18 ≤ℚ extreme-threshold ≡ false
-base18-extreme-div6 = refl
-  -- 996666/10000000 > 900000/1000000
-  -- Cross-multiply: 996666 × 1000000 > 900000 × 10000000
-  --                 996666000000 > 9000000000000
-  -- Hmm, this is backwards. Let me fix...
-
--- Actually, we want to prove it's GREATER than threshold
--- Need to show: gaps-div6-pct-base18 > extreme-threshold
--- Which is: NOT (gaps-div6-pct-base18 ≤ℚ extreme-threshold)
-
--- For constructive proof, let's use direct comparison
-base18-exceeds-extreme : Bool
-base18-exceeds-extreme = extreme-threshold ≤ℚ gaps-div6-pct-base18
-
--- Verify it's true
-base18-extreme-verified : base18-exceeds-extreme ≡ true
-base18-extreme-verified = refl
-  -- 900000/1000000 ≤ 996666/10000000
-  -- Cross-multiply: 900000 × 10000000 ≤ 996666 × 1000000
-  --                 9000000000000 ≤ 996666000000
-  -- Wait, this is also wrong. Let me recalculate...
-
--- Actually: 99.67% = 996666/1000000 (not /10000000)
+-- 99.67% = 996666 / 1000000
 gaps-div6-pct-base18-corrected : ℚ
 gaps-div6-pct-base18-corrected = 996666 / SCALE
 
-base18-extreme-corrected : enhanced-threshold ≤ℚ gaps-div6-pct-base18-corrected ≡ true
-base18-extreme-corrected = refl  -- 200000/1000000 ≤ 996666/1000000 ✓
+-- Theorem: Base 18 shows EXTREME divisibility by 6
+base18-extreme : extreme-threshold ≤ℚ gaps-div6-pct-base18-corrected ≡ true
+base18-extreme = refl  -- 900000/1000000 ≤ 996666/1000000 ✓
 
--- Theorem: Base 6 shows EXTREME divisibility by 6
+-- 95.24% = 952381 / 1000000
 gaps-div6-pct-base6-corrected : ℚ
 gaps-div6-pct-base6-corrected = 952381 / SCALE
 
-base6-extreme : enhanced-threshold ≤ℚ gaps-div6-pct-base6-corrected ≡ true
-base6-extreme = refl  -- 200000/1000000 ≤ 952381/1000000 ✓
+-- Theorem: Base 6 shows EXTREME divisibility by 6
+base6-extreme : extreme-threshold ≤ℚ gaps-div6-pct-base6-corrected ≡ true
+base6-extreme = refl  -- 900000/1000000 ≤ 952381/1000000 ✓
 
 -- Theorem: Base 7 shows ENHANCED divisibility by 6
 gaps-div6-pct-base7-corrected : ℚ
@@ -142,6 +120,9 @@ gaps-div6-pct-base14-corrected = 425000 / SCALE
 
 base14-enhanced : enhanced-threshold ≤ℚ gaps-div6-pct-base14-corrected ≡ true
 base14-enhanced = refl  -- 200000/1000000 ≤ 425000/1000000 ✓
+
+base18-enhanced : enhanced-threshold ≤ℚ gaps-div6-pct-base18-corrected ≡ true
+base18-enhanced = refl  -- 200000/1000000 ≤ 996666/1000000 ✓
 
 --------------------------------------------------------------------------------
 -- ORDERING THEOREM

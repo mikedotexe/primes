@@ -17,10 +17,13 @@ fn main() {
     // Part 2: Statistical Patterns
     statistical_patterns();
 
-    // Part 3: Lagrange Points
+    // Part 3: Palindrome overlap vs distinction
+    palindrome_overlap();
+
+    // Part 4: Lagrange Points
     lagrange_showcase();
 
-    // Part 4: Universal Insights
+    // Part 5: Current Insights
     universal_insights();
 }
 
@@ -39,7 +42,7 @@ fn visual_structure_demo() {
             "Classic",
             MembraneConfig::new(10, 3, 7, 0, 0),
             5,
-            "307050703",
+            "37573",
         ),
         (
             "Breathing",
@@ -139,8 +142,48 @@ fn statistical_patterns() {
     }
 }
 
+fn palindrome_overlap() {
+    println!("\n🪞 PART 3: PALINDROME OVERLAP vs MEMBRANE DISTINCTION");
+    println!("{}", "─".repeat(80));
+    println!();
+
+    println!("Some membrane examples are also palindromes, especially with a");
+    println!("single central digit and fully symmetric padding.");
+    println!("But the construction family is broader than palindromes.");
+    println!();
+
+    let examples = vec![
+        ("Single-digit symmetric", "307050703"),
+        ("Breathing example", "3305033"),
+        ("Multi-digit membrane", "30301303"),
+        ("Another multi-digit membrane", "10409401"),
+    ];
+
+    for (label, value) in examples {
+        let reversed: String = value.chars().rev().collect();
+        let palindrome = value == reversed;
+        println!(
+            "{:28} {}  {}",
+            label,
+            value,
+            if palindrome {
+                "(also a palindrome)"
+            } else {
+                "(not a palindrome)"
+            }
+        );
+    }
+
+    println!();
+    println!("Takeaway:");
+    println!("  - palindrome symmetry explains some headline examples");
+    println!("  - membrane structure still includes non-palindromic candidates");
+    println!("  - the more interesting question is which structural constraints");
+    println!("    matter after controlling for coprimality and length");
+}
+
 fn lagrange_showcase() {
-    println!("\n🌌 PART 3: LAGRANGE POINTS");
+    println!("\n🌌 PART 4: LAGRANGE POINTS");
     println!("{}", "─".repeat(80));
     println!();
 
@@ -211,7 +254,7 @@ fn lagrange_showcase() {
 }
 
 fn universal_insights() {
-    println!("\n\n🔑 PART 4: UNIVERSAL INSIGHTS");
+    println!("\n\n🔑 PART 5: CURRENT INSIGHTS");
     println!("{}", "═".repeat(80));
     println!();
 
@@ -219,26 +262,27 @@ fn universal_insights() {
     println!("   All successful configurations use boundary digits coprime to the base");
     println!();
 
-    println!("2. MINIMAL PADDING DOMINATES");
-    println!("   k=(0,0) configurations consistently outperform heavy padding");
+    println!("2. SHORT / COMPACT CONSTRUCTIONS OFTEN WIN");
+    println!("   Minimal padding often performs well, especially once seed length grows");
     println!();
 
-    println!("3. BREATHING BEATS SYMMETRY");
-    println!("   Asymmetric patterns (k_outer ≠ k_inner) often have 3x higher success");
+    println!("3. MEMBRANES OVERLAP WITH PALINDROMES, BUT ARE NOT REDUCIBLE TO THEM");
+    println!("   Multi-digit and asymmetric examples extend beyond the palindrome subset");
     println!();
 
-    println!("4. BASE MATTERS");
-    println!("   Bases 6, 12 achieve >50% success rates - far exceeding expectations");
+    println!("4. BASE CHOICE AND BOUNDARY DIGITS MATTER A LOT");
+    println!("   High-performing families depend strongly on coprimality to the base");
     println!();
 
-    println!("5. NOT RANDOM LUCK");
-    println!("   286,200+ primality tests confirm 3-6x improvement over random chance");
-    println!("   Statistical significance: p < 10^-100");
+    println!("5. THE MAIN CONTROL QUESTION IS STILL IMPORTANT");
+    println!("   Dramatic gains over naive random are real, but the extra gain over");
+    println!("   random-coprime controls appears smaller and may be negligible");
     println!();
 
     println!("🎯 CONCLUSION:");
-    println!("Membrane primes are a genuine mathematical phenomenon where symmetric");
-    println!("zero-padded structures create 'containers' that favor primality.");
+    println!("Membrane constructions are a useful candidate family with real high-density");
+    println!("configurations. The strongest supported claim today is about structured");
+    println!("coprime candidate generation, not a proven new prime mechanism.");
 }
 
 // Helper functions

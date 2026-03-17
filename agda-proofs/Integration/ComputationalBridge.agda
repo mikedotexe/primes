@@ -1,257 +1,268 @@
-{-# OPTIONS --safe --without-K #-}
-
-{-|
-  Computational Bridge Module
-
-  This module provides computational interfaces that bridge between
-  the formal Agda proofs and practical implementations (e.g., in Rust).
-
-  It focuses on:
-  - Decidable procedures that can be executed
-  - Efficient algorithms with formal correctness guarantees
-  - Data structures suitable for computation
--}
+------------------------------------------------------------------------
+-- Computational bridge shell: current Agda core -> external tooling
+--
+-- Strongest live signal:
+-- 1. residue-fold / CRT computations are executable today and are worth
+--    exposing as a maintained export surface
+-- 2. phase-lock and Lagrange shells already provide concrete canonical
+--    examples that downstream tooling can consume without overstating the
+--    general theory
+-- 3. discriminant observations and residue exports can already be combined
+--    into tool-facing summaries even though the old full bridge remains open
+------------------------------------------------------------------------
 
 module Integration.ComputationalBridge where
 
-open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _<_; _≤_; _%_)
-open import Data.Bool using (Bool; true; false; _∧_; _∨_; not)
-open import Data.List using (List; []; _∷_; map; filter; length; all; any)
-open import Data.Product using (_×_; _,_; proj₁; proj₂)
+open import Agda.Builtin.String using (String)
+open import Data.Bool using (Bool; true; false)
+open import Data.Integer using (ℤ)
+open import Data.List using (List; []; _∷_)
+open import Data.Maybe.Base using (Maybe; just; nothing)
+open import Data.Nat using (ℕ)
+open import Data.Product using (_×_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
-open import Relation.Nullary using (Dec; yes; no)
 
---------------------------------------------------------------------------------
--- Computational Primitives
---------------------------------------------------------------------------------
-
--- Import computational functions
-open import Core.Primality using (prime?; isPrime?)
-open import Core.Radical using (radical)
-open import Core.PhaseLocks using (findPhaseLocks; isLeftValid)
 open import Core.CRTVector using (P0viaL; CRT-ok?)
-open import Core.ResidueFold using (Pattern; Counts; countsDPConv)
+open import Core.Discriminant using
+  ( Δ
+  ; DiscriminantObservation
+  ; base6-15-m2
+  ; base6-51-m2
+  ; base12-15-m1
+  )
+open import Core.LagrangePoints using
+  ( ConcatenatedStructureShell
+  ; LagrangePointShell
+  ; canonical-example
+  ; canonical-points
+  ; canonical-point-count
+  )
+open import Core.PhaseLocks using
+  ( PhaseLockShell
+  ; base10
+  ; base22
+  ; base10-phase-lock
+  ; base22-phase-lock
+  ; midpoint
+  )
+open import Core.ResidueFold using (Slot; Pattern; FixedZero; Open)
+open import Core.TwoPBase using
+  ( TwoPBaseShell
+  ; ResidueCountShell
+  ; base10-residue-count
+  ; base14-residue-count
+  )
 
---------------------------------------------------------------------------------
--- Efficient Algorithms
---------------------------------------------------------------------------------
+------------------------------------------------------------------------
+-- Live residue / CRT exports
+------------------------------------------------------------------------
 
-{-|
-  Fast primality testing up to a bound
-  Returns list of primes ≤ n
--}
-sievePrimes : ℕ → List ℕ
-sievePrimes n = filter prime? (range 2 n)
-  where
-    range : ℕ → ℕ → List ℕ
-    range from zero = []
-    range from (suc to) with from ≤? suc to
-    ... | yes _ = from ∷ range (suc from) to
-    ... | no  _ = []
-
-    _≤?_ : ℕ → ℕ → Dec (ℕ._≤_ _ _)
-    _≤?_ = Data.Nat._≤?_
-
-{-|
-  Compute valid prime residues for a base
--}
-computeValidResidues : ℕ → List ℕ
-computeValidResidues base =
-  let r = radical base
-  in filter (λ k → coprime? k r) (range 1 r)
-  where
-    range : ℕ → ℕ → List ℕ
-    range from to with from <? to
-    ... | yes _ = from ∷ range (suc from) to
-    ... | no  _ = []
-
-    _<?_ : ℕ → ℕ → Dec (ℕ._<_ _ _)
-    _<?_ = Data.Nat._<?_
-
-    coprime? : ℕ → ℕ → Bool
-    coprime? a b = gcd a b ≡ᵇ 1
-      where
-        open import Data.Nat.GCD using (gcd)
-        open import Data.Nat using (_≡ᵇ_)
-
-{-|
-  Check if a number is a valid 2p base
--}
-check2pBase : ℕ → Maybe (ℕ × List (ℕ × ℕ × ℕ))
-  where
-    data Maybe (A : Set) : Set where
-      nothing : Maybe A
-      just    : A → Maybe A
-check2pBase base with base % 2 ≡ᵇ 0
-... | false = nothing
-... | true =
-  let p = base / 2
-  in if prime? p ∧ (p ≥ᵇ 3)
-     then just (p , findPhaseLocks base)
-     else nothing
-  where
-    _≥ᵇ_ : ℕ → ℕ → Bool
-    zero ≥ᵇ zero = true
-    zero ≥ᵇ suc _ = false
-    suc m ≥ᵇ zero = true
-    suc m ≥ᵇ suc n = m ≥ᵇ n
-
-{-|
-  Batch CRT computation for multiple primes
--}
-batchCRT : ℕ → List ℕ → Pattern → List (ℕ × ℕ)
-batchCRT base primes pattern = P0viaL base primes pattern
-
-{-|
-  Quick discriminant quality score
--}
-quickDiscriminantScore : ℕ → ℕ → ℤ
-  where open import Data.Integer using (ℤ)
-quickDiscriminantScore A S =
-  let quality = analyzeQuality A S
-  in DiscriminantQuality.score quality
-  where
-    open import Core.Discriminant using (analyzeQuality; DiscriminantQuality)
-
---------------------------------------------------------------------------------
--- Verification Procedures
---------------------------------------------------------------------------------
-
-{-|
-  Verify phase lock properties
--}
-verifyPhaseLock : ℕ → ℕ × ℕ × ℕ → Bool
-verifyPhaseLock base (left , right , dist) =
-  (left + right ≡ᵇ base) ∧
-  (isLeftValid left) ∧
-  (prime? right) ∧
-  checkSymmetry
-  where
-    checkSymmetry : Bool
-    checkSymmetry with base % 2 ≡ᵇ 0
-    ... | false = false
-    ... | true =
-      let mid = base / 2
-      in (left ≡ᵇ mid ∸ dist) ∧ (right ≡ᵇ mid + dist)
-
-{-|
-  Verify CRT optimization correctness
--}
-verifyCRTOptimization : ℕ → List ℕ → Pattern → Bool
-verifyCRTOptimization base primes pattern = CRT-ok? base primes pattern
-
---------------------------------------------------------------------------------
--- Data Export Functions
---------------------------------------------------------------------------------
-
-{-|
-  Export residue distribution as counts
--}
-exportResidueCounts : ℕ → ℕ → Pattern → List (ℕ × ℕ)
-exportResidueCounts base modulus pattern =
-  let counts = countsDPConv base modulus pattern
-  in counts  -- Already in (residue, count) format
-
-{-|
-  Export phase lock analysis
--}
-record PhaseLockExport : Set where
+record ResidueExportShell : Set where
   field
-    base      : ℕ
-    prime     : ℕ
-    locks     : List (ℕ × ℕ × ℕ)  -- (left, right, distance)
-    hasLocks  : Bool
-    lockCount : ℕ
+    base : ℕ
+    residue-count : ResidueCountShell
+    moduli : List ℕ
+    slot-pattern : Pattern
+    zero-frequencies : List (ℕ × ℕ)
+    crt-consistent : Bool
 
-exportPhaseLocks : ℕ → PhaseLockExport
-exportPhaseLocks base with check2pBase base
-... | nothing = record
-  { base = base
-  ; prime = 0
-  ; locks = []
-  ; hasLocks = false
-  ; lockCount = 0
+base10-pattern : Pattern
+base10-pattern =
+  Open (1 ∷ 3 ∷ 7 ∷ 9 ∷ []) ∷
+  FixedZero ∷
+  Open (1 ∷ 3 ∷ 7 ∷ 9 ∷ []) ∷
+  []
+
+base14-pattern : Pattern
+base14-pattern =
+  Open (1 ∷ 3 ∷ 5 ∷ 9 ∷ 11 ∷ 13 ∷ []) ∷
+  FixedZero ∷
+  []
+
+base10-moduli : List ℕ
+base10-moduli = 3 ∷ 5 ∷ 7 ∷ []
+
+base14-moduli : List ℕ
+base14-moduli = 3 ∷ 7 ∷ []
+
+base10-residue-export : ResidueExportShell
+base10-residue-export = record
+  { base = 10
+  ; residue-count = base10-residue-count
+  ; moduli = base10-moduli
+  ; slot-pattern = base10-pattern
+  ; zero-frequencies = P0viaL 10 base10-moduli base10-pattern
+  ; crt-consistent = CRT-ok? 10 base10-moduli base10-pattern
   }
-... | just (p , locks) = record
-  { base = base
-  ; prime = p
-  ; locks = locks
-  ; hasLocks = not (null locks)
-  ; lockCount = length locks
+
+base14-residue-export : ResidueExportShell
+base14-residue-export = record
+  { base = 14
+  ; residue-count = base14-residue-count
+  ; moduli = base14-moduli
+  ; slot-pattern = base14-pattern
+  ; zero-frequencies = P0viaL 14 base14-moduli base14-pattern
+  ; crt-consistent = CRT-ok? 14 base14-moduli base14-pattern
   }
-  where
-    null : {A : Set} → List A → Bool
-    null [] = true
-    null (_ ∷ _) = false
 
---------------------------------------------------------------------------------
--- Performance Benchmarks
---------------------------------------------------------------------------------
+------------------------------------------------------------------------
+-- Phase-lock / Lagrange export shells
+------------------------------------------------------------------------
 
-{-|
-  Benchmark data structure for comparing approaches
--}
-record Benchmark : Set where
+record PhaseLockExportShell : Set where
   field
-    description : String
-      where postulate String : Set
-    inputSize   : ℕ
-    operations  : ℕ
-    verified    : Bool
+    base-shell : TwoPBaseShell
+    midpoint-value : ℕ
+    locks : List PhaseLockShell
+    bridge-ready : Bool
 
-{-|
-  CRT optimization benchmark
--}
-crtBenchmark : ℕ → List ℕ → Benchmark
-crtBenchmark base primes = record
-  { description = "CRT vs Direct DP"
-  ; inputSize = length primes
-  ; operations = lcmList primes  -- LCM is the key metric
-  ; verified = CRT-ok? base primes pattern
+base10-phase-export : PhaseLockExportShell
+base10-phase-export = record
+  { base-shell = base10
+  ; midpoint-value = midpoint base10
+  ; locks = base10-phase-lock ∷ []
+  ; bridge-ready = true
   }
-  where
-    open import Core.CRTVector using (lcmList)
-    pattern = Open (range 0 base) ∷ []
-      where
-        Open : List ℕ → Slot
-          where open import Core.ResidueFold
 
-        range : ℕ → ℕ → List ℕ
-        range from zero = []
-        range from (suc to) = from ∷ range (suc from) to
+base22-phase-export : PhaseLockExportShell
+base22-phase-export = record
+  { base-shell = base22
+  ; midpoint-value = midpoint base22
+  ; locks = base22-phase-lock ∷ []
+  ; bridge-ready = true
+  }
 
---------------------------------------------------------------------------------
--- Integration with External Tools
---------------------------------------------------------------------------------
+base10-midpoint-check : midpoint base10 ≡ 5
+base10-midpoint-check = refl
 
-{-|
-  Configuration export for external tools (e.g., Rust density-explorer)
--}
+base22-midpoint-check : midpoint base22 ≡ 11
+base22-midpoint-check = refl
+
+record LagrangeExportShell : Set where
+  field
+    structure : ConcatenatedStructureShell
+    insertion-points : List LagrangePointShell
+    reported-point-count : ℕ
+    bridge-ready : Bool
+
+canonical-lagrange-export : LagrangeExportShell
+canonical-lagrange-export = record
+  { structure = canonical-example
+  ; insertion-points = canonical-points
+  ; reported-point-count = canonical-point-count
+  ; bridge-ready = true
+  }
+
+------------------------------------------------------------------------
+-- Discriminant / tool configuration shells
+------------------------------------------------------------------------
+
+record DiscriminantExportShell : Set where
+  field
+    outer : ℕ
+    seed-length : ℕ
+    delta : ℤ
+    observation : DiscriminantObservation
+    score-ready : Bool
+
+base6-15-discriminant-export : DiscriminantExportShell
+base6-15-discriminant-export = record
+  { outer = 1
+  ; seed-length = 2
+  ; delta = Δ 1 5
+  ; observation = base6-15-m2
+  ; score-ready = true
+  }
+
+base6-51-discriminant-export : DiscriminantExportShell
+base6-51-discriminant-export = record
+  { outer = 5
+  ; seed-length = 2
+  ; delta = Δ 5 1
+  ; observation = base6-51-m2
+  ; score-ready = true
+  }
+
+base12-15-discriminant-export : DiscriminantExportShell
+base12-15-discriminant-export = record
+  { outer = 1
+  ; seed-length = 1
+  ; delta = Δ 1 5
+  ; observation = base12-15-m1
+  ; score-ready = true
+  }
+
 record ToolConfig : Set where
   field
-    base           : ℕ
-    validResidues  : List ℕ
-    radicalValue   : ℕ
-    trackedPrimes  : List ℕ
-    useCRT         : Bool
-    lcmBound       : ℕ
+    name : String
+    residue-export : ResidueExportShell
+    phase-export : Maybe PhaseLockExportShell
+    lagrange-export : Maybe LagrangeExportShell
+    discriminant-export : Maybe DiscriminantExportShell
 
-exportToolConfig : ℕ → List ℕ → ℕ → ToolConfig
-exportToolConfig base primes lcmCap = record
-  { base = base
-  ; validResidues = computeValidResidues base
-  ; radicalValue = radical base
-  ; trackedPrimes = primes
-  ; useCRT = lcm ≤ᵇ lcmCap
-  ; lcmBound = lcm
+base10-tool-config : ToolConfig
+base10-tool-config = record
+  { name = "base10-residue-and-phase"
+  ; residue-export = base10-residue-export
+  ; phase-export = just base10-phase-export
+  ; lagrange-export = nothing
+  ; discriminant-export = just base6-15-discriminant-export
   }
-  where
-    open import Core.CRTVector using (lcmList)
-    lcm = lcmList primes
 
-    _≤ᵇ_ : ℕ → ℕ → Bool
-    zero ≤ᵇ _ = true
-    suc m ≤ᵇ zero = false
-    suc m ≤ᵇ suc n = m ≤ᵇ n
+canonical-tool-config : ToolConfig
+canonical-tool-config = record
+  { name = "canonical-lagrange-bridge"
+  ; residue-export = base14-residue-export
+  ; phase-export = just base22-phase-export
+  ; lagrange-export = just canonical-lagrange-export
+  ; discriminant-export = just base6-51-discriminant-export
+  }
 
--- End of module
+record Benchmark : Set where
+  field
+    label : String
+    config : ToolConfig
+    expected-residue-slice : Bool
+    expected-phase-export : Bool
+    expected-lagrange-export : Bool
+
+crt-benchmark : Benchmark
+crt-benchmark = record
+  { label = "crt-export-shell"
+  ; config = base10-tool-config
+  ; expected-residue-slice = true
+  ; expected-phase-export = true
+  ; expected-lagrange-export = false
+  }
+
+canonical-benchmark : Benchmark
+canonical-benchmark = record
+  { label = "canonical-bridge-shell"
+  ; config = canonical-tool-config
+  ; expected-residue-slice = true
+  ; expected-phase-export = true
+  ; expected-lagrange-export = true
+  }
+
+------------------------------------------------------------------------
+-- Open bridge shell
+------------------------------------------------------------------------
+
+record ComputationalBridgeTheoryShell : Set1 where
+  field
+    residue-export-shape : Set
+    phase-export-shape : Set
+    lagrange-export-shape : Set
+    discriminant-export-shape : Set
+    rust-cli-shape : Set
+    wasm-export-shape : Set
+
+postulate
+  exportResidueShell : ResidueExportShell -> Set
+  exportPhaseLockShell : PhaseLockExportShell -> Set
+  exportLagrangeShell : LagrangeExportShell -> Set
+  exportDiscriminantShell : DiscriminantExportShell -> Set
+  benchmarkAgainstRust : Benchmark -> Set
+  bridgeToUnifiedCLI : ToolConfig -> Set
+  bridgeToWasm : ToolConfig -> Set
+  computational-bridge-theory : ComputationalBridgeTheoryShell

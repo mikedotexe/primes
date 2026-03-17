@@ -1,189 +1,83 @@
-# Agda Formal Verification for Prime Construction Project
+# Agda Proof Workspace
 
-This directory contains formal proofs in Agda for mathematical claims in the prime construction project.
+This directory is the active Agda workspace for formalization experiments and
+partial machine-checked proofs related to the repository.
 
-## Installation
+## Canonical Status
 
-### Install Agda
+[`STATUS.md`](STATUS.md) is the audited module-count surface in this tree. It
+tracks the current `clean-local / with-local-postulates / failing` split and
+calls out any current clean-local boundary cases explicitly.
 
-```bash
-# Option 1: Via GHCup (recommended)
-curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
-ghcup install ghc 9.4.7
-ghcup install cabal latest
-cabal update
-cabal install Agda
+Current maintained clean-local boundary cases: none known. Outside the
+maintained clean spine, the certification lane is now also locally clean:
+[`Theorems/Abstract/SymmetryFiniteReflect.agda`](Theorems/Abstract/SymmetryFiniteReflect.agda)
+is clean-local, the standard even-base choice `mid = base / 2` has a
+constructive observed fixed-point classifier, and the generic wrappers now
+consume an explicit `ObservedFixedPointClassifier` contract instead of relying
+on a hidden half-turn shell. Meanwhile,
+[`Theorems/Abstract/BucketsAutoMatch.agda`](Theorems/Abstract/BucketsAutoMatch.agda)
+and [`Theorems/Abstract/WindowCertificate.agda`](Theorems/Abstract/WindowCertificate.agda)
+are now clean-local. In the concrete `countResid` path used there, the
+support-count bridge is discharged constructively, the direct imported
+involutive, roundtrip, and transport theorems are gone, and that concrete path
+no longer depends on any imported auto-pairing theorem. The dynamic side is
+also sharper now: `WindowCertificate` and the dual wrapper consume the smaller
+`PointwiseSafe` contract, with `StableOrbital` derived internally.
+`ConstrainedOrbitals.agda` now also exposes maintained smart constructors for
+building `PointwiseSafe` incrementally:
+`pointwiseSafeNil`, `pointwiseSafeCons`, `pointwiseSafeSingleton`, and
+`pointwiseSafeFromAll`.
 
-# Option 2: Via package manager (may be older version)
-# macOS:
-brew install agda
+Do not infer proof coverage from filenames or older narrative docs alone.
 
-# Ubuntu/Debian:
-sudo apt-get install agda
+## Active Entry Points
 
-# Arch:
-sudo pacman -S agda
-```
+- [`STATUS.md`](STATUS.md): audited clean/postulated/failing lists
+- [`RESIDUE_FOLD_README.md`](RESIDUE_FOLD_README.md): focused note on the
+  residue-fold and CRT area
+- [`Tests/TESTING_STRATEGY.md`](Tests/TESTING_STRATEGY.md): current executable
+  proof-check posture
+- [`Theorems/README.md`](Theorems/README.md): theorem-area orientation
+- [`LagrangePoints/README.md`](LagrangePoints/README.md): cautious status note
+  for the connector/Lagrange subtree
+- [`SIGNAL_MAP.md`](SIGNAL_MAP.md): strongest Agda areas and next repair targets
+- [`AGDA_RESOURCES.md`](AGDA_RESOURCES.md): external reference catalog
+- [`FIX_IMPORTS.md`](FIX_IMPORTS.md): import-compatibility troubleshooting
 
-### Install Agda Standard Library
+## Historical Material
 
-```bash
-# Clone the standard library
-git clone https://github.com/agda/agda-stdlib.git ~/.agda/agda-stdlib
-cd ~/.agda/agda-stdlib
-git checkout v2.0  # or latest stable version
+Older sprint plans, theory pitches, and session narratives that no longer meet
+the active-doc standard now live under
+[`../archive/agda-proofs/`](../archive/agda-proofs/).
 
-# Configure Agda to find it
-mkdir -p ~/.agda
-cat > ~/.agda/libraries <<EOF
-~/.agda/agda-stdlib/standard-library.agda-lib
-EOF
+## Expectations
 
-cat > ~/.agda/defaults <<EOF
-standard-library
-EOF
-```
+- Many `.agda` files in this tree are exploratory or partially formalized.
+- "Clean" in this subtree means no local postulates in that file; it does not
+  automatically mean the full transitive dependency chain is postulate-free.
+- [`STATUS.md`](STATUS.md) is where that boundary is tracked explicitly.
+- Public repo claims should be taken from [`../CLAIMS.md`](../CLAIMS.md),
+  [`../EVIDENCE.md`](../EVIDENCE.md), and [`STATUS.md`](STATUS.md), not from
+  aspirational theorem names or archived notes.
+- The extracted certification sketches under [`Examples/`](Examples/) are
+  expository only; for the dynamic lane they should be read as
+  `PointwiseSafe`-first notes, not as instructions to construct raw
+  `StableOrbital` witnesses by hand.
+- The active dynamic regression shell in
+  [`Tests/InvariantTests.agda`](Tests/InvariantTests.agda) is intentionally
+  two-sided: one helper-path `PointwiseSafe` witness and one helper-agnostic
+  negative `InZone` counterexample.
 
-### Verify Installation
+## Local Usage
 
-```bash
-agda --version
-# Should show: Agda version 2.6.x or later
-```
-
-## Project Structure
-
-```
-agda-proofs/
-├── Core/                   # Fundamental definitions
-│   ├── Config.agda        # Membrane configuration
-│   ├── Polynomial.agda    # Membrane polynomial
-│   ├── Primality.agda     # Primality predicates
-│   └── Radical.agda       # Radical function
-│
-├── Theorems/              # Main mathematical proofs
-│   ├── AffineTransform.agda      # Affine transform theorem ⭐⭐⭐⭐⭐
-│   ├── RadicalProperties.agda    # Radical vs totient ⭐⭐⭐⭐
-│   ├── Coprimality.agda          # Coprimality necessity ⭐⭐⭐⭐
-│   ├── TrioUniversality.agda     # N=3 universality ⭐⭐⭐
-│   └── ExclusiveConfigs.agda     # Unique seed proofs ⭐⭐⭐⭐
-│
-├── Empirical/             # Postulates for observed patterns
-│   └── ObservedPatterns.agda
-│
-└── Utils/                 # Helper functions and lemmas
-    ├── ModularArithmetic.agda
-    ├── GCD.agda
-    └── Divisibility.agda
-```
-
-### Executable Specification Layer
-
-The `Specs/` directory contains **executable specifications** that mirror the Rust implementation exactly:
-
-- **`Specs/SpacingResidueModel`**: Core DP algorithm for counting residue classes
-  - `countsDP`: Dynamic programming over residues (matches Rust implementation)
-  - `countsEnum`: Brute-force enumerator for validation
-  - `countZeroViaL`: LCM lift (single DP at L → per-prime counts)
-  - Executable tests: `Test₁/₂/₃` verify DP ≡ enumeration on small specs
-
-- **`Specs/PalindromeEvenDivides`**: Even-palindrome divisibility theorem
-  - Proves: even-length palindrome ⟹ (b+1) ∣ n
-  - Characterizes 2-digit exception (when b+1 is prime)
-  - Justifies `mirror && even-length → obstructed` in density-explorer
-
-- **`Specs/Tests`**: Unified test harness
-  - Smoke tests for DP correctness
-  - Palindrome divisibility sanity checks
-  - Hook for extending formal guarantees
-
-**Purpose**: These modules serve as a **single source of truth** for the spacing/residue model, ensuring Rust and Agda agree exactly.
+If Agda and the standard library are installed locally, a reasonable first
+check is:
 
 ```bash
-# Verify executable specs
 cd agda-proofs
-agda --safe Specs/Tests.agda  # All tests normalize to refl ✓
+./scripts/verify-clean-spine.sh
 ```
 
-## Verification Priority
-
-### Phase 1: Quick Wins (Weeks 1-2)
-- ✅ **Radical properties** - Easy, high pedagogical value
-- ✅ **Trio universality** - Fundamental, should be straightforward
-
-### Phase 2: Core Theorems (Months 1-2)
-- 🎯 **Affine transform** - Highest priority, moderate difficulty
-- 🎯 **Coprimality necessity** - High value, requires careful formalization
-
-### Phase 3: Advanced Claims (Months 2-4)
-- 📐 **Exclusive configurations** - Constructive proofs via divisibility
-- 📐 **GCD collapse properties** - Complex but achievable
-
-### Phase 4: Ambitious Goals (Months 4+)
-- 🚀 **Goldbach construction** - May need probabilistic models
-- 🚀 **Lagrange point properties** - Requires careful definition
-
-## Building the Proofs
-
-```bash
-# Type-check a single file
-agda Core/Radical.agda
-
-# Type-check entire project
-agda Theorems/AffineTransform.agda  # Will check dependencies
-
-# Generate HTML documentation
-agda --html Theorems/AffineTransform.agda
-# Opens in browser: html/Theorems.AffineTransform.html
-```
-
-## Current Status
-
-### Completed
-- ✅ Project structure
-- ✅ README and installation guide
-- ✅ Radical formalization (Core/Radical.agda)
-- ✅ Affine transform scaffolding (Theorems/AffineTransform.agda)
-
-### In Progress
-- 🚧 Radical property proofs
-- 🚧 Affine transform main theorem
-
-### Planned
-- ⏳ Coprimality theorem
-- ⏳ Trio universality
-- ⏳ Exclusive configuration proofs
-
-## Connection to Rust Code
-
-These Agda proofs verify mathematical claims made in:
-- `examples/affine_transform_verifier.rs` → `Theorems/AffineTransform.agda`
-- `src/hzlib/density.rs` (radical) → `Core/Radical.agda`
-- `examples/gcd_paradox_resolver.rs` → (future work)
-- `examples/proper_membrane_generator.rs` → `Theorems/ExclusiveConfigs.agda`
-
-## Learning Resources
-
-### Agda Tutorials
-- [Agda Documentation](https://agda.readthedocs.io/)
-- [Programming Language Foundations in Agda](https://plfa.github.io/)
-- [Verified Functional Programming in Agda](https://www.amazon.com/Verified-Functional-Programming-Agda-Books/dp/1970001240)
-
-### Number Theory in Agda
-- [agda-stdlib Data.Nat.Primality](https://agda.github.io/agda-stdlib/Data.Nat.Primality.html)
-- [agda-stdlib Data.Nat.GCD](https://agda.github.io/agda-stdlib/Data.Nat.GCD.html)
-
-## Contributing
-
-When adding new proofs:
-1. Start with clear specification comments
-2. State the theorem precisely
-3. Break into lemmas
-4. Document assumptions and postulates
-5. Cross-reference to Rust code and FORMAL_VERIFICATION_ASSESSMENT.md
-
-## Notes
-
-- **Primality**: We may need to postulate primality checking or use probabilistic models for large numbers
-- **Performance**: Agda proofs are for verification, not execution
-- **Completeness**: Some empirical claims may not be fully provable - we can postulate observed patterns
+For targeted follow-up, use the clean/postulated module lists in [`STATUS.md`](STATUS.md)
+rather than trying to type-check the entire tree at once.

@@ -1,177 +1,170 @@
-# Prime Physics Engine
+# Membrane Prime Toolkit
 
-Membrane-based prime number generation with Hardy-Littlewood statistical analysis.
+Cargo package `primes`: a Rust crate and research repository for building and
+analyzing structured prime candidates.
 
-## What This Is
+This repository combines a small verified math core with a larger research
+workspace around membrane constructions. The core pieces are membrane candidate
+construction, segmented sieve/primality utilities, Hardy-Littlewood and
+statistical tooling, connector experiments, and standalone research CLIs. The
+repo also contains older physics-metaphor modules such as `PrimeUniverse`,
+gravity, Lagrange, and tidal analysis; treat those as optional visualization or
+pedagogical layers, not as the central mathematical claim.
 
-Symmetric "membrane" constructions produce numbers with significantly higher prime
-density than random chance. This crate implements the generation method, a
-statistical analysis framework (Hardy-Littlewood singular series, effect sizes,
-FDR correction), and an optional physics-metaphor visualization layer.
+## What This Repo Provides
 
-```
-Membrane structure: outer + zeros + inner + zeros + SEED + zeros + inner + zeros + outer
+- `MembraneConfig` for symmetric membrane candidate construction
+- `BitSieve` and `is_prime` for prime enumeration and primality testing
+- `hzlib::*` for Hardy-Littlewood expectations, sieve helpers, and statistics
+- `connector::ConcatenationSystem` for decimal connector experiments
+- `tools/prime_unified_cli.rs` and related tools for reproducible CSV analyses
 
-Example: Config (1,5) k=(0,0), seed 4 in base 6
-         1 5 4 5 1  =  15451 (base 6)  =  2551 (decimal)  -- prime
-```
+## Current Checked Status
 
-### Verified Results
+Canonical repo-level counts live in [`STATUS.md`](STATUS.md).
 
-Tested with Miller-Rabin (20 rounds), n=1000 samples per configuration, p < 0.001:
-
-| Base | Boundary Digits | k | Prime Density | vs Random (~5%) |
-|------|----------------|---|---------------|-----------------|
-| 6    | (1, 5)         | (0, 0) | 33% | 6.6x |
-| 30   | (11, 7)        | (0, 0) | 30% | 6.0x |
-| 10   | (3, 7)         | (0, 0) | 18.5% | 3.7x |
-
-Key empirical findings (all verified across multiple bases):
-- **Coprimality required**: Boundary digits must be coprime to the base
-- **Minimal padding wins**: k=(0,0) dominates for seed length M >= 2
-- **Diameter-density law**: Compactness (1/total_digits) predicts density (Spearman rho > 0.77)
-- **Base 10 M=2 is a uniquely isolated exception** where k=1 outperforms k=0
-
-For the full evidence base including falsified hypotheses, see
-[VERIFIED_FACTS_VS_SPECULATION.md](VERIFIED_FACTS_VS_SPECULATION.md).
+- library tests pass
+- `cargo clippy --lib -- -D warnings` passes cleanly
+- the curated top-level examples in [`examples/README.md`](examples/README.md) compile
 
 ## Quick Start
 
 ```bash
-# Build
 cargo build --release
+cargo test --lib
+cargo clippy --lib -- -D warnings
 
-# Run tests
-cargo test --lib    # 174 tests
-
-# Try it
-cargo run --example proper_membrane_generator    # Generate membrane primes
-cargo run --example prime_count_smoke_test        # Validate sieve against OEIS
-cargo run --example check_prime                   # Simple prime checker
-cargo run --example statistical_prime_generator   # Statistical prime generation
+cargo run --example prime_count_smoke_test
+cargo run --example proper_membrane_generator
+cargo run --example prime_verification_report
 ```
 
-### Interactive Tools (require a terminal)
+## Core Rust API
 
-```bash
-cargo run --example membrane_lab_tui       # Interactive membrane laboratory
-cargo run --example prime_atom_tui         # Visualize membrane primes
-cargo run --example lagrange_tui_demo      # Explore prime connectors
+```rust
+use num_bigint::BigUint;
+use primes::{
+    connector::ConcatenationSystem,
+    hzlib::{goldbach_coverage_from_lambda, hl_goldbach_lambda, sieve_spf, PairCount},
+    is_prime, BitSieve, MembraneConfig,
+};
+
+let sieve = BitSieve::new(100);
+assert_eq!(&sieve.primes()[..5], &[2, 3, 5, 7, 11]);
+
+let config = MembraneConfig::new(10, 3, 7, 1, 1);
+let n = config.construct_number(5).unwrap();
+assert_eq!(n, BigUint::from(307050703u32));
+assert!(is_prime(&n));
+
+let spf = sieve_spf(10_000);
+let lambda = hl_goldbach_lambda(1000, &spf, PairCount::Unordered);
+let coverage = goldbach_coverage_from_lambda(lambda);
+assert!(coverage > 0.0);
+
+let sys = ConcatenationSystem::new(10301, 3007003007003);
+assert!(sys.forward(6, 5).is_some());
 ```
 
-### Verification
+## Membrane Construction at a Glance
 
-```bash
-cargo run --example prime_verification_report      # Verify documented claims
-cargo run --example lagrange_full_verification     # Verify Lagrange point primes
-cargo run --example lagrange_clustering_verifier   # Verify clustering patterns
-cargo run --example verify_prime_checker           # Validate Miller-Rabin
+A membrane candidate places a seed between symmetric boundary digits and zero
+padding:
+
+```text
+outer + 0...0 + inner + 0...0 + seed + 0...0 + inner + 0...0 + outer
 ```
 
-See [examples/README.md](examples/README.md) for the full list of 32 curated
-examples organized by category.
+Example in base 10 with boundary digits `(3, 7)`, `k=(1,1)`, and seed `5`:
 
-## Research Analysis Tools
+```text
+3 0 7 0 5 0 7 0 3  ->  307050703
+```
 
-Standalone CLI for reproducible prime density analysis:
+## Verified Findings and Limits
+
+The repo reproduces several high-density membrane configurations, but the
+current interpretation is intentionally conservative: the measured lift over
+naive random integers appears to be explained largely by coprimality filtering,
+not by a proven membrane-specific mechanism. The repo's own writeups report a
+membrane-vs-random-coprime structure boost of about `1.020 +/- 0.053`
+(`p > 0.05`), which is not statistically significant. See
+[`NOVELTY.md`](NOVELTY.md) and
+[`collab/THEORETICAL_CLOSURE.md`](collab/THEORETICAL_CLOSURE.md).
+
+Measured prime densities for representative configurations (`n=1000`,
+Miller-Rabin, 20 rounds):
+
+| Base | Boundary Digits | k | Prime Density |
+|------|-----------------|---|---------------|
+| 6    | (1, 5)          | (0, 0) | 33.0% |
+| 30   | (11, 7)         | (0, 0) | 30.0% |
+| 10   | (3, 7)          | (0, 0) | 18.5% |
+
+Verified in current repo documentation:
+
+- boundary digits coprime to the base are essential for useful prime density
+- minimal padding `k=(0,0)` dominates for seed length `M >= 2`, with a documented
+  base-10 `M=2` exception
+- compactness / diameter correlates strongly with observed density
+- exact enumeration shows membrane families are broader than ordinary
+  palindromes; non-palindromic subsets still contain dense prime candidates in
+  the tested families
+- exact same-budget scaffold controls do not show a consistent centered-gap
+  advantage in the tested base-10 and base-6 families
+- the connector asymmetry result is real for the canonical pair
+  `10301` and `3007003007003`, but is not yet established as a general law
+
+Open questions:
+
+- why `M=1` sometimes prefers `k>0` while larger `M` does not
+- whether any narrower family than the tested centered-gap scaffold shows extra
+  signal after same-budget matching
+- whether connector asymmetry extends beyond the canonical pair
+- whether the diameter-density relationship can be derived theoretically
+
+## Repo Structure
+
+- **Core math layer**: [`src/membrane`](src/membrane), [`src/prime_sieve.rs`](src/prime_sieve.rs),
+  [`src/hzlib`](src/hzlib), [`src/connector`](src/connector)
+- **Optional metaphor / visualization layer**: [`src/gravity`](src/gravity),
+  [`src/lagrange.rs`](src/lagrange.rs), [`src/tidal`](src/tidal),
+  [`src/tui`](src/tui)
+- **Research tools**: [`tools/prime_unified_cli.rs`](tools/prime_unified_cli.rs),
+  [`tools/README.md`](tools/README.md), workspace tools under `tools/`
+- **Formalization and archive**: [`agda-proofs/STATUS.md`](agda-proofs/STATUS.md),
+  [`historical/`](historical)
+
+## Research Tools
+
+For standalone dataset generation, the simplest entrypoint is
+[`tools/prime_unified_cli.rs`](tools/prime_unified_cli.rs). It builds with
+`rustc` and emits CSV outputs for CCRT and midpoint-density studies.
 
 ```bash
 cd tools
-rustc prime_unified_cli.rs -O -o prime_unified
-./prime_unified --out-dir=./results --ccrt-max-base=100 --mdr-limit=10000000
-cat ./results/SUMMARY.txt
+rustc prime_unified_cli.rs -O -o prime_unified_local
+./prime_unified_local --run=all --out-dir=./results --ccrt-max-base=100 --mdr-limit=10000000
 ```
 
-This produces CSV datasets for Complementary CRT patterns (Goldbach pair
-coverage by base factorization) and Midpoint Density Ratios (PNT deviation
-measurements). See [tools/README.md](tools/README.md) for parameter reference
-and CSV schemas.
+See [`tools/README.md`](tools/README.md) for output schemas and parameter
+details.
 
-## Architecture
+## Documentation and Claim Audit
 
-```
-src/
-  lib.rs                   # Crate root -- re-exports, PrimeUniverse, is_prime
-  membrane/                # Symmetric membrane construction and builder
-  prime_sieve/             # BitSieve (Eratosthenes) with optional wheel30
-  hzlib/                   # Hardy-Littlewood framework, stats, sieves, density
-  connector/               # Prime concatenation and connector analysis
-  gravity/                 # Physics metaphor: N-body gravitational model
-  lagrange.rs              # Lagrange point analysis (metaphor layer)
-  tidal/                   # Tidal field analysis (metaphor layer)
-  chaos/                   # Chaos/stability indicators
-  spacetime.rs             # Base metrics and phase space (metaphor layer)
-  harmonics.rs             # Fourier analysis (requires prime-harmonics feature)
-  bin/                     # CLI binaries (5 membrane-prime variants)
-  wasm/                    # WebAssembly bindings (requires wasm feature)
+If you want the evidence trail rather than the short README summary, start with:
 
-examples/                  # 32 curated examples (see examples/README.md)
-tools/                     # Standalone research CLIs
-agda-proofs/               # Formal verification framework (partial -- see STATUS.md)
-historical/                # Relocated exploration scripts and session docs
-collab/                    # Shared artifacts for collaborators
-```
-
-The crate has two layers:
-- **Math layer** (the verified core): `membrane`, `prime_sieve`, `hzlib`,
-  `connector`, `is_prime`
-- **Simulation layer** (physics metaphor for visualization): `gravity`, `lagrange`,
-  `tidal`, `spacetime`, `PrimeUniverse`
-
-## Features
-
-| Feature | Default | Purpose |
-|---------|---------|---------|
-| `wheel30` | yes | 30-wheel sieve compression |
-| `visualization` | yes | Terminal UI (ratatui/crossterm) |
-| `dvfs-adaptive` | yes | DVFS-aware performance monitoring |
-| `metal` | no | Apple Metal GPU kernels (macOS only, experimental) |
-| `wasm` | no | WebAssembly / wasm-bindgen |
-| `prime-harmonics` | no | Fourier analysis (num-complex) |
-| `phase4` | no | ARM AMX/SME backend (experimental) |
-
-```bash
-# Standard build
-cargo build --release
-
-# WASM (excludes terminal UI)
-cargo build --target wasm32-unknown-unknown --release --no-default-features --features wasm
-
-# Metal GPU (macOS only)
-cargo build --release --features metal
-```
-
-## Formal Verification (Agda)
-
-The `agda-proofs/` directory contains a formal verification framework targeting
-coordinate constellation properties. Current status:
-
-- **32 of 80 modules type-check** (Agda 2.8.0, stdlib v2.3): 19 clean, 13 with postulates
-- The core certification stack (9 modules) is fully operational after repair of
-  SymmetryFromList and BucketsAutoMatch
-- Modules with postulates assume axioms rather than proving them
-
-See [agda-proofs/STATUS.md](agda-proofs/STATUS.md) for the complete compilation
-status of each module.
-
-## Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [NOVELTY.md](NOVELTY.md) | Honest assessment: what this project actually contributes |
-| [CLAUDE.md](CLAUDE.md) | Detailed research context, membrane theory, HL framework reference |
-| [CLAIMS.md](CLAIMS.md) | Every claim mapped to its evidence and verification command |
-| [VERIFIED_FACTS_VS_SPECULATION.md](VERIFIED_FACTS_VS_SPECULATION.md) | Rigorous fact/speculation separation with falsifiability criteria |
-| [EVIDENCE.md](EVIDENCE.md) | Empirical data tables and external verification URLs |
-| [examples/README.md](examples/README.md) | Curated example list with descriptions |
-| [tools/README.md](tools/README.md) | Research CLI parameter reference and CSV schemas |
-| [GLOSSARY.md](GLOSSARY.md) | Terminology definitions |
-| [ROADMAP.md](ROADMAP.md) | Hardening roadmap and track status |
-
-Parent directory documentation:
-- [../CLAUDE.md](../CLAUDE.md) -- Comprehensive executive summary
-- [../EVIDENCE.md](../EVIDENCE.md) -- Full evidence base
+- [`CLAIMS.md`](CLAIMS.md): claim-to-evidence registry with verification commands
+- [`NOVELTY.md`](NOVELTY.md): honest assessment of what is and is not novel here
+- [`VERIFIED_FACTS_VS_SPECULATION.md`](VERIFIED_FACTS_VS_SPECULATION.md):
+  verified facts, falsified hypotheses, and open questions
+- [`EVIDENCE.md`](EVIDENCE.md): corrected data tables and external validation links
+- [`examples/README.md`](examples/README.md): curated example catalog
+- [`tools/README.md`](tools/README.md): research CLI reference and CSV schemas
+- [`agda-proofs/STATUS.md`](agda-proofs/STATUS.md): current Agda status
+  with clean-local vs postulated-foundation notes
+- [`ROADMAP.md`](ROADMAP.md): hardening roadmap
 
 ## License
 
-MIT License -- see LICENSE file for details.
+MIT. See [`LICENSE`](LICENSE).

@@ -1,3 +1,6 @@
+> Historical technique note. This file is kept as a proof-style reference, not
+> as a current status or coverage document for the `agda-proofs/` tree.
+
 # Analysis of ZetaWalker's Complete Base-10 Residue Proof
 
 **Date**: 2025-11-08

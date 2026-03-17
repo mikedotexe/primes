@@ -17,6 +17,7 @@ open import Data.Product     using (Σ; _,_; proj₁; proj₂)
 open import Relation.Binary.PropositionalEquality  using (_≡_; refl)
 open import Data.Empty     using (⊥)
 open import Data.Fin               using (Fin)
+open import Data.Fin.Properties    using () renaming (_≟_ to _≟Fin_)
 
 -- Import complete framework
 open import Theorems.Abstract.SymmetryImpliesRepulsion
@@ -24,9 +25,11 @@ open import Theorems.Abstract.SymmetryImpliesRepulsion
 open import Theorems.Abstract.SymmetryFromList
   using ( MS-fromResid ; PerfectBuckets ; honoraryZeroFromPerfect )
 open import Theorems.Abstract.ConstrainedOrbitals
-  using ( StableOrbital ; InZone ; Inviolability ; List )
+  using ( StableOrbital ; PointwiseSafe ; pointwiseSafe⇒StableOrbital
+        ; InZone ; inviolabilityFromPointwiseSafe ; List )
 open import Theorems.Abstract.BucketsAutoMatch
-  using ( BalancedBuckets ; honoraryZeroFromBalanced )
+  using ( BalancedBuckets ; SupportCountsAgree ; ObservedResiduesMove
+        ; honoraryZeroFromBalanced )
 
 ------------------------------------------------------------------------
 -- WINDOW DATA: What we extract from 2p² window analysis
@@ -50,6 +53,16 @@ record WindowData (base : ℕ) (n : ℕ) : Set where
 ------------------------------------------------------------------------
 -- STATIC CERTIFICATE: Honorary zero witness
 
+record StaticContracts {base n : ℕ}
+  (S : SymmetryData (Fin base))
+  (W : WindowData base n)
+  : Set where
+  field
+    support-counts   : SupportCountsAgree _≟Fin_
+                         (WindowData.residues W)
+                         (WindowData.count W)
+    nonfixed-residue : ObservedResiduesMove S (WindowData.residues W)
+
 record StaticCertificate {base n : ℕ}
   (S : SymmetryData (Fin base))
   (W : WindowData base n)
@@ -60,8 +73,19 @@ record StaticCertificate {base n : ℕ}
                          (WindowData.residues W)
                          (WindowData.count W)
 
-    -- Certificate: Honorary zero (must be provided, typically from honoraryZeroFromBalanced)
-    honorary-zero : HonoraryZero S (MS-fromResid (WindowData.residues W))
+    -- Explicit static boundary: support counts plus fixed-point exclusion.
+    static-contracts : StaticContracts S W
+
+  honorary-zero : HonoraryZero S (MS-fromResid (WindowData.residues W))
+  honorary-zero =
+    honoraryZeroFromBalanced
+      _≟Fin_
+      S
+      (WindowData.residues W)
+      (WindowData.count W)
+      balanced-witness
+      (StaticContracts.support-counts static-contracts)
+      (StaticContracts.nonfixed-residue static-contracts)
 
 ------------------------------------------------------------------------
 -- DYNAMIC CERTIFICATE: Inviolability witness
@@ -70,18 +94,24 @@ record DynamicCertificate {base n : ℕ}
   (W : WindowData base n)
   : Set where
   field
-    -- Witness: All positions maintain safe distance from midpoint
-    stable-witness : StableOrbital
+    -- Witness contract: every position is individually safe.
+    pointwise-safe : PointwiseSafe
                        (WindowData.radius W)
                        (WindowData.window-mid W)
                        (WindowData.positions W)
 
-    -- Certificate: Impossibility of zone violation (must be provided, typically from Inviolability)
-    inviolability : InZone
-                      (WindowData.radius W)
-                      (WindowData.window-mid W)
-                      (WindowData.positions W)
-                    → ⊥
+  stable-witness : StableOrbital
+                     (WindowData.radius W)
+                     (WindowData.window-mid W)
+                     (WindowData.positions W)
+  stable-witness = pointwiseSafe⇒StableOrbital pointwise-safe
+
+  inviolability : InZone
+                    (WindowData.radius W)
+                    (WindowData.window-mid W)
+                    (WindowData.positions W)
+                  → ⊥
+  inviolability = inviolabilityFromPointwiseSafe pointwise-safe
 
 ------------------------------------------------------------------------
 -- COMPLETE DUAL CERTIFICATE: Static + Dynamic
@@ -115,35 +145,20 @@ buildDualCertificate
   : ∀ {base n}
   → (S : SymmetryData (Fin base))
   → (W : WindowData base n)
+  → (contracts : StaticContracts S W)
   → (bb : BalancedBuckets S (WindowData.residues W) (WindowData.count W))
-  → (so : StableOrbital (WindowData.radius W)
+  -- Generated callers should usually build this via
+  -- pointwiseSafeNil / pointwiseSafeCons / pointwiseSafeFromAll.
+  → (ps : PointwiseSafe (WindowData.radius W)
                         (WindowData.window-mid W)
                         (WindowData.positions W))
   → DualCertificate S W
--- Helper postulate: derive honorary zero from balanced buckets
--- (implementation requires decidable equality parameter)
-postulate
-  deriveHonoraryZero : ∀ {base n}
-    → (S : SymmetryData (Fin base))
-    → (W : WindowData base n)
-    → BalancedBuckets S (WindowData.residues W) (WindowData.count W)
-    → HonoraryZero S (MS-fromResid (WindowData.residues W))
-
--- Helper postulate: derive inviolability from stable orbital
--- (implementation requires proof construction)
-postulate
-  deriveInviolability : ∀ {base n}
-    → (W : WindowData base n)
-    → StableOrbital (WindowData.radius W) (WindowData.window-mid W) (WindowData.positions W)
-    → InZone (WindowData.radius W) (WindowData.window-mid W) (WindowData.positions W) → ⊥
-
-buildDualCertificate S W bb so = record
+buildDualCertificate S W contracts bb ps = record
   { static = record
       { balanced-witness = bb
-      ; honorary-zero = deriveHonoraryZero S W bb }
+      ; static-contracts = contracts }
   ; dynamic = record
-      { stable-witness = so
-      ; inviolability = deriveInviolability W so }
+      { pointwise-safe = ps }
   }
 
 ------------------------------------------------------------------------
@@ -200,11 +215,13 @@ WORKFLOW:
 
 3. RUST: Generate Agda witness code
    - balanced-witness proof (count r = count (inv r))
-   - stable-witness proof (SafePos at each position)
+   - support-counts proof (count matches observed support)
+   - nonfixed-residue proof (observed residues move under inv)
+   - pointwise-safe proof (SafePos at each position)
 
 4. AGDA: Type-check certificate
    certificate : DualCertificate S window_data
-   certificate = buildDualCertificate S window_data bb so
+   certificate = buildDualCertificate S window_data contracts bb ps
 
 5. SUCCESS: Machine-checked dual certificate ✓
 
@@ -218,54 +235,14 @@ This completes the compute-then-verify pipeline!
 -}
 
 ------------------------------------------------------------------------
--- EXAMPLE USAGE (Base 14, hypothetical window)
-
-module Example-Base14 where
-
-  -- Concrete base 14 setup
-  base : ℕ
-  base = 14
-
-  postulate
-    -- Symmetry data (from SymmetryFiniteReflect)
-    S : SymmetryData (Fin 14)
-
-    -- Hypothetical window around 2p² for some prime p
-    n : ℕ
-    W : WindowData 14 n
-
-    -- Witnesses (would be generated by Rust + filled by hand or auto)
-    bb : BalancedBuckets S (WindowData.residues W) (WindowData.count W)
-    so : StableOrbital (WindowData.radius W)
-                       (WindowData.window-mid W)
-                       (WindowData.positions W)
-
-  -- ONE-LINE CERTIFICATION:
-  certificate : DualCertificate S W
-  certificate = buildDualCertificate S W bb so
-
-  -- EXTRACT PROOFS:
-  proof-of-void : HonoraryZero S (MS-fromResid (WindowData.residues W))
-  proof-of-void = DualCertificate.honorary-zero certificate
-
-  proof-of-exclusion : InZone (WindowData.radius W)
-                              (WindowData.window-mid W)
-                              (WindowData.positions W)
-                       → ⊥
-  proof-of-exclusion = DualCertificate.inviolability certificate
-
-  {-
-  INTERPRETATION:
-
-  If this type-checks, we have PROVEN (not just observed) that:
-
-  1. The midpoint residue (7 mod 14) is absent from this window
-  2. No prime can physically enter the exclusion zone
-  3. Both are structural necessities, not statistical flukes
-  4. The φ-constraint creates genuine geometric voids
-
-  This is ready for publication as a machine-checked appendix!
-  -}
+-- Hypothetical examples intentionally live outside this builder module.
+--
+-- See:
+--   ../../Examples/WINDOW_CERTIFICATE_BASE14_SKETCH.md
+--
+-- The goal is to keep this file focused on the dual-certificate API and its
+-- constructive builder surface, without bundling a local postulated example
+-- shell into the same module.
 
 ------------------------------------------------------------------------
 -- PRODUCTION NOTES
@@ -281,7 +258,7 @@ DEPLOYMENT:
 
 2. Each file contains:
    - WindowData (empirical input)
-   - Witness proofs (balanced-witness, stable-witness)
+   - Witness proofs (balanced-witness, pointwise-safe)
    - Certificate instantiation
    - Type-check = verification ✓
 

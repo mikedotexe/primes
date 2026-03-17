@@ -12,7 +12,8 @@
 module Theorems.CoordinateEigenspace where
 
 open import Data.Nat using (ℕ; _+_; _*_; _≤_; _<_)
-open import Data.Bool using (Bool; true; false)
+open import Data.Nat.GCD using (gcd)
+open import Data.Bool using (Bool; true; false; if_then_else_; _∧_)
 open import Data.List using (List; []; _∷_; length)
 open import Data.Product using (_×_; _,_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
@@ -130,8 +131,8 @@ variance-base18 = var
 --
 -- Isotropic if max/min < 1.5
 
-variance-ratio : Variance base → ℚ
-variance-ratio (var vx vy vz) =
+variance-ratio : {base : ℕ} → Variance base → ℚ
+variance-ratio {base} (var vx vy vz) =
   let max-var = if (vx ≤ℚ vy)
                 then (if (vy ≤ℚ vz) then vz else vy)
                 else (if (vx ≤ℚ vz) then vz else vx)
@@ -214,11 +215,6 @@ base18-eigenspace = eigenspace
 
 -- CRITICAL: All coordinates are coprime to base
 -- This is the φ(base) constraint that creates the eigenspace structure
-
--- Coprimality predicate (using Euclidean algorithm)
-gcd : ℕ → ℕ → ℕ
-gcd 0 m = m
-gcd (Data.Nat.suc n) m = gcd (m Data.Nat.% Data.Nat.suc n) (Data.Nat.suc n)
 
 is-coprime : ℕ → ℕ → Bool
 is-coprime n m = (gcd n m Data.Nat.≡ᵇ 1)

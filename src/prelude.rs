@@ -1,7 +1,7 @@
 //! Prelude module for convenient imports
 //!
 //! This module re-exports the most commonly used types and functions
-//! from the prime physics engine.
+//! from the `primes` crate.
 
 // Core types
 pub use crate::{is_prime, MembraneConfig, PhysicsError, PhysicsResult};

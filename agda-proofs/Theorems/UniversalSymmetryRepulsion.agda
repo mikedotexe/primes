@@ -10,7 +10,7 @@
 
 module Theorems.UniversalSymmetryRepulsion where
 
-open import Data.Nat using (ℕ; zero; suc; _+_; _∸_; _*_; _≤_; _<_; _≡ᵇ_)
+open import Data.Nat using (ℕ; zero; suc; _+_; _∸_; _*_; _≤_; _<_; _>_; _≡ᵇ_)
 open import Data.Fin using (Fin; zero; suc; toℕ; fromℕ<)
 open import Data.Fin.Properties using (toℕ<n)
 open import Data.List using (List; []; _∷_; length; filter)
@@ -41,7 +41,7 @@ record SymmetryData (B : ℕ) : Set where
 -- MS B = "multiset of residues modulo B"
 -- Represented as: set of occurrences I, each labeled with residue ∈ Fin B
 
-record MS (B : ℕ) : Set where
+record MS (B : ℕ) : Set₁ where
   constructor mk-ms
   field
     Occurrences : Set              -- Index set (e.g., Fin n for finite)
@@ -59,7 +59,7 @@ open MS public
 record PerfectBuckets {B : ℕ}
   (S : SymmetryData B)
   (M : MS B)
-  : Set where
+  : Set₁ where
   constructor mk-perfect-buckets
   field
     -- Pairing: each occurrence has a mate
@@ -89,7 +89,7 @@ open PerfectBuckets public
 record HonoraryZero {B : ℕ}
   (S : SymmetryData B)
   (M : MS B)
-  : Set where
+  : Set₁ where
   constructor mk-honorary-zero
   field
     no-midpoint : ∀ i → residue M i ≢ SymmetryData.mid S
@@ -131,7 +131,7 @@ PerfectBucketsImplyHonoraryZero S M pb = mk-honorary-zero proof
           -- But residue-distinct says residue(mate(i)) ≠ residue(i)
           contradiction : residue M (mate pb i) ≢ residue M i
           contradiction = residue-distinct pb i
-      in contradiction mate-is-mid
+      in contradiction (trans mate-is-mid (sym res-eq-mid))
 
 --------------------------------------------------------------------------------
 -- CONVENIENCE: Build from finite list
@@ -172,28 +172,13 @@ HonoraryZero-fromPerfectBuckets S f pb =
 -- Helper: Check if prime (postulate for now, would import from library)
 postulate
   isPrime : ℕ → Bool
+  example-symmetry : (B : ℕ) → B > 0 → SymmetryData B
 
 -- Generate composites in range
 isComposite : ℕ → Bool
 isComposite zero = false
 isComposite (suc zero) = false
 isComposite n = if isPrime n then false else true
-
--- Example symmetry data for base B (assuming B is even)
-example-symmetry : (B : ℕ) → B > 0 → SymmetryData B
-example-symmetry B B>0 = mk-symmetry-data mid inv inv-inv mid-fix
-  where
-    mid : Fin B
-    mid = {!!}  -- Would be fromℕ< (B/2) proof
-
-    inv : Fin B → Fin B
-    inv r = {!!}  -- Would compute (mid + (mid - r)) mod B
-
-    inv-inv : ∀ r → inv (inv r) ≡ r
-    inv-inv = {!!}
-
-    mid-fix : inv mid ≡ mid
-    mid-fix = {!!}
 
 --------------------------------------------------------------------------------
 -- INTERPRETATION

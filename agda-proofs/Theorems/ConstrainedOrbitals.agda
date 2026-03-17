@@ -14,13 +14,16 @@
 -- NOVEL CONTRIBUTION: Indexed inductive type enforcing distance invariant
 -- across entire sequences, proving stability is structural, not statistical.
 
-module ConstrainedOrbitals where
+module Theorems.ConstrainedOrbitals where
 
-open import Data.Nat       using (Nat ; zero ; suc)
+open import Data.Nat       using (ℕ ; zero ; suc)
 open import Relation.Binary.PropositionalEquality  using (_≡_; refl)
 open import Data.Unit      using (⊤ ; tt)
 open import Data.Product     using (Σ ; _,_)
 open import Data.Empty     using (⊥)
+open import Relation.Nullary using (¬_)
+
+Nat = ℕ
 
 ------------------------------------------------------------------------
 -- Lists
@@ -69,10 +72,7 @@ not-s≤n : ∀ {n} → ¬ (suc n ≤ n)
 not-s≤n {zero}   ()
 not-s≤n {suc n}  (s≤s p) = not-s≤n p
 
-¬_ : Set → Set
-¬ P = P → ⊥
-
-absurd : ∀ {A} → ⊥ → A
+absurd : ∀ {A : Set} → ⊥ → A
 absurd ()
 
 ------------------------------------------------------------------------
@@ -110,7 +110,7 @@ data All {A : Set}(P : A → Set) : List A → Set where
 -- Exclusion vs inclusion contradictions
 
 no≤and< : ∀ {r d} → r ≤ d → d < r → ⊥
-no≤and< r≤d d<r =
+no≤and< {d = d} r≤d d<r =
   -- d<r is suc d ≤ r; compose suc d ≤ r ≤ d ⇒ suc d ≤ d ⇒ ⊥
   let chain : suc d ≤ d
       chain = ≤-trans d<r r≤d

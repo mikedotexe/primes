@@ -1,20 +1,27 @@
 # Research Tools
 
-This directory contains standalone research instruments for generating clean, reproducible datasets used in prime number analysis.
+This directory contains standalone research instruments for generating clean,
+reproducible datasets used in prime number analysis.
 
 ## Overview
 
-These tools are **standalone** (zero external dependencies) and produce tidy CSV outputs with locked schemas. They serve as the canonical data sources for notebooks, visualizations, and statistical analyses.
+These tools are **standalone** and produce tidy CSV outputs with stable schemas.
+They are useful dataset generators for notebooks, visualizations, and
+statistical analyses.
 
 ### Relationship to Main Library
 
 - **Library** (`src/hzlib/`): Reusable components (Hardy-Littlewood framework, statistics, sieves)
 - **Tools** (`tools/`): Standalone research CLIs that generate datasets
 
-Tools are independent of the main library to ensure:
+Tools are kept relatively independent of the main library to support:
 - Reproducibility (no version conflicts)
 - Portability (single-file distribution)
 - Stability (locked CSV schemas for pipelines)
+
+For claim strength and current interpretation, prefer the active repo surfaces:
+[`../CLAIMS.md`](../CLAIMS.md), [`../EVIDENCE.md`](../EVIDENCE.md), and
+[`../README.md`](../README.md).
 
 ## prime_unified_cli
 
@@ -290,7 +297,7 @@ Open `viewer/overlay_v2.html` in a browser and load:
 **Formal Specification**: The residue counting model is formalized in Agda:
 - `agda-proofs/Specs/SpacingResidueModel.agda` - executable DP spec
 - `agda-proofs/Specs/Tests.agda` - regression tests (DP vs enumeration)
-- See [agda-proofs/README.md](../../agda-proofs/README.md#executable-specification-layer)
+- See [agda-proofs/README.md](../agda-proofs/README.md)
 
 ## hz
 

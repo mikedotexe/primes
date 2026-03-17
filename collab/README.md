@@ -1,78 +1,56 @@
 # Collaborator Reference
 
-**Updated**: 2026-03-09
-**Repository**: prime-physics-engine
+**Updated**: March 2026
 
-This folder contains curated synthesis documents for collaborators. For the
-full codebase, see the repo root.
+This directory contains collaborator-facing synthesis notes. Treat the root
+documents and audited status files as the primary source of truth, and use this
+folder for interpretation, working summaries, and exploratory follow-up.
 
 ## Start Here
 
-### The Most Important Finding
+### Best current interpretation
 
-**[THEORETICAL_CLOSURE.md](./THEORETICAL_CLOSURE.md)** -- The membrane efficiency
-gains (3-7x over random) are **fully explained by classical coprimality filtering**
-(Euler + Mertens + PNT). The membrane structure itself contributes no statistically
-significant advantage beyond guaranteeing gcd(candidate, base) = 1. This was
-confirmed by a structure stability test: membrane vs random-coprime efficiency
-ratio = 1.020 +/- 0.053, not significantly different from 1.0 (p > 0.05).
+[`THEORETICAL_CLOSURE.md`](./THEORETICAL_CLOSURE.md)
 
-This means the project's value lies not in "special membrane magic" but in:
-1. A convenient construction that guarantees coprimality
-2. The systematic empirical methodology that led to this understanding
-3. The Hardy-Littlewood statistical framework for prime density analysis
-4. The honest falsification record (multiple hypotheses tested and refuted)
+This is the collaborator summary of the repo's current best interpretation:
+membrane density gains are most plausibly explained by coprimality filtering and
+ordinary prime-density effects, not by a demonstrated membrane-specific bonus.
 
-### Practical Guide
+### Strongest repo-wide evidence docs
 
-**[PRIMORIAL_MEMBRANE_OPTIMIZATION_GUIDE.md](./PRIMORIAL_MEMBRANE_OPTIMIZATION_GUIDE.md)**
--- If you want to generate primes efficiently, this guide covers three optimization
-axes: base selection (primorials), boundary digits (L=1), and seed length (period-6
-resonance). Combined efficiency up to ~5.2x PNT.
+| Document | Purpose |
+|----------|---------|
+| [../CLAIMS.md](../CLAIMS.md) | Claim-to-evidence registry |
+| [../NOVELTY.md](../NOVELTY.md) | Honest novelty assessment |
+| [../VERIFIED_FACTS_VS_SPECULATION.md](../VERIFIED_FACTS_VS_SPECULATION.md) | Audited fact/speculation split |
+| [../EVIDENCE.md](../EVIDENCE.md) | Corrected empirical tables |
+| [../agda-proofs/STATUS.md](../agda-proofs/STATUS.md) | Current Agda compilation status |
 
-### Discovery Narrative
+## Other Notes in This Folder
 
-**[EXPLORATION_SYNTHESIS.md](./EXPLORATION_SYNTHESIS.md)** -- The material landscape
-framework: orthogonal X-Y axes (geometric quality vs cycle purity), Prime Core
-Fraction metric, and the path from "what works" to "why it works."
+Read these as exploratory or heuristic unless another audited document has
+already promoted the claim:
 
-**[PERIOD6_RESONANCE_DISCOVERY.md](./PERIOD6_RESONANCE_DISCOVERY.md)** -- Period-6
-resonance in primorial membranes. Real effect (~24% gain) but optimal phase requires
-empirical testing per base. Nuanced: the 31% figure in the original report was
-pre-stability-testing.
-
-## Key Repo Artifacts (Not in This Folder)
-
-These are the repo's strongest verified documents:
-
-| Document | What It Contains |
-|----------|-----------------|
-| [VERIFIED_FACTS_VS_SPECULATION.md](../VERIFIED_FACTS_VS_SPECULATION.md) | Rigorous fact/speculation separation with p-values and falsifiability criteria |
-| [EVIDENCE.md](../EVIDENCE.md) | Empirical data tables and Wolfram Alpha verification URLs |
-| [examples/README.md](../examples/README.md) | 32 curated examples organized by category |
-| [src/hzlib/](../src/hzlib/) | Hardy-Littlewood framework, stats, sieves, density analysis |
-| [ROADMAP.md](../ROADMAP.md) | Current hardening status and track progress |
+- [`PRIMORIAL_MEMBRANE_OPTIMIZATION_GUIDE.md`](./PRIMORIAL_MEMBRANE_OPTIMIZATION_GUIDE.md)
+- [`EXPLORATION_SYNTHESIS.md`](./EXPLORATION_SYNTHESIS.md)
+- [`PERIOD6_RESONANCE_DISCOVERY.md`](./PERIOD6_RESONANCE_DISCOVERY.md)
 
 ## Quick Verification
 
 ```bash
-cargo test --lib                                    # 174 tests pass
-cargo run --example prime_count_smoke_test           # Sieve vs OEIS reference
-cargo run --example proper_membrane_generator        # Generate membrane primes
-cargo run --example prime_verification_report        # Full verification report
+cargo test --lib
+cargo run --example prime_count_smoke_test
+cargo run --example proper_membrane_generator
+cargo run --example prime_verification_report
 ```
 
-## What We Know For Certain
+## Current Working Assumptions
 
-1. Membrane constructions achieve 3-7x prime density over random (empirical, n=1000, p<0.001)
-2. The efficiency is fully explained by coprimality filtering (classical, December 2025)
-3. Coprimality of boundary digits to the base is required (empirical, 100% of top configs)
-4. k=0 padding dominates for seed length M >= 2 (empirical, 8 bases, p<0.001)
-5. Base 10 M=2 is a uniquely isolated exception (1/8 bases, p<0.05)
-
-## What Remains Open
-
-1. Why is Base 10 M=2 exceptional? (No structural explanation found)
-2. Does the period-6 resonance have a deeper explanation beyond ord(10)?
-3. Can the HL framework predict membrane density a priori?
-4. What do the Agda formal proofs actually establish? (32 of 80 modules type-check; 20 clean, 12 with postulates)
+1. Membrane constructions can achieve high prime density in selected measured
+   configurations.
+2. Coprimality is the dominant explanatory factor currently supported by the
+   repo's evidence.
+3. Claims about connector asymmetry, Lagrange behavior, and resonance effects
+   should be treated as narrower than the membrane-density story.
+4. The Agda work is partial: 20 clean modules and 12 postulated modules
+   currently type-check.

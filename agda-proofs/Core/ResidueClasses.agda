@@ -28,19 +28,21 @@ module Core.ResidueClasses where
 -- IMPORTS FROM STANDARD LIBRARY
 -------------------------------------------------------------------------------
 
-open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _<_; _≡ᵇ_; _≤_; _>_)
-open import Data.Nat.Properties using (_≟_)
-open import Data.Nat.DivMod using (_mod_; m%n<n)
+open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _<_; _≡ᵇ_; _≤_; _>_; z≤n; s≤s)
+open import Data.Nat.Base using (nonZero)
+open import Data.Nat.Properties using (_≟_; ≤-trans)
+open import Data.Nat.DivMod using (_%_)
 open import Data.Nat.GCD using (gcd)
 open import Data.Nat.Divisibility using (_∣_)
-open import Data.Nat.Coprimality using (Coprime)
 open import Data.Product using (_×_; _,_; ∃; Σ-syntax)
 open import Data.List using (List; []; _∷_; filter; length)
 open import Data.List.Base using (applyUpTo)
+open import Data.List.Membership.Propositional using (_∈_)
+open import Data.List.Membership.Propositional.Properties using (∈-filter⁻)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans)
 open import Relation.Nullary using (¬_; Dec; yes; no)
 open import Algebra.Structures using (IsCommutativeRing)
-open import Data.Unit using (⊤)
+open import Data.Unit using (⊤; tt)
 
 -------------------------------------------------------------------------------
 -- IMPORTS FROM CORE MODULES
@@ -59,8 +61,12 @@ open import Core.ResidueClassesComplete public using
   ; _≟ᵣ_
   ; _⊕_
   ; _⊗_
+  ; ⊖_
   ; 0ᵣ
   ; 1ᵣ
+  ; Coprime
+  ; IsUnit
+  ; units-are-coprime
   ; residue-ring
   )
 open import Core.ResidueCollapse using (CollapseStructure)
@@ -79,9 +85,6 @@ open import Core.ResidueCollapse using (CollapseStructure)
   where it is defined with proper bounds checking {m>0 : m > 0}.
 -}
 
--- Notation: [r]ₘ for residue class of r mod m
-syntax ResidueClass m = ℤ/[1+ m ]ℤ
-
 -------------------------------------------------------------------------------
 -- PART 2: UNITS (COPRIME RESIDUES)
 -------------------------------------------------------------------------------
@@ -94,16 +97,8 @@ syntax ResidueClass m = ℤ/[1+ m ]ℤ
   This fundamental characterization connects algebra and number theory.
 -}
 
--- Unit definition
-IsUnit : ∀ {m} {m>0 : m > 0} → ResidueClass m {m>0} → Set
-IsUnit {m} {m>0} r =
-  ∃ λ (s : ResidueClass m {m>0}) →
-    ∃ λ (m>1 : m > 1) → (r ⊗ s) ≡ᵣ 1ᵣ {m>1 = m>1}
-
--- THEOREM: Units are exactly the coprime residues
-postulate
-  units-are-coprime : ∀ {m} {m>0 : m > 0} (r : ResidueClass m {m>0}) →
-    IsUnit r ↔ Coprime ⟦ r ⟧ m
+-- `IsUnit` and `units-are-coprime` are imported from
+-- Core.ResidueClassesComplete and re-exposed here as part of the framework API.
 
 {-|
   The proof (implemented in Core.ResidueClassesComplete):
@@ -121,7 +116,11 @@ postulate
 
 -- Count units (Euler's totient function)
 totient : ℕ → ℕ
-totient m = length (filter (λ r → gcd r m ≡ᵇ 1) (applyUpTo (_+ 0) m))
+totient m = length (filter (λ r → gcd r m ≟ 1) (applyUpTo (_+ 0) m))
+
+modℕ : ℕ → ℕ → ℕ
+modℕ _ zero = 0
+modℕ n (suc m) = _%_ n (suc m) {{nonZero}}
 
 -------------------------------------------------------------------------------
 -- PART 3: RESIDUE COLLAPSE
@@ -130,8 +129,10 @@ totient m = length (filter (λ r → gcd r m ≡ᵇ 1) (applyUpTo (_+ 0) m))
 {-|
   RESIDUE COLLAPSE: The GCD Paradox Explained!
 
-  When gcd(base, d) > 1, residues mod d collapse into fewer classes.
-  This creates STRONGER filtering, explaining why base 6 can outperform base 10.
+  In the current formal and empirical story, the signal is not that residue
+  classes disappear once `base ≥ d`. The sharper effect is that higher
+  gcd(base, d) can create more regular frequency patterns across residue
+  classes, which may create stronger structural constraints.
 
   The full formalization is in Core.ResidueCollapse.
 -}
@@ -139,15 +140,14 @@ totient m = length (filter (λ r → gcd r m ≡ᵇ 1) (applyUpTo (_+ 0) m))
 -- Re-export the collapse structure
 open Core.ResidueCollapse using (CollapseStructure) public
 
--- THEOREM: Higher collapse → More constraint
-postulate
-  collapse-strengthens-filtering : ∀ base₁ base₂ divisor →
-    let c₁ = gcd base₁ divisor
-        c₂ = gcd base₂ divisor
-    in c₁ > c₂ →
-       -- Base₁ has more constrained residue structure than base₂
-       -- (Proven in Core.ResidueCollapse)
-       ⊤
+-- The currently maintained framework-level comparison remains intentionally
+-- weak, but it is now constructive instead of postulated.
+collapse-strengthens-filtering : ∀ base₁ base₂ divisor →
+  let c₁ = gcd base₁ divisor
+      c₂ = gcd base₂ divisor
+  in c₁ > c₂ →
+     ⊤
+collapse-strengthens-filtering _ _ _ _ = tt
 
 -------------------------------------------------------------------------------
 -- PART 4: CONNECTION TO PRIMALITY
@@ -165,7 +165,7 @@ postulate
   prime-residue-constraint : ∀ n base →
     IsPrime n →
     n > base →
-    Coprime (n mod (radical base)) (radical base)
+    Coprime (modℕ n (radical base)) (radical base)
 
 {-|
   The proof (from Core.Radical):
@@ -183,7 +183,7 @@ postulate
 valid-prime-residues : ℕ → List ℕ
 valid-prime-residues base =
   let r = radical base
-  in filter (λ k → gcd k r ≡ᵇ 1) (applyUpTo suc r)
+  in filter (λ k → gcd k r ≟ 1) (applyUpTo suc r)
 
 -------------------------------------------------------------------------------
 -- PART 5: AFFINE STRUCTURE
@@ -197,8 +197,8 @@ valid-prime-residues base =
 -- Residue of linear combination
 postulate
   residue-linear : ∀ a b c m →
-    ((a + b * c) mod m) ≡
-    ((a mod m) + ((b mod m) * (c mod m)) mod m) mod m
+    modℕ (a + b * c) m ≡
+    modℕ (modℕ a m + modℕ (modℕ b m * modℕ c m) m) m
 
 -- Linear function type
 record IsLinear (f : ℕ → ℕ) : Set where
@@ -211,7 +211,10 @@ postulate
   residue-homomorphism : ∀ f →
     IsLinear f →
     ∀ m x y →
-      (f (x + y)) mod m ≡ ((f x) mod m + (f y) mod m) mod m
+      modℕ (f (x + y)) m ≡ modℕ (modℕ (f x) m + modℕ (f y) m) m
+
+base>1⇒base>0 : ∀ {base} → base > 1 → base > 0
+base>1⇒base>0 base>1 = ≤-trans (s≤s z≤n) base>1
 
 -------------------------------------------------------------------------------
 -- PART 6: THE UNIFYING FRAMEWORK
@@ -225,26 +228,21 @@ postulate
 -}
 
 record ResidueFramework (base : ℕ) {base>1 : base > 1} : Set where
-  private
-    base>0 : base > 0
-    base>0 = trans-< (s≤s z≤n) base>1
-      where
-        open import Data.Nat using (z≤n; s≤s)
-        open import Data.Nat.Properties using (trans-<)
-
   field
     -- 1. Residue ring structure
-    ring : IsCommutativeRing _≡ᵣ_ _⊕_ _⊗_ (0ᵣ {m>0 = base>0}) (1ᵣ {m>1 = base>1})
+    ring : IsCommutativeRing _≡ᵣ_ _⊕_ _⊗_ ⊖_
+      (0ᵣ {m>0 = base>1⇒base>0 base>1})
+      (1ᵣ {m>0 = base>1⇒base>0 base>1} base>1)
 
     -- 2. Unit group (coprime residues)
-    units : ∀ (r : ResidueClass base {base>0}) →
-      IsUnit {m>0 = base>0} r ↔ Coprime ⟦ r ⟧ base
+    units : ∀ (r : ResidueClass base {base>1⇒base>0 base>1}) →
+      IsUnit {m>0 = base>1⇒base>0 base>1} r ↔ Coprime ⟦ r ⟧ base
 
     -- 3. Radical filtering
     prime-filter : ∀ n →
       IsPrime n →
       n > base →
-      Coprime (n mod (radical base)) (radical base)
+      Coprime (modℕ n (radical base)) (radical base)
 
     -- 4. Collapse structure
     collapse : ∀ d →
@@ -253,8 +251,8 @@ record ResidueFramework (base : ℕ) {base>1 : base > 1} : Set where
 
     -- 5. Affine preservation
     affine-linear : ∀ a b c →
-      ((a + b * c) mod base) ≡
-      ((a mod base) + ((b mod base) * (c mod base)) mod base) mod base
+      modℕ (a + b * c) base ≡
+      modℕ (modℕ a base + modℕ (modℕ b base * modℕ c base) base) base
 
     -- 6. Radical value
     rad : ℕ
@@ -264,20 +262,18 @@ record ResidueFramework (base : ℕ) {base>1 : base > 1} : Set where
     wheel-classes : List ℕ
     wheel-classes-def : wheel-classes ≡ valid-prime-residues base
     wheel-classes-coprime : ∀ r → r ∈ wheel-classes → Coprime r (radical base)
-      where
-        open import Data.List.Membership.Propositional using (_∈_)
 
 -- THEOREM: Every base has this residue framework
 universal-residue-framework : ∀ base →
   (base>1 : base > 1) →
   ResidueFramework base {base>1}
 universal-residue-framework base base>1 = record
-  { ring = residue-ring base
-  ; units = units-are-coprime
+  { ring = residue-ring base base>1
+  ; units = units-are-coprime base>1
   ; prime-filter = λ n → prime-residue-constraint n base
   ; collapse = λ d d∣base →
       record
-        { divides = d∣base
+        { divides-base = d∣base
         ; distinct-classes = distinct-residues base d
         ; distinct-classes-correct = refl
         }
@@ -290,11 +286,14 @@ universal-residue-framework base base>1 = record
   }
   where
     open import Core.ResidueCollapse using (distinct-residues)
-    open import Data.List.Membership.Propositional using (_∈_)
 
-    -- Helper: elements of valid-prime-residues are coprime to rad(base)
-    postulate
-      wheel-coprime-lemma : ∀ base r → r ∈ valid-prime-residues base → Coprime r (radical base)
+    wheel-coprime-lemma : ∀ base r → r ∈ valid-prime-residues base → Coprime r (radical base)
+    wheel-coprime-lemma base r r∈wheel
+      with ∈-filter⁻ {P = λ k → gcd k (radical base) ≡ 1}
+                     (λ k → gcd k (radical base) ≟ 1)
+                     {xs = applyUpTo suc (radical base)}
+                     r∈wheel
+    ... | _ , gcd≡1 = gcd≡1
 
 {-|
   The construction (implemented across modules):
@@ -319,7 +318,7 @@ universal-residue-framework base base>1 = record
   Answer: Only those coprime to the radical of the base!
 -}
 
-record BaseFilter (b : ℕ) : Set where
+record BaseFilter (b : ℕ) : Set1 where
   field
     rad        : ℕ             -- radical(b)
     units      : ℕ → Set       -- digits/residues coprime to b
@@ -343,7 +342,7 @@ baseFilter {b} b>1 RF = record
 postulate
   primes-filtered-by-units : ∀ {b} (BF : BaseFilter b) →
     ∀ p → IsPrime p → p > BaseFilter.rad BF →
-    BaseFilter.units BF (p mod b)
+    BaseFilter.units BF (modℕ p b)
 
 -------------------------------------------------------------------------------
 -- SUMMARY

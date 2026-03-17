@@ -23,17 +23,19 @@ below reflect corrected values.
 | 6 | Diameter-density law: compactness predicts density (rho > 0.77) | `empirical` | VERIFIED_FACTS_VS_SPECULATION.md, Spearman rho > 0.77, p < 1e-20 | (verified in scaling exploration, not in a standalone example) |
 | 7 | Base 10 M=2 is a uniquely isolated exception where k=1 beats k=0 | `empirical` | VERIFIED_FACTS_VS_SPECULATION.md Fact 2, delta=+5.9pp, p~0.01 | `cargo run --example prime_verification_report` |
 | 8 | Membrane density advantage is largely explained by coprimality filtering | `empirical` | collab/THEORETICAL_CLOSURE.md, structure boost ~1.02x (not significant) | `cargo run --example membrane_vs_random` |
+| 9 | Membrane families tested exactly are broader than the ordinary palindrome subset | `empirical` | EVIDENCE.md structural exact probes; non-palindromic subsets retain prime density in tested families | `cargo run --example membrane_palindrome_probe` |
+| 10 | Exact same-budget centered-gap controls do not show a consistent advantage in the tested families | `empirical` | EVIDENCE.md structural exact probes; fixed-anchor and independent-digit probes both fail to show a stable centered-gap lift | `cargo run --example membrane_scaffold_probe` |
 
 ## Infrastructure Claims
 
 | # | Claim | Status | Evidence | Verification |
 |---|-------|--------|----------|--------------|
-| 9 | 174 library tests pass | `verified` | CI | `cargo test --lib` |
-| 10 | Clippy clean on all targets | `verified` | CI | `cargo clippy --all-targets -- -D warnings` |
-| 11 | 32 curated examples compile | `verified` | examples/README.md | `for f in examples/*.rs; do cargo build --example "$(basename "$f" .rs)" 2>/dev/null || echo "FAIL: $f"; done` |
-| 12 | 32/80 Agda modules type-check (20 clean, 12 with postulates) | `verified` | agda-proofs/STATUS.md | Local: `agda <module>` for each listed module |
-| 13 | Miller-Rabin with 20 rounds (error rate < 1e-12) | `implemented` | src/lib.rs `is_prime` function | `cargo run --example verify_prime_checker` |
-| 14 | Sieve matches OEIS A000720 reference counts | `verified` | pi(10^k) smoke test | `cargo run --example prime_count_smoke_test` |
+| 11 | 174 library tests pass | `verified` | CI | `cargo test --lib` |
+| 12 | Clippy clean on all targets | `verified` | CI | `cargo clippy --all-targets -- -D warnings` |
+| 13 | Curated top-level examples compile | `verified` | examples/README.md, STATUS.md | `for f in examples/*.rs; do cargo build --example "$(basename "$f" .rs)" 2>/dev/null || echo "FAIL: $f"; done` |
+| 14 | 32/80 Agda modules type-check (20 clean, 12 with postulates) | `verified` | agda-proofs/STATUS.md | Local: `agda <module>` for each listed module |
+| 15 | Miller-Rabin with 20 rounds (error rate < 1e-12) | `implemented` | src/lib.rs `is_prime` function | `cargo run --example verify_prime_checker` |
+| 16 | Sieve matches OEIS A000720 reference counts | `verified` | pi(10^k) smoke test | `cargo run --example prime_count_smoke_test` |
 
 ## Falsified Claims (Documented for Honesty)
 
@@ -51,6 +53,7 @@ below reflect corrected values.
 | O1 | Why does M=1 prefer k>0 while all larger M prefer k=0? | `open` |
 | O2 | Is directional asymmetry in prime connectors a general phenomenon? | `open` (tested on one pair only) |
 | O3 | Can the diameter-density law be proven from k-tuple conjecture theory? | `open` |
+| O4 | Can any narrower centered-gap family show a robust advantage after same-budget matching? | `open` |
 
 ## Methodology
 

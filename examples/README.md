@@ -1,6 +1,6 @@
 # Examples
 
-All 32 top-level examples compile and are maintained. Run any example with:
+All curated top-level examples compile and are maintained. Run any example with:
 
 ```bash
 cargo run --example <name>
@@ -32,6 +32,8 @@ cargo run --example prime_verification_report   # Verify all documented claims
 | Example | Description |
 |---------|-------------|
 | `comprehensive_base_analysis` | Systematic membrane config testing across multiple bases |
+| `membrane_palindrome_probe` | Exact structure probe: palindrome overlap and zero-layout symmetry |
+| `membrane_scaffold_probe` | Exact centered-scaffold vs same-budget control probe |
 | `membrane_showcase` | Demonstration of membrane prime patterns across different bases |
 | `membrane_vs_random` | Compares membrane-structured numbers against random coprime numbers |
 | `membrane_vs_random_fast` | Fast version of membrane-vs-random using base 30 |

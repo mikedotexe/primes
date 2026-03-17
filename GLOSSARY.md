@@ -1,366 +1,198 @@
-# Prime Physics Engine - Quick Reference Glossary
+# Membrane Prime Toolkit Glossary
 
-**For detailed explanations, see [CLAUDE.md](CLAUDE.md)**
+Short definitions for the main terms used in this repository.
 
----
+For a broader technical summary, see [`CLAUDE.md`](CLAUDE.md). For audited
+claims, see [`CLAIMS.md`](CLAIMS.md) and
+[`VERIFIED_FACTS_VS_SPECULATION.md`](VERIFIED_FACTS_VS_SPECULATION.md).
 
-## Not a Palindrome (Read This First)
-
-You might think: "Is this just finding palindromic primes?"
-
-**No.** Critical distinction:
-
-```
-┌─────────────────────────────────────────────────────┐
-│  PALINDROME (digits must match positions):         │
-│                                                     │
-│     1  2  3  4  3  2  1                            │
-│     ↑  ↑  ↑  ↑  ↑  ↑  ↑                            │
-│     └──────┴──┴──┴──┴──────┘                       │
-│     Position 1 = Position 7 (must both be 1)       │
-│     Position 2 = Position 6 (must both be 2)       │
-│     etc.                                           │
-│                                                     │
-│  MEMBRANE (structure, not specific digits):        │
-│                                                     │
-│     3  ◯  7  ◯  5  ◯  7  ◯  3                      │
-│     ↑     ↑     ↑     ↑     ↑                      │
-│     │     │     │     │     └─ outer boundary      │
-│     │     │     └───────────── variable seed       │
-│     │     └─────────────────── inner boundary      │
-│     └───────────────────────── outer boundary      │
-│                                                     │
-│   We DON'T require 3=3 at ends (that's palindrome) │
-│   We only require STRUCTURE: outer-inner-SEED      │
-│   The VALUES (3,7,5) can be anything coprime!      │
-│                                                     │
-│   Different seed → same structure, different prime │
-│      seed=5 → 307050703 ✓ prime                    │
-│      seed=4 → 307040703 ✗ composite                │
-│      seed=7 → 307070703 ✗ composite                │
-└─────────────────────────────────────────────────────┘
-```
-
-**The Big Difference**:
-- **Palindrome**: Fixed digits in fixed positions (1 specific number)
-- **Membrane**: Fixed structure, variable values (1 structure → MULTIPLE primes)
-
-**Why membranes are powerful**: One structure produces many primes by varying the seed.
-
----
-
-## Core Concepts
+## Core Terms
 
 ### Membrane
-A symmetric number construction with boundary digits wrapping around a central seed.
 
-**Structure**: `outer + padding + inner + padding + SEED + padding + inner + padding + outer`
+A structured number pattern built from boundary digits, zero padding, and a
+central seed.
 
-**Example**: `3-0-7-0-5-0-7-0-3` → `307050703` (prime)
+General form:
 
-**Why "membrane"?** Like a biological membrane that wraps and protects cell contents, these digit patterns wrap around the central seed with symmetric boundary layers.
+```text
+outer + 0...0 + inner + 0...0 + seed + 0...0 + inner + 0...0 + outer
+```
 
----
+Example:
+
+```text
+3 0 7 0 5 0 7 0 3  ->  307050703
+```
 
 ### Configuration
-The fixed structural parameters of a membrane: boundary digits and padding amounts.
 
-**Notation**: `(outer, inner)` with `k=(k₁,k₂)`
+The fixed part of a membrane construction: base, boundary digits, and padding
+parameters.
 
-**Example**: Configuration `(3,7)` with `k=(1,1)` means outer=3, inner=7, one zero between each layer
-
-**Key Point**: ONE configuration can produce MULTIPLE primes by varying the seed.
-
----
+Example: `(outer, inner) = (3, 7)` with `k=(1,1)`.
 
 ### Seed
-The central variable portion of a membrane that changes while the configuration stays fixed.
 
-**Single-digit seed**: `5` → becomes central digit `5`
+The variable middle part of a membrane candidate.
 
-**Multi-digit seed**: `'01'` → becomes central pair `01` (zero then one)
+- single-digit seed: `5`
+- multi-digit seed: `"01"` means the digit string `0,1`, not the number `1`
 
-**Note**: Quotes indicate string concatenation, not numeric value. Seed `'01'` ≠ seed `1`.
+### `k=(k_outer, k_inner)`
 
----
+The zero-padding counts in a symmetric membrane.
 
-### k=(k₁,k₂) - Zero Padding Parameters
-Controls the number of zeros between boundary layers.
+- `k_outer`: zeros between outer and inner boundary digits
+- `k_inner`: zeros between inner boundary digits and the seed
 
-**k₁**: Number of zeros between outer and inner boundary digits
+Examples:
 
-**k₂**: Number of zeros between inner boundary and seed
+- `k=(0,0)`: `3 7 5 7 3`
+- `k=(1,1)`: `3 0 7 0 5 0 7 0 3`
+- `k=(2,1)`: `3 00 7 0 5 0 7 00 3`
 
-**Examples**:
-- `k=(0,0)`: No padding - `3-7-5-7-3` → `37573`
-- `k=(1,1)`: One zero each - `3-0-7-0-5-0-7-0-3` → `307050703`
-- `k=(2,1)`: Two outer, one inner - `3-00-7-0-5-0-7-00-3` → `300705070003`
+### Symmetric membrane
 
-**Surprising finding**: `k=(0,0)` (minimal padding) often performs best.
+A membrane where the left and right sides mirror each other using the same
+padding counts.
 
----
+### Breathing membrane
 
-### Breathing Pattern
-A membrane configuration with asymmetric padding where k₁ ≠ k₂.
+A membrane with asymmetric left/right padding. In this repository, "breathing"
+is a structural label, not a theoretical claim about a physical process.
 
-**Example**: `(3,3)` with `k=(0,1)` → `3-3-0-5-0-3-3` → `3305033`
+## Evidence Terms
 
-**Why "breathing"?** The alternating tight-loose-tight pattern creates a rhythm in the structure, like breathing in-out. (Though the numbers are static.)
+### Prime density / success rate
 
-**Performance**: Often outperforms symmetric patterns - e.g., 30% vs 10% success
+The fraction of tested seeds that produce primes for a given configuration.
 
----
+Example: `3` primes out of `10` seeds means `30%` prime density.
 
-### Symmetric Pattern
-A membrane configuration with equal padding where k₁ = k₂.
+### Random baseline
 
-**Example**: `(3,3)` with `k=(1,1)` → `3-0-3-0-5-0-3-0-3` → `303050303`
+A comparison against randomly chosen integers of comparable size. This baseline
+depends on the exact denominator and candidate set, so it should be read from
+the relevant experiment rather than treated as a universal constant.
 
-**Characteristic**: Perfect structural symmetry
+### Random-coprime control
 
-**Performance**: Generally lower than breathing patterns, despite aesthetic appeal
+A stricter comparison where random candidates are required to be coprime to the
+base. This is the important control for asking whether membrane structure adds
+anything beyond coprimality filtering.
 
----
+### Coprime to the base
 
-### Success Rate / Prime Density
-The fraction of seeds that produce prime numbers for a given configuration.
+A digit or number is coprime to base `b` if its greatest common divisor with
+`b` is `1`.
 
-**Formula**: `(primes found) / (seeds tested)`
+Example in base 10:
 
-**Example**: Configuration `(3,3)` k=(0,1) with seeds 0-9:
-- Seeds 4, 5, 7 produce primes (3 primes)
-- Total seeds tested: 10
-- Success rate: 3/10 = **30%**
+- `1, 3, 7, 9` are coprime to `10`
+- `2, 4, 5, 6, 8` are not
 
-**Comparison**: Random odd numbers ~5%, optimal membranes ~33%
+Why it matters: non-coprime boundary digits can force trivial divisibility.
 
-**Note**: We use "success rate" and "prime density" interchangeably.
+### Diameter / compactness
 
----
+A shorthand for how long or spread out a construction is. In this repo's
+empirical results, more compact constructions tend to show higher prime density.
 
-### Coprime to Base
-A digit d is coprime to base b if gcd(d, b) = 1 (they share no prime factors).
+### Verified
 
-**Example (base 10)**:
-- Digits 1,3,7,9 are coprime to 10 ✓
-- Digit 2 shares factor 2 with 10 (not coprime) ✗
-- Digit 5 shares factor 5 with 10 (not coprime) ✗
+Checked against the current code or current audited documents.
 
-**Why it matters**: Non-coprime boundary digits create systematic divisibility.
-- Using 2 in base 10 → every membrane is even (composite)
-- Using 5 in base 10 → every membrane divisible by 5
+### Open
 
-**Key Finding**: 100% of top-performing configurations use coprime boundary digits.
+A question or interpretation that remains unresolved or only partially tested.
 
----
+## Connector Terms
 
-## Advanced Concepts
+### Connector system
 
-### Lagrange Points
-Positions in the zero buffer between two concatenated primes where specific non-zero digits maintain primality of the entire number.
+The decimal concatenation framework for inserting a variable connector between
+two fixed primes.
 
-**Analogy**: Like gravitational Lagrange points between Earth and Moon where objects remain stable, these are "mathematical equilibrium points" between prime "masses."
+Core API: `connector::ConcatenationSystem`.
 
-**Example** (verified):
-```
-Prime 1:  10301
-Buffer:   5 zeros
-Prime 2:  3007003007003
+### Canonical pair
 
-With all zeros: 10301000003007003007003 → COMPOSITE (div by 11, 13) ✗
-With digit 6 at position 4: 10301000063007003007003 → PRIME ✓
-```
+The prime pair used most heavily in connector experiments:
 
-**Requirements**: Needs TWO primes (single primes don't create this effect)
+- left: `10301`
+- right: `3007003007003`
 
-**Status**: 4 verified equilibrium positions for the (10301, 3007003007003) pair.
-See EVIDENCE.md Section 5b for the complete verified family.
+Several connector findings currently apply only to this pair.
 
----
+### Directional asymmetry
 
-### Exclusive Configuration
-A configuration that produces primes with only ONE specific seed value.
+An observed difference between forward and reverse concatenation success rates.
+The repo treats this as a real empirical effect for the canonical pair, but not
+yet as a general law.
 
-**Example**: `(3,7)` k=(1,1) works ONLY with seed=5
-- Seed 5 → `307050703` ✓ PRIME
-- Seeds 0,1,2,3,4,6,7,8,9 → all composite ✗
+### Lagrange point
 
-**Significance**: Demonstrates deterministic prime generation - 100% success rate for that specific seed.
+Repository shorthand for a productive insertion position in a connector buffer.
+This is an analogy borrowed from physics, not a literal physical model.
 
-**Verification**: We test ALL seeds (0-9), not cherry-picked successes.
+Use this term carefully:
 
----
+- acceptable: "Lagrange point" as the repo's connector vocabulary
+- not acceptable: implying a proven general equilibrium law for prime pairs
 
-### Configuration Migration
-As seed length increases, optimal configurations "evolve" to maintain high prime density.
+## Number-Theory and API Terms
 
-**Example**: Different configs dominate for:
-- Single-digit seeds: `(3,3)` k=(0,1)
-- Two-digit seeds: Different patterns emerge
-- Three-digit seeds: Further evolution
+### Hardy-Littlewood framework
 
-**Key Insight**: Some configurations are "length specialists" - natively optimized for specific seed lengths, not degraded versions of shorter patterns.
+The repo's statistical and number-theoretic tooling under [`src/hzlib`](src/hzlib).
+It includes singular series calculations, sieve helpers, and statistical tools.
 
----
+### `PairCount`
 
-## Bases and Representation
+An enum used in the Hardy-Littlewood APIs to distinguish:
 
-### Base (Radix)
-The number system used to construct the membrane pattern.
+- ordered pairs `(p, q)`
+- unordered pairs `{p, q}`
 
-**Base 10 (decimal)**: Digits 0-9
-**Base 6**: Digits 0-5
-**Base 12**: Digits 0-9,A,B (or 0-9,10,11)
+### `rad(b)`
 
-**Example**: In base 6, the number "15451" means:
-```
-1×6⁴ + 5×6³ + 4×6² + 5×6 + 1 = 1296 + 1080 + 144 + 30 + 1 = 2551 (decimal)
-```
+The radical of `b`: the product of the distinct prime factors of `b`.
 
-**IMPORTANT**: Membrane patterns are **built in the specified base** but primality is **tested in decimal**.
+Example:
 
----
+- `rad(12) = 2 * 3 = 6`
 
-### Base-Dependent Optimization
-Each number base has its own optimal boundary digits and configurations.
+### Miller-Rabin
 
-**Key Finding**: No "universally magical" digit exists - optimization is base-specific.
+The primality test used in the repo for large integers. The repo standard is
+20 rounds in the documented empirical checks.
 
-**Examples**:
-- Base 6 optimal: `(1,5)` k=(0,0) → 33% success
-- Base 10 optimal: `(3,3)` k=(0,1) → 30% success
-- Base 30 optimal: `(11,7)` k=(0,0) → 30% success
+## Common Clarifications
 
-**Why?**: Different bases have different factorization properties (6=2×3, 10=2×5, 30=2×3×5)
+- A membrane is not the same thing as a palindrome.
+- The repository is not claiming a new physical theory of primes.
+- The strongest current interpretation is that membrane efficiency is largely a
+  coprimality-filtering effect.
+- The quoted densities such as `33%`, `30%`, and `18.5%` are representative
+  measured configurations, not universal maxima.
+- Base-specific high performers exist, but "best" depends on the exact
+  construction family and experiment.
 
----
+## Current Representative Examples
 
-## Verification and Testing
+These are useful anchor points, not exhaustive winners:
 
-### Systematic Testing
-Testing ALL possible values in a defined parameter space, not cherry-picking successes.
+| Base | Boundary Digits | k | Prime Density |
+|------|-----------------|---|---------------|
+| 6    | (1, 5)          | (0, 0) | 33.0% |
+| 30   | (11, 7)         | (0, 0) | 30.0% |
+| 10   | (3, 7)          | (0, 0) | 18.5% |
 
-**Protocol**: For each configuration:
-1. Test ALL single-digit seeds (0-9 in base 10, 0-5 in base 6, etc.)
-2. Record EVERY result (both primes and composites)
-3. Calculate success rate honestly
+## See Also
 
-**Transparency**: We report both successes AND failures.
-
-**Example**: Configuration `(3,7)` k=(1,1):
-```
-Seed 0: 307000703 → composite ✗
-Seed 1: 307010703 → composite ✗
-Seed 2: 307020703 → composite ✗
-Seed 3: 307030703 → composite ✗
-Seed 4: 307040703 → composite ✗
-Seed 5: 307050703 → PRIME ✓
-Seed 6: 307060703 → composite ✗
-Seed 7: 307070703 → composite ✗
-Seed 8: 307080703 → composite ✗
-Seed 9: 307090703 → composite ✗
-
-Success rate: 1/10 = 10%
-```
-
----
-
-### Miller-Rabin Primality Test
-A probabilistic algorithm for testing whether a number is prime.
-
-**Our Standard**: 20 rounds
-
-**Confidence**: Probability of false positive (composite called prime) < (1/4)²⁰ ≈ 10⁻¹²
-
-**Across 286,200 tests**: Expected false positives ≈ 0.0003 (essentially zero)
-
-**External Verification**: Key examples also verified via Wolfram Alpha for complete confidence.
-
----
-
-### Verified vs Unverified
-**Verified**: Tested with current scripts and independently confirmed
-
-**Unverified**: Claimed in earlier exploration but not yet re-checked with current infrastructure
-
-**Why keep unverified claims?** Transparency. This is active research, not a polished textbook. We show what's been double-checked vs what's in our notes.
-
----
-
-## Statistical Terms
-
-### Random Baseline (5%)
-The prime density of random odd numbers with similar length to our membrane constructions.
-
-**Not the same as PNT density**: Prime Number Theorem gives overall density ~1/ln(n) ≈ 10% for this range
-
-**Our 5% baseline**: Specifically random odd numbers of the same digit length as our membranes
-
-**Why the difference?**: We're comparing apples-to-apples - same length range, odd numbers only
-
----
-
-### Hardy-Littlewood (HL) Framework
-Advanced statistical framework for predicting prime distributions based on analytic number theory.
-
-**Purpose**: Connects our empirical findings (membranes) to theoretical predictions
-
-**Complexity Level**: Graduate-level number theory
-
-**Note**: Understanding basic membrane results does not require HL framework. Skip this section unless you want deep theoretical connections.
-
-**Key Tool**: Predicts expected number of Goldbach pairs, twin primes, etc.
-
----
-
-## Common Notation
-
-### π(n)
-The prime-counting function: number of primes ≤ n
-
-**Example**: π(100) = 25 (there are 25 primes up to 100)
-
----
-
-### gcd(a,b)
-Greatest common divisor: largest integer that divides both a and b
-
-**Example**: gcd(12, 18) = 6
-
-**Special case**: gcd(a,b) = 1 means a and b are coprime (share no factors)
-
----
-
-### ◯ (Circle Symbol)
-Visual representation of zero in membrane patterns for clarity
-
-**Example**: `3-◯-7-◯-5-◯-7-◯-3` = `3-0-7-0-5-0-7-0-3` = `307050703`
-
-**Purpose**: Makes the structure more visible than writing `300705070003`
-
----
-
-## Quick Reference: Common Confusions
-
-| **Confusion** | **Clarification** |
-|--------------|-------------------|
-| "More padding = better" | NO! k=(0,0) minimal padding often wins |
-| "Symmetric = optimal" | NO! Breathing (asymmetric) often outperforms |
-| "Base 10 is best" | NO! Base 6 achieves 33% vs base 10's 18.5% |
-| "5% seems low" | Correct for random odds of same length |
-| "Is this physics?" | NO! Pure number theory, physics terms are analogies |
-| "Seed '01' = seed 1" | NO! '01' is string pattern (zero-one), not value 1 |
-| "25 primes from one config" | NO! 10 seeds tested, 3 primes found = 30% |
-
----
-
-## For More Information
-
-- **Full Context**: [CLAUDE.md](CLAUDE.md) - Executive summary of all discoveries
-- **Claim Registry**: [CLAIMS.md](CLAIMS.md) - Status and evidence for every major claim
-- **Empirical Data**: [EVIDENCE.md](EVIDENCE.md) - Detailed data tables and verification
-
----
-
-**Last Updated**: 2026-03-09
-**Status**: Living document - updated during Tranche 8 hardening (false Lagrange example corrected)
+- [README.md](README.md)
+- [CLAUDE.md](CLAUDE.md)
+- [CLAIMS.md](CLAIMS.md)
+- [NOVELTY.md](NOVELTY.md)
+- [EVIDENCE.md](EVIDENCE.md)

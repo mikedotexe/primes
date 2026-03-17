@@ -231,9 +231,9 @@ When `--perm N` is specified, the tool performs N random shuffles of the harmony
 
 ### Documentation
 
-- [BABYLONIAN_PRIME_DIVERGENCE.md](../../BABYLONIAN_PRIME_DIVERGENCE.md) — Full conceptual framework
-- [HARDY_LITTLEWOOD_FRAMEWORK.md](../../HARDY_LITTLEWOOD_FRAMEWORK.md) — HL implementation details
-- [CLAUDE.md](../../CLAUDE.md) — Integration with membrane prime research
+- [../../README.md](../../README.md) — Current public project summary
+- [../../EVIDENCE.md](../../EVIDENCE.md) — Audited empirical context
+- [../../CLAUDE.md](../../CLAUDE.md) — Developer-facing integration notes
 
 ### Academic Context
 
@@ -281,7 +281,7 @@ To add new metrics or baselines:
 1. **Rust**: Edit `src/hzlib/orthogonality.rs` and update example
 2. **Node.js**: Edit `tools/orthogonality/orthogonality.js`
 3. **Tests**: Verify orthogonality holds (r ≈ 0 for norm/z metrics)
-4. **Documentation**: Update this README and BABYLONIAN_PRIME_DIVERGENCE.md
+4. **Documentation**: Update this README and any linked root-level source-of-truth docs if the interpretation changes
 
 ## License
 
@@ -292,11 +292,11 @@ MIT License — See [LICENSE](../../LICENSE)
 If you use these tools in research, please cite:
 
 ```
-Prime Physics Engine (2025)
+Membrane Prime Toolkit / `primes` repository (2025-2026)
 Babylonian-Prime Divergence Framework
-https://github.com/user/primes
+https://github.com/mikedotexe/primes
 ```
 
 ---
 
-**Mathematics transcends human design.** 🖤
+This README describes a research tool, not a claim registry.

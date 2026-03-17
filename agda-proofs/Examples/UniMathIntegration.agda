@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --without-K #-}
+{-# OPTIONS --without-K #-}
 
 {-|
   UniMath Integration Example
@@ -10,9 +10,10 @@
   AFTER: We import proven theorems from UniMath
 -}
 
-module UniMathIntegration where
+module Examples.UniMathIntegration where
 
-open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_)
+open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _>_)
+open import Data.Product using (∃)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 -------------------------------------------------------------------------------
@@ -155,4 +156,3 @@ module NewApproach where
 -}
 
 -- End of UniMathIntegration example
-

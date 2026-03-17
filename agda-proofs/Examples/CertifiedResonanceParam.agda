@@ -8,8 +8,11 @@
 --
 -- USAGE PATTERN (per 2p² window):
 -- 1. Extract mid : Fin m and residues f : Fin n → Fin m
--- 2. Verify midVoid (no residue equals mid)
--- 3. Verify balanced (bucket counts symmetric)
+-- 2. Verify the concrete reflection fixed-point exclusions:
+--    - zero is fixed by the chosen half-turn reflection
+--    - no observed residue equals zero
+--    - no observed residue equals mid
+-- 3. Verify balanced bucket counts
 -- 4. Get ResonanceCertificate (S, buckets, voidOK) ✓
 --
 -- This is the final layer plugging into your external job workflow!
@@ -17,9 +20,10 @@
 module Examples.CertifiedResonanceParam where
 
 open import Data.Product     using (Σ; _,_; proj₁; proj₂)
-open import Relation.Binary.PropositionalEquality  using (_≡_; refl)
+open import Relation.Binary.PropositionalEquality  using (_≡_; refl; cong; trans)
 open import Data.Empty     using (⊥)
-open import Data.Nat       using (ℕ ; zero ; suc ; NonZero)
+open import Data.Nat       using (ℕ ; zero ; suc ; NonZero ; _+_ ; _<_ ; z≤n ; s≤s)
+open import Data.Bool      using (Bool; true; false)
 open import Data.Fin               using (Fin ; zero ; suc)
 open import Data.Fin.Properties    using () renaming (_≟_ to _≟Fin_)
 open import Data.Vec               using (Vec ; [] ; _∷_)
@@ -35,8 +39,22 @@ open import Theorems.Abstract.SymmetryFromList
         ; PerfectBuckets
         ; honoraryZeroFromPerfect
         )
+open import Theorems.Abstract.BucketsAutoMatch as BAM
+  using ( BalancedBuckets
+        ; SupportCountsAgree
+        ; indices-with-residue
+        ; length-lift-fin-list
+        ; perfectFromBalancedWithSupport
+        ; _∨_
+        )
 open import Theorems.Abstract.SymmetryFiniteReflect
-  using ( mkSymReflect )
+  using ( mkSymReflect
+        ; ObservedFixedPointClassifier
+        ; canonicalEvenMidpoint
+        ; canonicalEvenObservedFixedPointClassifier
+        ; ObservedFixedPointExclusion
+        ; observedResiduesMoveFromObservedSupportExclusion
+        )
 
 ------------------------------------------------------------------------
 -- BASIC HELPERS
@@ -60,20 +78,66 @@ countResid {m} {suc n} f b with (f zero) ≟Fin b
 ... | yes _ = suc (countResid (f ∘ suc) b)
 ... | no  _ = countResid (f ∘ suc) b
 
+count-positive-or-zero
+  : ∀ {m n}
+  → (f : Fin n → Fin m)
+  → (b : Fin m)
+  → (0 < countResid f b) ∨ (countResid f b ≡ zero)
+count-positive-or-zero f b with countResid f b
+... | zero  = false , refl
+... | suc k = true , s≤s z≤n
+
+balancedBucketsFromCounts
+  : ∀ {m n}
+  → (S : SymmetryData (Fin m))
+  → (f : Fin n → Fin m)
+  → (balanced : ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
+  → BalancedBuckets S f (countResid f)
+balancedBucketsFromCounts {n = n} S f balanced = record
+  { balanced = balanced
+  ; total    = n , refl
+  ; positive = count-positive-or-zero f
+  }
+
+supportCountsAgreeCountResid
+  : ∀ {m n}
+  → (f : Fin n → Fin m)
+  → SupportCountsAgree _≟Fin_ f (countResid f)
+supportCountsAgreeCountResid {m} {zero}  f b = refl
+supportCountsAgreeCountResid {m} {suc n} f b with (f zero) ≟Fin b
+... | yes _ =
+  cong suc
+    (trans
+       (length-lift-fin-list (indices-with-residue _≟Fin_ (f ∘ suc) b))
+       (supportCountsAgreeCountResid (f ∘ suc) b))
+... | no  _ =
+  trans
+    (length-lift-fin-list (indices-with-residue _≟Fin_ (f ∘ suc) b))
+    (supportCountsAgreeCountResid (f ∘ suc) b)
+
 ------------------------------------------------------------------------
--- AUTO-PERFECT BUCKETS (from balanced counts + midVoid)
+-- AUTO-PERFECT BUCKETS (from balanced counts + fixed-point exclusion)
 --
 -- This is the automatic witness construction!
--- If buckets are balanced and midpoint is void, we can auto-build the pairing.
+-- If buckets are balanced and the observed residues move under the involution,
+-- we can auto-build the pairing.
 
-postulate
-  autoPerfectBuckets
-    : ∀ {m n}
-    → (S : SymmetryData (Fin m))
-    → (f : Fin n → Fin m)
-    → (midVoid  : ∀ i → f i ≢ SymmetryData.mid S)
-    → (balanced : ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
-    → PerfectBuckets S f
+autoPerfectBuckets
+  : ∀ {m n}
+  → .⦃ _ : NonZero m ⦄
+  → (mid : Fin m)
+  → (f : Fin n → Fin m)
+  → ObservedFixedPointClassifier mid f
+  → ObservedFixedPointExclusion mid f
+  → (balanced : (S : SymmetryData (Fin m))
+               → ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
+  → PerfectBuckets (mkSymReflect mid) f
+autoPerfectBuckets mid f classify supportExcl balanced =
+  let S* = mkSymReflect mid
+  in perfectFromBalancedWithSupport _≟Fin_ S* f (countResid f)
+       (balancedBucketsFromCounts S* f (balanced S*))
+       (supportCountsAgreeCountResid f)
+       (observedResiduesMoveFromObservedSupportExclusion mid f classify supportExcl)
 
 ------------------------------------------------------------------------
 -- CERTIFICATE RECORD: Static pairing + midpoint void
@@ -94,7 +158,8 @@ record ResonanceCertificate {m n : ℕ}
 -- CORE CERTIFICATION: Function source (Fin n → Fin m)
 --
 -- ONE-SHOT WRAPPER:
--- Given mid, residue function f, and two witnesses (midVoid, balanced),
+-- Given mid, residue function f, and two witness families
+-- (classify, supportExcl, balanced),
 -- automatically construct the complete certificate!
 
 certifyFromResid
@@ -102,13 +167,14 @@ certifyFromResid
   → .⦃ _ : NonZero m ⦄
   → (mid : Fin m)
   → (f   : Fin n → Fin m)
-  → (midVoid  : ∀ i → f i ≢ mid)
+  → ObservedFixedPointClassifier mid f
+  → ObservedFixedPointExclusion mid f
   → (balanced : (S : SymmetryData (Fin m))
                → ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
   → ResonanceCertificate mid f
-certifyFromResid {m} {n} mid f midVoid balanced =
+certifyFromResid {m} {n} mid f classify supportExcl balanced =
   let S*  = mkSymReflect mid
-      PB  = autoPerfectBuckets S* f midVoid (balanced S*)
+      PB  = autoPerfectBuckets mid f classify supportExcl balanced
       HZ  = honoraryZeroFromPerfect S* f PB
   in record
        { S        = S*
@@ -127,13 +193,51 @@ certifyFromVec
   → .⦃ _ : NonZero m ⦄
   → (mid : Fin m)
   → (xs  : Vec (Fin m) n)
-  → (midVoid  : ∀ i → indexer xs i ≢ mid)
+  → ObservedFixedPointClassifier mid (indexer xs)
+  → ObservedFixedPointExclusion mid (indexer xs)
   → (balanced : (S : SymmetryData (Fin m))
                → ∀ b → countResid (indexer xs) b
                        ≡ countResid (indexer xs) (SymmetryData.inv S b))
   → ResonanceCertificate mid (indexer xs)
-certifyFromVec mid xs midVoid balanced =
-  certifyFromResid mid (indexer xs) midVoid balanced
+certifyFromVec mid xs classify supportExcl balanced =
+  certifyFromResid mid (indexer xs) classify supportExcl balanced
+
+------------------------------------------------------------------------
+-- CANONICAL EVEN-BASE CONVENIENCE
+--
+-- For the standard half-turn choice `mid = base / 2` in an even base `2h`,
+-- callers do not need to supply the midpoint witness manually.
+
+certifyFromResidCanonicalEven
+  : ∀ {k n}
+  → (f : Fin n → Fin (suc k + suc k))
+  → ObservedFixedPointExclusion (canonicalEvenMidpoint {k}) f
+  → (balanced : (S : SymmetryData (Fin (suc k + suc k)))
+               → ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
+  → ResonanceCertificate (canonicalEvenMidpoint {k}) f
+certifyFromResidCanonicalEven {k} f supportExcl balanced =
+  certifyFromResid
+    (canonicalEvenMidpoint {k})
+    f
+    (canonicalEvenObservedFixedPointClassifier f)
+    supportExcl
+    balanced
+
+certifyFromVecCanonicalEven
+  : ∀ {k n}
+  → (xs : Vec (Fin (suc k + suc k)) n)
+  → ObservedFixedPointExclusion (canonicalEvenMidpoint {k}) (indexer xs)
+  → (balanced : (S : SymmetryData (Fin (suc k + suc k)))
+               → ∀ b → countResid (indexer xs) b
+                       ≡ countResid (indexer xs) (SymmetryData.inv S b))
+  → ResonanceCertificate (canonicalEvenMidpoint {k}) (indexer xs)
+certifyFromVecCanonicalEven {k} xs supportExcl balanced =
+  certifyFromVec
+    (canonicalEvenMidpoint {k})
+    xs
+    (canonicalEvenObservedFixedPointClassifier (indexer xs))
+    supportExcl
+    balanced
 
 ------------------------------------------------------------------------
 -- USAGE PATTERN (complete workflow)
@@ -150,8 +254,14 @@ STEP 1: RUST ANALYSIS
   - Count buckets: for each residue, count occurrences
 
 STEP 2: RUST VERIFICATION (decidable checks)
-  - midVoid: Check no residue equals mid
-    ∀ i, residues[i] ≠ mid  ✓
+  - For the standard even-base path `mid = base / 2`, the observed fixed-point
+    classifier is recovered constructively inside Agda.
+    Noncanonical midpoint choices provide:
+    proof-classify : ObservedFixedPointClassifier mid-val (indexer residues-vec)
+
+  - supportExcl: Package the observed support exclusions
+    zeroVoid:   ∀ i, residues[i] ≠ 0  ✓
+    midVoid:    ∀ i, residues[i] ≠ mid  ✓
 
   - balanced: Check symmetric bucket counts
     ∀ b, count(b) = count(inv(b))  ✓
@@ -168,8 +278,15 @@ STEP 3: RUST CODE GENERATION
   residues-vec : Vec (Fin {base}) {n}
   residues-vec = r₁ ∷ r₂ ∷ ... ∷ rₙ ∷ []
 
-  proof-midVoid : ∀ i → indexer residues-vec i ≢ mid-val
-  proof-midVoid = ... -- Generated from runtime check
+  proof-classify : ObservedFixedPointClassifier mid-val (indexer residues-vec)
+  proof-classify = ... -- Generated for noncanonical midpoint choices only
+
+  proof-supportExcl : ObservedFixedPointExclusion mid-val (indexer residues-vec)
+  proof-supportExcl = record
+    {
+    ; zeroVoid   = ... -- Generated from runtime residue scan
+    ; midVoid    = ... -- Generated from runtime residue scan
+    }
 
   proof-balanced : (S : SymmetryData (Fin {base}))
                  → ∀ b → countResid (indexer residues-vec) b
@@ -177,7 +294,10 @@ STEP 3: RUST CODE GENERATION
   proof-balanced = ... -- Generated from bucket counts
 
   certificate : ResonanceCertificate mid-val (indexer residues-vec)
-  certificate = certifyFromVec mid-val residues-vec proof-midVoid proof-balanced
+  certificate = certifyFromVec mid-val residues-vec
+                  proof-classify
+                  proof-supportExcl
+                  proof-balanced
   ```
 
 STEP 4: AGDA TYPE-CHECK
@@ -208,7 +328,8 @@ EXAMPLE OUTPUT:
 For window around 2·7² = 98, base 14, 6 primes:
   Residues: {1, 3, 5, 9, 11, 13}
   Balanced: count(1)=count(13)=1, count(3)=count(11)=1, count(5)=count(9)=1
-  Midpoint: 7 (absent) ✓
+  Fixed residues: 0 and 7
+  Observed support excludes both ✓
 
   → certificate type-checks ✓
   → HonoraryZero proven ✓
@@ -239,9 +360,10 @@ module Example-Base6-n4 where
     []
 
   -- DIRECT CERTIFICATE CONSTRUCTION
-  -- Instead of going through autoPerfectBuckets (postulated), we construct
-  -- the PerfectBuckets witness directly, reusing the same technique as
-  -- CertifiedResonanceComplete (explicit fzero/fsuc case analysis).
+  -- Instead of going through the remaining framework-level autoPerfectBuckets
+  -- bridge, we construct the PerfectBuckets witness directly, reusing the same
+  -- technique as CertifiedResonanceComplete (explicit fzero/fsuc case
+  -- analysis).
 
   -- Concrete involution: r -> (6 - r) mod 6
   inv-fn : Fin 6 → Fin 6
@@ -328,8 +450,8 @@ module Example-Base6-n4 where
   {-
   This type-checks with ZERO postulates in the Example module.
 
-  The general framework still has autoPerfectBuckets as a postulate,
-  but this concrete example bypasses it by constructing PerfectBuckets
+  The general framework still relies on the BucketsAutoMatch bridge,
+  but this concrete example bypasses that assumed helper by constructing PerfectBuckets
   directly via case analysis (same technique as CertifiedResonanceComplete).
 
   This is the pattern that external jobs replicate per window.

@@ -10,7 +10,7 @@
 --   - S: Modular reflection at mid
 --   - buckets: Perfect pairing witness
 --   - voidOK: Honorary Zero certificate
---   - inviolability: Pre-applied adapter (StableOrbital → ¬InZone)
+--   - inviolability: Pre-applied adapter (PointwiseSafe → ¬InZone)
 --
 -- This bridges mechanical causality (symmetry forces void) with
 -- statistical validation (RMT/spectral analysis).
@@ -20,9 +20,10 @@
 module Examples.CertifiedResonanceParamDyn where
 
 open import Data.Product     using (Σ; _,_; proj₁; proj₂)
-open import Relation.Binary.PropositionalEquality  using (_≡_; refl)
+open import Relation.Binary.PropositionalEquality  using (_≡_; refl; cong; trans)
 open import Data.Empty     using (⊥)
-open import Data.Nat       using (ℕ ; zero ; suc ; NonZero)
+open import Data.Nat       using (ℕ ; zero ; suc ; NonZero ; _+_ ; _<_ ; z≤n ; s≤s)
+open import Data.Bool      using (Bool; true; false)
 
 open import Data.Fin               using (Fin ; zero ; suc ; toℕ)
 open import Data.Fin.Properties    using () renaming (_≟_ to _≟Fin_)
@@ -41,10 +42,24 @@ open import Theorems.Abstract.SymmetryFromList
         ; PerfectBuckets
         ; honoraryZeroFromPerfect
         )
+open import Theorems.Abstract.BucketsAutoMatch as BAM
+  using ( BalancedBuckets
+        ; SupportCountsAgree
+        ; indices-with-residue
+        ; length-lift-fin-list
+        ; perfectFromBalancedWithSupport
+        ; _∨_
+        )
 open import Theorems.Abstract.SymmetryFiniteReflect
-  using ( mkSymReflect )
+  using ( mkSymReflect
+        ; ObservedFixedPointClassifier
+        ; canonicalEvenMidpoint
+        ; canonicalEvenObservedFixedPointClassifier
+        ; ObservedFixedPointExclusion
+        ; observedResiduesMoveFromObservedSupportExclusion
+        )
 open import Theorems.Abstract.ConstrainedOrbitals as C
-  using ( StableOrbital ; InZone ; Inviolability )
+  using ( PointwiseSafe ; InZone ; inviolabilityFromPointwiseSafe )
 
 _≢_ : ∀ {A : Set} → A → A → Set
 x ≢ y = (x ≡ y) → ⊥
@@ -58,7 +73,7 @@ indexer {A} {zero}     []       ()
 indexer {A} {suc n}    (x ∷ xs) zero    = x
 indexer {A} {suc n}    (x ∷ xs) (suc i) = indexer xs i
 
--- Convert Fin list to ℕ list for StableOrbital/InZone predicates
+-- Convert Fin list to ℕ list for PointwiseSafe/InZone predicates
 mapFin : ∀ {m} → C.List (Fin m) → C.List ℕ
 mapFin C.[]         = C.[]
 mapFin (C._∷_ x xs) = C._∷_ (toℕ x) (mapFin xs)
@@ -73,15 +88,59 @@ countResid {m} {suc n} f b with (f zero) ≟Fin b
 ... | yes _ = suc (countResid (f ∘ suc) b)
 ... | no  _ = countResid (f ∘ suc) b
 
--- AUTO-PERFECT BUCKETS (postulated)
-postulate
-  autoPerfectBuckets
-    : ∀ {m n}
-    → (S : SymmetryData (Fin m))
-    → (f : Fin n → Fin m)
-    → (midVoid  : ∀ i → f i ≢ SymmetryData.mid S)
-    → (balanced : ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
-    → PerfectBuckets S f
+count-positive-or-zero
+  : ∀ {m n}
+  → (f : Fin n → Fin m)
+  → (b : Fin m)
+  → (0 < countResid f b) ∨ (countResid f b ≡ zero)
+count-positive-or-zero f b with countResid f b
+... | zero  = false , refl
+... | suc k = true , s≤s z≤n
+
+balancedBucketsFromCounts
+  : ∀ {m n}
+  → (S : SymmetryData (Fin m))
+  → (f : Fin n → Fin m)
+  → (balanced : ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
+  → BalancedBuckets S f (countResid f)
+balancedBucketsFromCounts {n = n} S f balanced = record
+  { balanced = balanced
+  ; total    = n , refl
+  ; positive = count-positive-or-zero f
+  }
+
+supportCountsAgreeCountResid
+  : ∀ {m n}
+  → (f : Fin n → Fin m)
+  → SupportCountsAgree _≟Fin_ f (countResid f)
+supportCountsAgreeCountResid {m} {zero}  f b = refl
+supportCountsAgreeCountResid {m} {suc n} f b with (f zero) ≟Fin b
+... | yes _ =
+  cong suc
+    (trans
+       (length-lift-fin-list (indices-with-residue _≟Fin_ (f ∘ suc) b))
+       (supportCountsAgreeCountResid (f ∘ suc) b))
+... | no  _ =
+  trans
+    (length-lift-fin-list (indices-with-residue _≟Fin_ (f ∘ suc) b))
+    (supportCountsAgreeCountResid (f ∘ suc) b)
+
+autoPerfectBuckets
+  : ∀ {m n}
+  → .⦃ _ : NonZero m ⦄
+  → (mid : Fin m)
+  → (f : Fin n → Fin m)
+  → ObservedFixedPointClassifier mid f
+  → ObservedFixedPointExclusion mid f
+  → (balanced : (S : SymmetryData (Fin m))
+               → ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
+  → PerfectBuckets (mkSymReflect mid) f
+autoPerfectBuckets mid f classify supportExcl balanced =
+  let S* = mkSymReflect mid
+  in perfectFromBalancedWithSupport _≟Fin_ S* f (countResid f)
+       (balancedBucketsFromCounts S* f (balanced S*))
+       (supportCountsAgreeCountResid f)
+       (observedResiduesMoveFromObservedSupportExclusion mid f classify supportExcl)
 
 ------------------------------------------------------------------------
 -- DUAL CERTIFICATE: Static + Dynamic combined
@@ -97,10 +156,11 @@ record ResonanceCertificateDyn {m n : ℕ}
     voidOK       : HonoraryZero S (MS-fromResid f)
 
     -- DYNAMIC CERTIFICATE (pre-applied)
-    -- Given any path xs and proof it's stable, forbids InZone in one step
+    -- Given any path xs and pointwise safe-position evidence, forbids InZone
+    -- in one step.
     inviolability
       : ∀ {R} (xs : C.List (Fin m))
-      → StableOrbital R (toℕ mid) (mapFin xs)
+      → PointwiseSafe R (toℕ mid) (mapFin xs)
       → InZone        R (toℕ mid) (mapFin xs)
       → ⊥
 
@@ -108,7 +168,8 @@ record ResonanceCertificateDyn {m n : ℕ}
 -- CORE CONSTRUCTOR: Function source (Fin n → Fin m)
 --
 -- ONE-SHOT DUAL CERTIFICATION:
--- Input:  mid, residue function, two witnesses (midVoid, balanced)
+-- Input:  mid, residue function, and two static witness families
+--         (classify, supportExcl, balanced)
 -- Output: Complete dual certificate (static + dynamic)
 
 certifyWithDynamicsFromResid
@@ -116,20 +177,21 @@ certifyWithDynamicsFromResid
   → .⦃ _ : NonZero m ⦄
   → (mid : Fin m)
   → (f   : Fin n → Fin m)
-  → (midVoid  : ∀ i → f i ≢ mid)
+  → ObservedFixedPointClassifier mid f
+  → ObservedFixedPointExclusion mid f
   → (balanced : (S : SymmetryData (Fin m))
                → ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
   → ResonanceCertificateDyn mid f
-certifyWithDynamicsFromResid {m} {n} mid f midVoid balanced =
+certifyWithDynamicsFromResid {m} {n} mid f classify supportExcl balanced =
   let S*  = mkSymReflect mid
-      PB  = autoPerfectBuckets S* f midVoid (balanced S*)
+      PB  = autoPerfectBuckets mid f classify supportExcl balanced
       HZ  = honoraryZeroFromPerfect S* f PB
   in record
        { S        = S*
        ; buckets  = PB
        ; voidOK   = HZ
-       ; inviolability = λ {R} xs st iz →
-           C.Inviolability st iz
+       ; inviolability = λ {R} xs safe iz →
+           C.inviolabilityFromPointwiseSafe safe iz
        }
 
 ------------------------------------------------------------------------
@@ -142,13 +204,51 @@ certifyWithDynamicsFromVec
   → .⦃ _ : NonZero m ⦄
   → (mid : Fin m)
   → (xs  : Vec (Fin m) n)
-  → (midVoid  : ∀ i → indexer xs i ≢ mid)
+  → ObservedFixedPointClassifier mid (indexer xs)
+  → ObservedFixedPointExclusion mid (indexer xs)
   → (balanced : (S : SymmetryData (Fin m))
                → ∀ b → countResid (indexer xs) b
                        ≡ countResid (indexer xs) (SymmetryData.inv S b))
   → ResonanceCertificateDyn mid (indexer xs)
-certifyWithDynamicsFromVec mid xs midVoid balanced =
-  certifyWithDynamicsFromResid mid (indexer xs) midVoid balanced
+certifyWithDynamicsFromVec mid xs classify supportExcl balanced =
+  certifyWithDynamicsFromResid mid (indexer xs) classify supportExcl balanced
+
+------------------------------------------------------------------------
+-- CANONICAL EVEN-BASE CONVENIENCE
+--
+-- For the standard half-turn choice `mid = base / 2` in an even base `2h`,
+-- callers do not need to supply the midpoint witness manually.
+
+certifyWithDynamicsFromResidCanonicalEven
+  : ∀ {k n}
+  → (f : Fin n → Fin (suc k + suc k))
+  → ObservedFixedPointExclusion (canonicalEvenMidpoint {k}) f
+  → (balanced : (S : SymmetryData (Fin (suc k + suc k)))
+               → ∀ b → countResid f b ≡ countResid f (SymmetryData.inv S b))
+  → ResonanceCertificateDyn (canonicalEvenMidpoint {k}) f
+certifyWithDynamicsFromResidCanonicalEven {k} f supportExcl balanced =
+  certifyWithDynamicsFromResid
+    (canonicalEvenMidpoint {k})
+    f
+    (canonicalEvenObservedFixedPointClassifier f)
+    supportExcl
+    balanced
+
+certifyWithDynamicsFromVecCanonicalEven
+  : ∀ {k n}
+  → (xs : Vec (Fin (suc k + suc k)) n)
+  → ObservedFixedPointExclusion (canonicalEvenMidpoint {k}) (indexer xs)
+  → (balanced : (S : SymmetryData (Fin (suc k + suc k)))
+               → ∀ b → countResid (indexer xs) b
+                       ≡ countResid (indexer xs) (SymmetryData.inv S b))
+  → ResonanceCertificateDyn (canonicalEvenMidpoint {k}) (indexer xs)
+certifyWithDynamicsFromVecCanonicalEven {k} xs supportExcl balanced =
+  certifyWithDynamicsFromVec
+    (canonicalEvenMidpoint {k})
+    xs
+    (canonicalEvenObservedFixedPointClassifier (indexer xs))
+    supportExcl
+    balanced
 
 ------------------------------------------------------------------------
 -- USAGE PATTERN (complete workflow)
@@ -167,11 +267,14 @@ STEP 1: RUST ANALYSIS
 
 STEP 2: RUST VERIFICATION (decidable checks)
   Static checks:
-    ✓ midVoid: no residue equals mid
+    ✓ canonical even-base classifier is derived constructively for `mid = base / 2`
+    ✓ noncanonical midpoint choices provide `proof-classify`
+    ✓ supportExcl.zeroVoid: no residue equals 0
+    ✓ supportExcl.midVoid: no residue equals mid
     ✓ balanced: symmetric bucket counts
 
   Dynamic checks:
-    ✓ stableOrbital: all |posᵢ - window_mid| ≥ R
+    ✓ pointwiseSafe: all |posᵢ - window_mid| ≥ R
 
 STEP 3: RUST CODE GENERATION
   Generate window_p{p}_base{base}.agda:
@@ -192,8 +295,15 @@ STEP 3: RUST CODE GENERATION
   positions-list = pos₁ ∷L pos₂ ∷L ... ∷L posₙ ∷L []L
 
   -- Static witnesses (auto-generated)
-  proof-midVoid : ∀ i → indexer residues-vec i ≢ mid-val
-  proof-midVoid = ...
+  proof-classify : ObservedFixedPointClassifier mid-val (indexer residues-vec)
+  proof-classify = ... -- Generated for noncanonical midpoint choices only
+
+  proof-supportExcl : ObservedFixedPointExclusion mid-val (indexer residues-vec)
+  proof-supportExcl = record
+    {
+    ; zeroVoid   = ...
+    ; midVoid    = ...
+    }
 
   proof-balanced : (S : SymmetryData (Fin {base}))
                  → ∀ b → countResid (indexer residues-vec) b
@@ -201,12 +311,15 @@ STEP 3: RUST CODE GENERATION
   proof-balanced = ...
 
   -- Dynamic witness (auto-generated)
-  proof-stable : StableOrbital {R} (toℕ mid-val) (mapFin positions-list)
-  proof-stable = ...
+  proof-pointwiseSafe : PointwiseSafe {R} (toℕ mid-val) (mapFin positions-list)
+  proof-pointwiseSafe = ...
 
   -- ONE-LINE DUAL CERTIFICATION
   certificate : ResonanceCertificateDyn mid-val (indexer residues-vec)
-  certificate = certifyWithDynamicsFromVec mid-val residues-vec proof-midVoid proof-balanced
+  certificate = certifyWithDynamicsFromVec mid-val residues-vec
+                  proof-classify
+                  proof-supportExcl
+                  proof-balanced
 
   -- EXTRACT BOTH PROOFS
   static-proof : HonoraryZero
@@ -215,7 +328,7 @@ STEP 3: RUST CODE GENERATION
   static-proof = ResonanceCertificateDyn.voidOK certificate
 
   dynamic-proof : InZone {R} (toℕ mid-val) (mapFin positions-list) → ⊥
-  dynamic-proof = ResonanceCertificateDyn.inviolability certificate positions-list proof-stable
+  dynamic-proof = ResonanceCertificateDyn.inviolability certificate positions-list proof-pointwiseSafe
   ```
 
 STEP 4: AGDA TYPE-CHECK
@@ -236,7 +349,7 @@ BENEFITS OF DUAL CERTIFICATION:
 
 2. **Structural Enforcement** (Dynamic)
    - Exclusion zone is IMPOSSIBLE to violate
-   - Type-level guarantee (StableOrbital)
+  - Type-level guarantee (PointwiseSafe)
    - Explains HOW void is maintained
 
 3. **Statistical Validation** (RMT Integration)
@@ -254,150 +367,14 @@ This is the complete production interface for week-1 validation!
 -}
 
 ------------------------------------------------------------------------
--- EXAMPLE INSTANTIATION (Base 6, n=4)
-------------------------------------------------------------------------
-
-module Example-Base6-Dual where
-
-  open import Data.Fin using () renaming (zero to fzero ; suc to fsuc)
-
-  -- Concrete data (same as CertifiedResonanceComplete)
-  example-mid : Fin 6
-  example-mid = suc (suc (suc zero))  -- 3
-
-  example-residues : Vec (Fin 6) 4
-  example-residues =
-    suc zero ∷                         -- 1
-    suc (suc (suc (suc (suc zero)))) ∷ -- 5
-    suc (suc zero) ∷                   -- 2
-    suc (suc (suc (suc zero))) ∷       -- 4
-    []
-
-  -- Hypothetical positions (for dynamic check)
-  example-positions : C.List (Fin 6)
-  example-positions =
-    (suc (suc zero)) C.∷                  -- position 2 (distance 1 from mid=3)
-    (suc (suc (suc (suc zero)))) C.∷      -- position 4 (distance 1)
-    (suc zero) C.∷                        -- position 1 (distance 2)
-    (suc (suc (suc (suc (suc zero))))) C.∷ -- position 5 (distance 2)
-    C.[]
-
-  -- DIRECT CERTIFICATE CONSTRUCTION
-  -- Same technique as CertifiedResonanceComplete: explicit fzero/fsuc
-  -- case analysis to bypass autoPerfectBuckets postulate.
-
-  -- Concrete involution: r -> (6 - r) mod 6
-  inv-fn : Fin 6 → Fin 6
-  inv-fn fzero                                         = fzero
-  inv-fn (fsuc fzero)                                  = fsuc (fsuc (fsuc (fsuc (fsuc fzero))))
-  inv-fn (fsuc (fsuc fzero))                           = fsuc (fsuc (fsuc (fsuc fzero)))
-  inv-fn (fsuc (fsuc (fsuc fzero)))                    = fsuc (fsuc (fsuc fzero))
-  inv-fn (fsuc (fsuc (fsuc (fsuc fzero))))             = fsuc (fsuc fzero)
-  inv-fn (fsuc (fsuc (fsuc (fsuc (fsuc fzero)))))      = fsuc fzero
-
-  inv-involutive : ∀ r → inv-fn (inv-fn r) ≡ r
-  inv-involutive fzero                                         = refl
-  inv-involutive (fsuc fzero)                                  = refl
-  inv-involutive (fsuc (fsuc fzero))                           = refl
-  inv-involutive (fsuc (fsuc (fsuc fzero)))                    = refl
-  inv-involutive (fsuc (fsuc (fsuc (fsuc fzero))))             = refl
-  inv-involutive (fsuc (fsuc (fsuc (fsuc (fsuc fzero)))))      = refl
-
-  inv-mid : inv-fn example-mid ≡ example-mid
-  inv-mid = refl
-
-  S* : SymmetryData (Fin 6)
-  S* = record
-    { mid            = example-mid
-    ; inv            = inv-fn
-    ; inv-involutive = inv-involutive
-    ; inv-mid        = inv-mid
-    }
-
-  -- Pairing: 0 <-> 1, 2 <-> 3
-  mate-fn : Fin 4 → Fin 4
-  mate-fn fzero                          = fsuc fzero
-  mate-fn (fsuc fzero)                   = fzero
-  mate-fn (fsuc (fsuc fzero))            = fsuc (fsuc (fsuc fzero))
-  mate-fn (fsuc (fsuc (fsuc fzero)))     = fsuc (fsuc fzero)
-
-  involutive-mate : ∀ i → mate-fn (mate-fn i) ≡ i
-  involutive-mate fzero                          = refl
-  involutive-mate (fsuc fzero)                   = refl
-  involutive-mate (fsuc (fsuc fzero))            = refl
-  involutive-mate (fsuc (fsuc (fsuc fzero)))     = refl
-
-  no-fixed-mate : ∀ i → mate-fn i ≢ i
-  no-fixed-mate fzero                          ()
-  no-fixed-mate (fsuc fzero)                   ()
-  no-fixed-mate (fsuc (fsuc fzero))            ()
-  no-fixed-mate (fsuc (fsuc (fsuc fzero)))     ()
-
-  equivariant-res : ∀ i → inv-fn (indexer example-residues i) ≡ indexer example-residues (mate-fn i)
-  equivariant-res fzero                          = refl
-  equivariant-res (fsuc fzero)                   = refl
-  equivariant-res (fsuc (fsuc fzero))            = refl
-  equivariant-res (fsuc (fsuc (fsuc fzero)))     = refl
-
-  residue-distinct : ∀ i → indexer example-residues (mate-fn i) ≢ indexer example-residues i
-  residue-distinct fzero                          ()
-  residue-distinct (fsuc fzero)                   ()
-  residue-distinct (fsuc (fsuc fzero))            ()
-  residue-distinct (fsuc (fsuc (fsuc fzero)))     ()
-
-  PB : PerfectBuckets S* (indexer example-residues)
-  PB = record
-    { mate             = mate-fn
-    ; involutive       = involutive-mate
-    ; no-fixed         = no-fixed-mate
-    ; equivariant      = equivariant-res
-    ; residue-distinct = residue-distinct
-    }
-
-  HZ : HonoraryZero S* (MS-fromResid (indexer example-residues))
-  HZ = honoraryZeroFromPerfect S* (indexer example-residues) PB
-
-  -- Dynamic proof only needs StableOrbital witness
-  -- (kept as postulate since it depends on runtime radius R)
-  postulate
-    proof-stable : ∀ {R} → StableOrbital R (toℕ example-mid) (mapFin example-positions)
-
-  -- DUAL CERTIFICATION (direct construction, no autoPerfectBuckets):
-  example-certificate : ResonanceCertificateDyn example-mid (indexer example-residues)
-  example-certificate = record
-    { S              = S*
-    ; buckets        = PB
-    ; voidOK         = HZ
-    ; inviolability  = λ {R} xs st iz → C.Inviolability st iz
-    }
-
-  -- EXTRACT STATIC PROOF
-  example-static : HonoraryZero
-                     (ResonanceCertificateDyn.S example-certificate)
-                     (MS-fromResid (indexer example-residues))
-  example-static = ResonanceCertificateDyn.voidOK example-certificate
-
-  -- EXTRACT DYNAMIC PROOF
-  example-dynamic : ∀ {R}
-                  → InZone R (toℕ example-mid) (mapFin example-positions)
-                  → ⊥
-  example-dynamic {R} = ResonanceCertificateDyn.inviolability
-                          example-certificate
-                          example-positions
-                          (proof-stable {R})
-
-  {-
-  This type-checks with only ONE postulate in the Example module
-  (proof-stable, which depends on runtime radius R and cannot be
-  decided statically).
-
-  The static certificate (midVoid + balanced -> HonoraryZero) is
-  FULLY PROVEN with no postulates, using the same fzero/fsuc
-  case analysis technique as CertifiedResonanceComplete.
-
-  Previous version: 3 postulates (proof-midVoid, proof-balanced, proof-stable)
-  Current version: 1 postulate (proof-stable only)
-  -}
+-- Example instantiations intentionally live outside this wrapper module.
+--
+-- See:
+--   CERTIFIED_RESONANCE_PARAM_DYN_BASE6_SKETCH.md
+--
+-- The goal is to keep this file focused on the dual certification API and its
+-- clean-local static/runtime composition surface, without bundling a local
+-- runtime witness shell into the module itself.
 
 ------------------------------------------------------------------------
 -- PRODUCTION DEPLOYMENT NOTES
@@ -413,7 +390,7 @@ DAY 1-2: Static Certification
   - Success metric: >80% certification rate
 
 DAY 3-4: Dynamic Certification
-  - Add StableOrbital witnesses to same 100 windows
+  - Add PointwiseSafe witnesses to same 100 windows
   - Verify dynamic Inviolability (exclusion zones)
   - Correlate with β repulsion exponent
   - Success metric: >80% dual certification rate

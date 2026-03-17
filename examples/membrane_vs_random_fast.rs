@@ -70,6 +70,20 @@ fn random_coprime_30(target_digits: usize, rng: &mut u64) -> BigUint {
     }
 }
 
+fn random_uniform_decimal(target_digits: usize, rng: &mut u64) -> BigUint {
+    let mut next = || {
+        *rng = rng.wrapping_mul(6364136223846793005).wrapping_add(1);
+        *rng
+    };
+
+    let first = (next() % 9) + 1;
+    let mut n = BigUint::from(first);
+    for _ in 1..target_digits {
+        n = n * 10u64 + (next() % 10);
+    }
+    n
+}
+
 fn main() {
     println!("╔══════════════════════════════════════════════════════════════════╗");
     println!("║           MEMBRANE vs RANDOM COPRIME (Base 30)                   ║");
@@ -84,8 +98,10 @@ fn main() {
         theoretical
     );
 
-    let samples = 3000;
+    let samples = 1000;
     let seed_lengths: Vec<usize> = vec![10, 15, 20, 25, 30];
+
+    println!("Exploratory control run: {} samples per family\n", samples);
 
     println!("{}", "═".repeat(75));
     println!("TEST 1: Membrane L|seed|R efficiency");
@@ -131,7 +147,49 @@ fn main() {
     }
 
     println!("\n{}", "═".repeat(75));
-    println!("TEST 2: Random coprime numbers (same digit counts)");
+    println!("TEST 2: Uniform random decimal numbers (same digit counts)");
+    println!("{}", "═".repeat(75));
+
+    let mut naive_results: Vec<(usize, f64)> = vec![];
+
+    println!(
+        "\n{:>10} {:>10} {:>10} {:>10} {:>12}",
+        "digits", "primes", "tests", "rate%", "efficiency"
+    );
+    println!("{}", "-".repeat(60));
+
+    for &(target_digits, _) in &membrane_results {
+        let mut rng = 24681357u64 + target_digits as u64 * 555;
+        let mut primes = 0;
+        let mut total_digits = 0.0;
+
+        for _ in 0..samples {
+            let n = random_uniform_decimal(target_digits, &mut rng);
+            total_digits += n.to_string().len() as f64;
+            if is_prime_miller_rabin(&n) {
+                primes += 1;
+            }
+        }
+
+        let rate = primes as f64 / samples as f64;
+        let mean_digits = total_digits / samples as f64;
+        let pnt_expected = 1.0 / (mean_digits * 2.303);
+        let efficiency = rate / pnt_expected;
+
+        naive_results.push((mean_digits as usize, efficiency));
+
+        println!(
+            "{:>10} {:>10} {:>10} {:>9.2}% {:>12.3}",
+            mean_digits as usize,
+            primes,
+            samples,
+            rate * 100.0,
+            efficiency
+        );
+    }
+
+    println!("\n{}", "═".repeat(75));
+    println!("TEST 3: Random coprime numbers (same digit counts)");
     println!("{}", "═".repeat(75));
 
     let mut random_results: Vec<(usize, f64)> = vec![];
@@ -178,19 +236,25 @@ fn main() {
     println!("{}", "═".repeat(75));
 
     println!(
-        "\n{:>10} {:>15} {:>15} {:>15}",
-        "digits", "Membrane", "Random", "Advantage"
+        "\n{:>10} {:>12} {:>12} {:>12} {:>12}",
+        "digits", "Membrane", "Uniform", "Coprime", "M vs C"
     );
     println!("{}", "-".repeat(60));
 
-    for ((d1, mem_eff), (_, rand_eff)) in membrane_results.iter().zip(random_results.iter()) {
-        let advantage = (mem_eff - rand_eff) / rand_eff * 100.0;
+    for (((d1, mem_eff), (_, naive_eff)), (_, rand_eff)) in membrane_results
+        .iter()
+        .zip(naive_results.iter())
+        .zip(random_results.iter())
+    {
+        let coprime_advantage = (mem_eff - rand_eff) / rand_eff * 100.0;
         println!(
-            "{:>10} {:>15.3}× {:>15.3}× {:>+14.1}%",
-            d1, mem_eff, rand_eff, advantage
+            "{:>10} {:>11.3}× {:>11.3}× {:>11.3}× {:>+11.1}%",
+            d1, mem_eff, naive_eff, rand_eff, coprime_advantage
         );
     }
 
+    let naive_mean: f64 =
+        naive_results.iter().map(|(_, e)| *e).sum::<f64>() / naive_results.len() as f64;
     let mem_mean: f64 =
         membrane_results.iter().map(|(_, e)| *e).sum::<f64>() / membrane_results.len() as f64;
     let rand_mean: f64 =
@@ -202,6 +266,11 @@ fn main() {
 
     println!("\nTheoretical bound B/φ(B):     {:.3}×", theoretical);
     println!(
+        "Uniform random mean:          {:.3}× ({:+.3} vs plain PNT)",
+        naive_mean,
+        naive_mean - 1.0
+    );
+    println!(
         "Random coprime mean:          {:.3}× ({:+.3} vs theory)",
         rand_mean,
         rand_mean - theoretical
@@ -212,7 +281,11 @@ fn main() {
         mem_mean - theoretical
     );
     println!(
-        "\nMembrane advantage over random: {:+.1}%",
+        "\nMembrane advantage over uniform random: {:+.1}%",
+        (mem_mean - naive_mean) / naive_mean * 100.0
+    );
+    println!(
+        "Membrane advantage over coprime random: {:+.1}%",
         (mem_mean - rand_mean) / rand_mean * 100.0
     );
 
@@ -223,5 +296,7 @@ fn main() {
         );
     } else if (mem_mean - rand_mean).abs() < 0.1 {
         println!("\n≈ Membrane efficiency matches random coprime (within noise)");
+        println!("  It still strongly beats naive random numbers, but the extra lift");
+        println!("  beyond coprimality control looks small in this fast experiment.");
     }
 }

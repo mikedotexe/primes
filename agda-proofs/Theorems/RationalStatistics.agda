@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 
 -- Rational Statistics Framework for Coordinate Constellation Analysis
 --

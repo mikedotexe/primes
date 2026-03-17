@@ -3,7 +3,7 @@ name = "primes"
 version = "1.0.0"
 edition = "2021"
 authors = ["Mike Purvis", "Research-grade AI"]
-description = "Prime number research through symmetric means"
+description = "Rust toolkit for structured prime candidate generation and analysis"
 license = "MIT"
 keywords = ["prime-numbers", "number-theory", "cryptography"]
 categories = ["mathematics", "primes", "science", "cryptography"]
@@ -88,7 +88,7 @@ criterion = { version = "0.5", features = ["html_reports"] }
 
 # Examples are automatically detected from examples/ directory.
 # Run with: cargo run --example <name>
-# See examples/README.md for the full curated list (32 examples).
+# See examples/README.md for the current curated list.
 
 [[bench]]
 name = "sieve_bench"

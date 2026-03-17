@@ -26,6 +26,7 @@ fn is_prime(n: &BigUint) -> bool {
 fn main() {
     println!("🔬 Verifying Lagrange Point Clustering");
     println!("=====================================\n");
+    println!("Heuristic scan only: compare equal-size windows before inferring density effects.\n");
     // The two membrane primes from LAGRANGE_PROOF.md
     let prime1 = BigUint::from(303050303u64);
     let prime2 = BigUint::from(307050703u64);
@@ -82,9 +83,9 @@ fn main() {
     // Calculate prime density in different regions
     println!("\n📊 Prime Density Analysis");
     println!("========================");
-    // Region 1: Around membrane prime 1
-    let region1_start = &prime1 - 500u32;
-    let region1_end = &prime1 + 500u32;
+    // Region 1: Around membrane prime 1 (same radius as midpoint window)
+    let region1_start = &prime1 - radius;
+    let region1_end = &prime1 + radius;
     let mut region1_primes = 0;
     current = region1_start;
     while current <= region1_end {
@@ -96,9 +97,9 @@ fn main() {
 
     // Region 2: Around L1 point
     let region2_primes = primes_found.len();
-    // Region 3: Around membrane prime 2
-    let region3_start = &prime2 - 500u32;
-    let region3_end = &prime2 + 500u32;
+    // Region 3: Around membrane prime 2 (same radius as midpoint window)
+    let region3_start = &prime2 - radius;
+    let region3_end = &prime2 + radius;
     let mut region3_primes = 0;
     current = region3_start;
     while current <= region3_end {
@@ -108,13 +109,37 @@ fn main() {
         current += 1u32;
     }
 
-    println!("\nPrime count in 1000-unit windows:");
+    let window_size = (radius * 2 + 1) as f64;
+    let region1_density = region1_primes as f64 / window_size;
+    let region2_density = region2_primes as f64 / window_size;
+    let region3_density = region3_primes as f64 / window_size;
+
+    println!("\nPrime count in equal {}-number windows:", window_size as usize);
     println!("  Around Membrane 1: {} primes", region1_primes);
     println!("  Around L1 (oasis): {} primes", region2_primes);
     println!("  Around Membrane 2: {} primes", region3_primes);
-    println!("\n💡 Key Insight:");
-    println!("The L1 point acts as an 'oasis' with higher prime density");
-    println!("compared to the membrane primes themselves!");
+    println!("\nPrime densities:");
+    println!("  Around Membrane 1: {:.4}", region1_density);
+    println!("  Around L1:         {:.4}", region2_density);
+    println!("  Around Membrane 2: {:.4}", region3_density);
+
+    println!("\n💡 Current read:");
+    let endpoint_density = (region1_density + region3_density) / 2.0;
+    let uplift = (region2_density / endpoint_density - 1.0) * 100.0;
+    if uplift > 10.0 {
+        println!("The midpoint window is meaningfully denser in this scan (+{:.1}%).", uplift);
+    } else if uplift > -10.0 {
+        println!(
+            "The midpoint window is only modestly different from endpoint windows (+{:.1}%).",
+            uplift
+        );
+        println!("This script does not establish a strong clustering effect by itself.");
+    } else {
+        println!(
+            "The midpoint window is not denser than endpoint windows in this scan ({:.1}%).",
+            uplift
+        );
+    }
     // Let's also test the "pressure" or "field strength" metaphor
     println!("\n🌊 Understanding the 'Field' Phenomenon");
     println!("======================================");
@@ -160,6 +185,6 @@ fn main() {
     println!("Instead of 'gravitational fields', think of:");
     println!("1. PRIME DENSITY GRADIENTS - probability of finding primes");
     println!("2. STRUCTURAL INTERFERENCE - membrane patterns create voids");
-    println!("3. EQUILIBRIUM ZONES - midpoints where density recovers");
-    println!("4. RESONANCE EFFECTS - certain positions favor prime formation");
+    println!("3. EQUILIBRIUM ZONES - candidate midpoints worth testing");
+    println!("4. CONTROLLED FOLLOW-UP - compare equal windows before telling a bigger story");
 }

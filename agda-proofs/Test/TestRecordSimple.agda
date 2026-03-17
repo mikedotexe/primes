@@ -23,7 +23,7 @@ record Pairing {B : Set} (S : SymData B) (M : MS B) : Set where
 
   field
     π               : X' → X'
-    residue-distinct: (x : X') → res' (π x) ≢ res' x
+    residue-distinct : (x : X') → res' (π x) ≢ res' x
 
   -- Now we can open after fields
   open SymData S
