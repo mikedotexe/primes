@@ -1,16 +1,17 @@
 //! # `primes`: Membrane Prime Toolkit
 //!
-//! Rust crate for constructing and analyzing structured prime candidates.
+//! Rust crate for constructing and analyzing symmetric digit templates (repo
+//! alias: membranes) and related prime-distribution computations.
 //!
-//! ## Core Components
+//! ## Active Mathematical Surface
 //!
-//! **Math layer** (the verified core):
+//! **Mathematical core**:
 //! - [`BitSieve`] -- Sieve of Eratosthenes for prime generation
-//! - [`MembraneConfig`] -- Symmetric membrane structures for prime construction
-//! - [`hzlib`] -- Hardy-Littlewood framework, sieves, statistics, number theory
+//! - [`MembraneConfig`] -- symmetric digit-template parameterization
+//! - [`hzlib`] -- Hardy-Littlewood heuristics, sieves, statistics, number theory
 //! - [`is_prime`] -- Miller-Rabin primality test (20 rounds)
 //!
-//! **Optional metaphor / visualization layer**:
+//! **Optional visualization / legacy metaphor layer**:
 //! - [`PrimeUniverse`] -- N-body gravitational model over primes
 //! - [`GravitationalField`], [`PrimeParticle`] -- Force-based prime modeling
 //! - [`LagrangePoint`], [`TidalField`] -- Equilibrium and tidal analysis
@@ -27,17 +28,18 @@
 //! | `prime-harmonics`| no      | Fourier analysis (`num-complex`)     |
 //! | `phase4`         | no      | ARM AMX/SME backend                  |
 //!
-//! ## Measured Results
+//! ## Measured Reference Configurations
 //!
-//! Representative membrane densities against a naive random baseline
+//! Representative densities for the symmetric digit-template family against a
+//! naive random baseline
 //! (Miller-Rabin, 20 rounds, `n=1000`):
 //! - Base 6, Config (1,5) k=(0,0): ~33% prime density
 //! - Base 30, Config (11,7) k=(0,0): ~30% prime density
 //! - Random baseline: ~5% prime density
 //!
 //! Current repo controls indicate that most of the observed lift is explained by
-//! coprimality filtering and size effects. A membrane-specific lift beyond
-//! matched coprime controls remains open rather than proven here.
+//! coprimality filtering and size effects. Any additional template-specific
+//! lift beyond matched coprime controls remains open rather than established.
 //!
 //! ## Quick Start
 //!
@@ -49,7 +51,7 @@
 //! let primes = sieve.primes();
 //! assert_eq!(primes.len(), 168); // pi(1000) = 168
 //!
-//! // Membrane configuration: base 10, boundary digits (3,7), k=(0,0)
+//! // Symmetric digit template: base 10, boundary digits (3,7), k=(0,0)
 //! let config = MembraneConfig::new(10, 3, 7, 0, 0);
 //! ```
 
@@ -150,7 +152,7 @@ pub enum PhysicsError {
     InvalidConfiguration(String),
 }
 
-/// Legacy metaphor constants for the optional `PrimeUniverse` layer
+/// Legacy metaphor constants for the optional `PrimeUniverse` layer.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PhysicalConstants {
     /// Gravitational constant (dimensionless in prime space)

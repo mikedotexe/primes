@@ -1,4 +1,26 @@
-//! Utility functions for connector analysis
+//! Utility functions for connector analysis.
+//!
+//! These helpers are intentionally small, but they sit on the hot path for
+//! connector-space scans. They let doctests show the same workflow that the
+//! larger examples use:
+//! 1. choose a connector length,
+//! 2. iterate all connectors of that fixed decimal width,
+//! 3. discard obvious composites with a cheap residue-class filter.
+//!
+//! # Quick Example
+//! ```
+//! use primes::connector::utils::{
+//!     CANONICAL_LEFT_MOD3, CANONICAL_RIGHT_MOD3, connector_range, decimal_len, should_skip_mod3,
+//! };
+//!
+//! let survivors: Vec<u64> = connector_range(2)
+//!     .filter(|&c| !should_skip_mod3(c, CANONICAL_LEFT_MOD3, CANONICAL_RIGHT_MOD3))
+//!     .take(5)
+//!     .collect();
+//!
+//! assert_eq!(decimal_len(3007003007003), 13);
+//! assert_eq!(survivors, vec![0, 1, 3, 4, 6]);
+//! ```
 
 use std::ops::Range;
 
@@ -12,7 +34,7 @@ use std::ops::Range;
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::connector::utils::decimal_len;
+/// use primes::connector::utils::decimal_len;
 ///
 /// assert_eq!(decimal_len(0), 1);
 /// assert_eq!(decimal_len(7), 1);
@@ -48,7 +70,7 @@ pub fn decimal_len(mut n: u128) -> u32 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::connector::utils::connector_range;
+/// use primes::connector::utils::connector_range;
 ///
 /// let range = connector_range(3);
 /// assert_eq!(range.start, 0);
@@ -60,6 +82,10 @@ pub fn decimal_len(mut n: u128) -> u32 {
 ///     count += 1;
 /// }
 /// assert_eq!(count, 1000);
+///
+/// // Leading-zero connectors are represented by small integers.
+/// let first_four: Vec<u64> = connector_range(2).take(4).collect();
+/// assert_eq!(first_four, vec![0, 1, 2, 3]); // 00, 01, 02, 03
 /// ```
 pub fn connector_range(len: u32) -> Range<u64> {
     assert!(
@@ -94,7 +120,7 @@ pub fn connector_range(len: u32) -> Range<u64> {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::connector::utils::should_skip_mod3;
+/// use primes::connector::utils::should_skip_mod3;
 ///
 /// // For the canonical pair: 10301 ≡ 2 (mod 3), 3007003007003 ≡ 2 (mod 3)
 /// // If connector ≡ 2 (mod 3), then N ≡ 2+2+2 ≡ 0 (mod 3) → composite
@@ -102,6 +128,11 @@ pub fn connector_range(len: u32) -> Range<u64> {
 /// assert!(should_skip_mod3(5, 2, 2));   // Skip: 2+2+2 = 6 ≡ 0 (mod 3)
 /// assert!(!should_skip_mod3(0, 2, 2));  // Keep: 2+0+2 = 4 ≡ 1 (mod 3)
 /// assert!(!should_skip_mod3(1, 2, 2));  // Keep: 2+1+2 = 5 ≡ 2 (mod 3)
+///
+/// let kept: Vec<u64> = (0..6)
+///     .filter(|&c| !should_skip_mod3(c, 2, 2))
+///     .collect();
+/// assert_eq!(kept, vec![0, 1, 3, 4]);
 /// ```
 pub fn should_skip_mod3(connector: u64, left_mod3: u8, right_mod3: u8) -> bool {
     debug_assert!(left_mod3 < 3, "left_mod3 must be 0, 1, or 2");

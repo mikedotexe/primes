@@ -3,8 +3,9 @@
 **Updated**: March 2026
 
 This directory contains collaborator-facing synthesis notes. Treat the root
-documents and audited status files as the primary source of truth, and use this
-folder for interpretation, working summaries, and exploratory follow-up.
+documents and audited status files as the primary source of truth. Use this
+folder for technical summaries, theorem-planning notes, and exploratory
+follow-up that has not yet been promoted into the canonical claim surface.
 
 ## Start Here
 
@@ -12,9 +13,10 @@ folder for interpretation, working summaries, and exploratory follow-up.
 
 [`THEORETICAL_CLOSURE.md`](./THEORETICAL_CLOSURE.md)
 
-This is the collaborator summary of the repo's current best interpretation:
-membrane density gains are most plausibly explained by coprimality filtering and
-ordinary prime-density effects, not by a demonstrated membrane-specific bonus.
+This is the collaborator summary of the current best interpretation: prime
+density gains in the symmetric digit-template family are best explained by
+coprimality filtering and ordinary prime-density effects, not by a demonstrated
+template-specific bonus.
 
 ### Strongest repo-wide evidence docs
 
@@ -28,9 +30,10 @@ ordinary prime-density effects, not by a demonstrated membrane-specific bonus.
 
 ## Other Notes in This Folder
 
-Read these as exploratory or heuristic unless another audited document has
-already promoted the claim:
+Read these as working notes unless another audited document has already
+promoted the relevant claim:
 
+- [`openprover/README.md`](./openprover/README.md)
 - [`PRIMORIAL_MEMBRANE_OPTIMIZATION_GUIDE.md`](./PRIMORIAL_MEMBRANE_OPTIMIZATION_GUIDE.md)
 - [`EXPLORATION_SYNTHESIS.md`](./EXPLORATION_SYNTHESIS.md)
 - [`PERIOD6_RESONANCE_DISCOVERY.md`](./PERIOD6_RESONANCE_DISCOVERY.md)
@@ -46,11 +49,12 @@ cargo run --example prime_verification_report
 
 ## Current Working Assumptions
 
-1. Membrane constructions can achieve high prime density in selected measured
-   configurations.
+1. Symmetric digit templates (repo alias: membranes) can achieve high measured
+   prime density in selected configurations.
 2. Coprimality is the dominant explanatory factor currently supported by the
    repo's evidence.
 3. Claims about connector asymmetry, Lagrange behavior, and resonance effects
-   should be treated as narrower than the membrane-density story.
-4. The Agda work is partial: 20 clean modules and 12 postulated modules
-   currently type-check.
+   should be treated as narrower than the main density interpretation.
+4. The Agda work is partial but much broader than older summaries suggest:
+   `agda-proofs/STATUS.md` currently reports 40 clean-local modules, 41 modules
+   with local postulates, and 0 failing modules.

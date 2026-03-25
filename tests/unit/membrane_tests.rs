@@ -6,13 +6,10 @@ use primes::membrane::{MembraneBuilder, MembraneConfig};
 #[test]
 fn test_basic_membrane_construction() {
     let config = MembraneConfig::new(10, 3, 7, 0, 0);
-    let result = MembraneBuilder::new(config).with_seed(5).build();
+    let result = config.construct_number(5);
 
     assert!(result.is_ok(), "Basic membrane construction should succeed");
-    let particle = result.unwrap();
-    // Note: The actual implementation behavior differs from original expectation
-    // The seed goes through generate_middle_content transformation
-    assert_eq!(particle.value.to_string(), "37273");
+    assert_eq!(result.unwrap().to_string(), "37573");
 }
 
 #[test]
@@ -58,15 +55,15 @@ fn test_zero_padding_effects() {
 
     // Test different padding values
     let configs = vec![
-        (0, 0, "37273"),    // No padding - actual output from implementation
-        (1, 0, "3073703"),  // Outer padding only
-        (0, 1, "3750573"),  // Inner padding only
-        (1, 1, "30750573"), // Both paddings
+        (0, 0, "37573"),     // No padding
+        (1, 0, "3075703"),   // Outer padding only
+        (0, 1, "3705073"),   // Inner padding only
+        (1, 1, "307050703"), // Both paddings
     ];
 
     for (k_outer, k_inner, expected) in configs {
         let config = MembraneConfig::new(base, outer, inner, k_outer, k_inner);
-        let result = MembraneBuilder::new(config).with_seed(seed).build();
+        let result = config.construct_number(seed);
 
         assert!(
             result.is_ok(),
@@ -77,8 +74,7 @@ fn test_zero_padding_effects() {
             k_outer,
             k_inner
         );
-        let particle = result.unwrap();
-        let actual = particle.value.to_string();
+        let actual = result.unwrap().to_string();
         println!(
             "Config ({},{},{},{},{}) with seed {} produced: {}",
             base, outer, inner, k_outer, k_inner, seed, actual

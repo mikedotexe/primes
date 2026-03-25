@@ -1,25 +1,25 @@
-//! # Membrane Construction Module
+//! # Symmetric Digit Template Construction
 //!
 //! **Layer**: Math core (verified, tested)
 //!
-//! Implements symmetric membrane construction for generating prime numbers
-//! with specific structural patterns.
+//! Implements symmetric digit-template construction (repo alias: membrane) and
+//! a small collection of related named variants.
 //!
-//! ## Core Concept
+//! ## Base Template
 //!
-//! A membrane has the structure:
+//! The base symmetric template has the form:
 //! ```text
 //! outer + (k_outer zeros) + inner + (k_inner zeros) + middle + (k_inner zeros) + inner + (k_outer zeros) + outer
 //! ```
 //!
 //! Example: `3 00 7 0 5 0 7 00 3` → `300705070003`
 //!
-//! ## Variations
+//! ## Named Construction Families
 //!
-//! - **Symmetric**: Standard equal padding on both sides
-//! - **Breathing**: Asymmetric padding (different left/right k-values)  
-//! - **Adaptive**: Base-specific optimized configurations
-//! - **Quantum**: Orbital-like k-patterns (s, p, d, f configurations)
+//! - **Symmetric**: equal padding on both sides
+//! - **Breathing**: asymmetric left/right padding
+//! - **Adaptive**: base-specific named variants
+//! - **Quantum**: orbital-named padding families retained for compatibility
 
 use num_bigint::BigUint;
 use rand::{thread_rng, Rng};
@@ -134,22 +134,15 @@ pub enum OrbitalType {
 impl MembraneConfig {
     /// Create a new symmetric membrane configuration
     ///
-    /// **IMPORTANT**: Based on empirical verification, coprimality is essential!
-    /// Non-coprime configurations show 0% prime generation.
+    /// Boundary digits coprime to the base are an empirically necessary
+    /// admissibility condition for useful prime density. If a boundary digit
+    /// shares a factor with the base, the constructed candidates inherit a
+    /// systematic divisibility obstruction.
     ///
-    /// # Why Coprimality Matters
-    ///
-    /// When boundary digits share factors with the base, they create
-    /// systematic divisibility patterns that prevent primality:
-    ///
-    /// Example in base 10:
-    /// - If outer = 5 (shares factor 5 with base 10)
-    /// - Then 5...5 in base 10 always ends in 5
-    /// - All numbers ending in 5 are divisible by 5 (except 5 itself)
-    /// - Result: 0% prime generation
-    ///
-    /// Coprime digits avoid these systematic patterns, allowing
-    /// the membrane structure to explore the full prime landscape.
+    /// Example in base `10`:
+    /// - if a boundary digit is `5`, then every output ends in `5`
+    /// - every such output is divisible by `5` unless the whole number is `5`
+    /// - the resulting family therefore contributes no large primes
     pub fn new(base: u32, outer: u32, inner: u32, k_outer: u32, k_inner: u32) -> Self {
         // Validate coprimality (essential for prime generation)
         // gcd(a,b) = 1 means a and b share no common factors

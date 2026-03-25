@@ -114,7 +114,10 @@ fn main() {
     let region2_density = region2_primes as f64 / window_size;
     let region3_density = region3_primes as f64 / window_size;
 
-    println!("\nPrime count in equal {}-number windows:", window_size as usize);
+    println!(
+        "\nPrime count in equal {}-number windows:",
+        window_size as usize
+    );
     println!("  Around Membrane 1: {} primes", region1_primes);
     println!("  Around L1 (oasis): {} primes", region2_primes);
     println!("  Around Membrane 2: {} primes", region3_primes);
@@ -127,7 +130,10 @@ fn main() {
     let endpoint_density = (region1_density + region3_density) / 2.0;
     let uplift = (region2_density / endpoint_density - 1.0) * 100.0;
     if uplift > 10.0 {
-        println!("The midpoint window is meaningfully denser in this scan (+{:.1}%).", uplift);
+        println!(
+            "The midpoint window is meaningfully denser in this scan (+{:.1}%).",
+            uplift
+        );
     } else if uplift > -10.0 {
         println!(
             "The midpoint window is only modestly different from endpoint windows (+{:.1}%).",

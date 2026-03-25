@@ -1,129 +1,121 @@
-# What This Project Actually Contributes
+# Contribution Classification
 
 **Updated**: March 2026
 
-## The Core Story
+This document classifies what the repository currently contributes, what it
+does not establish, and which questions remain open. Throughout the active
+docs, "membrane" denotes the symmetric digit-template family implemented in the
+crate.
 
-This project investigated symmetric "membrane" constructions that produce primes
-at 3-7x the rate of naive random chance. Through systematic empirical testing,
-the repo established a narrower result: current controls explain most of that
-lift using classical number theory (Euler's totient, Mertens' theorem, PNT),
-and do not yet show a statistically significant membrane-specific advantage
-beyond matched coprime controls.
+## Verified Contributions
 
-This is documented in detail in [collab/THEORETICAL_CLOSURE.md](collab/THEORETICAL_CLOSURE.md).
+### 1. Empirical Reduction to Classical Filtering
 
-## What Is Novel
+The strongest current result is not a new prime-density theorem. It is the
+empirical reduction showing that the observed density lift of the symmetric
+digit-template family is largely accounted for by classical coprimality
+filtering together with ordinary candidate-size effects.
 
-### 1. The Falsification Record (Methodological Contribution)
+The key control comparison is template versus random-coprime sampling. The
+reported structure ratio is approximately `1.020 +/- 0.053`, with `p > 0.05`,
+so the current evidence is consistent with no additional template-specific lift.
 
-Multiple hypotheses were tested and refuted:
+### 2. Negative Results With High Explanatory Value
 
-| Hypothesis | Prediction | Result |
-|------------|-----------|--------|
-| Scaling law k* ~ sqrt(M) | Optimal padding grows with seed length | **Refuted**: k=0 optimal for all M >= 2 |
-| 2xp resonance | Base 14 (2x7) special behavior | **Refuted**: k=0 like all other bases |
-| Membrane structure effect | Structure boost > 1.0 | **Refuted**: 1.02x, not significant |
-| Phase-lock harmonics | Periodic structure in base 12 | **Refuted** |
-| Boundary digit magic | Some digits intrinsically special | **Refuted**: coprimality explains all |
+Several stronger hypotheses were tested and rejected:
 
-The project demonstrates that a seemingly "special" construction can often be
-reduced to well-known principles. This kind of systematic disenchantment is
-genuinely valuable; it prevents a literature of false novelty.
+| Hypothesis | Predicted consequence | Current result |
+|------------|-----------------------|----------------|
+| `k* ~ sqrt(M)` scaling law | Optimal padding grows with seed length | Refuted: `k=0` dominates for `M >= 2` |
+| `2p` resonance | Bases of the form `2p` should be exceptional | Refuted in tested cases |
+| Large template-specific bonus | Template/random-coprime ratio should materially exceed `1` | Not detected |
+| Boundary-digit specialness | Some digits should remain preferred after coprimality matching | Not detected |
+| Phase-lock harmonic story | Base-12 periodic structure should survive controls | Not detected |
 
-### 2. The Coprimality Reduction (Classical Contribution, New Presentation)
+This falsification record is methodologically useful because it narrows the
+live claim surface and removes unsupported mechanisms from the active
+interpretation.
 
-The central result -- that membrane efficiency is largely captured by
-coprimality filtering --
-is not new mathematics. Euler, Mertens, and PNT established the ingredients
-centuries ago. What is new is the **specific empirical demonstration** that a
-particular family of constructions (membranes) lands close to the predicted
-coprimality boost, with current controls remaining consistent with no extra
-lift.
+### 3. Structural Distinction From Ordinary Palindromes
 
-The structure stability test (membrane vs random-coprime: ratio = 1.020 +/- 0.053,
-p > 0.05) is the key piece of evidence. This test is reproducible:
-`cargo run --example membrane_vs_random`.
+Exact enumeration shows that the symmetric digit-template family is broader than
+the ordinary palindrome subset. In the tested base-10 and base-6 families,
+non-palindromic subsets retain nontrivial prime density, and at even total
+length the palindromic subset can vanish while the larger template family still
+contains primes.
 
-### 3. Membranes Are Broader Than the Palindrome Subset (Empirical)
+This is a verified structural distinction. It is not, by itself, evidence for a
+new template-specific density mechanism.
 
-Exact enumeration in `examples/membrane_palindrome_probe.rs` shows that the
-membrane family is not reducible to ordinary palindromes. In the tested base-10
-and base-6 families, non-palindromic membrane subsets retain real prime density,
-and at even total lengths the palindromic subset can disappear entirely while
-the non-palindromic membrane subset still contains primes.
+### 4. Connector Asymmetry as a Narrow Empirical Signal
 
-This is a real structural distinction, but it is not yet evidence that the
-canonical mirror-zero layout creates a new prime-density mechanism.
+For the canonical pair `10301` and `3007003007003`, the number of prime outputs
+depends measurably on concatenation order. This asymmetry is statistically real
+for that pair, but it has not yet been generalized beyond a single instance.
 
-### 4. Centered-Gap Symmetry Remains Unconfirmed (Empirical Negative Control)
+The correct classification is therefore: verified single-instance phenomenon,
+open general theorem.
 
-The newer same-budget scaffold controls do not show a consistent centered-gap
-advantage in the tested base-10 and base-6 families. Both fixed-anchor membrane
-templates and broader independent-digit spacing families produce small,
-sign-changing deltas once compared against matched asymmetric controls.
+## Software and Formalization Contributions
 
-That narrows the open question further: if there is extra structural signal, it
-lies in a narrower family than "symmetric zero-padding alone."
+### 1. Rust Mathematical Toolkit
 
-### 5. The Connector Asymmetry Phenomenon (Empirical, Single Instance)
+The crate contains a tested implementation of:
 
-When concatenating two primes with a buffer, the number of prime results differs
-by ~2% depending on concatenation order. This is real (p < 10^-20 for the canonical
-pair 10301 and 3007003007003) but has been tested on only one pair. Whether it
-generalizes is an open question.
+- prime sieves and primality checks
+- Hardy-Littlewood singular-series computations
+- truncated Goldbach expectations
+- effect sizes, rank-based statistics, and multiple-testing correction
+- connector concatenation arithmetic
 
-### 6. The Implementation
+This is useful software infrastructure. It should be treated as an engineering
+contribution rather than new mathematics.
 
-The Hardy-Littlewood framework (`src/hzlib/`) is a clean, tested Rust
-implementation of:
-- Singular series computation for Goldbach analysis
-- Truncated expectations for restricted pair counting
-- Statistical tools (Hedges' g, Cliff's delta, Spearman rho, BH correction)
-- Sieve infrastructure (boolean, SPF, segmented)
+### 2. Agda and Lean Formalization Surfaces
 
-This is useful code, not novel mathematics.
+The repository now has two active proof lanes:
 
-### 7. The Agda Formalization (Partial)
+- `agda-proofs/`: broader formal workspace, with audited clean-local and
+  postulated strata
+- `lean-proofs/`: narrower mathlib-backed package focused on midpoint
+  obstruction, exact residue-class filters, radicals, unit residues, and
+  wheel-base structure
 
-20 clean Agda modules prove properties about residue-class symmetry and
-balanced-bucket pairing for specific modular bases. 12 additional modules
-type-check with postulates. The certification framework is operational but
-covers a narrow slice of the claims.
+These formalization surfaces are real contributions to rigor and proof
+organization, but they do not yet amount to a complete formal proof of the full
+prime-density interpretation.
 
-## What Is Not Novel
+## Non-Claims
 
-- **A solved membrane-specific density mechanism**: Current evidence does not
-  establish one. The best control result is still consistent with coprimality
-  filtering plus ordinary size effects.
-- **The "physics engine" framing**: Gravity, tidal forces, Lagrange points are
-  metaphors for visualization. They are not physics and do not predict anything
-  that modular arithmetic does not already explain.
-- **k=0 dominance**: This follows directly from the diameter-density principle,
-  which itself follows from PNT (shorter numbers have higher prime density).
-- **Base-specific optimal digits**: This is a restatement of coprimality.
+The repository does **not** currently establish:
 
-## Summary Classification
+- a proved template-specific density mechanism beyond coprimality filtering
+- a theoretical derivation of the diameter-density relationship
+- a general theorem covering connector asymmetry
+- a mathematical result supported by the physics-metaphor layer
 
-| Contribution | Type | Status |
-|-------------|------|--------|
-| Membrane lift largely matches coprimality filtering | Classical result, new presentation | Verified empirically |
-| Membranes broader than ordinary palindromes | Empirical structural distinction | Verified in tested families |
-| Centered-gap symmetry advantage | Empirical control question | Not detected consistently in tested families |
-| Falsification record | Methodological | Complete |
-| Connector asymmetry | Empirical, single instance | Open |
-| HL Rust implementation | Software engineering | Tested |
-| Agda formalization | Partial formal verification | 20 clean modules |
-| Physics metaphor | Visualization/pedagogy | Not a contribution to math |
+The gravity, tidal, Lagrange, and related APIs remain visualization or legacy
+interfaces. They should not be cited as mathematical evidence.
 
-## Honest Framing
+## Residual Open Questions
 
-The project's value is the journey of systematic investigation: observing a
-pattern, forming hypotheses, testing them rigorously, and narrowing the part
-that is still genuinely open. Much of the density story points back to classical
-number theory; some structural questions remain alive.
+The highest-signal remaining questions are:
 
-The remaining open question -- connector asymmetry -- is the one finding that
-is least explained by the current writeups. The centered-scaffold versus
-same-budget-control question also remains open after the new exact probes.
-Both deserve further investigation before any claims about generality.
+1. Can the diameter-density relationship be reduced to classical analytic
+   number-theory effects, or does any narrower residual structural claim remain?
+2. Why does the `M=1` case behave differently from the `M >= 2` regime?
+3. Does connector asymmetry persist for families beyond the canonical pair?
+4. Can any centered-gap subclass survive same-budget controls with a stable
+   excess over matched asymmetric families?
+
+## Summary Table
+
+| Item | Classification | Current status |
+|------|----------------|----------------|
+| Coprimality-dominated interpretation | Classical mathematics, new empirical reduction | Verified empirically |
+| Falsification record | Methodological contribution | Verified |
+| Distinction from ordinary palindromes | Structural empirical result | Verified in tested families |
+| Connector asymmetry | Empirical single-instance result | Open generalization |
+| Rust analysis toolkit | Software engineering | Implemented and tested |
+| Agda and Lean proof surfaces | Formalization infrastructure | Active but incomplete |
+| Physics-metaphor framing | Visualization / compatibility layer | Not mathematical evidence |

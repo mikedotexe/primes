@@ -1,16 +1,21 @@
 # Prime Physics Engine -- Developer Reference
 
-**Status**: 174 library tests pass, clippy clean, 32 curated examples compile
+**Status**: 174 library tests pass, clippy clean, 34 curated examples compile
 **Last verified**: March 2026
 
 ## What This Crate Does
 
-Symmetric "membrane" constructions produce numbers with significantly higher prime
-density than random chance. This crate implements the generation method, a statistical
-analysis framework (Hardy-Littlewood singular series, effect sizes, FDR correction),
-and an optional physics-metaphor visualization layer.
+This crate implements symmetric digit-template construction (repo alias:
+"membrane"), prime search utilities, analytic heuristics, and optional
+metaphor-based visualization APIs.
 
-### Core Concept: Membrane Structure
+The current empirical record shows that selected template families achieve
+substantially higher prime density than naive random baselines. The current
+conservative interpretation is narrower: most of the observed lift is explained
+by coprimality filtering and candidate magnitude, while any additional
+template-specific effect remains unproved.
+
+### Core Template
 
 ```
 outer + (k1 zeros) + inner + (k2 zeros) + SEED + (k2 zeros) + inner + (k1 zeros) + outer
@@ -22,30 +27,33 @@ Example: Config (1,5) k=(0,0), seed 4 in base 6
   1 5 4 5 1  -->  15451 (base 6)  =  2551 (decimal, prime)
 ```
 
-### Verified Empirical Results
+### Representative Empirical Results
 
-Tested with Miller-Rabin (20 rounds), n=1000 samples per configuration, p < 0.001:
+Measured with Miller-Rabin (20 rounds), `n = 1000` samples per configuration:
 
-| Base | Boundary Digits | k | Prime Density | vs Random (~5%) |
+| Base | Boundary Digits | k | Prime Density | vs Naive Random (~5%) |
 |------|----------------|---|---------------|-----------------|
 | 6    | (1, 5)         | (0, 0) | 33% | 6.6x |
 | 30   | (11, 7)        | (0, 0) | 30% | 6.0x |
 | 10   | (3, 7)         | (0, 0) | 18.5% | 3.7x |
 
-### What Is Verified vs What Is Open
+### Verified vs Open
 
 **Verified** (empirical, reproducible):
-1. Membrane structures produce 3-7x higher prime density than random
-2. Coprimality of boundary digits to the base is essential
-3. Minimal padding (k=0,0) dominates for seed length M >= 2
-4. Diameter-density law: compactness predicts density (Spearman rho > 0.77)
-5. Membrane density advantage is largely explained by coprimality filtering
-   (Euler + Mertens + PNT); structure boost is ~1.02x, not statistically significant
+1. Selected symmetric digit-template families produce `3x-7x` higher prime
+   density than naive random baselines.
+2. Boundary digits coprime to the base are required for useful prime density.
+3. Minimal padding `k=(0,0)` dominates for seed length `M >= 2`.
+4. Diameter/compactness correlates strongly with observed density
+   (`Spearman rho > 0.77`).
+5. The observed density lift is largely explained by coprimality filtering
+   together with ordinary prime-density effects; the best matched
+   template-specific ratio is about `1.02`, not statistically significant.
 
 **Open** (unresolved):
-1. Theoretical proof of the diameter-density law
-2. Why M=1 prefers k>0 while all larger M prefer k=0
-3. Directional asymmetry in prime connectors (tested on one pair only)
+1. A theoretical derivation of the diameter-density relationship.
+2. The `M=1` exception, where some bases prefer `k>0` while larger `M` do not.
+3. Directional asymmetry for prime connectors beyond the canonical pair.
 
 For rigorous fact/speculation separation, see
 [VERIFIED_FACTS_VS_SPECULATION.md](VERIFIED_FACTS_VS_SPECULATION.md).
@@ -70,8 +78,8 @@ src/
 ```
 
 Two layers:
-- **Math layer** (verified core): `membrane`, `prime_sieve`, `hzlib`, `connector`, `is_prime`
-- **Simulation layer** (physics metaphor for visualization): `gravity`, `lagrange`,
+- **Mathematical core**: `membrane`, `prime_sieve`, `hzlib`, `connector`, `is_prime`
+- **Optional visualization / legacy metaphor layer**: `gravity`, `lagrange`,
   `tidal`, `spacetime`, `PrimeUniverse`
 
 ## Hardy-Littlewood API Reference
@@ -92,7 +100,7 @@ Two layers:
 | `goldbach_coverage_from_lambda(lambda)` | Poisson coverage: 1 - e^(-lambda) |
 
 ```rust
-use prime_physics_engine::hzlib::*;
+use primes::hzlib::*;
 
 let spf = sieve_spf(10000);
 let lambda = hl_goldbach_lambda(1000, &spf, PairCount::Unordered);
@@ -112,8 +120,9 @@ let lambda_trunc = hl_goldbach_lambda_truncated(1000, 100, &spf, PairCount::Unor
 
 ### Exact Denominators (`src/hzlib/density.rs`)
 
-A number n can be prime only if gcd(n, rad(b)) = 1, where rad(b) is the product of
-distinct prime factors of b. Example: rad(12) = 2*3 = 6 (not 12).
+A number `n` can be prime only if `gcd(n, rad(b)) = 1`, where `rad(b)` is the
+product of the distinct prime factors of `b`. Example: `rad(12) = 2*3 = 6`
+(not `12`).
 
 ## Build and Test
 
@@ -150,14 +159,32 @@ cargo run --example verify_prime_checker         # Miller-Rabin validation
 cargo run --example proper_membrane_generator    # Generate membrane primes
 ```
 
-See [examples/README.md](examples/README.md) for the full list of 32 curated examples.
+See [examples/README.md](examples/README.md) for the full list of 34 curated examples.
 
 ## Formal Verification (Agda)
 
-32 of 80 Agda modules type-check (19 clean, 13 with postulates). The core
-certification stack (SymmetryImpliesRepulsion through CertifiedResonanceParamDyn)
-is fully operational. See [agda-proofs/STATUS.md](agda-proofs/STATUS.md) for
-module-by-module status.
+81 of 81 Agda modules type-check individually (40 clean-local, 41 with local
+postulates, 0 failing). The core certification stack
+(SymmetryImpliesRepulsion through CertifiedResonanceParamDyn) is fully
+operational. See [agda-proofs/STATUS.md](agda-proofs/STATUS.md) for
+module-by-module status and boundary notes.
+
+## Formal Verification (Lean 4)
+
+The repo now also includes a mathlib-backed Lean package under
+[lean-proofs/](lean-proofs/). Its current proved surface is symmetry-first: the
+initial lane contains the abstract midpoint-obstruction theorem, a concrete
+base-6 witness, and a conservative exact arithmetic layer for coprimality,
+radicals, unit residues, and wheel-like bases. Broader density formalization
+remains roadmap material in
+[lean-proofs/ROADMAP.md](lean-proofs/ROADMAP.md).
+
+Verify the Lean package locally with:
+
+```bash
+cd lean-proofs
+lake build
+```
 
 ## Development Practices
 

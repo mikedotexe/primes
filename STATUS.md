@@ -1,7 +1,7 @@
 # Repository Status
 
 **Updated**: March 2026  
-**Purpose**: canonical snapshot of repo-level verification status
+**Purpose**: canonical repository-level verification snapshot
 
 ## Current Verified Checks
 
@@ -11,8 +11,9 @@
 | Clippy | passes cleanly | `cargo clippy --lib -- -D warnings` |
 | Top-level examples | 34 compile | `for f in examples/*.rs; do cargo build --example "$(basename "$f" .rs)"; done` |
 | Agda status | 40 clean-local, 41 with local postulates, 0 failing | [`agda-proofs/STATUS.md`](agda-proofs/STATUS.md) |
+| Lean 4 package | `lake build` passes | `cd lean-proofs && lake build` |
 
-## Notes
+## Interpretation Notes
 
 - This file is the canonical source for mutable repo-level counts used across
   active docs.
@@ -20,5 +21,8 @@
   [`agda-proofs/STATUS.md`](agda-proofs/STATUS.md); use that file for boundary
   notes about clean-local modules that sit atop postulated foundations when any
   exist.
-- Public claim wording still lives in [`CLAIMS.md`](CLAIMS.md),
+- Lean status here refers to the in-repo mathlib-backed package under
+  [`lean-proofs/`](lean-proofs/).
+- Public claim wording and contribution classification live in
+  [`CLAIMS.md`](CLAIMS.md),
   [`README.md`](README.md), and [`EVIDENCE.md`](EVIDENCE.md).

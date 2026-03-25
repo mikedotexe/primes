@@ -38,12 +38,7 @@ fn visual_structure_demo() {
 
     // Show different patterns
     let patterns = vec![
-        (
-            "Classic",
-            MembraneConfig::new(10, 3, 7, 0, 0),
-            5,
-            "37573",
-        ),
+        ("Classic", MembraneConfig::new(10, 3, 7, 0, 0), 5, "37573"),
         (
             "Breathing",
             MembraneConfig::new(10, 3, 3, 0, 1),

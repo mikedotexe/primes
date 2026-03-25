@@ -13,7 +13,7 @@ pub enum Direction {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::connector::ConcatenationSystem;
+/// use primes::connector::ConcatenationSystem;
 ///
 /// // Canonical Lagrange point pair
 /// let sys = ConcatenationSystem::new(10301, 3007003007003);
@@ -41,7 +41,7 @@ impl ConcatenationSystem {
     ///
     /// # Example
     /// ```
-    /// use prime_physics_engine::connector::ConcatenationSystem;
+    /// use primes::connector::ConcatenationSystem;
     ///
     /// let sys = ConcatenationSystem::new(10301, 3007003007003);
     /// assert_eq!(sys.left_len, 5);
@@ -69,7 +69,7 @@ impl ConcatenationSystem {
     ///
     /// # Example
     /// ```
-    /// use prime_physics_engine::connector::ConcatenationSystem;
+    /// use primes::connector::ConcatenationSystem;
     ///
     /// let sys = ConcatenationSystem::new(10301, 3007003007003);
     ///
@@ -101,13 +101,13 @@ impl ConcatenationSystem {
     ///
     /// # Example
     /// ```
-    /// use prime_physics_engine::connector::ConcatenationSystem;
+    /// use primes::connector::ConcatenationSystem;
     ///
     /// let sys = ConcatenationSystem::new(10301, 3007003007003);
     ///
     /// // Connector "00006" (5 digits)
     /// let result = sys.reverse(6, 5).unwrap();
-    /// assert_eq!(result, 3007003007003000065301u128);
+    /// assert_eq!(result, 30070030070030000610301u128);
     /// ```
     pub fn reverse(&self, connector: u128, conn_len: u32) -> Option<u128> {
         crate::connector::arithmetic::concat_reverse(

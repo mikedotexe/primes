@@ -9,6 +9,24 @@
 //! - Pair counting can be ordered (p,q) and (q,p) separate, or unordered {p,q}
 //! - The twin-prime constant C₂ ≈ 0.6601618158 appears in the front factor κ
 //! - Coverage uses Poisson approximation: Pr[r(n)≥1] = 1 - e^(-λ)
+//!
+//! # Quick Example
+//! ```
+//! use primes::hzlib::{
+//!     PairCount, count_pairs_for_n, goldbach_coverage_from_lambda, hl_goldbach_lambda, sieve_bool,
+//!     sieve_spf,
+//! };
+//!
+//! let spf = sieve_spf(1000);
+//! let lambda = hl_goldbach_lambda(100, &spf, PairCount::Unordered);
+//! let coverage = goldbach_coverage_from_lambda(lambda);
+//! let is_prime = sieve_bool(100);
+//! let actual_pairs = count_pairs_for_n(100, 2, &is_prime);
+//!
+//! assert!(lambda > 0.0);
+//! assert!(coverage > 0.0 && coverage < 1.0);
+//! assert_eq!(actual_pairs, 6);
+//! ```
 
 /// Pair counting convention for Goldbach analysis
 ///
@@ -118,7 +136,8 @@ pub fn singular_series_goldbach_multiplicative(n: usize, spf: &[usize]) -> f64 {
 ///
 /// # Example
 /// ```
-/// use primes::hzlib::{sieve_spf, singular_series_goldbach};
+/// use primes::hzlib::hardy_littlewood::singular_series_goldbach;
+/// use primes::hzlib::sieve_spf;
 /// let spf = sieve_spf(100);
 /// let s = singular_series_goldbach(30, &spf); // 30 = 2×3×5
 /// // S₂(30) = (3-1)/(3-2) × (5-1)/(5-2) = 2/1 × 4/3 = 8/3 ≈ 2.667
@@ -145,8 +164,8 @@ pub fn singular_series_goldbach(n: usize, spf: &[usize]) -> f64 {
 /// use primes::hzlib::{sieve_bool, count_pairs_for_n};
 /// let is_prime = sieve_bool(100);
 /// let pairs = count_pairs_for_n(30, 2, &is_prime);
-/// // 30 = 11+19 = 13+17
-/// assert_eq!(pairs, 2);
+/// // 30 = 7+23 = 11+19 = 13+17
+/// assert_eq!(pairs, 3);
 /// ```
 pub fn count_pairs_for_n(n: usize, base: usize, is_prime: &[bool]) -> usize {
     if n < 2 * base {
@@ -178,6 +197,18 @@ pub fn count_pairs_for_n(n: usize, base: usize, is_prime: &[bool]) -> usize {
 ///
 /// # Returns
 /// Predicted expected number of pairs
+///
+/// # Example
+/// ```
+/// use primes::hzlib::hardy_littlewood::predict_goldbach_pairs;
+/// use primes::hzlib::sieve_spf;
+///
+/// let spf = sieve_spf(1000);
+/// let predicted = predict_goldbach_pairs(100, &spf, 1.0);
+///
+/// assert!(predicted.is_finite());
+/// assert!(predicted > 0.0);
+/// ```
 pub fn predict_goldbach_pairs(n: usize, spf: &[usize], k_hat: f64) -> f64 {
     let ln = (n as f64).ln();
     if ln <= 0.0 {
@@ -257,6 +288,7 @@ pub fn hl_goldbach_lambda(n: usize, spf: &[usize], pairing: PairCount) -> f64 {
 /// // Pairs for 1000 with both primes ≥ 100
 /// let lambda = hl_goldbach_lambda_truncated(1000, 100, &spf, PairCount::Unordered);
 /// assert!(lambda > 0.0);
+/// assert!(lambda.is_finite());
 /// ```
 pub fn hl_goldbach_lambda_truncated(n: usize, lo: usize, spf: &[usize], pairing: PairCount) -> f64 {
     if n % 2 == 1 || n < 2 * lo || lo < 2 {
@@ -304,6 +336,7 @@ pub fn hl_goldbach_lambda_truncated(n: usize, lo: usize, spf: &[usize], pairing:
 /// assert_eq!(goldbach_coverage_from_lambda(0.0), 0.0);
 /// // λ=1 → ~63% coverage
 /// assert!((goldbach_coverage_from_lambda(1.0) - 0.632).abs() < 0.01);
+/// assert!(goldbach_coverage_from_lambda(2.0) > goldbach_coverage_from_lambda(1.0));
 /// ```
 pub fn goldbach_coverage_from_lambda(lambda: f64) -> f64 {
     if lambda <= 0.0 {

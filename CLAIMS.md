@@ -1,15 +1,16 @@
 # Claim-Evidence Registry
 
-**Last verified**: March 2026 (updated after EVIDENCE.md audit rounds 1-2)
+**Last verified**: March 2026 (updated after the `EVIDENCE.md` audit rounds)
 
-Every significant claim made in this repository's public documents (README.md,
-CLAUDE.md) is listed below with its status, evidence source, and verification
-command. If a verification command fails, the claim should be reviewed.
+This file records the active claims made in the canonical repository documents
+(`README.md`, `CLAUDE.md`, `AGENTS.md`, and linked audited summaries). Each
+entry lists the claim status, the primary evidence source, and the verification
+command to rerun. If a verification command fails, the corresponding claim
+should be re-audited before reuse.
 
-**EVIDENCE.md audit note**: Two audit rounds found significant errors in
-EVIDENCE.md (5/14 false primality claims, 6 inflated data table entries). All
-corrections are recorded with strikethrough notation in EVIDENCE.md. The claims
-below reflect corrected values.
+**Audit note**: two audit rounds found material errors in `EVIDENCE.md`
+(false primality claims and inflated data-table entries). Those corrections are
+recorded in `EVIDENCE.md`; the registry below reflects the corrected values.
 
 ## Verified Empirical Claims
 
@@ -33,7 +34,7 @@ below reflect corrected values.
 | 11 | 174 library tests pass | `verified` | CI | `cargo test --lib` |
 | 12 | Clippy clean on all targets | `verified` | CI | `cargo clippy --all-targets -- -D warnings` |
 | 13 | Curated top-level examples compile | `verified` | examples/README.md, STATUS.md | `for f in examples/*.rs; do cargo build --example "$(basename "$f" .rs)" 2>/dev/null || echo "FAIL: $f"; done` |
-| 14 | 32/80 Agda modules type-check (20 clean, 12 with postulates) | `verified` | agda-proofs/STATUS.md | Local: `agda <module>` for each listed module |
+| 14 | 81/81 Agda modules type-check individually (40 clean-local, 41 with local postulates, 0 failing) | `verified` | agda-proofs/STATUS.md | Local: `agda <module>` for each listed module, or `cd agda-proofs && ./scripts/verify-clean-spine.sh` for the maintained clean spine |
 | 15 | Miller-Rabin with 20 rounds (error rate < 1e-12) | `implemented` | src/lib.rs `is_prime` function | `cargo run --example verify_prime_checker` |
 | 16 | Sieve matches OEIS A000720 reference counts | `verified` | pi(10^k) smoke test | `cargo run --example prime_count_smoke_test` |
 

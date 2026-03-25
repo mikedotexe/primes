@@ -1,13 +1,25 @@
 //! Chinese Remainder Theorem Pattern Detection
 //!
-//! Analyzes which small primes divide base/2 ("honorary zero" midpoint)
-//! to identify "complementary" patterns like (3,11) and (5,7).
+//! Analyzes which small primes divide the midpoint residue `base / 2` in order
+//! to classify local CRT patterns such as `(3,11)` and `(5,7)`.
+//!
+//! # Quick Example
+//! ```
+//! use primes::hzlib::crt_patterns::{classify_base, zero_pattern};
+//!
+//! let small = [3, 5, 7, 11];
+//! let (zeros, count, _tag, comp) = zero_pattern(70, &small);
+//!
+//! assert_eq!(zeros, vec![5, 7]);
+//! assert_eq!(count, 2);
+//! assert!(comp);
+//! assert_eq!(classify_base(66, &small), "complementary_3_and_11");
+//! ```
 
-/// Identify which small primes divide base/2
+/// Identify which small primes divide `base / 2`.
 ///
-/// The "honorary zero" for base b is at b/2. This function checks
-/// which small primes divide this midpoint, creating patterns that
-/// may affect Goldbach pair counts.
+/// This function checks which small primes divide the midpoint residue and
+/// records the resulting local pattern.
 ///
 /// # Arguments
 /// * `base` - The base to analyze (must be even)
@@ -22,7 +34,7 @@
 ///
 /// # Example
 /// ```
-/// use primes::hzlib::zero_pattern;
+/// use primes::hzlib::crt_patterns::zero_pattern;
 /// let (zeros, count, tag, comp) = zero_pattern(66, &[3, 5, 7, 11]);
 /// // 66/2 = 33 = 3×11
 /// assert_eq!(zeros, vec![3, 11]);
@@ -59,10 +71,10 @@ pub fn zero_pattern(base: usize, small: &[usize]) -> (Vec<usize>, usize, String,
     (z, len, tag, comp)
 }
 
-/// Check if base is a "double-prime" (base = 2p where p is prime)
+/// Check if the base has the form `2p` with `p` prime.
 ///
-/// Double-prime bases have special properties in our analysis because
-/// base/2 is itself prime, creating unique CRT patterns.
+/// Such bases have a distinguished midpoint factor because `base / 2` is
+/// itself prime, creating a simple local CRT pattern.
 ///
 /// # Arguments
 /// * `b` - Base to check
@@ -72,7 +84,7 @@ pub fn zero_pattern(base: usize, small: &[usize]) -> (Vec<usize>, usize, String,
 ///
 /// # Example
 /// ```
-/// use primes::hzlib::is_double_prime_base;
+/// use primes::hzlib::crt_patterns::is_double_prime_base;
 /// assert!(is_double_prime_base(6));  // 6 = 2×3
 /// assert!(is_double_prime_base(10)); // 10 = 2×5
 /// assert!(!is_double_prime_base(12)); // 12 = 2×6 (6 not prime)
@@ -118,6 +130,16 @@ fn is_prime_simple(n: usize) -> bool {
 /// Classify base by CRT pattern type
 ///
 /// Returns a human-readable classification for analysis purposes
+///
+/// # Example
+/// ```
+/// use primes::hzlib::crt_patterns::classify_base;
+///
+/// let small = [3, 5, 7, 11];
+/// assert_eq!(classify_base(66, &small), "complementary_3_and_11");
+/// assert_eq!(classify_base(10, &small), "double_prime_only_5");
+/// assert_eq!(classify_base(27, &small), "odd_base");
+/// ```
 pub fn classify_base(base: usize, small_primes: &[usize]) -> String {
     if !base.is_multiple_of(2) {
         return "odd_base".to_string();

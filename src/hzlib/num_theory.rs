@@ -18,7 +18,7 @@
 //! # Example
 //!
 //! ```rust
-//! use prime_physics_engine::hzlib::num_theory::*;
+//! use primes::hzlib::num_theory::*;
 //!
 //! let q = 142857;  // Famous cyclic number (1/7)
 //! let f = factor(q);
@@ -34,7 +34,7 @@
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::num_theory::gcd;
+/// use primes::hzlib::num_theory::gcd;
 /// assert_eq!(gcd(48, 18), 6);
 /// assert_eq!(gcd(17, 13), 1);  // Coprime
 /// assert_eq!(gcd(0, 5), 5);
@@ -55,7 +55,7 @@ pub fn gcd(mut a: u64, mut b: u64) -> u64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::num_theory::lcm;
+/// use primes::hzlib::num_theory::lcm;
 /// assert_eq!(lcm(4, 6), 12);
 /// assert_eq!(lcm(3, 5), 15);
 /// ```
@@ -74,7 +74,7 @@ pub fn lcm(a: u64, b: u64) -> u64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::num_theory::factor;
+/// use primes::hzlib::num_theory::factor;
 /// assert_eq!(factor(60), vec![(2, 2), (3, 1), (5, 1)]);
 /// assert_eq!(factor(13), vec![(13, 1)]);  // Prime
 /// assert_eq!(factor(1), vec![]);
@@ -123,7 +123,7 @@ pub fn factor(mut n: u64) -> Vec<(u64, u32)> {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::num_theory::{factor, phi_from_factor};
+/// use primes::hzlib::num_theory::{factor, phi_from_factor};
 /// let f = factor(12);
 /// assert_eq!(phi_from_factor(&f), 4);  // phi(12) = 4
 /// ```
@@ -164,7 +164,7 @@ fn lambda_prime_power(p: u64, e: u32) -> u64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::num_theory::{factor, carmichael_lambda_from_factor};
+/// use primes::hzlib::num_theory::{factor, carmichael_lambda_from_factor};
 /// let f = factor(8);
 /// assert_eq!(carmichael_lambda_from_factor(&f), 2);  // lambda(8) = 2
 /// ```
@@ -183,7 +183,7 @@ pub fn carmichael_lambda_from_factor(f: &[(u64, u32)]) -> u64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::num_theory::pow_mod;
+/// use primes::hzlib::num_theory::pow_mod;
 /// assert_eq!(pow_mod(2, 10, 1000), 24);  // 2^10 = 1024 mod 1000 = 24
 /// assert_eq!(pow_mod(3, 0, 7), 1);       // a^0 = 1
 /// ```
@@ -214,7 +214,7 @@ pub fn pow_mod(mut a: u64, mut e: u64, m: u64) -> u64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::num_theory::multiplicative_order;
+/// use primes::hzlib::num_theory::multiplicative_order;
 /// assert_eq!(multiplicative_order(10, 7), 6);   // 10^6 ≡ 1 (mod 7)
 /// assert_eq!(multiplicative_order(10, 9), 1);   // 10 ≡ 1 (mod 9)
 /// assert_eq!(multiplicative_order(2, 7), 3);    // 2^3 = 8 ≡ 1 (mod 7)
@@ -256,7 +256,7 @@ pub fn multiplicative_order(base: u64, n: u64) -> u64 {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::hzlib::num_theory::strip_factors;
+/// use primes::hzlib::num_theory::strip_factors;
 /// let (core, exps) = strip_factors(1000, &[2, 5]);
 /// assert_eq!(core, 1);       // 1000 = 2^3 * 5^3
 /// assert_eq!(exps, vec![3, 3]);
@@ -307,7 +307,7 @@ impl Material {
     ///
     /// # Example
     /// ```
-    /// use prime_physics_engine::hzlib::num_theory::Material;
+    /// use primes::hzlib::num_theory::Material;
     /// let m = Material::for_base10(7);
     /// assert_eq!(m.core, 7);
     /// assert_eq!(m.ord, 6);  // 1/7 has period 6
@@ -326,7 +326,7 @@ impl Material {
     ///
     /// # Example
     /// ```
-    /// use prime_physics_engine::hzlib::num_theory::Material;
+    /// use primes::hzlib::num_theory::Material;
     /// let m = Material::for_base(7, 6);
     /// assert_eq!(m.core, 7);
     /// // ord_7(6) = 6 (6 is primitive root mod 7)

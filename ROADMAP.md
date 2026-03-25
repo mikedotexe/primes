@@ -1,12 +1,17 @@
 # Hardening Roadmap
 
-**Updated**: 2026-03-11
+**Updated**: 2026-03-24
 **Purpose**: current tranche-based hardening plan for the active repository
 
 Previous roadmap history is preserved at
 [`archive/ROADMAP_legacy.md`](archive/ROADMAP_legacy.md). That file remains
 valuable as historical context, but it no longer reflects the current repo
 state.
+
+Throughout this roadmap, "membrane" denotes the symmetric digit-template family
+implemented in the crate. Active tracks should be read in the standard
+mathematical vocabulary of residue classes, coprimality filters, midpoint
+symmetry, and exact or empirical claims.
 
 ## Current Assessment
 
@@ -19,22 +24,62 @@ state.
   [`README.md`](README.md), [`CLAUDE.md`](CLAUDE.md),
   [`EVIDENCE.md`](EVIDENCE.md), [`VERIFIED_FACTS_VS_SPECULATION.md`](VERIFIED_FACTS_VS_SPECULATION.md),
   and [`agda-proofs/STATUS.md`](agda-proofs/STATUS.md)
-- membrane constructions clearly beat naive random baselines in several tested
-  families
-- the best current membrane-vs-random-coprime control does not establish a
+- symmetric digit templates clearly beat naive random baselines in several
+  tested families
+- the best current template-vs-random-coprime control does not establish a
   statistically significant extra lift beyond coprimality filtering
-- exact enumeration now shows membrane families are broader than the ordinary
+- exact enumeration now shows the template family is broader than the ordinary
   palindrome subset in the tested families
+- the repo now has two active formalization lanes:
+  [`agda-proofs/`](agda-proofs/) and the in-repo Lean package
+  [`lean-proofs/`](lean-proofs/)
+- the first Lean 4 milestone is live and builds with `lake build`, covering the
+  abstract midpoint-obstruction theorem plus a concrete base-6 certified witness
+- the Lean lane now also has a conservative exact arithmetic layer covering
+  affine template structure, coprimality/radical/unit-residue results,
+  `ZMod`/CRT/wheel-base structure, reusable symmetry certificates, explicit
+  finite certificate examples, and exact connector residue filters
 
 ### Public Signal Still Above Support
 
 - several subtree docs outside the root source-of-truth set have not yet been
   hardened to the new claim standard
 - some public comments and exploratory outputs still use metaphor-first or
-  “magic/special” language
+  non-technical language
 - the centered-scaffold question is sharper now: the family is broader than
   palindromes, but the canonical mirror-zero layout has not been isolated as
   the driver
+- the Lean lane is still much narrower than the Agda lane, so repo-level docs
+  must keep describing it as a symmetry-first foundation rather than a broad
+  second proof stack
+
+### Next Lean Tranches
+
+The Lean lane now has enough structure that future work can focus on a small
+set of durable mathematical targets instead of exploratory module growth. The
+affine modular-search tranche is now complete, the wheel-base CRT theorem is
+available in canonical finite-family form, the negation quotient is restated in
+group-action language via the order-two subgroup `{1, -1}`, and the symmetry
+lane now has both a modular reflection layer and a reusable reflection
+certificate wrapper. The constructive balanced-bucket support substrate is now
+also live, and the Lean symmetry lane now also has both the balanced-bucket
+reflection wrapper and the narrow window-certificate shell on top of it. The
+exact connector arithmetic lane is now also live, including fixed-width
+concatenation formulas and canonical decimal `mod 3` / `mod 9` exclusion
+filters, and the family-level residue-profile layer is now live as well. The
+next tranches to prefer are:
+
+1. connect generated residue-bucket and position data to the Lean window shell
+   in a reproducible artifact path
+2. instantiate the new connector-family layer on additional maintained pairs or
+   bases
+3. only after those, consider a conservative Hardy-Littlewood shell with
+   standard classical statements and no density overclaims
+
+The detailed Lean-only queue lives in
+[`lean-proofs/ROADMAP.md`](lean-proofs/ROADMAP.md) and the mathematician-facing
+summary of durable current signal lives in
+[`lean-proofs/THEOREM_INDEX.md`](lean-proofs/THEOREM_INDEX.md).
 
 ### Why The Next Track Order Is Correct
 
@@ -46,8 +91,30 @@ state.
    previous tranche clarified the exact open question.
 4. Drift guards come last because they should encode the stabilized surfaces,
    not the pre-hardening ones.
+5. Lean should now move in small classical steps from the new symmetry base,
+   because a narrow live package is more valuable than a broad aspirational one.
 
 ## Active Tranche
+
+### Lean Formalization Consolidation
+
+Status: `complete for the current foundation tranche`
+
+What is now in place:
+- the in-repo Lean package under [`lean-proofs/`](lean-proofs/) builds cleanly and is wired into CI
+- the symmetry lane includes the abstract midpoint-obstruction theorem, concrete witnesses, modular reflection, reusable certificate wrappers, balanced-bucket support/reflection, a narrow window-certificate shell, and explicit finite certificate examples
+- the exact arithmetic lane includes affine template structure, coprimality, radicals, unit residues, `ZMod` units, CRT/product decomposition, wheel-base families, negation-orbit structure, and exact connector residue filters
+- the connector lane now also includes a reusable family-level residue-profile API rather than only the maintained decimal pair
+
+Where the detailed Lean record lives:
+- theorem ledger: [`lean-proofs/ROADMAP.md`](lean-proofs/ROADMAP.md)
+- theorem map: [`lean-proofs/THEOREM_INDEX.md`](lean-proofs/THEOREM_INDEX.md)
+- local workflow: [`lean-proofs/README.md`](lean-proofs/README.md)
+
+Next Lean priorities:
+1. connect generated residue-bucket and position data to the Lean window shell in a reproducible artifact path
+2. instantiate the connector-family layer on additional maintained pairs or bases
+3. only after those, consider a conservative Hardy-Littlewood shell with standard classical statements and no density overclaims
 
 ### Track 6: Public Surface Identity Alignment
 

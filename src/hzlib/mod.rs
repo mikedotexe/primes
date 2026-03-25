@@ -2,9 +2,9 @@
 //!
 //! **Layer**: Math core (verified, tested)
 //!
-//! Statistical and number-theoretic tools for analyzing prime distributions.
-//! This is the mathematical backbone of the project, independent of the
-//! physics simulation metaphor.
+//! Number-theoretic, asymptotic, and statistical tools for analyzing prime
+//! distributions. This module is the main mathematical support layer for the
+//! repository and is independent of the optional metaphor-oriented APIs.
 //!
 //! ## Submodules
 //!
@@ -20,12 +20,23 @@
 //!
 //! ## Quick Start
 //!
-//! ```rust,no_run
+//! ```rust
 //! use primes::hzlib::*;
 //!
 //! let spf = sieve_spf(10_000);
 //! let lambda = hl_goldbach_lambda(1000, &spf, PairCount::Unordered);
+//! let restricted = hl_goldbach_lambda_truncated(1000, 100, &spf, PairCount::Unordered);
 //! let coverage = goldbach_coverage_from_lambda(lambda);
+//! let material = Material::for_base10(7);
+//! let is_prime = sieve_bool(1000);
+//! let actual_restricted_pairs = count_pairs_for_n(1000, 100, &is_prime);
+//!
+//! assert!(lambda > 0.0);
+//! assert!(restricted > 0.0);
+//! assert!(coverage > 0.0 && coverage < 1.0);
+//! assert_eq!(material.core, 7);
+//! assert_eq!(material.ord, 6);
+//! assert!(actual_restricted_pairs > 0);
 //! ```
 
 pub mod harmonic_lagrange;
@@ -268,6 +279,45 @@ pub fn join_sample_and_model(
 }
 
 /// Extract a 1D series along an axis from a `JoinedGrid`.
+///
+/// # Example
+/// ```
+/// use primes::hzlib::{Axis, JoinedGrid, Pair, lineout};
+///
+/// let grid = JoinedGrid {
+///     mids: vec![1, 2],
+///     izs: vec![0],
+///     pairs: vec![
+///         Pair {
+///             base: 10,
+///             mid_len: 1,
+///             inner_zero: 0,
+///             obs_density: Some(0.5),
+///             ci_lo: None,
+///             ci_hi: None,
+///             pred_local: Some(0.25),
+///             pred_local_exact: None,
+///             tracked_moduli: vec![],
+///         },
+///         Pair {
+///             base: 10,
+///             mid_len: 2,
+///             inner_zero: 0,
+///             obs_density: Some(0.25),
+///             ci_lo: None,
+///             ci_hi: None,
+///             pred_local: Some(0.125),
+///             pred_local_exact: None,
+///             tracked_moduli: vec![],
+///         },
+///     ],
+/// };
+///
+/// let slice = lineout(&grid, Axis::Mid, 1, 0);
+/// assert_eq!(slice.len(), 2);
+/// assert_eq!(slice[0], (1, 0.5, 0.25));
+/// assert_eq!(slice[1], (2, 0.25, 0.125));
+/// ```
 pub fn lineout(
     grid: &JoinedGrid,
     axis: Axis,
@@ -301,6 +351,15 @@ pub fn lineout(
 }
 
 /// Convenience: enrichment = obs/pred - 1 (clamped if pred≈0).
+///
+/// # Example
+/// ```
+/// use primes::hzlib::enrichment;
+///
+/// assert_eq!(enrichment(0.75, 0.5), 0.5);
+/// assert_eq!(enrichment(0.0, 0.0), 0.0);
+/// assert!(enrichment(1.0, 0.0).is_infinite());
+/// ```
 pub fn enrichment(obs: f64, pred: f64) -> f64 {
     if pred <= 0.0 {
         if obs <= 0.0 {

@@ -33,6 +33,20 @@ jobs:
       - name: Run tests
         run: cargo test
 
+  lean-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: leanprover/lean-action@v1
+        with:
+          auto-config: false
+          build: true
+          test: false
+          lint: false
+          use-mathlib-cache: true
+          lake-package-directory: lean-proofs
+
   # Agda verification (best-effort -- Agda version on ubuntu-latest may differ)
   # See agda-proofs/STATUS.md for ground truth (verified locally with Agda 2.8.0)
   agda-verification:

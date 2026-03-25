@@ -179,11 +179,11 @@ fn analyze_palindrome_overlap(cfg: ProbeConfig<'_>) {
             pal_share * 100.0
         );
 
-        if seed_len == 2 || seed_len == 3 {
-            if !pal.examples.is_empty() || !nonpal.examples.is_empty() {
-                println!("         pal primes:    {:?}", pal.examples);
-                println!("         nonpal primes: {:?}", nonpal.examples);
-            }
+        if (seed_len == 2 || seed_len == 3)
+            && (!pal.examples.is_empty() || !nonpal.examples.is_empty())
+        {
+            println!("         pal primes:    {:?}", pal.examples);
+            println!("         nonpal primes: {:?}", nonpal.examples);
         }
 
         if total_digits.unwrap_or(0) % 2 == 0 && pal.primes == 0 && pal.candidates > 0 {
@@ -427,10 +427,7 @@ fn density_counts(primes: usize, candidates: usize) -> f64 {
 fn total_digits(cfg: ProbeConfig<'_>, seed_len: usize) -> usize {
     let outer_len = to_base_string(cfg.outer, cfg.base).len();
     let inner_len = to_base_string(cfg.inner, cfg.base).len();
-    2 * outer_len
-        + 2 * inner_len
-        + (2 * cfg.k_outer + 2 * cfg.k_inner) as usize
-        + seed_len
+    2 * outer_len + 2 * inner_len + (2 * cfg.k_outer + 2 * cfg.k_inner) as usize + seed_len
 }
 
 fn compare_layout_stats(left: &LayoutStats, right: &LayoutStats) -> Ordering {

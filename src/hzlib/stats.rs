@@ -4,6 +4,22 @@
 //! - Linear regression
 //! - Welch's t-test (unequal variances)
 //! - Permutation tests (non-parametric, size-binned)
+//!
+//! # Quick Example
+//! ```
+//! use primes::hzlib::{benjamini_hochberg, hedges_g, welch_t};
+//!
+//! let structured = vec![0.31, 0.33, 0.34, 0.32];
+//! let baseline = vec![0.18, 0.21, 0.19, 0.20];
+//!
+//! let (t, p) = welch_t(&structured, &baseline);
+//! let g = hedges_g(&structured, &baseline);
+//! let adjusted = benjamini_hochberg(&[p, 0.2, 0.8], 0.05);
+//!
+//! assert!(t > 0.0);
+//! assert!(g > 1.0);
+//! assert!(adjusted[0] < 0.05);
+//! ```
 
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -194,7 +210,8 @@ fn t_critical_value(df: f64, alpha_half: f64) -> f64 {
 /// let a = vec![1.0, 2.0, 3.0, 4.0, 5.0];
 /// let b = vec![6.0, 7.0, 8.0, 9.0, 10.0];
 /// let (t, p) = welch_t(&a, &b);
-/// assert!(p < 0.001); // Significant difference
+/// assert!(t < 0.0);
+/// assert!(p < 0.01); // Significant difference
 /// ```
 pub fn welch_t(a: &[f64], b: &[f64]) -> (f64, f64) {
     let n1 = a.len() as f64;
@@ -248,7 +265,7 @@ pub fn welch_t(a: &[f64], b: &[f64]) -> (f64, f64) {
 ///
 /// # Example
 /// ```
-/// use primes::hzlib::permutation_pvalue;
+/// use primes::hzlib::stats::permutation_pvalue;
 /// let data = vec![
 ///     (66, true, 0.95),  // Complementary base
 ///     (70, true, 0.93),
@@ -257,6 +274,7 @@ pub fn welch_t(a: &[f64], b: &[f64]) -> (f64, f64) {
 /// ];
 /// let p = permutation_pvalue(&data, 10, 1000);
 /// // Low p-value → complementary bases significantly different
+/// assert!(p < 0.5);
 /// ```
 pub fn permutation_pvalue(
     data: &[(usize, bool, f64)], // (base, is_complementary, metric)

@@ -3,17 +3,22 @@
 //! **Layer**: Math core (verified, tested)
 //!
 //! Efficient u128-based arithmetic for concatenating two fixed primes with
-//! variable-length decimal connectors, enabling directional asymmetry analysis.
+//! variable-length decimal connectors. The module supports fixed-pair
+//! directional asymmetry studies and exact enumeration over bounded connector
+//! ranges.
 //!
-//! # Background
+//! # Mathematical Setting
 //!
-//! In November 2025, research on the canonical Lagrange point prime pair
-//! (10301, 3007003007003) revealed a remarkable **directional asymmetry** phenomenon:
-//! when concatenating these primes with connectors of varying lengths, the number of
-//! prime results differs significantly depending on concatenation order (forward vs reverse).
+//! For a fixed pair of primes `L` and `R`, the module studies the two families
 //!
-//! This module provides the core arithmetic infrastructure used in that research,
-//! optimized for performance and safety.
+//! ```text
+//! L || C || R
+//! R || C || L
+//! ```
+//!
+//! where `C` ranges over decimal connectors of fixed width. The canonical pair
+//! `L = 10301`, `R = 3007003007003` is included because it is the repository's
+//! maintained empirical test case for directional asymmetry.
 //!
 //! # Architecture
 //!
@@ -23,7 +28,7 @@
 //! - [`arithmetic`]: Low-level concatenation functions with overflow checking
 //! - [`utils`]: Helper utilities (decimal length, connector ranges, mod-3 filtering)
 //!
-//! # Performance
+//! # Complexity and Representation
 //!
 //! This implementation uses u128 arithmetic throughout, providing significant
 //! performance benefits over BigUint-based implementations:
@@ -44,7 +49,7 @@
 //! # Example Usage
 //!
 //! ```
-//! use prime_physics_engine::connector::ConcatenationSystem;
+//! use primes::connector::ConcatenationSystem;
 //!
 //! // Create system for canonical Lagrange pair
 //! let sys = ConcatenationSystem::new(10301, 3007003007003);
@@ -59,7 +64,7 @@
 //!
 //! // Reverse concatenation: 3007003007003 || 00006 || 10301
 //! let n_rev = sys.reverse(connector, conn_len).unwrap();
-//! assert_eq!(n_rev, 3007003007003000065301u128);
+//! assert_eq!(n_rev, 30070030070030000610301u128);
 //!
 //! // Check if result would fit in u128
 //! assert!(sys.fits_in_u128(20)); // 5 + 20 + 13 = 38 (max)
@@ -69,34 +74,48 @@
 //! # Scanning Connectors
 //!
 //! ```
-//! use prime_physics_engine::connector::{ConcatenationSystem, utils};
+//! use primes::connector::{ConcatenationSystem, utils};
 //!
 //! let sys = ConcatenationSystem::new(10301, 3007003007003);
 //!
 //! // Scan all 5-digit connectors
-//! for connector in utils::connector_range(5) {
-//!     // Optional: skip mod-3 composites
-//!     if utils::should_skip_mod3(connector, utils::CANONICAL_LEFT_MOD3, utils::CANONICAL_RIGHT_MOD3) {
-//!         continue;
-//!     }
+//! let admissible: Vec<u64> = utils::connector_range(5)
+//!     .filter(|&connector| {
+//!         !utils::should_skip_mod3(
+//!             connector,
+//!             utils::CANONICAL_LEFT_MOD3,
+//!             utils::CANONICAL_RIGHT_MOD3,
+//!         )
+//!     })
+//!     .take(3)
+//!     .collect();
 //!
-//!     let n_fwd = sys.forward(connector as u128, 5).unwrap();
-//!     let n_rev = sys.reverse(connector as u128, 5).unwrap();
+//! assert_eq!(admissible, vec![0, 1, 3]);
 //!
-//!     // Test primality, collect statistics, etc.
-//! }
+//! let samples: Vec<(u128, u128)> = admissible
+//!     .iter()
+//!     .map(|&connector| {
+//!         (
+//!             sys.forward(connector as u128, 5).unwrap(),
+//!             sys.reverse(connector as u128, 5).unwrap(),
+//!         )
+//!     })
+//!     .collect();
+//!
+//! assert_eq!(samples.len(), 3);
+//! assert!(samples[0].0 < samples[0].1);
 //! ```
 //!
-//! # Research Applications
+//! # Current Empirical Use Cases
 //!
-//! This module enabled the following discoveries:
+//! The current repository uses this module for:
 //!
-//! - **Lagrange Point Asymmetry**: ~2% directional bias for short connectors (length 5-8)
-//! - **Resonance Peak**: Non-monotonic asymmetry scaling with 59% peak at length 10
-//! - **Post-Sieve Mystery**: Asymmetry persists after modular sieve (mod 3, 7, 11, ...)
+//! - fixed-pair forward/reverse prime-count comparisons
+//! - modular prefilters such as the mod-3 admissibility test
+//! - exhaustive or stratified connector scans at bounded width
 //!
 //! See `collab/CORE_ASYMMETRY_NOTES.md` and `collab/LAGRANGE_POINT_ASYMMETRY.md`
-//! for complete empirical results.
+//! for the current empirical summaries.
 //!
 //! # Related Tools
 //!
@@ -106,7 +125,7 @@
 //! - `connector_space_explorer.rs` - Random sampling with 50+ feature metrics
 //! - `connector_length_explorer_stratified.rs` - Stratified sampling for large spaces
 //!
-//! These tools are complete exploration artifacts from November 2025 research.
+//! These tools are the repository's current connector-analysis front ends.
 
 pub mod arithmetic;
 pub mod types;
@@ -124,10 +143,10 @@ pub use arithmetic::{concat_forward, concat_reverse, pow10};
 /// up to 38 decimal digits in u128.
 pub const MAX_DECIMAL_DIGITS: u32 = 38;
 
-/// Canonical left prime from Lagrange point research
+/// Canonical left prime for the maintained directional-asymmetry test pair.
 pub const CANONICAL_LEFT: u128 = 10301;
 
-/// Canonical right prime from Lagrange point research
+/// Canonical right prime for the maintained directional-asymmetry test pair.
 pub const CANONICAL_RIGHT: u128 = 3007003007003;
 
 #[cfg(test)]

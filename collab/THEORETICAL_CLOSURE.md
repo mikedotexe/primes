@@ -1,21 +1,21 @@
 # Current Interpretation of Membrane Efficiency
 
 **Updated**: March 2026  
-**Purpose**: concise collaborator-facing summary of the repo's current best
-interpretation of membrane prime density results
+**Purpose**: concise collaborator-facing summary of the current interpretation
+of the symmetric digit-template family (repo alias: membrane)
 
 ## Summary
 
 The repository's current evidence supports a conservative interpretation:
 
-- membrane constructions can show much higher prime density than naive random
-  integers
+- the symmetric digit-template family can show much higher prime density than
+  naive random integers
 - most or all of that lift is explained by coprimality filtering plus ordinary
   prime-density effects from candidate size
-- the membrane arrangement itself has not been shown to provide a statistically
+- the template arrangement itself has not been shown to provide a statistically
   significant boost beyond sampling numbers coprime to the base
 
-The key control comparison in the repo is membrane vs random-coprime. Its
+The key control comparison in the repo is template versus random-coprime. Its
 reported structure ratio is about `1.020 +/- 0.053`, which is not significantly
 different from `1.0`.
 
@@ -44,7 +44,7 @@ This combines:
 2. Euler/totient coprimality boost `B / φ(B)`
 3. ordinary size effects from shorter or more compact constructions
 
-The current repo interpretation is that membrane structure is mainly a
+The current repo interpretation is that the template structure is mainly a
 convenient way to generate candidates in reduced residue classes.
 
 ## Why This Interpretation Won

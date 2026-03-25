@@ -1,8 +1,9 @@
 //! Band-based Prime Density Analysis
 //!
-//! Analyzes prime distribution in symmetric windows around digit-block midpoints.
-//! Implements the "honorary zero" concept where the midpoint of [b^k, b^(k+1))
-//! acts as a natural symmetry center.
+//! Analyzes prime distribution in symmetric windows around digit-block
+//! midpoints. The midpoint residue previously called the "honorary zero" is
+//! treated here simply as the distinguished midpoint of the interval
+//! `[b^k, b^(k+1))`.
 //!
 //! # Mathematical Background
 //!
@@ -48,17 +49,17 @@
 //!
 //! This gives exact prime-eligible denominators independent of window sizes.
 
-/// Band representing a single digit-length range [b^k, b^(k+1))
+/// Band representing a single digit-length range `[b^k, b^(k+1))`.
 ///
-/// Tracks prime density in symmetric bins around the midpoint.
-/// Uses exact denominators accounting for residue class structure.
+/// Tracks prime density in symmetric bins around the midpoint residue and uses
+/// exact denominators accounting for residue-class structure.
 #[derive(Clone)]
 pub struct Band {
     pub k: u32,           // Digit length
     pub b: usize,         // Base
     pub s: usize,         // b^k (start of range)
     pub s_next: usize,    // b^(k+1) (end of range, exclusive)
-    pub mid: usize,       // floor(s/2) - "honorary zero"
+    pub mid: usize,       // floor(s/2), the distinguished midpoint residue
     pub bins: usize,      // Number of bins for density distribution
     pub denom: Vec<u64>,  // Exact denominators per bin
     pub counts: Vec<u64>, // Prime counts per bin

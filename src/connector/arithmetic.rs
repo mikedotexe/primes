@@ -28,7 +28,7 @@ static POW10_TABLE: [u128; (MAX_DECIMAL_DIGITS + 1) as usize] = {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::connector::arithmetic::pow10;
+/// use primes::connector::arithmetic::pow10;
 ///
 /// assert_eq!(pow10(0), Some(1));
 /// assert_eq!(pow10(3), Some(1000));
@@ -62,7 +62,7 @@ pub fn pow10(exp: u32) -> Option<u128> {
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::connector::arithmetic::concat_forward;
+/// use primes::connector::arithmetic::concat_forward;
 ///
 /// // 10301 || 00006 || 3007003007003
 /// let result = concat_forward(10301, 3007003007003, 6, 5, 13, 5).unwrap();
@@ -115,11 +115,11 @@ pub fn concat_forward(
 ///
 /// # Example
 /// ```
-/// use prime_physics_engine::connector::arithmetic::concat_reverse;
+/// use primes::connector::arithmetic::concat_reverse;
 ///
 /// // 3007003007003 || 00006 || 10301
 /// let result = concat_reverse(10301, 3007003007003, 6, 5, 13, 5).unwrap();
-/// assert_eq!(result, 3007003007003000065301u128);
+/// assert_eq!(result, 30070030070030000610301u128);
 /// ```
 pub fn concat_reverse(
     left: u128,

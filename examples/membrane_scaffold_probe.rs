@@ -199,7 +199,9 @@ fn analyze_spacing_scaffold() {
     println!("INDEPENDENT-DIGIT SPACING CONTROL");
     println!("{}", "═".repeat(78));
     println!("Four open slots around a middle, with only the zero-gap pattern changing.");
-    println!("Boundary digits are restricted to units mod base; inner digits and seed vary freely.");
+    println!(
+        "Boundary digits are restricted to units mod base; inner digits and seed vary freely."
+    );
     println!();
 
     for cfg in configs {
@@ -235,13 +237,24 @@ fn analyze_spacing_config(cfg: SpacingConfig<'_>) {
         let mut results = Vec::with_capacity(gaps.len());
 
         for gap_pattern in &gaps {
-            results.push(evaluate_spacing_gaps(cfg, *gap_pattern, &boundary_digits, seed_len));
+            results.push(evaluate_spacing_gaps(
+                cfg,
+                *gap_pattern,
+                &boundary_digits,
+                seed_len,
+            ));
         }
 
         results.sort_by(compare_gap_stats);
 
-        let centered: Vec<&GapStats> = results.iter().filter(|stats| is_centered_gaps(stats.gaps)).collect();
-        let asymmetric: Vec<&GapStats> = results.iter().filter(|stats| !is_centered_gaps(stats.gaps)).collect();
+        let centered: Vec<&GapStats> = results
+            .iter()
+            .filter(|stats| is_centered_gaps(stats.gaps))
+            .collect();
+        let asymmetric: Vec<&GapStats> = results
+            .iter()
+            .filter(|stats| !is_centered_gaps(stats.gaps))
+            .collect();
         let centered_avg = average_gap_density(&centered);
         let asym_avg = average_gap_density(&asymmetric);
         let best_centered = centered[0];
