@@ -1,122 +1,42 @@
-import PrimeArithmetic.Symmetry.WindowCertificate
+import PrimeArithmetic.Symmetry.WindowCertificateErgonomics
 
 namespace PrimeArithmetic.Symmetry.WindowCertificateExamples
 
 open PrimeArithmetic.Symmetry.ModularReflection
-open PrimeArithmetic.Symmetry.CertificateReflection
-open PrimeArithmetic.Symmetry.BalancedBucketReflection
 open PrimeArithmetic.Symmetry.WindowCertificate
+open PrimeArithmetic.Symmetry.WindowCertificateGenerated
+open PrimeArithmetic.Symmetry.WindowCertificateErgonomics
 
 /-!
-Concrete finite certificate examples for the balanced-bucket and window shell.
+Concrete finite certificate examples for the generated-data window shell.
 
-These are small maintained examples that exercise the full Lean certificate
-pipeline on explicit finite data:
+These maintained examples exercise the artifact-facing Lean path:
 
-- a base-6 residue family aligned with the certified symmetry witness,
-- a base-10 residue family with the same reflected-bucket shape.
+- residues arrive as a concrete list,
+- positions arrive as a concrete list,
+- support counts are derived automatically,
+- the caller supplies only balanced-count, fixed-point-exclusion, and
+  pointwise-safety evidence.
 -/
 
-def base6Residue : Fin 4 → Fin 6
-  | i =>
-      match i.1 with
-      | 0 => 1
-      | 1 => 5
-      | 2 => 2
-      | _ => 4
-
-def base6Count : Fin 6 → ℕ
-  | r =>
-      match r.1 with
-      | 1 => 1
-      | 2 => 1
-      | 4 => 1
-      | 5 => 1
-      | _ => 0
-
-theorem base6SupportCounts : SupportCountsAgree base6Residue base6Count := by
-  intro r
-  fin_cases r <;> native_decide
-
-def base6Balanced : BalancedBuckets base6Residue base6Count where
-  balanced := by
-    intro r
-    fin_cases r <;> native_decide
-
-def base6FixedPointExclusion : ObservedFixedPointExclusion base6Residue where
-  zeroVoid := by
-    intro i
-    fin_cases i <;> native_decide
-  midpointVoid := by
-    intro i
-    fin_cases i <;> native_decide
-
-def base6Window : WindowData 6 4 where
+def base6Payload : GeneratedWindowPayload 6 where
   p := 5
   windowMid := 3
   radius := 2
-  residue := base6Residue
+  residues := [1, 5, 2, 4]
   positions := [1, 5, 0, 6]
-  count := base6Count
 
-def base6StaticContracts : StaticContracts base6Window where
-  supportCounts := base6SupportCounts
-  fixedPointExclusion := base6FixedPointExclusion
+abbrev base6Window : WindowData 6 base6Payload.residues.length :=
+  base6Payload.windowData
 
-theorem base6PointwiseSafe :
-    PointwiseSafe base6Window.radius base6Window.windowMid base6Window.positions := by
-  intro x hx
-  simp [base6Window, SafePos] at hx ⊢
-  rcases hx with rfl | rfl | rfl | rfl
-  all_goals native_decide
-
-def base6DualCertificate : DualCertificate (show Even 6 by native_decide) base6Window :=
-  buildDualCertificate
-    (show Even 6 by native_decide)
-    base6Window
-    base6StaticContracts
-    base6Balanced
-    base6PointwiseSafe
-
-theorem base6_midpoint_not_in_range :
-    midpoint 6 ∉ Set.range base6Window.residue :=
-  dual_midpoint_not_in_range base6DualCertificate
-
-theorem base6_zero_not_in_range :
-    (0 : Fin 6) ∉ Set.range base6Window.residue :=
-  zero_not_in_range base6DualCertificate.static
-
-theorem base6_inviolability :
-    InZone base6Window.radius base6Window.windowMid base6Window.positions → False :=
-  dual_inviolability base6DualCertificate
-
-def base10Residue : Fin 4 → Fin 10
-  | i =>
-      match i.1 with
-      | 0 => 1
-      | 1 => 9
-      | 2 => 3
-      | _ => 7
-
-def base10Count : Fin 10 → ℕ
-  | r =>
-      match r.1 with
-      | 1 => 1
-      | 3 => 1
-      | 7 => 1
-      | 9 => 1
-      | _ => 0
-
-theorem base10SupportCounts : SupportCountsAgree base10Residue base10Count := by
+theorem base6Balanced :
+    ∀ r, base6Payload.derivedCount r = base6Payload.derivedCount (reflect 6 r) := by
   intro r
   fin_cases r <;> native_decide
 
-def base10Balanced : BalancedBuckets base10Residue base10Count where
-  balanced := by
-    intro r
-    fin_cases r <;> native_decide
-
-def base10FixedPointExclusion : ObservedFixedPointExclusion base10Residue where
+def base6FixedPointExclusion :
+    PrimeArithmetic.Symmetry.CertificateReflection.ObservedFixedPointExclusion
+      base6Payload.residueFn where
   zeroVoid := by
     intro i
     fin_cases i <;> native_decide
@@ -124,43 +44,77 @@ def base10FixedPointExclusion : ObservedFixedPointExclusion base10Residue where
     intro i
     fin_cases i <;> native_decide
 
-def base10Window : WindowData 10 4 where
-  p := 11
-  windowMid := 5
-  radius := 2
-  residue := base10Residue
-  positions := [1, 3, 7, 9]
-  count := base10Count
-
-def base10StaticContracts : StaticContracts base10Window where
-  supportCounts := base10SupportCounts
-  fixedPointExclusion := base10FixedPointExclusion
-
-theorem base10PointwiseSafe :
-    PointwiseSafe base10Window.radius base10Window.windowMid base10Window.positions := by
+theorem base6PointwiseSafe :
+    PointwiseSafe base6Payload.radius base6Payload.windowMid base6Payload.positions := by
   intro x hx
-  simp [base10Window, SafePos] at hx ⊢
+  simp [base6Payload, SafePos] at hx ⊢
   rcases hx with rfl | rfl | rfl | rfl
   all_goals native_decide
 
-def base10DualCertificate : DualCertificate (show Even 10 by native_decide) base10Window :=
-  buildDualCertificate
-    (show Even 10 by native_decide)
-    base10Window
-    base10StaticContracts
-    base10Balanced
-    base10PointwiseSafe
+def base6Evidence : GeneratedDualEvidence base6Payload where
+  balanced := base6Balanced
+  fixedPointExclusion := base6FixedPointExclusion
+  pointwiseSafe := base6PointwiseSafe
+
+theorem base6_midpoint_not_in_range :
+    midpoint 6 ∉ Set.range base6Window.residue :=
+  base6Evidence.midpoint_not_in_range (hEven := show Even 6 by native_decide)
+
+theorem base6_zero_not_in_range :
+    (0 : Fin 6) ∉ Set.range base6Window.residue :=
+  base6Evidence.zero_not_in_range (hEven := show Even 6 by native_decide)
+
+theorem base6_inviolability :
+    InZone base6Window.radius base6Window.windowMid base6Window.positions → False :=
+  base6Evidence.inviolability (hEven := show Even 6 by native_decide)
+
+def base10Payload : GeneratedWindowPayload 10 where
+  p := 11
+  windowMid := 5
+  radius := 2
+  residues := [1, 9, 3, 7]
+  positions := [1, 3, 7, 9]
+
+abbrev base10Window : WindowData 10 base10Payload.residues.length :=
+  base10Payload.windowData
+
+theorem base10Balanced :
+    ∀ r, base10Payload.derivedCount r = base10Payload.derivedCount (reflect 10 r) := by
+  intro r
+  fin_cases r <;> native_decide
+
+def base10FixedPointExclusion :
+    PrimeArithmetic.Symmetry.CertificateReflection.ObservedFixedPointExclusion
+      base10Payload.residueFn where
+  zeroVoid := by
+    intro i
+    fin_cases i <;> native_decide
+  midpointVoid := by
+    intro i
+    fin_cases i <;> native_decide
+
+theorem base10PointwiseSafe :
+    PointwiseSafe base10Payload.radius base10Payload.windowMid base10Payload.positions := by
+  intro x hx
+  simp [base10Payload, SafePos] at hx ⊢
+  rcases hx with rfl | rfl | rfl | rfl
+  all_goals native_decide
+
+def base10Evidence : GeneratedDualEvidence base10Payload where
+  balanced := base10Balanced
+  fixedPointExclusion := base10FixedPointExclusion
+  pointwiseSafe := base10PointwiseSafe
 
 theorem base10_midpoint_not_in_range :
     midpoint 10 ∉ Set.range base10Window.residue :=
-  dual_midpoint_not_in_range base10DualCertificate
+  base10Evidence.midpoint_not_in_range (hEven := show Even 10 by native_decide)
 
 theorem base10_zero_not_in_range :
     (0 : Fin 10) ∉ Set.range base10Window.residue :=
-  zero_not_in_range base10DualCertificate.static
+  base10Evidence.zero_not_in_range (hEven := show Even 10 by native_decide)
 
 theorem base10_inviolability :
     InZone base10Window.radius base10Window.windowMid base10Window.positions → False :=
-  dual_inviolability base10DualCertificate
+  base10Evidence.inviolability (hEven := show Even 10 by native_decide)
 
 end PrimeArithmetic.Symmetry.WindowCertificateExamples

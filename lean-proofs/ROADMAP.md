@@ -16,6 +16,8 @@ stated in standard mathematical language.
   the generic arithmetic layer is now live
 - **Track 2a**: exact template-structure facts, currently including the affine
   form of the fixed symmetric layout and its modular seed-search consequences
+- **Track 2b**: exact prime-engine correctness facts, currently including the
+  odd-only segmented sieve arithmetic and the wheel30 candidate surface
 - **Track 3**: optional OpenProver-assisted proof search against this Lean
   package once Track 1 is stable locally and in CI
 
@@ -34,21 +36,99 @@ symmetry tranches are now also complete: the Lean package has a concrete
 modular reflection layer on `Fin base`, a reusable reflection-certificate
 wrapper, a constructive balanced-bucket support substrate for reflected residue
 supports, a balanced-bucket reflection wrapper, a narrow window-certificate
-shell, explicit finite certificate examples, and a mirror-family
-midpoint-obstruction theorem. The exact connector arithmetic tranche is now
+shell, a generated-data entrypoint from residue and position lists, explicit
+finite certificate examples, a compact proof-object layer for generated
+artifacts, and a mirror-family midpoint-obstruction theorem.
+The exact connector arithmetic tranche is now
 also complete: the Lean package has fixed-width forward/reverse concatenation
 formulas, canonical decimal `mod 3` and `mod 9` exclusion filters for the
-maintained connector pair, and a reusable connector-family residue-profile API.
+maintained connector pair, a reusable connector-family residue-profile API, and
+maintained profile examples beyond the single canonical pair.
+The prime-engine correctness tranche is now also complete: the Lean package
+has the odd-only segmented sieve arithmetic layer, the exact wheel30 admissible
+residues, and the agreement theorem connecting wheel30 candidates back to the
+filtered odd candidate domain. The runtime-facing sieve-layout tranche is now
+also live: the Lean package now matches the Rust segment constants and their
+arithmetic span in
+[`PrimeArithmetic/Sieve/SegmentLayout.lean`](PrimeArithmetic/Sieve/SegmentLayout.lean),
+the runtime cross-off branch and `2 * p` marking progression in
+[`PrimeArithmetic/Sieve/RuntimeCrossOff.lean`](PrimeArithmetic/Sieve/RuntimeCrossOff.lean),
+the runtime odd-endpoint adjustment and collection-index witness in
+[`PrimeArithmetic/Sieve/RuntimeCollection.lean`](PrimeArithmetic/Sieve/RuntimeCollection.lean),
+the shared odd-only byte/bit coordinates in
+[`PrimeArithmetic/Sieve/SegmentBitCoordinates.lean`](PrimeArithmetic/Sieve/SegmentBitCoordinates.lean),
+the exact odd-only `1 << bit` mask and readback semantics in
+[`PrimeArithmetic/Sieve/SegmentBitMasks.lean`](PrimeArithmetic/Sieve/SegmentBitMasks.lean),
+the generic bounded multi-mark family on disjoint byte slots in
+[`PrimeArithmetic/Sieve/BoundedByteFamilies.lean`](PrimeArithmetic/Sieve/BoundedByteFamilies.lean),
+the aggregated same-byte mask family in
+[`PrimeArithmetic/Sieve/BoundedByteMasks.lean`](PrimeArithmetic/Sieve/BoundedByteMasks.lean),
+and the grouped multi-byte plan family in
+[`PrimeArithmetic/Sieve/BoundedBytePlans.lean`](PrimeArithmetic/Sieve/BoundedBytePlans.lean),
+the tiny shared coordinate bridge in
+[`PrimeArithmetic/Sieve/BoundedByteCoordinates.lean`](PrimeArithmetic/Sieve/BoundedByteCoordinates.lean),
+and the bounded single-byte runtime bridge in
+[`PrimeArithmetic/Sieve/SegmentByteArray.lean`](PrimeArithmetic/Sieve/SegmentByteArray.lean),
+the short odd-only runtime mark-family shell in
+[`PrimeArithmetic/Sieve/SegmentRuntimePlans.lean`](PrimeArithmetic/Sieve/SegmentRuntimePlans.lean),
+and it matches the wheel30 slot order, linear index formula, and byte/bit split
+used by the runtime bit array in
+[`PrimeArithmetic/Sieve/Wheel30Indexing.lean`](PrimeArithmetic/Sieve/Wheel30Indexing.lean),
+together with the shared wheel30 writer/reader byte/bit coordinates in
+[`PrimeArithmetic/Sieve/Wheel30BitCoordinates.lean`](PrimeArithmetic/Sieve/Wheel30BitCoordinates.lean),
+plus the exact wheel30 `1 << bit` mask and readback semantics in
+[`PrimeArithmetic/Sieve/Wheel30BitMasks.lean`](PrimeArithmetic/Sieve/Wheel30BitMasks.lean),
+and the bounded single-byte wheel30 array shell in
+[`PrimeArithmetic/Sieve/Wheel30ByteArray.lean`](PrimeArithmetic/Sieve/Wheel30ByteArray.lean),
+plus the short wheel30 runtime mark-family shell in
+[`PrimeArithmetic/Sieve/Wheel30RuntimePlans.lean`](PrimeArithmetic/Sieve/Wheel30RuntimePlans.lean).
+The external window-export path is now also
+live: the Rust binary
+[`src/bin/export_window_certificate.rs`](../src/bin/export_window_certificate.rs)
+extracts runtime prime-window positions and residues, checks the balanced and
+fixed-point-free certificate preconditions, and emits Lean modules targeting
+the generated-data window shell and bundled proof-object layer. The tracked
+catalog now contains cross-base samples at
+[`PrimeArithmetic/Generated/Examples/WindowP3Base6Span5.lean`](PrimeArithmetic/Generated/Examples/WindowP3Base6Span5.lean),
+[`PrimeArithmetic/Generated/Examples/WindowP5Base10Span5.lean`](PrimeArithmetic/Generated/Examples/WindowP5Base10Span5.lean),
+and
+[`PrimeArithmetic/Generated/Examples/WindowP5Base12Span17.lean`](PrimeArithmetic/Generated/Examples/WindowP5Base12Span17.lean),
+plus wheel-like larger-base samples at
+[`PrimeArithmetic/Generated/Examples/WindowP11Base30Span5.lean`](PrimeArithmetic/Generated/Examples/WindowP11Base30Span5.lean),
+[`PrimeArithmetic/Generated/Examples/WindowP101Base30Span29.lean`](PrimeArithmetic/Generated/Examples/WindowP101Base30Span29.lean),
+[`PrimeArithmetic/Generated/Examples/WindowP163Base30Span35.lean`](PrimeArithmetic/Generated/Examples/WindowP163Base30Span35.lean),
+and
+[`PrimeArithmetic/Generated/Examples/WindowP41Base210Span5.lean`](PrimeArithmetic/Generated/Examples/WindowP41Base210Span5.lean),
+keeping that path live inside the package build. The catalog regeneration path
+is now also live via
+[`scripts/lean_generated_catalog.sh`](../scripts/lean_generated_catalog.sh),
+which can either rewrite the tracked examples or verify them against fresh
+exporter output. The conservative analytic shell is now also live:
+[`PrimeArithmetic/Analysis/HardyLittlewoodShell.lean`](PrimeArithmetic/Analysis/HardyLittlewoodShell.lean)
+fixes pair-count conventions, odd-prime Goldbach local factors, radical
+invariance of the local-factor support, and the standard logarithmic / coverage
+transforms without asserting a new density theorem.
 
-1. **Window-export / generated proof artifact path**:
-   connect generated residue-bucket and position data to the new Lean window
-   shell in a reproducible artifact pipeline.
-2. **Broader connector-family examples**:
-   instantiate the generic connector-family layer on additional maintained
-   pairs or bases, so the family API is exercised beyond the canonical pair.
-3. **Conservative analytic shell**:
-   add only classical Hardy-Littlewood or singular-series scaffolding after
-   the exact arithmetic layer is stable.
+1. **Concrete first-step or first-byte runtime families, only if needed**:
+   add more explicit short runtime-family lemmas only when a later executable
+   agreement argument truly needs them. The generic grouped-plan and
+   coordinate-shell layers are now already in place.
+2. **Optional further catalog growth**:
+   add more exported windows only when they support a concrete later argument,
+   not just to increase file count.
+3. **Exact Lagrange extraction, later**:
+   revisit the Lagrange-facing code only by extracting connector or residue
+   lemmas that can be restated in standard arithmetic terms.
+4. **Verification and staging hygiene**:
+   rerun the full Rust, Lean, and Agda verification surfaces and stage the
+   accumulated work in a clean split.
+
+Deferred hardening note:
+- [`src/lagrange.rs`](../src/lagrange.rs) and the related gravity/tidal surface
+  may still contain useful exact arithmetic signal, but any future Lean
+  engagement there should begin by restating exact lemmas extracted from the
+  code. Do not plan a Lean formalization of force-field, clustering, or
+  equilibrium heuristics in their current metaphor-oriented form.
 
 ## Ledger
 
@@ -65,7 +145,16 @@ maintained connector pair, and a reusable connector-family residue-profile API.
 | `PrimeArithmetic/Symmetry/BalancedBucketReflection` | `agda-proofs/Theorems/Abstract/BucketsAutoMatch.agda` | proved in track 2 extension | `PrimeArithmetic/Symmetry/BalancedBucketSupport`, `PrimeArithmetic/Symmetry/CertificateReflection` | Reuse this when balanced residue counts and support-count agreement should generate a reflection certificate automatically, without hand-written mate functions | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
 | `PrimeArithmetic/Symmetry/CertificateReflection` | `agda-proofs/Theorems/Abstract/SymmetryFiniteReflect.agda`, `agda-proofs/Theorems/Abstract/WindowCertificate.agda` | proved in track 2 extension | `PrimeArithmetic/Symmetry/ModularReflection`, `PrimeArithmetic/Symmetry/MidpointObstruction` | Reuse this smaller wrapper whenever a caller already has an explicit mate involution and only needs the abstract pairing witness | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
 | `PrimeArithmetic/Symmetry/WindowCertificate` | `agda-proofs/Theorems/Abstract/WindowCertificate.agda` | proved in track 2 extension | `PrimeArithmetic/Symmetry/BalancedBucketReflection` | Reuse this as the narrow static/dynamic shell for finite windows once residue buckets and midpoint-radius safety data have been extracted | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
-| `PrimeArithmetic/Symmetry/WindowCertificateExamples` | `agda-proofs/Examples/CERTIFIED_RESONANCE_PARAM_DYN_BASE6_SKETCH.md`, `agda-proofs/Examples/CertifiedResonanceParamDyn.agda` | proved in track 2 extension | `PrimeArithmetic/Symmetry/WindowCertificate` | Keep one or two maintained explicit finite examples live so the new certificate APIs are exercised end to end on concrete data | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
+| `PrimeArithmetic/Symmetry/WindowCertificateGenerated` | `agda-proofs/Theorems/Abstract/WindowCertificate.agda`, `agda-proofs/Examples/CERTIFIED_RESONANCE_PARAM_DYN_BASE6_SKETCH.md` | proved in track 2 extension | `PrimeArithmetic/Symmetry/WindowCertificate`, `PrimeArithmetic/Symmetry/BalancedBucketSupport` | Reuse this when runtime or offline extraction produces residue lists and position lists directly; support counts are then derived automatically inside Lean | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
+| `PrimeArithmetic/Symmetry/WindowCertificateErgonomics` | `PrimeArithmetic/Symmetry/WindowCertificateGenerated`, `agda-proofs/Examples/CERTIFIED_RESONANCE_PARAM_DYN_BASE6_SKETCH.md` | proved in track 2 extension | `PrimeArithmetic/Symmetry/WindowCertificateGenerated` | Reuse this when generated artifacts should be passed to Lean as one compact static or dual evidence object rather than as a long argument list | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
+| `PrimeArithmetic/Symmetry/WindowCertificateExamples` | `agda-proofs/Examples/CERTIFIED_RESONANCE_PARAM_DYN_BASE6_SKETCH.md`, `agda-proofs/Examples/CertifiedResonanceParamDyn.agda` | proved in track 2 extension | `PrimeArithmetic/Symmetry/WindowCertificateGenerated` | Keep one or two maintained explicit finite examples live so the generated-data certificate APIs are exercised end to end on concrete data | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
+| `PrimeArithmetic/Generated/Examples/WindowP3Base6Span5` | `src/bin/export_window_certificate.rs`, runtime prime window around `2 * 3^2` | proved exported sample | `PrimeArithmetic/Symmetry/WindowCertificateErgonomics` | Keep the exporter path grounded on the smallest nontrivial even-base sample and reuse it when discussing catalog regeneration | `n/a` |
+| `PrimeArithmetic/Generated/Examples/WindowP5Base10Span5` | `src/bin/export_window_certificate.rs`, runtime prime window around `2 * 5^2` | proved exported sample | `PrimeArithmetic/Symmetry/WindowCertificateErgonomics` | Keep one familiar decimal sample live in the tracked exported-artifact catalog | `n/a` |
+| `PrimeArithmetic/Generated/Examples/WindowP5Base12Span17` | `src/bin/export_window_certificate.rs`, runtime prime window around `2 * 5^2` with base `12` residues | proved exported sample | `PrimeArithmetic/Symmetry/WindowCertificateErgonomics` | Keep at least one non-squarefree-base sample live so the exported-artifact catalog is not decimal-only | `n/a` |
+| `PrimeArithmetic/Generated/Examples/WindowP11Base30Span5` | `src/bin/export_window_certificate.rs`, runtime prime window around `2 * 11^2` with base `30` residues | proved exported sample | `PrimeArithmetic/Symmetry/WindowCertificateErgonomics` | Keep a minimal wheel-like base-`30` reflected pair live in the catalog | `n/a` |
+| `PrimeArithmetic/Generated/Examples/WindowP101Base30Span29` | `src/bin/export_window_certificate.rs`, runtime prime window around `2 * 101^2` with base `30` residues | proved exported sample | `PrimeArithmetic/Symmetry/WindowCertificateErgonomics` | Keep a medium-sized base-`30` sample live so the catalog exhibits more than a single reflected pair at wheel base `30` | `n/a` |
+| `PrimeArithmetic/Generated/Examples/WindowP163Base30Span35` | `src/bin/export_window_certificate.rs`, runtime prime window around `2 * 163^2` with base `30` residues | proved exported sample | `PrimeArithmetic/Symmetry/WindowCertificateErgonomics` | Keep one slightly richer base-`30` sample live as the catalog's largest current wheel-like residue witness | `n/a` |
+| `PrimeArithmetic/Generated/Examples/WindowP41Base210Span5` | `src/bin/export_window_certificate.rs`, runtime prime window around `2 * 41^2` with base `210` residues | proved exported sample | `PrimeArithmetic/Symmetry/WindowCertificateErgonomics` | Keep at least one larger wheel-like base beyond `30` live in the tracked exported-artifact catalog | `n/a` |
 | `PrimeArithmetic/Symmetry/MirrorObstruction` | `agda-proofs/Theorems/MirrorObstruction.agda` | proved in track 2 extension | `PrimeArithmetic/Symmetry/ModularReflection`, `PrimeArithmetic/Symmetry/CertificateReflection` | Reuse this for mirror-indexed finite families before discussing any stronger structural interpretation of symmetric digit patterns | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
 | `PrimeArithmetic/Symmetry/UnitResidueComplementWitness` | `README.md`, `PrimeArithmetic/Density/UnitResidueSymmetry`, `agda-proofs/Theorems/Abstract/SymmetryImpliesRepulsion.agda` | proved in track 2 extension | `PrimeArithmetic/Symmetry/MidpointObstruction`, `PrimeArithmetic/Density/UnitResidueSymmetry` | Reuse this as the generic second symmetry witness before adding more bespoke certified examples | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
 | `PrimeArithmetic/Symmetry/ZModUnitNegationWitness` | `README.md`, `PrimeArithmetic/Density/ZModUnitNegation`, `PrimeArithmetic/Symmetry/UnitResidueComplementWitness` | proved in track 2 extension | `PrimeArithmetic/Symmetry/MidpointObstruction`, `PrimeArithmetic/Density/ZModUnitNegation`, `PrimeArithmetic/Symmetry/UnitResidueComplementWitness` | Use this when the abstract midpoint obstruction should be exhibited directly from negation on `(ZMod n)ˣ` rather than only through natural residue representatives | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
@@ -89,7 +178,27 @@ maintained connector pair, and a reusable connector-family residue-profile API.
 | `PrimeArithmetic/Density/Base30Residues` | `README.md`, `AGENTS.md` | proved concrete base module | `PrimeArithmetic/Density/UnitResidues` | Use base 30 as the wheel-like concrete example before any Hardy-Littlewood formalization | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Density/WheelUnitProductEquiv` | `PrimeArithmetic/Density/WheelUnitCRT`, `PrimeArithmetic/Density/ZModUnitCRT`, `PrimeArithmetic/Density/WheelBases` | proved in track 2 extension | `PrimeArithmetic/Density/WheelUnitCRT`, `PrimeArithmetic/Density/ZModUnitCRT` | Use this when the wheel-base CRT theorem should be stated in canonical finite-family notation `∀ p ∈ S, (ZMod p)ˣ` rather than only through recursive tuples | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Density/ZModUnitAction` | `PrimeArithmetic/Density/ZModUnitNegation`, `PrimeArithmetic/Density/ZModUnitOrbits`, `PrimeArithmetic/Density/UnitResiduePairs` | proved in track 2 extension | `PrimeArithmetic/Density/ZModUnitNegation`, `PrimeArithmetic/Density/ZModUnitOrbits` | Use this when the `φ(n) / 2` quotient should be stated in group-action language via the order-two subgroup `{1, -1}` acting on `(ZMod n)ˣ` | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
+| `PrimeArithmetic/Sieve/SegmentedSieve` | `src/prime_sieve.rs` | proved in track 2b extension | mathlib core divisibility/arithmetic support | Reuse this when the odd-only candidate domain, inverse segment indexing, first odd marked multiple, or `2p` marking step should be treated as exact arithmetic rather than implementation detail | `n/a` |
+| `PrimeArithmetic/Sieve/SegmentLayout` | `src/prime_sieve.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/SegmentedSieve` | Reuse this when the runtime constants `SEG_BYTES`, `SEG_BITS`, `SEG_ODDS`, or the raw segment upper bound should be related back to the odd-candidate arithmetic surface | `n/a` |
+| `PrimeArithmetic/Sieve/RuntimeCrossOff` | `src/prime_sieve.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/SegmentedSieve` | Reuse this when the actual runtime cross-off start branch (`p^2` versus ceiling multiple), odd-start correction, or `2 * p` progression should be stated exactly rather than only described informally | `n/a` |
+| `PrimeArithmetic/Sieve/RuntimeCollection` | `src/prime_sieve.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/SegmentLayout`, `PrimeArithmetic/Sieve/SegmentedSieve` | Reuse this when the adjusted odd segment endpoint or the exact collection index for an odd candidate in the runtime interval should be stated explicitly | `n/a` |
+| `PrimeArithmetic/Sieve/SegmentBitCoordinates` | `src/prime_sieve.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/SegmentLayout`, `PrimeArithmetic/Sieve/SegmentedSieve` | Reuse this when the shared byte/bit coordinates behind `mark_composite` and `is_prime` should be stated exactly, or when those coordinates need to reconstruct the odd index and candidate | `n/a` |
+| `PrimeArithmetic/Sieve/SegmentBitMasks` | `src/prime_sieve.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/SegmentBitCoordinates` | Reuse this when the executable odd-only mask `1 << bit` and readback `((byte >> bit) & 1)` should be stated exactly, or when the proof needs the fact that the writer sets the same bit the reader tests | `n/a` |
+| `PrimeArithmetic/Sieve/BoundedByteFamilies` | `PrimeArithmetic/Sieve/SegmentBitMasks`, `PrimeArithmetic/Sieve/Wheel30BitMasks` | proved in track 2b extension | `PrimeArithmetic/Sieve/SegmentBitMasks` | Reuse this when a finite bounded byte family should be updated by a disjoint-slot list of marks, and every marked slot should read back as `1` afterward | `n/a` |
+| `PrimeArithmetic/Sieve/BoundedByteMasks` | `PrimeArithmetic/Sieve/BoundedByteFamilies`, `src/prime_sieve.rs`, `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedByteFamilies` | Reuse this when repeated writes in one byte should be collapsed into a single OR-mask update, or when same-byte collisions should be stated more cleanly than as a long single-bit trace | `n/a` |
+| `PrimeArithmetic/Sieve/BoundedBytePlans` | `PrimeArithmetic/Sieve/BoundedByteFamilies`, `PrimeArithmetic/Sieve/BoundedByteMasks`, `src/prime_sieve.rs`, `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedByteMasks` | Reuse this when a runtime or offline marking family is most naturally described as a small set of touched bytes, each with its own bit list, rather than as a raw flattened mark trace | `n/a` |
+| `PrimeArithmetic/Sieve/BoundedByteCoordinates` | `PrimeArithmetic/Sieve/BoundedBytePlans`, `src/prime_sieve.rs`, `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedBytePlans` | Reuse this when a local runtime coordinate shell should be bridged into one fixed `ByteMark`, or when grouped coordinate plans should reuse the generic grouped-plan theorem family without repeating boilerplate | `n/a` |
+| `PrimeArithmetic/Sieve/SegmentByteArray` | `src/prime_sieve.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedByteCoordinates`, `PrimeArithmetic/Sieve/SegmentBitMasks`, `PrimeArithmetic/Sieve/SegmentLayout` | Reuse this when the odd-only sieve should be treated as a bounded one-byte array update or bridged into the generic bounded byte-family surface through the shared coordinate shell | `n/a` |
+| `PrimeArithmetic/Sieve/SegmentRuntimePlans` | `src/prime_sieve.rs`, `PrimeArithmetic/Sieve/RuntimeCrossOff` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedByteCoordinates`, `PrimeArithmetic/Sieve/SegmentByteArray`, `PrimeArithmetic/Sieve/RuntimeCrossOff` | Reuse this when short executable odd-only mark families, especially those built from `runtimeMarkedBy`, should be bucketed by byte slot and discharged directly on the grouped-plan layer | `n/a` |
+| `PrimeArithmetic/Sieve/Wheel30Residues` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Density/Base30Residues`, `PrimeArithmetic/Density/UnitResidues` | Reuse this as the exact wheel30 admissible-residue surface instead of hand-writing the surviving classes modulo `30` | `n/a` |
+| `PrimeArithmetic/Sieve/Wheel30Agreement` | `src/prime_sieve.rs`, `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/SegmentedSieve`, `PrimeArithmetic/Sieve/Wheel30Residues` | Reuse this when wheel30 candidate encodings should be related back to the filtered odd candidate domain without discussing performance or bit-array layout | `n/a` |
+| `PrimeArithmetic/Sieve/Wheel30Indexing` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/Wheel30Agreement` | Reuse this when the runtime wheel30 slot order, linear index `cycle * 8 + slot`, or byte/bit decomposition should be stated exactly rather than described informally | `n/a` |
+| `PrimeArithmetic/Sieve/Wheel30BitCoordinates` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/Wheel30Indexing` | Reuse this when the shared writer/reader byte/bit coordinates for a wheel30 candidate should be stated exactly, or when those coordinates need to be packaged as `some (cycle, slot)` | `n/a` |
+| `PrimeArithmetic/Sieve/Wheel30BitMasks` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/Wheel30BitCoordinates` | Reuse this when the executable wheel30 mask `1 << bit` and readback `((byte >> bit) & 1)` should be stated exactly, or when candidate-level corollaries are needed for the runtime slot order | `n/a` |
+| `PrimeArithmetic/Sieve/Wheel30ByteArray` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedByteCoordinates`, `PrimeArithmetic/Sieve/Wheel30BitMasks` | Reuse this when the wheel30 sieve should be treated as a bounded one-byte array update in the runtime `(cycle, slot)` coordinates, or bridged into the generic bounded byte-family surface through the shared coordinate shell | `n/a` |
+| `PrimeArithmetic/Sieve/Wheel30RuntimePlans` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedByteCoordinates`, `PrimeArithmetic/Sieve/Wheel30ByteArray` | Reuse this when short executable wheel30 mark families should be bucketed by cycle byte slot and discharged directly on the grouped-plan layer | `n/a` |
 | `PrimeArithmetic/Connector/ConcatenationFilters` | `src/connector/mod.rs`, `src/connector/arithmetic.rs`, `src/connector/utils.rs`, `agda-proofs/LagrangePoints/ResidueField.agda`, `agda-proofs/LagrangePoints/ZeroPaddedPrimes/Asymmetry.agda` | proved in track 2a extension | `PrimeArithmetic/Structure/AffineTemplate` | Reuse this when connector scans should be stated as exact fixed-width arithmetic: forward and reverse concatenations reduce to the same residue sum when `base ≡ 1 (mod m)`, and the canonical decimal pair has exact `mod 3` / `mod 9` exclusion classes | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Connector/ConcatenationFamilies` | `PrimeArithmetic/Connector/ConcatenationFilters`, `src/connector/arithmetic.rs`, `src/connector/utils.rs` | proved in track 2a extension | `PrimeArithmetic/Connector/ConcatenationFilters` | Reuse this when a whole fixed-width connector family has a known left/right residue profile modulo `m`, so admissibility reduces to one generic connector class theorem rather than a bespoke proof per pair | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
-| `PrimeArithmetic/Analysis/HardyLittlewoodShell` | `src/hzlib/hardy_littlewood.rs`, `agda-proofs/Theorems/HardyLittlewoodSingularSeries.agda` | queued, low priority | `PrimeArithmetic/Density/WheelUnitProductEquiv`, `PrimeArithmetic/Density/ZModUnitAction` | Add only conservative singular-series notation or exact denominator bookkeeping after the arithmetic lane is stable; do not treat this as a density proof track yet | `collab/openprover/theorems/04-diameter-density-reduction.md` |
+| `PrimeArithmetic/Connector/ConcatenationProfileExamples` | `examples/lagrange_tui_demo.rs`, `PrimeArithmetic/Connector/ConcatenationFamilies` | proved in track 2a extension | `PrimeArithmetic/Connector/ConcatenationFamilies` | Reuse this as the maintained client layer showing that the generic connector-family API applies cleanly to non-canonical preset pairs already present in the repo | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
+| `PrimeArithmetic/Analysis/HardyLittlewoodShell` | `src/hzlib/hardy_littlewood.rs`, `agda-proofs/Theorems/HardyLittlewoodSingularSeries.agda` | proved conservative shell | `PrimeArithmetic/Density/WheelUnitProductEquiv`, `PrimeArithmetic/Density/ZModUnitAction` | Reuse this when pair-count conventions, odd-prime local-factor bookkeeping, or the standard logarithmic / coverage transforms should be stated in Lean without overclaiming a new density theorem | `collab/openprover/theorems/04-diameter-density-reduction.md` |
 | `n/a (OpenProver symmetry companion)` | `collab/openprover/README.md`, `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` | queued for track 3 | `PrimeArithmetic/Symmetry/MidpointObstruction`, `PrimeArithmetic/Symmetry/Base6Example` | Run assisted proof-search sessions against the in-repo Lean package after `lake build` and CI are green | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |

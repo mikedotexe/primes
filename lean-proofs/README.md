@@ -12,16 +12,26 @@ Current scope:
 - the symmetry lane now includes a concrete modular reflection layer on `Fin base`,
   a constructive balanced-bucket support layer for residue-index lists,
   a balanced-bucket reflection wrapper, a narrow window-certificate shell,
-  explicit finite certificate examples, a reusable reflection-certificate
-  wrapper, and a mirror-family theorem stated in standard finite-symmetry
-  language
+  a generated-data entrypoint for residue and position lists, a bundled
+  proof-object layer for generated artifacts, explicit finite certificate
+  examples, a reusable reflection-certificate wrapper, and a mirror-family
+  theorem stated in standard finite-symmetry language
 - the package now also has a template-structure lane: exact affine dependence
   on the middle block for fixed symmetric layouts, plus its modular search
   consequences
 - the package now also has a connector-arithmetic lane: exact fixed-width
   forward/reverse concatenation formulas and canonical decimal `mod 3` / `mod 9`
   exclusion filters for connector values, together with a reusable residue-class
-  profile API for connector families
+  profile API for connector families and maintained profile examples beyond the
+  single canonical pair
+- the package now also has a prime-engine correctness lane: exact arithmetic for
+  odd-only segmented sieve candidates, first odd marked multiples, the wheel30
+  admissible residues, and agreement between the wheel30 candidate
+  representation and the filtered odd candidate domain
+- the symmetry lane now also has a runtime-export path: a Rust exporter emits
+  Lean-shaped window-certificate artifacts from actual prime windows, and the
+  package now keeps a small tracked generated-example catalog live across more
+  than one base
 - the density-facing lane is restricted to exact arithmetic facts:
   coprimality, `rad(base)`, unit residues, a `ZMod`-units bridge,
   the standard negation involution on `ZMod` units,
@@ -83,8 +93,23 @@ lake env lean PrimeArithmetic/Symmetry/MirrorObstruction.lean
 # Check the narrow window-certificate shell
 lake env lean PrimeArithmetic/Symmetry/WindowCertificate.lean
 
+# Check the generated-data entrypoint for residue and position lists
+lake env lean PrimeArithmetic/Symmetry/WindowCertificateGenerated.lean
+
+# Check the bundled proof-object layer for generated window artifacts
+lake env lean PrimeArithmetic/Symmetry/WindowCertificateErgonomics.lean
+
 # Check explicit finite certificate examples
 lake env lean PrimeArithmetic/Symmetry/WindowCertificateExamples.lean
+
+# Check the tracked runtime-exported certificate artifact
+lake env lean PrimeArithmetic/Generated/Examples/WindowP3Base6Span5.lean
+
+# Check the tracked runtime-exported decimal certificate artifact
+lake env lean PrimeArithmetic/Generated/Examples/WindowP5Base10Span5.lean
+
+# Check the tracked runtime-exported base-12 certificate artifact
+lake env lean PrimeArithmetic/Generated/Examples/WindowP5Base12Span17.lean
 
 # Check the first density-facing prerequisite
 lake env lean PrimeArithmetic/Density/CoprimeFilter.lean
@@ -116,11 +141,74 @@ lake env lean PrimeArithmetic/Structure/AffineResidueSearch.lean
 # Check the explicit seed classes induced by the affine residue map
 lake env lean PrimeArithmetic/Structure/AffineSeedClasses.lean
 
+# Check the odd-only segmented sieve arithmetic layer
+lake env lean PrimeArithmetic/Sieve/SegmentedSieve.lean
+
+# Check the runtime odd-segment capacity and bound formulas
+lake env lean PrimeArithmetic/Sieve/SegmentLayout.lean
+
+# Check the runtime cross-off start and `2p` progression
+lake env lean PrimeArithmetic/Sieve/RuntimeCrossOff.lean
+
+# Check the runtime odd-upper-bound adjustment and collection indexing
+lake env lean PrimeArithmetic/Sieve/RuntimeCollection.lean
+
+# Check byte/bit coordinates for the odd-only segment writer and reader
+lake env lean PrimeArithmetic/Sieve/SegmentBitCoordinates.lean
+
+# Check bit-mask update/readback semantics for the odd-only segment
+lake env lean PrimeArithmetic/Sieve/SegmentBitMasks.lean
+
+# Check generic bounded multi-mark families on disjoint byte slots
+lake env lean PrimeArithmetic/Sieve/BoundedByteFamilies.lean
+
+# Check aggregated same-byte mask families
+lake env lean PrimeArithmetic/Sieve/BoundedByteMasks.lean
+
+# Check grouped multi-byte plan families
+lake env lean PrimeArithmetic/Sieve/BoundedBytePlans.lean
+
+# Check the tiny shared coordinate-to-byte-plan bridge
+lake env lean PrimeArithmetic/Sieve/BoundedByteCoordinates.lean
+
+# Check single-byte array update/readback semantics for the odd-only segment
+lake env lean PrimeArithmetic/Sieve/SegmentByteArray.lean
+
+# Check short odd-only runtime mark families on grouped plans
+lake env lean PrimeArithmetic/Sieve/SegmentRuntimePlans.lean
+
+# Check the exact wheel30 admissible-residue surface
+lake env lean PrimeArithmetic/Sieve/Wheel30Residues.lean
+
+# Check agreement between the wheel30 representation and the filtered odd domain
+lake env lean PrimeArithmetic/Sieve/Wheel30Agreement.lean
+
+# Check the runtime wheel30 linear index / byte / bit layout
+lake env lean PrimeArithmetic/Sieve/Wheel30Indexing.lean
+
+# Check byte/bit coordinates for the wheel30 segment writer and reader
+lake env lean PrimeArithmetic/Sieve/Wheel30BitCoordinates.lean
+
+# Check bit-mask update/readback semantics for the wheel30 segment
+lake env lean PrimeArithmetic/Sieve/Wheel30BitMasks.lean
+
+# Check single-byte array update/readback semantics for the wheel30 segment
+lake env lean PrimeArithmetic/Sieve/Wheel30ByteArray.lean
+
+# Check short wheel30 runtime mark families on grouped plans
+lake env lean PrimeArithmetic/Sieve/Wheel30RuntimePlans.lean
+
 # Check the fixed-width connector arithmetic and canonical decimal filters
 lake env lean PrimeArithmetic/Connector/ConcatenationFilters.lean
 
 # Check the reusable connector-family residue profile layer
 lake env lean PrimeArithmetic/Connector/ConcatenationFamilies.lean
+
+# Check maintained profile examples beyond the canonical pair
+lake env lean PrimeArithmetic/Connector/ConcatenationProfileExamples.lean
+
+# Check the conservative Hardy-Littlewood notation and local-factor shell
+lake env lean PrimeArithmetic/Analysis/HardyLittlewoodShell.lean
 
 # Check the finite-product wheel-base CRT theorem on unit groups
 lake env lean PrimeArithmetic/Density/WheelUnitCRT.lean
@@ -156,6 +244,26 @@ lake env lean PrimeArithmetic/Symmetry/ZModUnitNegationWitness.lean
 lake env lean PrimeArithmetic/Density/Base12Residues.lean
 ```
 
+From the repo root, emit a Lean-shaped certificate artifact directly from a
+runtime prime window:
+
+```bash
+cargo run --bin export_window_certificate -- \
+  --p 5 \
+  --base 10 \
+  --window-span 5 \
+  --exclude-radius 1 \
+  --out lean-proofs/PrimeArithmetic/Generated/Examples/WindowP5Base10Span5.lean
+```
+
+From the repo root, verify or regenerate the whole tracked exported-artifact
+catalog:
+
+```bash
+./scripts/lean_generated_catalog.sh verify
+./scripts/lean_generated_catalog.sh regenerate
+```
+
 ## Package Layout
 
 - `PrimeArithmetic.lean`: umbrella import for the current Lean surface
@@ -169,11 +277,80 @@ lake env lean PrimeArithmetic/Density/Base12Residues.lean
 - `PrimeArithmetic/Structure/AffineSeedClasses.lean`: explicit seed classes for
   target residues, including the unique zero-residue class modulo a coprime
   modulus
+- `PrimeArithmetic/Sieve/SegmentedSieve.lean`: odd-only segmented sieve
+  candidate encoding, inverse indexing, first odd multiple arithmetic, and
+  divisibility/oddness invariants for the marking progression
+- `PrimeArithmetic/Sieve/SegmentLayout.lean`: runtime segment constants,
+  arithmetic span, raw upper bound, and the fact that in-range odd candidates
+  map to indices below the segment capacity
+- `PrimeArithmetic/Sieve/RuntimeCrossOff.lean`: runtime cross-off start logic,
+  including the `p^2` branch, the odd-start correction, and the exact `2 * p`
+  marking progression
+- `PrimeArithmetic/Sieve/RuntimeCollection.lean`: runtime odd-upper-bound
+  adjustment and the existence of the exact collection index for every odd
+  candidate in the adjusted segment interval
+- `PrimeArithmetic/Sieve/SegmentBitCoordinates.lean`: shared byte/bit
+  coordinates for the odd-only `mark_composite` and `is_prime` formulas,
+  including reconstruction of the segment index from byte and bit
+- `PrimeArithmetic/Sieve/SegmentBitMasks.lean`: exact odd-only mask/update
+  semantics for `1 << bit` and `((byte >> bit) & 1)`, including the fact that
+  the writer sets the same bit the reader tests and preserves all other bits
+- `PrimeArithmetic/Sieve/BoundedByteFamilies.lean`: generic bounded byte-array
+  families for sieve-style bitsets, covering one-mark correctness, preservation
+  under writes to other byte slots, and finite disjoint-slot multi-mark writes
+- `PrimeArithmetic/Sieve/BoundedByteMasks.lean`: aggregated same-byte mask
+  families for sieve-style bitsets, collapsing repeated writes in one byte into
+  a single OR-mask update and proving readback for every listed target bit
+- `PrimeArithmetic/Sieve/BoundedBytePlans.lean`: grouped multi-byte plan
+  families for sieve-style bitsets, combining per-byte aggregated masks into a
+  bounded plan list with exact flattening to single-bit traces and exact
+  readback for every planned bit under pairwise distinct byte slots
+- `PrimeArithmetic/Sieve/BoundedByteCoordinates.lean`: tiny shared bridge from
+  local coordinate shells into grouped byte plans, covering fixed-mark
+  read-written proofs and grouped coordinate-plan readback under aligned,
+  distinct byte slots
+- `PrimeArithmetic/Sieve/SegmentByteArray.lean`: bounded single-byte array
+  semantics for the odd-only runtime segment, showing that the selected byte
+  slot is updated exactly once, readback at the selected slot returns `1`, and
+  the runtime shell is bridged into the generic bounded byte-family API through
+  the shared coordinate shell
+- `PrimeArithmetic/Sieve/SegmentRuntimePlans.lean`: short odd-only runtime mark
+  families stated directly in segment coordinates and packaged on the grouped
+  byte-plan layer
+- `PrimeArithmetic/Sieve/Wheel30Residues.lean`: exact wheel30 residue set and
+  its characterization as the admissible residues modulo `30`
+- `PrimeArithmetic/Sieve/Wheel30Agreement.lean`: equivalence between wheel30
+  representability and the odd candidate domain with the `mod 3` / `mod 5`
+  filters
+- `PrimeArithmetic/Sieve/Wheel30Indexing.lean`: runtime wheel30 slot order,
+  linear index formula `cycle * 8 + slot`, and the corresponding byte / bit
+  coordinates used by the wheel30 bit array
+- `PrimeArithmetic/Sieve/Wheel30BitCoordinates.lean`: shared byte/bit
+  coordinates for the wheel30 writer and reader, together with the candidate
+  formula that recovers `some (cycle, slot)` directly from the runtime index
+- `PrimeArithmetic/Sieve/Wheel30BitMasks.lean`: exact wheel30 mask/update
+  semantics for the runtime `1 << bit` writer and `((byte >> bit) & 1)` reader,
+  both generically from `some bit` coordinates and concretely on wheel30
+  candidates
+- `PrimeArithmetic/Sieve/Wheel30ByteArray.lean`: bounded single-byte array
+  semantics for the wheel30 runtime segment, phrased directly in the runtime
+  `(cycle, slot)` indexing surface and bridged into the generic bounded
+  byte-family API through the shared coordinate shell
+- `PrimeArithmetic/Sieve/Wheel30RuntimePlans.lean`: short wheel30 runtime mark
+  families stated directly in executable `(cycle, slot)` coordinates and
+  packaged on the grouped byte-plan layer
 - `PrimeArithmetic/Connector/ConcatenationFilters.lean`: exact fixed-width
   forward/reverse concatenation formulas, reduction modulo `m` when
   `base ≡ 1 (mod m)`, and canonical decimal `mod 3` / `mod 9` connector filters
 - `PrimeArithmetic/Connector/ConcatenationFamilies.lean`: reusable pair-residue
   profiles and generic admissibility lemmas for whole connector families
+- `PrimeArithmetic/Connector/ConcatenationProfileExamples.lean`: maintained
+  instantiations of the connector-family API on additional preset pairs, beyond
+  the single canonical pair
+- `PrimeArithmetic/Analysis/HardyLittlewoodShell.lean`: conservative
+  Hardy-Littlewood notation shell fixing pair-count conventions, exact
+  odd-prime local-factor bookkeeping, radical invariance of the support, and the
+  standard logarithmic / coverage transforms without asserting new density laws
 - `PrimeArithmetic/Symmetry/MidpointObstruction.lean`: abstract midpoint
   obstruction theorem
 - `PrimeArithmetic/Symmetry/Base6Example.lean`: concrete base-6 certified example
@@ -191,8 +368,38 @@ lake env lean PrimeArithmetic/Density/Base12Residues.lean
 - `PrimeArithmetic/Symmetry/WindowCertificate.lean`: narrow static/dynamic
   per-window certificate shell built from the balanced-bucket reflection layer
   plus pointwise midpoint-radius safety on positions
+- `PrimeArithmetic/Symmetry/WindowCertificateGenerated.lean`: generated-data
+  entrypoint from residue lists and position lists into the maintained window
+  certificate shell, with automatically derived support counts
+- `PrimeArithmetic/Symmetry/WindowCertificateErgonomics.lean`: bundled static
+  and dual evidence objects for generated window artifacts, rebuilding the same
+  certificates from a compact exported proof object
 - `PrimeArithmetic/Symmetry/WindowCertificateExamples.lean`: explicit base-6 and
-  base-10 finite certificates exercising the new static and window shells
+  base-10 finite certificates exercising the generated-data entrypoint, the
+  bundled proof-object layer, and the static/window shells end to end
+- `PrimeArithmetic/Generated/Examples/WindowP5Base10Span5.lean`: tracked
+  runtime-exported certificate artifact generated from the prime window around
+  `2 * 5^2`
+- `PrimeArithmetic/Generated/Examples/WindowP3Base6Span5.lean`: tracked
+  runtime-exported certificate artifact generated from the prime window around
+  `2 * 3^2`
+- `PrimeArithmetic/Generated/Examples/WindowP5Base12Span17.lean`: tracked
+  runtime-exported certificate artifact generated from the prime window around
+  `2 * 5^2`, using residue classes modulo `12`
+- `PrimeArithmetic/Generated/Examples/WindowP11Base30Span5.lean`: tracked
+  runtime-exported wheel-like base-`30` certificate artifact from the prime
+  window around `2 * 11^2`
+- `PrimeArithmetic/Generated/Examples/WindowP101Base30Span29.lean`: tracked
+  runtime-exported base-`30` certificate artifact with six observed admissible
+  residues in one finite window
+- `PrimeArithmetic/Generated/Examples/WindowP163Base30Span35.lean`: tracked
+  runtime-exported base-`30` certificate artifact with a larger balanced
+  residue sample
+- `PrimeArithmetic/Generated/Examples/WindowP41Base210Span5.lean`: tracked
+  runtime-exported wheel-like base-`210` certificate artifact from the prime
+  window around `2 * 41^2`
+- `PrimeArithmetic/Generated/README.md`: generated artifact conventions and the
+  canonical exporter invocation
 - `PrimeArithmetic/Symmetry/MirrorObstruction.lean`: mirror-family midpoint
   obstruction via list reversal on `Fin (n + n)`
 - `PrimeArithmetic/Symmetry/UnitResidueComplementWitness.lean`: generic even-base

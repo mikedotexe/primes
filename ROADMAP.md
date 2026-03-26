@@ -1,6 +1,6 @@
 # Hardening Roadmap
 
-**Updated**: 2026-03-24
+**Updated**: 2026-03-25
 **Purpose**: current tranche-based hardening plan for the active repository
 
 Previous roadmap history is preserved at
@@ -38,7 +38,9 @@ symmetry, and exact or empirical claims.
 - the Lean lane now also has a conservative exact arithmetic layer covering
   affine template structure, coprimality/radical/unit-residue results,
   `ZMod`/CRT/wheel-base structure, reusable symmetry certificates, explicit
-  finite certificate examples, and exact connector residue filters
+  finite certificate examples, exact connector residue filters, and a
+  prime-engine correctness lane for odd-only segmented sieve arithmetic and
+  wheel30 candidate agreement
 
 ### Public Signal Still Above Support
 
@@ -67,14 +69,48 @@ reflection wrapper and the narrow window-certificate shell on top of it. The
 exact connector arithmetic lane is now also live, including fixed-width
 concatenation formulas and canonical decimal `mod 3` / `mod 9` exclusion
 filters, and the family-level residue-profile layer is now live as well. The
-next tranches to prefer are:
+prime-engine correctness lane is now also live: the Lean package has exact
+odd-only segmented sieve arithmetic, the wheel30 admissible residues, and the
+agreement theorem connecting wheel30 candidates back to the filtered odd
+candidate domain. The Lean symmetry lane now also has a generated-data
+entrypoint from residue lists and position lists into the maintained
+window-certificate shell, plus a compact proof-object layer for generated
+artifacts. The external runtime-export path is now also live: the Rust binary
+[`src/bin/export_window_certificate.rs`](src/bin/export_window_certificate.rs)
+emits Lean-shaped certificate artifacts from extracted prime-window positions
+and residues, and the package now keeps a tracked cross-base exported catalog
+live. That catalog now also has a scripted regeneration / verification path via
+[`scripts/lean_generated_catalog.sh`](scripts/lean_generated_catalog.sh). The
+package also now includes a conservative Hardy-Littlewood shell with standard
+pair-count conventions, odd-prime local-factor bookkeeping, radical invariance
+of the local-factor support, and the standard logarithmic / coverage transforms,
+without treating that as a density proof. The sieve lane now also reaches the
+runtime layout surface: Lean matches the odd-segment capacity/span constants and
+the wheel30 linear byte/bit index formulas used by the executable sieve, and it
+now also matches the runtime cross-off start/progression and adjusted odd
+collection window, plus the shared byte/bit coordinates used by the writer and
+reader paths, plus the exact `1 << bit` mask/update and `((byte >> bit) & 1)`
+readback semantics on those same coordinates, plus a bounded single-byte array
+update shell for both the odd-only and wheel30 layouts, and a generic bounded
+multi-mark family on disjoint byte slots, plus a cleaner aggregated same-byte
+mask route for repeated writes in one byte, now unified by grouped per-byte
+plans, a tiny shared coordinate bridge, and the first runtime-facing odd-only
+and wheel30 mark-family shells. The next tranches to prefer are:
 
-1. connect generated residue-bucket and position data to the Lean window shell
-   in a reproducible artifact path
-2. instantiate the new connector-family layer on additional maintained pairs or
-   bases
-3. only after those, consider a conservative Hardy-Littlewood shell with
-   standard classical statements and no density overclaims
+1. add more explicit first-step or first-byte runtime-family lemmas only if a
+   later executable agreement argument truly needs them
+2. grow the exported catalog further only when a later theorem or example
+   actually needs it
+3. revisit the Lagrange / gravity / tidal side later only by extracting exact
+   connector or residue lemmas that can be restated in standard arithmetic terms
+4. rerun the full Rust, Lean, and Agda verification surfaces and clean up
+   staging before a push
+
+The Lagrange / gravity / tidal surface remains a later hardening target, but
+not as a direct Lean formalization of the simulation layer. Any future Lean
+engagement there should begin by extracting exact arithmetic content from the
+current metaphor-oriented code, not by treating force-field, clustering, or
+equilibrium heuristics as mathematical primitives.
 
 The detailed Lean-only queue lives in
 [`lean-proofs/ROADMAP.md`](lean-proofs/ROADMAP.md) and the mathematician-facing
@@ -112,9 +148,16 @@ Where the detailed Lean record lives:
 - local workflow: [`lean-proofs/README.md`](lean-proofs/README.md)
 
 Next Lean priorities:
-1. connect generated residue-bucket and position data to the Lean window shell in a reproducible artifact path
-2. instantiate the connector-family layer on additional maintained pairs or bases
-3. only after those, consider a conservative Hardy-Littlewood shell with standard classical statements and no density overclaims
+1. add more explicit first-step or first-byte runtime-family lemmas only if they are needed later
+2. grow the tracked generated certificate catalog further only when a later theorem or example actually needs it
+3. revisit the Lagrange / gravity / tidal side later only through exact arithmetic extraction
+4. rerun the full verification surfaces and clean staging before a push
+
+Deferred assessment note:
+- the Lagrange / gravity / tidal surface should be revisited later as a
+  hardening task, but only to extract exact arithmetic statements worth
+  formalizing; it should not be treated as a direct Lean target in its current
+  simulation/metaphor form
 
 ### Track 6: Public Surface Identity Alignment
 

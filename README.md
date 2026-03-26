@@ -145,11 +145,31 @@ Verified in the current audited docs:
 - **Lean 4**: [`lean-proofs/`](lean-proofs/) is the in-repo mathlib-backed
   package. Its current proved surface is symmetry-first and exact-arithmetic
   first: midpoint obstruction and certified witnesses, modular reflection and
-  certificate wrappers, affine template structure, coprimality/radical/unit
-  residue theorems, `ZMod`/CRT/wheel-base structure, explicit finite
-  certificate examples, and exact connector residue filters including a
-  reusable family-level profile API. The detailed theorem ledger and future
-  queue live in [`lean-proofs/ROADMAP.md`](lean-proofs/ROADMAP.md) and
+  certificate wrappers, generated-data window-certificate entrypoints and
+  bundled proof objects, a runtime export path for Lean-shaped certificate
+  artifacts with a tracked cross-base catalog through wheel-like bases `30` and
+  `210`, affine template structure, coprimality/radical/unit
+  residue theorems,
+  `ZMod`/CRT/wheel-base structure, explicit finite certificate examples, exact
+  odd-only segmented sieve arithmetic, exact wheel30 candidate agreement, and
+  exact connector residue filters including a reusable family-level profile API
+  and maintained non-canonical profile examples. The package now also includes
+  a deliberately conservative Hardy-Littlewood shell fixing pair-count
+  conventions, odd-prime local-factor support, and standard logarithmic /
+  coverage notation without asserting a new density theorem. The sieve lane now
+  also reaches the runtime layout level: segment capacity/span constants and
+  wheel30 linear byte/bit indexing are both stated exactly in Lean, together
+  with the runtime cross-off start/progression, the adjusted odd collection
+  window, the shared byte/bit coordinates used by the runtime writer and reader
+  paths, and the exact `1 << bit` / `((byte >> bit) & 1)` mask-readback
+  semantics on those coordinates, plus the bounded single-byte array update
+  shell for both the odd-only and wheel30 bit layouts, together with a generic
+  bounded multi-mark family on disjoint byte slots and a cleaner aggregated
+  same-byte mask layer for repeated writes landing in one byte, now unified by
+  a grouped per-byte plan layer, a tiny shared coordinate bridge, and the first
+  odd-only and wheel30 runtime mark-family shells on top of that layer.
+  The detailed theorem ledger and future queue live in
+  [`lean-proofs/ROADMAP.md`](lean-proofs/ROADMAP.md) and
   [`lean-proofs/THEOREM_INDEX.md`](lean-proofs/THEOREM_INDEX.md).
 
 ## Analysis Tools
