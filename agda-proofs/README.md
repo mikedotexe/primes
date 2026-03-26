@@ -79,5 +79,14 @@ cd agda-proofs
 ./scripts/verify-clean-spine.sh
 ```
 
+The helper resolves Agda in this order: `AGDA_BIN`, `agda` on `PATH`,
+`/opt/homebrew/bin/agda`, `/usr/local/bin/agda`. If your local install lives
+elsewhere, run it as:
+
+```bash
+cd agda-proofs
+AGDA_BIN=/path/to/agda ./scripts/verify-clean-spine.sh
+```
+
 For targeted follow-up, use the clean/postulated module lists in [`STATUS.md`](STATUS.md)
 rather than trying to type-check the entire tree at once.

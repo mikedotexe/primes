@@ -169,14 +169,27 @@ postulates, 0 failing). The core certification stack
 operational. See [agda-proofs/STATUS.md](agda-proofs/STATUS.md) for
 module-by-module status and boundary notes.
 
+Verify the maintained clean-local Agda spine with:
+
+```bash
+cd agda-proofs
+./scripts/verify-clean-spine.sh
+```
+
+The script resolves Agda in this order: `AGDA_BIN`, `agda` on `PATH`,
+`/opt/homebrew/bin/agda`, `/usr/local/bin/agda`. Use `AGDA_BIN` if your local
+install lives elsewhere.
+
 ## Formal Verification (Lean 4)
 
 The repo now also includes a mathlib-backed Lean package under
 [lean-proofs/](lean-proofs/). Its current proved surface is symmetry-first: the
 initial lane contains the abstract midpoint-obstruction theorem, a concrete
 base-6 witness, and a conservative exact arithmetic layer for coprimality,
-radicals, unit residues, and wheel-like bases. Broader density formalization
-remains roadmap material in
+radicals, unit residues, `ZMod`/CRT/wheel-like bases, affine template
+structure, connector residue filters, and the prime-engine correctness lane for
+odd-only segmented sieve arithmetic and wheel30 agreement. Broader density
+formalization remains roadmap material in
 [lean-proofs/ROADMAP.md](lean-proofs/ROADMAP.md).
 
 Verify the Lean package locally with:
