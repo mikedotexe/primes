@@ -177,6 +177,9 @@ lake env lean PrimeArithmetic/Sieve/SegmentByteArray.lean
 # Check short odd-only runtime mark families on grouped plans
 lake env lean PrimeArithmetic/Sieve/SegmentRuntimePlans.lean
 
+# Check bounded runtime cross-off step families on grouped plans
+lake env lean PrimeArithmetic/Sieve/SegmentRuntimeSteps.lean
+
 # Check the exact wheel30 admissible-residue surface
 lake env lean PrimeArithmetic/Sieve/Wheel30Residues.lean
 
@@ -317,6 +320,9 @@ catalog:
 - `PrimeArithmetic/Sieve/SegmentRuntimePlans.lean`: short odd-only runtime mark
   families stated directly in segment coordinates and packaged on the grouped
   byte-plan layer
+- `PrimeArithmetic/Sieve/SegmentRuntimeSteps.lean`: bounded odd-only
+  `runtimeMarkedBy` step families, packaged directly on the grouped byte-plan
+  layer without hand-rewrapping each step as a segment coordinate
 - `PrimeArithmetic/Sieve/Wheel30Residues.lean`: exact wheel30 residue set and
   its characterization as the admissible residues modulo `30`
 - `PrimeArithmetic/Sieve/Wheel30Agreement.lean`: equivalence between wheel30

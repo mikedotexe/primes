@@ -63,6 +63,26 @@ theorem PairResidueProfile.forward_reverse_same_mod
     (profile.concatForward_modEq_connector_shift connector connWidth).trans
       (profile.concatReverse_modEq_connector_shift connector connWidth).symm
 
+theorem PairResidueProfile.concatForward_modEq_target_iff_concatReverse_modEq_target
+    (profile : PairResidueProfile) (connector connWidth target : ℕ) :
+    concatForward profile.base profile.left profile.right connector profile.rightWidth connWidth ≡
+      target [MOD profile.modulus] ↔
+      concatReverse profile.base profile.left profile.right connector profile.leftWidth connWidth ≡
+        target [MOD profile.modulus] := by
+  constructor
+  · intro hForward
+    exact (profile.forward_reverse_same_mod connector connWidth).symm.trans hForward
+  · intro hReverse
+    exact (profile.forward_reverse_same_mod connector connWidth).trans hReverse
+
+theorem PairResidueProfile.concatForward_divisible_iff_concatReverse_divisible
+    (profile : PairResidueProfile) (connector connWidth : ℕ) :
+    concatForward profile.base profile.left profile.right connector profile.rightWidth connWidth ≡
+      0 [MOD profile.modulus] ↔
+      concatReverse profile.base profile.left profile.right connector profile.leftWidth connWidth ≡
+        0 [MOD profile.modulus] :=
+  profile.concatForward_modEq_target_iff_concatReverse_modEq_target connector connWidth 0
+
 theorem PairResidueProfile.concatForward_modEq_target_iff_connector_class
     (profile : PairResidueProfile) {target shift : ℕ}
     (hShift : shift + profile.pairResidue ≡ target [MOD profile.modulus])

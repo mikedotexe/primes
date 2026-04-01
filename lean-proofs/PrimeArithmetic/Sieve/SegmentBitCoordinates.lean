@@ -72,4 +72,26 @@ theorem segmentMarkQuery_same_coordinates (lo n : ℕ) :
       (oddSegmentIndex lo n / 8, oddSegmentIndex lo n % 8) := by
   rfl
 
+theorem oddSegmentIndex_add_two_mul_of_odd {lo n k : ℕ}
+    (hLo : lo ≤ n) (hLoOdd : Odd lo) (hNOdd : Odd n) :
+    oddSegmentIndex lo (n + 2 * k) = oddSegmentIndex lo n + k := by
+  rcases (hNOdd.tsub_odd hLoOdd) with ⟨t, ht⟩
+  unfold oddSegmentIndex
+  rw [ht]
+  omega
+
+theorem segmentByteIndex_ne_of_add_two_mul_ge_eight {lo n k : ℕ}
+    (hLo : lo ≤ n) (hLoOdd : Odd lo) (hNOdd : Odd n)
+    (hk : 8 ≤ k) :
+    segmentByteIndex lo n ≠ segmentByteIndex lo (n + 2 * k) := by
+  intro hEq
+  have hIdx :
+      oddSegmentIndex lo (n + 2 * k) = oddSegmentIndex lo n + k :=
+    oddSegmentIndex_add_two_mul_of_odd hLo hLoOdd hNOdd
+  have hBitLo : segmentBitIndex lo n < 8 := segmentBitIndex_lt_eight lo n
+  have hBitHi : segmentBitIndex lo (n + 2 * k) < 8 := segmentBitIndex_lt_eight lo (n + 2 * k)
+  have hDecompLo := segmentIndex_eq_byte_mul_add_bit lo n
+  have hDecompHi := segmentIndex_eq_byte_mul_add_bit lo (n + 2 * k)
+  omega
+
 end PrimeArithmetic.Sieve
