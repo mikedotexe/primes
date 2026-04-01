@@ -321,8 +321,9 @@ catalog:
   families stated directly in segment coordinates and packaged on the grouped
   byte-plan layer
 - `PrimeArithmetic/Sieve/SegmentRuntimeSteps.lean`: bounded odd-only
-  `runtimeMarkedBy` step families, packaged directly on the grouped byte-plan
-  layer without hand-rewrapping each step as a segment coordinate
+  `runtimeMarkedBy` step families, including canonical per-byte bucketing,
+  packaged directly on the grouped byte-plan layer without hand-rewrapping
+  each step as a segment coordinate
 - `PrimeArithmetic/Sieve/Wheel30Residues.lean`: exact wheel30 residue set and
   its characterization as the admissible residues modulo `30`
 - `PrimeArithmetic/Sieve/Wheel30Agreement.lean`: equivalence between wheel30

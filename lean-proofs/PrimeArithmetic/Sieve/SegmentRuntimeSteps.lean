@@ -46,6 +46,22 @@ def segmentRuntimeStepWriteMany {lo limit p segLo : ℕ}
     (plans : List (SegmentRuntimeStepPlan lo limit p segLo)) : SegmentByteState :=
   coordinatePlanWriteMany segmentRuntimeStepMark bytes plans
 
+/-- Canonical per-byte bucketing for a finite bounded-step family. -/
+def segmentRuntimeStepWriteByByte {lo limit p segLo : ℕ}
+    (bytes : SegmentByteState)
+    (steps : List (SegmentRuntimeStep lo limit p segLo)) : SegmentByteState :=
+  coordinatePlanWriteMany segmentRuntimeStepMark bytes
+    (coordinatePlansByByte segmentRuntimeStepMark steps)
+
+/-- The first two bounded steps in one executable cross-off prefix. -/
+def segmentRuntimeConsecutiveBoundedSteps {lo limit p segLo step : ℕ}
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hHi : runtimeMarkedBy p segLo step ≤ rawSegmentHi lo limit)
+    (hLoSucc : lo ≤ runtimeMarkedBy p segLo (step + 1))
+    (hHiSucc : runtimeMarkedBy p segLo (step + 1) ≤ rawSegmentHi lo limit) :
+    List (SegmentRuntimeStep lo limit p segLo) :=
+  [⟨step, ⟨hLo, hHi⟩⟩, ⟨step + 1, ⟨hLoSucc, hHiSucc⟩⟩]
+
 /-- Distinct targeted byte slots for grouped bounded-step plans. -/
 def segmentRuntimeStepPlansHaveDistinctByteSlots {lo limit p segLo : ℕ}
     (plans : List (SegmentRuntimeStepPlan lo limit p segLo)) : Prop :=
@@ -76,6 +92,18 @@ theorem segmentRuntimeStepRead_of_mem_plans_distinct {lo limit p segLo : ℕ}
     (fun bytes stepCoord => segmentRuntimeStepRead_eq_byteMarkRead bytes stepCoord)
     hAligned hDistinct hPlan hStep
 
+theorem segmentRuntimeStepRead_of_mem_byByte {lo limit p segLo : ℕ}
+    (steps : List (SegmentRuntimeStep lo limit p segLo)) (bytes : SegmentByteState)
+    {stepCoord : SegmentRuntimeStep lo limit p segLo} (hStep : stepCoord ∈ steps) :
+    segmentRuntimeStepRead (segmentRuntimeStepWriteByByte bytes steps) stepCoord = 1 := by
+  simpa [segmentRuntimeStepWriteByByte] using
+    (read_of_mem_coordinatePlansByByte_of_eq
+      segmentRuntimeStepMark
+      (fun bytes stepCoord => segmentRuntimeStepRead bytes stepCoord)
+      bytes steps
+      (fun bytes stepCoord => segmentRuntimeStepRead_eq_byteMarkRead bytes stepCoord)
+      hStep)
+
 theorem segmentRuntimeRead_of_mem_stepPlans_distinct {lo limit p segLo : ℕ}
     (plans : List (SegmentRuntimeStepPlan lo limit p segLo)) (bytes : SegmentByteState)
     (hAligned :
@@ -87,5 +115,47 @@ theorem segmentRuntimeRead_of_mem_stepPlans_distinct {lo limit p segLo : ℕ}
   simpa [segmentRuntimeStepRead] using
     (segmentRuntimeStepRead_of_mem_plans_distinct
       (plans := plans) (bytes := bytes) hAligned hDistinct hPlan hStep)
+
+theorem segmentRuntimeRead_of_mem_boundedSteps_byByte {lo limit p segLo : ℕ}
+    (steps : List (SegmentRuntimeStep lo limit p segLo)) (bytes : SegmentByteState)
+    {stepCoord : SegmentRuntimeStep lo limit p segLo} (hStep : stepCoord ∈ steps) :
+    segmentByteRead (segmentRuntimeStepWriteByByte bytes steps) stepCoord.2.1 stepCoord.2.2 = 1 := by
+  simpa [segmentRuntimeStepRead] using
+    (segmentRuntimeStepRead_of_mem_byByte
+      (steps := steps) (bytes := bytes) hStep)
+
+theorem segmentRuntimeRead_step_of_consecutiveBoundedSteps_byByte
+    (bytes : SegmentByteState) {lo limit p segLo step : ℕ}
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hHi : runtimeMarkedBy p segLo step ≤ rawSegmentHi lo limit)
+    (hLoSucc : lo ≤ runtimeMarkedBy p segLo (step + 1))
+    (hHiSucc : runtimeMarkedBy p segLo (step + 1) ≤ rawSegmentHi lo limit) :
+    segmentByteRead
+        (segmentRuntimeStepWriteByByte bytes
+          (segmentRuntimeConsecutiveBoundedSteps hLo hHi hLoSucc hHiSucc))
+        hLo hHi = 1 := by
+  simpa [segmentRuntimeConsecutiveBoundedSteps] using
+    (segmentRuntimeRead_of_mem_boundedSteps_byByte
+      (steps := segmentRuntimeConsecutiveBoundedSteps hLo hHi hLoSucc hHiSucc)
+      (bytes := bytes)
+      (stepCoord := (⟨step, ⟨hLo, hHi⟩⟩ : SegmentRuntimeStep lo limit p segLo))
+      (by simp [segmentRuntimeConsecutiveBoundedSteps]))
+
+theorem segmentRuntimeRead_succ_of_consecutiveBoundedSteps_byByte
+    (bytes : SegmentByteState) {lo limit p segLo step : ℕ}
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hHi : runtimeMarkedBy p segLo step ≤ rawSegmentHi lo limit)
+    (hLoSucc : lo ≤ runtimeMarkedBy p segLo (step + 1))
+    (hHiSucc : runtimeMarkedBy p segLo (step + 1) ≤ rawSegmentHi lo limit) :
+    segmentByteRead
+        (segmentRuntimeStepWriteByByte bytes
+          (segmentRuntimeConsecutiveBoundedSteps hLo hHi hLoSucc hHiSucc))
+        hLoSucc hHiSucc = 1 := by
+  simpa [segmentRuntimeConsecutiveBoundedSteps] using
+    (segmentRuntimeRead_of_mem_boundedSteps_byByte
+      (steps := segmentRuntimeConsecutiveBoundedSteps hLo hHi hLoSucc hHiSucc)
+      (bytes := bytes)
+      (stepCoord := (⟨step + 1, ⟨hLoSucc, hHiSucc⟩⟩ : SegmentRuntimeStep lo limit p segLo))
+      (by simp [segmentRuntimeConsecutiveBoundedSteps]))
 
 end PrimeArithmetic.Sieve

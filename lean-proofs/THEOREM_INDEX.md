@@ -41,7 +41,7 @@ surface back to older project artifacts.
 | a tiny shared coordinate shell bridges local runtime coordinates into grouped plans | fixed local read/write shells can discharge written-readback once via their `ByteMark` bridge, and grouped coordinate plans can reuse the generic grouped-plan theorem family without repeating byte-plan boilerplate | `PrimeArithmetic/Sieve/BoundedByteCoordinates` | proved |
 | the odd-only single-byte update matches the executable write/read pattern and embeds into the generic family | after selecting the bounded target byte in the odd segment, updating that byte with the proved mask semantics changes exactly that slot, readback from the same slot returns `1`, and the runtime shell agrees with the generic bounded byte-family API | `PrimeArithmetic/Sieve/SegmentByteArray` | proved |
 | short odd-only runtime mark families sit directly on grouped byte plans | in-range runtime odd candidates, including those coming from `runtimeMarkedBy`, can be bucketed by byte slot and then discharged by the generic grouped-plan readback theorem | `PrimeArithmetic/Sieve/SegmentRuntimePlans` | proved |
-| bounded runtime cross-off steps lift directly to grouped byte plans | if `runtimeMarkedBy p segLo step` stays inside the current odd segment, that bounded step can be packaged directly as a grouped-plan coordinate and read back as marked without manually rewrapping it as a segment candidate first | `PrimeArithmetic/Sieve/SegmentRuntimeSteps` | proved |
+| bounded runtime cross-off steps lift directly to grouped byte plans | if `runtimeMarkedBy p segLo step` stays inside the current odd segment, that bounded step can be packaged directly as a grouped-plan coordinate, canonically bucketed by byte slot, and read back as marked without manually rewrapping it as a segment candidate first | `PrimeArithmetic/Sieve/SegmentRuntimeSteps` | proved |
 | wheel30 compression is exactly the odd domain with `3` and `5` removed | the surviving residue classes modulo `30` are exactly the units `{1,7,11,13,17,19,23,29}`, and wheel30 representability is equivalent to oddness together with `mod 3` and `mod 5` exclusion | `PrimeArithmetic/Sieve/Wheel30Residues`, `PrimeArithmetic/Sieve/Wheel30Agreement` | proved |
 | the runtime wheel30 bit layout has an exact index formula | the wheel30 slot order is fixed, candidates have the form `base + 30 * cycle + residue`, the linear index is `cycle * 8 + slot`, and the byte / bit split is exactly `idx / 8`, `idx % 8` | `PrimeArithmetic/Sieve/Wheel30Indexing` | proved |
 | the wheel30 writer and reader use the same byte/bit coordinates | for a runtime wheel30 candidate, the writer path through `wheel_index` and the reader path through `wheel_idx = cycle * 8 + slot` both recover the same `some (cycle, slot)` byte/bit coordinates | `PrimeArithmetic/Sieve/Wheel30BitCoordinates` | proved |
@@ -120,8 +120,8 @@ These give:
 - the runtime odd-endpoint adjustment and exact collection-index witness
 - the exact byte/bit coordinates shared by the odd-only segment writer and reader
 - the step-indexed odd-only cross-off family surface, so bounded
-  `runtimeMarkedBy` steps can be grouped and discharged without manual
-  candidate rewrapping
+  `runtimeMarkedBy` steps can be canonically bucketed by byte slot and
+  discharged without manual candidate rewrapping
 - the equivalence between wheel30 candidates and the filtered odd domain
 - the runtime wheel30 linear index and byte/bit decomposition
 - the exact byte/bit coordinates shared by the wheel30 writer and reader

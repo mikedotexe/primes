@@ -158,6 +158,54 @@ theorem segmentRuntimeRead_of_mem_steps_byByte {lo limit p segLo : ℕ}
       (coord := segmentRuntimeCoordOfStep (hBounds step hStep).1 (hBounds step hStep).2)
       (segmentRuntimeCoordOfStep_mem_coordsOfSteps steps hBounds hStep))
 
+theorem segmentRuntimeConsecutiveBounds
+    {lo limit p segLo step : ℕ}
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hHi : runtimeMarkedBy p segLo step ≤ rawSegmentHi lo limit)
+    (hLoSucc : lo ≤ runtimeMarkedBy p segLo (step + 1))
+    (hHiSucc : runtimeMarkedBy p segLo (step + 1) ≤ rawSegmentHi lo limit) :
+    ∀ s ∈ [step, step + 1],
+      lo ≤ runtimeMarkedBy p segLo s ∧ runtimeMarkedBy p segLo s ≤ rawSegmentHi lo limit := by
+  intro s hs
+  simp at hs
+  rcases hs with rfl | rfl
+  · exact ⟨hLo, hHi⟩
+  · exact ⟨hLoSucc, hHiSucc⟩
+
+theorem segmentRuntimeRead_step_of_consecutivePrefix_byByte (bytes : SegmentByteState)
+    {lo limit p segLo step : ℕ}
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hHi : runtimeMarkedBy p segLo step ≤ rawSegmentHi lo limit)
+    (hLoSucc : lo ≤ runtimeMarkedBy p segLo (step + 1))
+    (hHiSucc : runtimeMarkedBy p segLo (step + 1) ≤ rawSegmentHi lo limit) :
+    segmentByteRead
+        (segmentRuntimeWriteByByte bytes
+          (segmentRuntimeCoordsOfSteps [step, step + 1]
+            (segmentRuntimeConsecutiveBounds hLo hHi hLoSucc hHiSucc)))
+        hLo hHi = 1 := by
+  simpa [segmentRuntimeConsecutiveBounds] using
+    (segmentRuntimeRead_of_mem_steps_byByte
+      (steps := [step, step + 1]) (bytes := bytes)
+      (hBounds := segmentRuntimeConsecutiveBounds hLo hHi hLoSucc hHiSucc)
+      (step := step) (by simp))
+
+theorem segmentRuntimeRead_succ_of_consecutivePrefix_byByte (bytes : SegmentByteState)
+    {lo limit p segLo step : ℕ}
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hHi : runtimeMarkedBy p segLo step ≤ rawSegmentHi lo limit)
+    (hLoSucc : lo ≤ runtimeMarkedBy p segLo (step + 1))
+    (hHiSucc : runtimeMarkedBy p segLo (step + 1) ≤ rawSegmentHi lo limit) :
+    segmentByteRead
+        (segmentRuntimeWriteByByte bytes
+          (segmentRuntimeCoordsOfSteps [step, step + 1]
+            (segmentRuntimeConsecutiveBounds hLo hHi hLoSucc hHiSucc)))
+        hLoSucc hHiSucc = 1 := by
+  simpa [segmentRuntimeConsecutiveBounds] using
+    (segmentRuntimeRead_of_mem_steps_byByte
+      (steps := [step, step + 1]) (bytes := bytes)
+      (hBounds := segmentRuntimeConsecutiveBounds hLo hHi hLoSucc hHiSucc)
+      (step := step + 1) (by simp))
+
 theorem segmentRuntimeRead_of_mem_plans_distinct {lo limit : ℕ}
     (plans : List (SegmentRuntimePlan lo limit)) (bytes : SegmentByteState)
     (hAligned :

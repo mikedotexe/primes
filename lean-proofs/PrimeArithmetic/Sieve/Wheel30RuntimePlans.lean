@@ -61,6 +61,13 @@ def wheel30RuntimeCoordsOfCycleSlots {base : ℕ}
   cycleSlots.attach.map fun cycleSlot =>
     ⟨cycleSlot.1.1, cycleSlot.1.2, hCycles cycleSlot.1 cycleSlot.2⟩
 
+/-- A short wheel30 runtime family with two bounded `(cycle, slot)` inputs. -/
+def wheel30RuntimeCycleSlotPair {base : ℕ}
+    (cycle₁ : ℕ) (slot₁ : Fin 8) (hCycle₁ : cycle₁ < wheel30SegmentBytes)
+    (cycle₂ : ℕ) (slot₂ : Fin 8) (hCycle₂ : cycle₂ < wheel30SegmentBytes) :
+    List (Wheel30RuntimeCoord base) :=
+  [⟨cycle₁, slot₁, hCycle₁⟩, ⟨cycle₂, slot₂, hCycle₂⟩]
+
 theorem wheel30RuntimeRead_eq_byteMarkRead (bytes : Wheel30ByteState) (base : ℕ)
     (coord : Wheel30RuntimeCoord base) :
     wheel30CandidateRead bytes base coord.cycle coord.slot coord.hCycle =
@@ -157,5 +164,39 @@ theorem wheel30RuntimeRead_singleton (base : ℕ) (bytes : Wheel30ByteState)
       (mark := wheel30RuntimeMark)
       (hRead := fun bytes coord => wheel30RuntimeRead_eq_byteMarkRead bytes base coord)
       (bytes := bytes) (coord := coord))
+
+theorem wheel30RuntimeRead_first_of_cycleSlotPair_byByte (base : ℕ)
+    (bytes : Wheel30ByteState)
+    (cycle₁ : ℕ) (slot₁ : Fin 8) (hCycle₁ : cycle₁ < wheel30SegmentBytes)
+    (cycle₂ : ℕ) (slot₂ : Fin 8) (hCycle₂ : cycle₂ < wheel30SegmentBytes) :
+    wheel30CandidateRead
+        (wheel30RuntimeWriteByByte (base := base) bytes
+          (wheel30RuntimeCycleSlotPair (base := base)
+            cycle₁ slot₁ hCycle₁ cycle₂ slot₂ hCycle₂))
+        base cycle₁ slot₁ hCycle₁ = 1 := by
+  simpa [wheel30RuntimeCycleSlotPair] using
+    (wheel30RuntimeRead_of_mem_groupedCoords (base := base)
+      (coords := wheel30RuntimeCycleSlotPair (base := base)
+        cycle₁ slot₁ hCycle₁ cycle₂ slot₂ hCycle₂)
+      (bytes := bytes)
+      (coord := (⟨cycle₁, slot₁, hCycle₁⟩ : Wheel30RuntimeCoord base))
+      (by simp [wheel30RuntimeCycleSlotPair]))
+
+theorem wheel30RuntimeRead_second_of_cycleSlotPair_byByte (base : ℕ)
+    (bytes : Wheel30ByteState)
+    (cycle₁ : ℕ) (slot₁ : Fin 8) (hCycle₁ : cycle₁ < wheel30SegmentBytes)
+    (cycle₂ : ℕ) (slot₂ : Fin 8) (hCycle₂ : cycle₂ < wheel30SegmentBytes) :
+    wheel30CandidateRead
+        (wheel30RuntimeWriteByByte (base := base) bytes
+          (wheel30RuntimeCycleSlotPair (base := base)
+            cycle₁ slot₁ hCycle₁ cycle₂ slot₂ hCycle₂))
+        base cycle₂ slot₂ hCycle₂ = 1 := by
+  simpa [wheel30RuntimeCycleSlotPair] using
+    (wheel30RuntimeRead_of_mem_groupedCoords (base := base)
+      (coords := wheel30RuntimeCycleSlotPair (base := base)
+        cycle₁ slot₁ hCycle₁ cycle₂ slot₂ hCycle₂)
+      (bytes := bytes)
+      (coord := (⟨cycle₂, slot₂, hCycle₂⟩ : Wheel30RuntimeCoord base))
+      (by simp [wheel30RuntimeCycleSlotPair]))
 
 end PrimeArithmetic.Sieve

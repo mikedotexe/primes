@@ -245,6 +245,16 @@ theorem byteMarkRead_of_mem_coordinatePlansByByte {Coord : Type} {byteCount : �
     (coordinatePlansByByte_distinct mark coords)
     hPlan hCoordPlan
 
+theorem read_of_mem_coordinatePlansByByte_of_eq {Coord : Type} {byteCount : ℕ}
+    (mark : Coord → ByteMark byteCount)
+    (read : BoundedByteState byteCount → Coord → ℕ)
+    (bytes : BoundedByteState byteCount) (coords : List Coord)
+    (hRead : ∀ bytes coord, read bytes coord = byteMarkRead bytes (mark coord))
+    {coord : Coord} (hCoord : coord ∈ coords) :
+    read (coordinatePlanWriteMany mark bytes (coordinatePlansByByte mark coords)) coord = 1 := by
+  rw [hRead]
+  exact byteMarkRead_of_mem_coordinatePlansByByte mark bytes coords hCoord
+
 theorem read_of_mem_coordinatePlans_distinct_of_eq {Coord : Type} {byteCount : ℕ}
     (mark : Coord → ByteMark byteCount)
     (read : BoundedByteState byteCount → Coord → ℕ)
