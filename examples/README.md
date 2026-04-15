@@ -8,12 +8,50 @@ cargo run --example <name>
 cargo run --release --example <name>
 ```
 
+Report-style examples in this repo follow a shared artifact pattern:
+stdout summary first, then optional machine-readable JSON/CSV exports for reruns
+and follow-up analysis.
+
 ## Quick Start (5 minutes)
 
 ```bash
 cargo run --example prime_count_smoke_test      # Validate sieve against OEIS
 cargo run --example proper_membrane_generator   # Generate membrane primes
-cargo run --example lagrange_full_verification  # See concatenated prime Lagrange points
+cargo run --example connector_signal_report     # Connector report with density-aware residual audit
+cargo run --example comparative_signal_report   # Midpoint vs connector comparative table
+cargo run --release --example cross_base_invariance_report # Cross-base smoke scorecard; add --full for exhaustive pair catalog
+cargo run --release --example m_boundary_layer_report      # Short-length boundary-layer report for M=1,2,3
+cargo run --release --example m2_m3_transition_report      # Same-pair transition report across M=2 and M=3
+cargo run --release --example m2_m3_transfer_collapse_report # Exact transfer-vocabulary report explaining why M=2 is meaningful and M=3 collapses
+cargo run --release --example m2_survivor_autopsy_report   # Full-catalog autopsy for the pairs that survive to M=2
+cargo run --release --example m2_species_aggregation_report # Species-level aggregation for m1_only / m1_to_m2 / m2_only
+cargo run --release --example m2_species_geometry_report   # Pair-lattice and modulus-heatmap views for the anomaly species
+cargo run --release --example m2_relief_fingerprint_report # Persistent vs emergent modulus-relief fingerprint at M=2
+cargo run --release --example m2_obstruction_signature_report # Composite obstruction-signature view for M=2 survivors and nearest dead neighbors
+cargo run --release --example m_transition_curve_report    # Same-pair transition curve across a short M range
+cargo run --release --example m_transition_phase_map_report # Grouped phase-map view of the bounded-k transition lane
+cargo run --release --example chaos_threshold_translation_report # Arithmetic translation of chaos/stability metaphors into maintained M-threshold language
+cargo run --release --example base14_survivor_atlas_report # Focused base-14 atlas for the M=2 boundary layer and nearby dead neighbors
+cargo run --release --example base14_outlier_mechanism_report # Base-14 mechanism decomposition for the four M=2 active pairs
+cargo run --release --example base14_signal_clarity_report # Downstream signal-clarity pass for the base-14 mechanism lane
+cargo run --release --example base14_shared_yield_report # Shared-admissible witness report for the base-14 mechanism lane
+cargo run --release --example base14_shared_digit_structure_report # Digit-structure mining inside the shared-admissible witness lane
+cargo run --release --example two_p_family_report # Direct 2p-family test against foil bases for M=2 persistence and shared-yield structure
+cargo run --release --example two_p_hinge_report # Focused 2p hinge report explaining why base 14 stays strong while 22 and 26 weaken
+cargo run --release --example two_p_hinge_mask_report # Cross-base hinge mask atlas explaining the hinge via exact k=(0,0)->best transfer structure
+cargo run --release --example two_p_hinge_discriminator_report # Exact hinge discriminator search with a rule frontier and representative atlas
+cargo run --release --example two_p_hinge_atom_family_report # Atom-family depth pass ranking which hinge atoms are deepest, bridging, or diagnostic
+cargo run --release --example two_p_hinge_robustness_report # Robustness matrix pass testing whether the hinge family ladder survives data-surface and threshold-vocabulary pressure
+cargo run --release --example affine_hinge_classifier_report # Exploratory affine atlas for local shift / gradient / zero-seed comparison on the hinge species surface
+cargo run --release --example affine_gradient_transition_report # Focused affine follow-up centered on whether gradient_only truly disappears or winners simply avoid it
+cargo run --release --example affine_period_lock_report # Exploratory period-lock pass for affine gradient agreement via multiplicative order and direct lane comparisons
+cargo run --release --example affine_period_lock_species_report # Order-spectrum + shift-residual atlas exploiting the period-lock theorem on the hinge-family direct lane surface
+cargo run --release --example base22_gradient_pocket_report # Focused autopsy of the base-22, k=(2,2), mod-5 residual gradient_only pocket at M=2
+cargo run --release --example base10_persistence_species_report # Focused base-10 persistence-only report with nearest same-base neighbors and contrast outgroups
+cargo run --release --example bounded_k_transfer_criterion_report # Direct lane-comparison theorem audit for the bounded-k transfer-collapse ladder; add --include-base-210 for wheel-track stretch audit
+cargo run --release --example base_hinge_probe_report # Flexible base probe, defaulting to base 34 against the 2p hinge references
+cargo run --release --example base34_boundary_species_report # Focused base-34 report comparing the three boundary-led pockets against nearby dead pairs
+cargo run --release --example m3_k_dominance_report         # Focused M=3 bounded-k report
 cargo run --example statistical_prime_generator # Statistical prime generation
 cargo run --example prime_verification_report   # Verify all documented claims
 ```
@@ -32,11 +70,46 @@ cargo run --example prime_verification_report   # Verify all documented claims
 | Example | Description |
 |---------|-------------|
 | `comprehensive_base_analysis` | Systematic membrane config testing across multiple bases |
+| `comparative_signal_report` | Single-table comparison of midpoint-density, insertion hit rates, and corrected connector residuals |
+| `cross_base_invariance_report` | Cross-base scorecard for exact invariants, bounded `k`-dominance, and maintained matched-control coverage; default smoke catalog with optional `--full` exhaustive rerun |
+| `m_boundary_layer_report` | Short-length boundary-layer report that asks which pair features predict whether an `M=1` bounded-`k` anomaly survives to `M=2` |
+| `m2_m3_transition_report` | Same-pair transition report that compares bounded-`k` behavior across `M=2` and `M=3` and estimates where anomaly mass collapses |
+| `m2_m3_transfer_collapse_report` | Exact `best_k` vs `k=(0,0)` transfer report across `M=2` and `M=3`, showing where nonidentity transfer buckets, signal-source diversity, and representative species meaning exist at `M=2` and collapse into identity profiles by `M=3` |
+| `m2_survivor_autopsy_report` | Full-catalog autopsy for the pairs whose anomalies survive to `M=2`, with nearby `m1_only` controls and residue-level obstruction deltas |
+| `m2_species_aggregation_report` | Species-level aggregation for the short-length anomaly classes, comparing geometry, winning `k`, admissible deltas, and modulus relief across `m1_only`, `m1_to_m2`, and `m2_only` |
+| `m2_species_geometry_report` | Downstream geometric visualization of the anomaly species artifact, rendering pair-lattice scatter plots by base plus an `M=2` species-vs-modulus relief heatmap |
+| `m2_relief_fingerprint_report` | Downstream comparison of the persistent vs emergent `M=2` residue-relief species, rendered as a two-panel fingerprint chart over small prime moduli |
+| `m2_obstruction_signature_report` | Downstream composite-signature report for `M=2` survivors and nearest dead neighbors, combining admissible lift and whole-vector modulus relief into a signature plane and metric heatmap |
+| `m_transition_curve_report` | Same-pair bounded-`k` curve report across a short middle-length range, with anomaly-mass collapse estimates by pair, base, and global lane |
+| `m_transition_phase_map_report` | Downstream grouped phase map for the bounded-`k` transition artifact, showing which `k` lane wins for each pair across middle length `M` and how anomaly mass fades out |
+| `chaos_threshold_translation_report` | Arithmetic translation pass for the repo's chaos/stability metaphors, treating the bounded-`k` transition lane as the maintained source of truth and exporting transition, decomposition, and metaphor-translation artifacts for bases `6,10,12,14,22,26,30,34` across `M=1..3` |
+| `base14_survivor_atlas_report` | Exact base-14 boundary-layer atlas with a species lattice, local transition strip, and `M=2` residue-relief heatmap for the surviving pairs plus nearby `m1_only` neighbors |
+| `base14_outlier_mechanism_report` | Reads the maintained base-14 atlas artifact, compares each active `M=2` pair against `k=(0,0)` and its rank-1 nearby dead control, and exports exact admissible/yield/transfer-mask decomposition tables plus a mechanism-plane visual |
+| `base14_signal_clarity_report` | Downstream clarity pass for the base-14 mechanism artifact, combining transfer-source prime deltas and exact effect contributions so the shared-yield signal and the `(D,B)` stress case are easier to see |
+| `base14_shared_yield_report` | Downstream witness report for the shared-admissible lane itself, comparing active base-14 pairs and their nearby dead controls and rendering a `(D,B)` stress strip over shared-admissible candidates |
+| `base14_shared_digit_structure_report` | Downstream digit-structure mining for the shared-admissible lane, summarizing first/second digit deltas, sum/difference residue deltas, a `(D,B)` digit-grid, and an active-pair sum-residue heatmap |
+| `two_p_family_report` | Direct `B = 2p` family test across `6,10,14,22,26` against foils `12,18,30`, comparing `M=2` persistence and shared-yield-core structure with pair-weighted and base-weighted summaries |
+| `two_p_hinge_report` | Focused follow-up inside the `2p` family, separating `persistent_core`, `persistence_only`, `core_only`, and `active_neither` behavior to explain why base `14` is the strongest nontrivial hinge base while `22` and `26` weaken |
+| `two_p_hinge_mask_report` | Cross-base hinge mask atlas for bases `10,14,22,26` plus base `6` appendix, using the exact `k=(0,0) -> best_k_at_M2` transfer spectrum to explain why base `14` is the only non-tiny persistent-core bridge |
+| `two_p_hinge_discriminator_report` | Exact hinge-discriminator pass for the main `2p` bases, exporting a reusable cross-`M` feature surface, constrained small-rule search, and representative atlas for the hinge witnesses and near-miss species |
+| `two_p_hinge_atom_family_report` | Atom-family depth pass for the main `2p` hinge surface, classifying deterministic atom families by family-only leverage, ablation leverage, mixed-rule participation, and closeness to future theorem language |
+| `two_p_hinge_robustness_report` | Robustness matrix pass for the hinge atom-family story, stress-testing the family ladder under representative-drop, threshold-vocabulary, and adversarial catalog scenarios while holding bases `34` and `6` out as appendix audits |
+| `affine_hinge_classifier_report` | Exploratory affine atlas for the hinge species surface, exporting exact local shift / gradient / zero-seed comparisons for `k=(0,0) -> best_k`, fixed representative heatmaps, and affine-only vs mixed rule frontiers without widening the public claim surface |
+| `affine_gradient_transition_report` | Focused affine transition report for `gradient_only`, comparing the winning `k=(0,0) -> best_k` surface against the full direct `k=(0,0) -> each noncompact lane` atlas across `M=1,2,3` to test whether the observed M=2 disappearance is a true lane collapse or a winner-selection effect |
+| `affine_period_lock_report` | Exploratory local-classifier report for period-locked affine gradient agreement, checking whether observed gradient equality is exactly explained by `Δposition ≡ 0 mod ord_p(base)` on the maintained direct lane surface and using the base-22 / mod-5 pocket as the anchor witness |
+| `affine_period_lock_species_report` | Downstream order-spectrum + shift-residual atlas for the period-lock lane, treating direct `k=(0,0) -> each noncompact lane` comparisons as the theorem surface, separating low-order lock mass from higher-order locked `gradient_only` side-pockets, and using base `30` as a theorem-facing control |
+| `base22_gradient_pocket_report` | Focused autopsy of the base-22 `M=2` residual `gradient_only` pocket, centered on the direct lane `k=(0,0) -> (2,2)` and the exact mod-5 shift/gradient formulas that separate the pocket rows from the collapsed columns `inner=5,F` |
+| `base10_persistence_species_report` | Focused base-10 follow-up on the load-bearing `persistence_only` witness `(3,3)`, comparing it against structured same-base neighbors plus tiny persistence-only and hinge outgroups and running a local exact rule search on the focused species surface |
+| `bounded_k_transfer_criterion_report` | Direct theorem-audit pass for bounded-`k` transfer collapse, comparing `k=(0,0)` against each noncompact lane in the maintained grid at `M=2` and `M=3` and classifying every lane comparison by the exact ladder `profile_agreement` / `admissible_equality_only` / `no_positive_admissible_delta_only` / `fails_all_three` |
+| `base_hinge_probe_report` | Flexible solution-space probe for a target base, defaulting to base `34`, with base-level hinge comparisons, target-pocket summaries, and ranked active/shared-overlap pair tables |
+| `base34_boundary_species_report` | Focused base-34 follow-up that treats the three `M=2` pockets as a possible non-hinge species, comparing their exact `k=(1,0)` boundary-release signal against nearby same-base dead pairs |
+| `m3_k_dominance_report` | Focused cross-base report for the stable `M=3` bounded `k` lane, with smoke/full pair catalogs and machine-readable exports |
 | `membrane_palindrome_probe` | Exact structure probe: palindrome overlap and zero-layout symmetry |
 | `membrane_scaffold_probe` | Exact centered-scaffold vs same-budget control probe |
 | `membrane_showcase` | Demonstration of membrane prime patterns across different bases |
-| `membrane_vs_random` | Compares membrane-structured numbers against random coprime numbers |
-| `membrane_vs_random_fast` | Fast version of membrane-vs-random using base 30 |
+| `membrane_vs_random` | Canonical cross-family matched-control report with effect sizes, confidence intervals, BH-adjusted decisions, and optional `--json-out`/`--csv-out` archival export |
+| `membrane_vs_random_compare` | Compares two matched-control JSON exports, can emit machine-readable diff JSON, and supports policy flags that optionally promote sampling drift or family-set changes into nonzero audit failures |
+| `membrane_vs_random_fast` | Fast single-base exploratory control run using base 30 |
 | `proper_membrane_generator` | Deterministic membrane generator using seeds (not random search) |
 | `solution_space_explorer` | Systematic parameter space mapping (base, M, k_outer, k_inner) |
 | `statistical_prime_factory` | Production-ready prime generator using verified membrane patterns |
@@ -47,6 +120,7 @@ cargo run --example prime_verification_report   # Verify all documented claims
 
 | Example | Description |
 |---------|-------------|
+| `connector_signal_report` | Reconstructs the canonical connector source case, runs the matched same-budget comparison report, and optionally exports density-audit JSON/CSV artifacts |
 | `connector_utility_demo` | Demonstrates the connector concatenation API |
 | `lagrange_clustering_verifier` | Verifies prime clustering around Lagrange points between prime pairs |
 | `lagrange_full_verification` | Verifies entire concatenated strings for primality |

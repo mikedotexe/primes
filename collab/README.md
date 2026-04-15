@@ -1,6 +1,6 @@
 # Collaborator Reference
 
-**Updated**: March 2026
+**Updated**: April 2026
 
 This directory contains collaborator-facing synthesis notes. Treat the root
 documents and audited status files as the primary source of truth. Use this
@@ -17,6 +17,70 @@ This is the collaborator summary of the current best interpretation: prime
 density gains in the symmetric digit-template family are best explained by
 coprimality filtering and ordinary prime-density effects, not by a demonstrated
 template-specific bonus.
+
+### Stable research-language anchor
+
+[`HARDENED_RESEARCH_PROGRAMS.md`](./HARDENED_RESEARCH_PROGRAMS.md)
+
+This note keeps the repo's five strongest live research programs in stable
+dual-register language: sober maintained wording plus a constructive steelman
+for collaborator use, together with a practical signal ladder showing which
+lanes currently have the most leverage.
+
+### Exact hinge explanation boundary
+
+[`HINGE_DISCRIMINATOR.md`](./HINGE_DISCRIMINATOR.md)
+
+This note freezes the exact target of the hinge-discriminator work: what counts
+as a real finite discriminator, which tautological shortcuts are banned from
+the search, and how the species labels should stay downstream of the exact rule
+layer.
+
+### Atom-family depth ladder
+
+[`HINGE_ATOM_FAMILIES.md`](./HINGE_ATOM_FAMILIES.md)
+
+This note classifies the deterministic hinge atom families by explanatory
+depth, theorem proximity, and bridge-vs-diagnostic status so the overlap /
+boundary language stays grounded while the geometry and carry-through language
+remain useful but properly bounded.
+
+### Robustness matrix boundary
+
+[`HINGE_ROBUSTNESS.md`](./HINGE_ROBUSTNESS.md)
+
+This note records which parts of the hinge atom-family ladder actually survive
+data-surface and threshold-vocabulary perturbations, with family-ladder
+stability treated as the main success criterion rather than exact rule-string
+immutability.
+
+### Transfer-collapse theorem boundary
+
+[`TRANSFER_COLLAPSE_THEOREM_PROGRAM.md`](./TRANSFER_COLLAPSE_THEOREM_PROGRAM.md)
+
+This note freezes the new direct lane-comparison theorem program: the exact
+three-rung ladder, the universal conditional criterion, the matched `2p` and
+wheel-class wrappers, and the current negative boundary showing that the full
+maintained `M = 3` surface does not yet support a positive public theorem.
+
+### Affine hinge classifier boundary
+
+[`AFFINE_HINGE_CLASSIFIER.md`](./AFFINE_HINGE_CLASSIFIER.md)
+
+This note freezes the boundary for the affine hinge atlas: local shift /
+gradient / zero-seed comparison as classifier exploration, Lean as the primary
+theorem engine, and Agda as a concept mirror rather than a parity-forcing proof
+target in the first tranche.
+
+### Affine period-lock species boundary
+
+[`AFFINE_PERIOD_LOCK_SPECIES.md`](./AFFINE_PERIOD_LOCK_SPECIES.md)
+
+This note records the next affine decomposition layer: period lock as the exact
+answer to where gradient agreement can occur, locked shift residuals as the
+exact answer to what survives inside that regime, and the current maintained
+reading that the meaningful `M = 2` winners are low-order while the base-22
+higher-order story survives only as a direct-lane side pocket.
 
 ### Strongest repo-wide evidence docs
 

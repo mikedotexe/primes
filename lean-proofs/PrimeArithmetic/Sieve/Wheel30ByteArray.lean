@@ -45,8 +45,9 @@ theorem wheel30CandidateRead_eq_byteMarkRead (bytes : Wheel30ByteState) (base cy
     (slot : Fin 8) (hCycle : cycle < wheel30SegmentBytes) :
     wheel30CandidateRead bytes base cycle slot hCycle =
       byteMarkRead bytes (wheel30CandidateMark cycle slot hCycle) := by
-  unfold wheel30CandidateRead wheel30CandidateMark byteMarkRead
-  simp [wheel30ReadValue, wheel30BitIndex_candidate]
+  unfold wheel30CandidateRead wheel30CandidateMark byteMarkRead wheel30ReadValue
+  rw [wheel30BitIndex_candidate (base := base) (cycle := cycle) slot hCycle]
+  simp
 
 theorem wheel30CandidateWrite_eq_byteMarkWrite (bytes : Wheel30ByteState) (cycle : ℕ)
     (slot : Fin 8) (hCycle : cycle < wheel30SegmentBytes) :

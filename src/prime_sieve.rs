@@ -10,6 +10,8 @@
 
 use crate::PhysicsError;
 
+pub mod wheel30;
+
 /// Result type for sieve operations
 pub type SieveResult<T> = Result<T, PhysicsError>;
 
@@ -95,7 +97,15 @@ impl BitSieve {
 
     /// Return a `Vec<usize>` with all primes ≤ limit
     pub fn primes(&self) -> Vec<usize> {
+        if self.limit < 2 {
+            return Vec::new();
+        }
+
         let mut primes = vec![2];
+        if self.limit == 2 {
+            return primes;
+        }
+
         let mut seg_lo = 3;
 
         while seg_lo <= self.limit {
@@ -152,7 +162,15 @@ impl BitSieve {
 
     /// Callback for each prime without allocating – good for cache patterns
     pub fn visit_primes<F: FnMut(usize)>(&self, mut f: F) {
+        if self.limit < 2 {
+            return;
+        }
+
         f(2);
+        if self.limit == 2 {
+            return;
+        }
+
         let mut seg_lo = 3;
         let limit = self.limit;
 
@@ -241,6 +259,13 @@ pub fn chunk_size_hint(l1_bytes: usize) -> usize {
 #[cfg(not(target_arch = "wasm32"))]
 pub fn segmented_sieve(limit: usize, chunk_size: usize) -> Vec<usize> {
     use rayon::prelude::*;
+
+    if limit < 2 {
+        return Vec::new();
+    }
+    if limit == 2 {
+        return vec![2];
+    }
 
     // Pre-compute base primes up to sqrt(limit)
     let sqrt_limit = (limit as f64).sqrt() as usize + 1;
@@ -435,6 +460,14 @@ mod tests {
     }
 
     #[test]
+    fn small_limits_are_exact() {
+        assert_eq!(BitSieve::new(0).primes(), Vec::<usize>::new());
+        assert_eq!(BitSieve::new(1).primes(), Vec::<usize>::new());
+        assert_eq!(BitSieve::new(2).primes(), vec![2]);
+        assert_eq!(BitSieve::new(3).primes(), vec![2, 3]);
+    }
+
+    #[test]
     fn count_primes_1m() {
         let sieve = BitSieve::new(1_000_000);
         assert_eq!(sieve.primes().len(), 78_498); // π(1e6)
@@ -483,6 +516,25 @@ mod tests {
             &seg[len - 10..],
             "last 10 primes don't match"
         );
+    }
+
+    #[test]
+    #[cfg(not(target_arch = "wasm32"))]
+    fn segmented_small_limits_are_exact() {
+        assert_eq!(segmented_sieve(0, 65_536), Vec::<usize>::new());
+        assert_eq!(segmented_sieve(1, 65_536), Vec::<usize>::new());
+        assert_eq!(segmented_sieve(2, 65_536), vec![2]);
+        assert_eq!(segmented_sieve(3, 65_536), vec![2, 3]);
+    }
+
+    #[test]
+    fn visit_primes_respects_small_limits() {
+        let mut seen = Vec::new();
+        BitSieve::new(1).visit_primes(|p| seen.push(p));
+        assert!(seen.is_empty());
+
+        BitSieve::new(2).visit_primes(|p| seen.push(p));
+        assert_eq!(seen, vec![2]);
     }
 
     #[test]

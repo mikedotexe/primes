@@ -1,4 +1,5 @@
 import Mathlib
+import PrimeArithmetic.Sieve.RuntimeCrossOff
 import PrimeArithmetic.Sieve.SegmentLayout
 
 namespace PrimeArithmetic.Sieve
@@ -90,5 +91,28 @@ theorem exists_index_of_in_runtimeCollection {lo limit n : ℕ}
     unfold oddSegmentNumber at *
     omega
   · exact oddSegmentNumber_oddSegmentIndex hLo hLoOdd hNOdd
+
+theorem exists_index_of_runtimeMarkedBy_in_runtimeCollection
+    {lo limit p segLo step : ℕ}
+    (hLoLe : lo ≤ limit) (hLoPos : 0 < lo) (hLoOdd : Odd lo) (hpOdd : Odd p)
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hHi : runtimeMarkedBy p segLo step ≤ runtimeSegmentHi lo limit) :
+    ∃ idx, idx ≤ oddSegmentIndex lo (runtimeSegmentHi lo limit) ∧
+      oddSegmentNumber lo idx = runtimeMarkedBy p segLo step := by
+  exact exists_index_of_in_runtimeCollection
+    hLoLe hLoPos hLoOdd hLo hHi (odd_runtimeMarkedBy hpOdd)
+
+theorem runtimeMarkedBy_index_le_runtimeSegmentHi
+    {lo limit p segLo step : ℕ}
+    (hLoLe : lo ≤ limit) (hLoPos : 0 < lo) (hLoOdd : Odd lo) (hpOdd : Odd p)
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hHi : runtimeMarkedBy p segLo step ≤ runtimeSegmentHi lo limit) :
+    oddSegmentIndex lo (runtimeMarkedBy p segLo step) ≤
+      oddSegmentIndex lo (runtimeSegmentHi lo limit) := by
+  rcases exists_index_of_runtimeMarkedBy_in_runtimeCollection
+      hLoLe hLoPos hLoOdd hpOdd hLo hHi with
+    ⟨idx, hIdx, hEq⟩
+  rw [← hEq, oddSegmentIndex_oddSegmentNumber]
+  exact hIdx
 
 end PrimeArithmetic.Sieve

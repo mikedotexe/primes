@@ -68,20 +68,27 @@ theorem wheel30ReadValue_marked_of_some {byte base n bit : ℕ}
   rw [wheel30ReadValue_eq_toNat_readBit_of_some hBit]
   simp
 
-theorem wheel30BitMask_candidate {base cycle : ℕ} (slot : Fin 8) :
+theorem wheel30BitMask_candidate {base cycle : ℕ} (slot : Fin 8)
+    (hCycle : cycle < wheel30SegmentCycles) :
     wheel30BitMask base (wheel30Candidate base cycle slot) = some (1 <<< slot.1) := by
-  simp [wheel30BitMask, wheel30BitIndex_candidate]
+  simpa [wheel30BitMask] using
+    congrArg (Option.map fun bit => 1 <<< bit)
+      (wheel30BitIndex_candidate (base := base) (cycle := cycle) slot hCycle)
 
-theorem wheel30MarkByte_candidate {byte base cycle : ℕ} (slot : Fin 8) :
+theorem wheel30MarkByte_candidate {byte base cycle : ℕ} (slot : Fin 8)
+    (hCycle : cycle < wheel30SegmentCycles) :
     wheel30MarkByte byte base (wheel30Candidate base cycle slot) =
       some (byte ||| (1 <<< slot.1)) := by
-  simp [wheel30MarkByte, wheel30BitIndex_candidate]
+  simpa [wheel30MarkByte] using
+    congrArg (Option.map fun bit => byte ||| (1 <<< bit))
+      (wheel30BitIndex_candidate (base := base) (cycle := cycle) slot hCycle)
 
-theorem wheel30ReadValue_marked_candidate {byte base cycle : ℕ} (slot : Fin 8) :
+theorem wheel30ReadValue_marked_candidate {byte base cycle : ℕ} (slot : Fin 8)
+    (hCycle : cycle < wheel30SegmentCycles) :
     wheel30ReadValue (byte ||| (1 <<< slot.1)) base (wheel30Candidate base cycle slot) =
       some 1 := by
   exact wheel30ReadValue_marked_of_some (byte := byte) (base := base)
     (n := wheel30Candidate base cycle slot) (bit := slot.1)
-    (wheel30BitIndex_candidate slot)
+    (wheel30BitIndex_candidate slot hCycle)
 
 end PrimeArithmetic.Sieve

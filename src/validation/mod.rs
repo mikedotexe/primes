@@ -6,9 +6,17 @@
 //! for comparing membrane prime density against chance. Complements the
 //! statistical tools in [`crate::hzlib::stats`].
 
+pub mod affine_hinge;
+pub mod affine_period_lock;
+pub mod affine_period_lock_species;
+pub mod bounded_k;
 pub mod exhaustive_tracker;
 pub mod failure_analysis;
+pub mod hinge_atoms;
+pub mod hinge_robustness;
+pub mod matched_control;
 pub mod random_baseline;
+pub mod reporting;
 pub mod statistical_tests;
 
 use num_bigint::BigUint;

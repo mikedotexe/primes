@@ -44,6 +44,72 @@ also complete: the Lean package has fixed-width forward/reverse concatenation
 formulas, canonical decimal `mod 3` and `mod 9` exclusion filters for the
 maintained connector pair, a reusable connector-family residue-profile API, and
 maintained profile examples beyond the single canonical pair.
+The exact bounded-`k` threshold substrate is now also live: the Lean package
+has an algebraic compactness / diameter layer for bounded padding in
+[`PrimeArithmetic/Structure/BoundedKTemplate.lean`](PrimeArithmetic/Structure/BoundedKTemplate.lean),
+an exact five-bucket mask-transfer combinatorics layer in
+[`PrimeArithmetic/Structure/FiniteMaskTransfer.lean`](PrimeArithmetic/Structure/FiniteMaskTransfer.lean),
+a generated-data transfer shell in
+[`PrimeArithmetic/Generated/BoundedKTransferShell.lean`](PrimeArithmetic/Generated/BoundedKTransferShell.lean),
+and a first tracked witness catalog exported from Rust at
+[`PrimeArithmetic/Generated/BoundedK/Base10M2Pair33.lean`](PrimeArithmetic/Generated/BoundedK/Base10M2Pair33.lean),
+[`PrimeArithmetic/Generated/BoundedK/Base14M2PairDB.lean`](PrimeArithmetic/Generated/BoundedK/Base14M2PairDB.lean),
+[`PrimeArithmetic/Generated/BoundedK/Base22M2PairHJ.lean`](PrimeArithmetic/Generated/BoundedK/Base22M2PairHJ.lean),
+and
+[`PrimeArithmetic/Generated/BoundedK/Base34M2PairP9.lean`](PrimeArithmetic/Generated/BoundedK/Base34M2PairP9.lean),
+through the exporter
+[`src/bin/export_bounded_k_transfer_witness.rs`](../src/bin/export_bounded_k_transfer_witness.rs).
+The direct bounded-`k` transfer-collapse theorem program is now also live in a
+more conservative shape than the earlier `best_k` story: the Lean package has a
+lane-comparison residue-profile layer in
+[`PrimeArithmetic/Structure/BoundedKResidueProfile.lean`](PrimeArithmetic/Structure/BoundedKResidueProfile.lean),
+a universal exact criterion in
+[`PrimeArithmetic/Structure/BoundedKTransferCollapse.lean`](PrimeArithmetic/Structure/BoundedKTransferCollapse.lean),
+parallel even-squarefree-`2p` and wheel-base wrapper families in
+[`PrimeArithmetic/Density/BoundedKTwoPrimeCollapse.lean`](PrimeArithmetic/Density/BoundedKTwoPrimeCollapse.lean)
+and
+[`PrimeArithmetic/Density/BoundedKWheelCollapse.lean`](PrimeArithmetic/Density/BoundedKWheelCollapse.lean),
+plus a generated-data shell and tracked direct-lane profile witnesses in
+[`PrimeArithmetic/Generated/BoundedKResidueProfileShell.lean`](PrimeArithmetic/Generated/BoundedKResidueProfileShell.lean),
+[`PrimeArithmetic/Generated/BoundedKProfiles/Base6M3Pair15K00ToK01.lean`](PrimeArithmetic/Generated/BoundedKProfiles/Base6M3Pair15K00ToK01.lean),
+and
+[`PrimeArithmetic/Generated/BoundedKProfiles/Base30M3Pair11K00ToK01.lean`](PrimeArithmetic/Generated/BoundedKProfiles/Base30M3Pair11K00ToK01.lean),
+fed by the exporter
+[`src/bin/export_bounded_k_profile_witness.rs`](../src/bin/export_bounded_k_profile_witness.rs).
+The maintained direct audit in
+[`examples/bounded_k_transfer_criterion_report.rs`](../examples/bounded_k_transfer_criterion_report.rs)
+now fixes an important negative boundary: on the full maintained direct lane
+surface, the hoped-for positive `M = 3` theorem does not survive even at the
+weakest ladder rung, so the current formal target is the universal conditional
+criterion plus honest class-track wrappers and counterexample-pinned limits,
+not a public universal collapse theorem.
+The next affine deepening lane is now also live in a narrower classifier-first
+form: [`PrimeArithmetic/Structure/AffineLaneComparison.lean`](PrimeArithmetic/Structure/AffineLaneComparison.lean)
+packages the exact local shift / gradient / zero-seed comparison vocabulary
+behind the affine hinge atlas, proves that local affine map equality is exactly
+shift-plus-gradient equality, and records the zero-seed consequences needed by
+the report-facing relation labels `identity`, `shift_only`, `gradient_only`,
+and `shift_and_gradient` without yet claiming a full affine hinge theorem.
+That same lane now has a sharper local bridge in
+[`PrimeArithmetic/Structure/AffinePeriodLock.lean`](PrimeArithmetic/Structure/AffinePeriodLock.lean):
+local affine gradient equality is exactly period lock, meaning the two middle
+positions agree modulo the multiplicative order of the base unit in
+`ZMod modulus`; once the lock holds, the local relation label reduces to the
+identity-vs-`gradientOnly` shift comparison, and once it fails, the same shift
+comparison governs the `shiftOnly` vs `shiftAndGradient` split.
+That local theorem now also has a bounded-`k` specialization in
+[`PrimeArithmetic/Structure/BoundedKPeriodLock.lean`](PrimeArithmetic/Structure/BoundedKPeriodLock.lean),
+which rewrites the period-lock criterion in the maintained lane-grid language:
+the bounded-`k` gradient position is `kOuter + kInner + 2`, direct bounded-`k`
+lane comparisons inherit the same criterion, and the special case
+`k = (0, 0) → (kOuter, kInner)` collapses to the exact congruence
+`kOuter + kInner ≡ 0` modulo the base-unit order.
+That lane now has its first concrete classifier-side witness too:
+[`PrimeArithmetic/Density/Base22GradientPocket.lean`](PrimeArithmetic/Density/Base22GradientPocket.lean)
+proves the exact base-22 / mod-5 side-pocket law behind the maintained affine
+reports for `M = 2`, `k = (0, 0) → (2, 2)`: the local gradients agree, the
+shift difference is `-inner`, and the local relation is `identity` exactly when
+`inner ≡ 0 (mod 5)` and `gradientOnly` otherwise.
 The prime-engine correctness tranche is now also complete: the Lean package
 has the odd-only segmented sieve arithmetic layer, the exact wheel30 admissible
 residues, and the agreement theorem connecting wheel30 candidates back to the
@@ -138,6 +204,8 @@ Deferred hardening note:
 | `PrimeArithmetic/Structure/AffineTemplate` | `agda-proofs/Theorems/AffineTransform.agda`, `historical/examples/affine_transform_verifier.rs`, older membrane affine-transform notes | proved in track 2a extension | mathlib core arithmetic | Reuse this when discussing fixed-layout evaluation or modular residue updates in the middle block, rather than treating the affine form as only an empirical trick | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Structure/AffineResidueSearch` | `PrimeArithmetic/Structure/AffineTemplate`, `agda-proofs/Theorems/AffineTransform.agda`, older residue-theory notes | proved in track 2a extension | `PrimeArithmetic/Structure/AffineTemplate`, `PrimeArithmetic/Density/UnitResidues` | Reuse this when the template should be treated as a modular search object: divisors of the base depend only on the outer digit, while coprime moduli induce affine residue permutations in the seed variable | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Structure/AffineSeedClasses` | `PrimeArithmetic/Structure/AffineResidueSearch`, `agda-proofs/Theorems/AffineTransform.agda`, older residue-theory notes | proved in track 2a extension | `PrimeArithmetic/Structure/AffineResidueSearch` | Reuse this when divisibility by a fixed coprime modulus should be expressed as a unique seed class modulo that modulus | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
+| `PrimeArithmetic/Structure/AffinePeriodLock` | `PrimeArithmetic/Structure/AffineLaneComparison`, `examples/affine_period_lock_report.rs`, `examples/base22_gradient_pocket_report.rs`, older affine hinge notes | proved local bridge | `PrimeArithmetic/Structure/AffineLaneComparison`, `PrimeArithmetic/Structure/AffineSeedClasses` | Reuse this when local affine gradient agreement should be expressed as middle-position congruence modulo the multiplicative order of the base unit, and when the locked vs unlocked relation-label split should be stated exactly | `collab/AFFINE_HINGE_CLASSIFIER.md` |
+| `PrimeArithmetic/Structure/BoundedKPeriodLock` | `PrimeArithmetic/Structure/BoundedKTemplate`, `PrimeArithmetic/Structure/AffinePeriodLock`, `examples/affine_period_lock_species_report.rs` | proved bounded-`k` specialization | `PrimeArithmetic/Structure/BoundedKTemplate`, `PrimeArithmetic/Structure/AffinePeriodLock` | Reuse this when the local period-lock theorem should be stated directly in the maintained lane-grid language, especially for `k = (0, 0) → (kOuter, kInner)` comparisons and their locked/unlocked relation corollaries | `collab/AFFINE_PERIOD_LOCK_SPECIES.md` |
 | `PrimeArithmetic/Symmetry/MidpointObstruction` | `agda-proofs/Theorems/Abstract/SymmetryImpliesRepulsion.agda` | proved in phase 1 | `PrimeArithmetic/Foundation/FinitePairing` | Stress the theorem against one more nontrivial witness before generalizing its interface | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
 | `PrimeArithmetic/Symmetry/Base6Example` | `agda-proofs/Examples/CertifiedResonanceComplete.agda` | proved in phase 1 | `PrimeArithmetic/Foundation/FinitePairing`, `PrimeArithmetic/Symmetry/MidpointObstruction` | Add a second concrete certified example only after the abstract symmetry API feels stable | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
 | `PrimeArithmetic/Symmetry/ModularReflection` | `agda-proofs/Theorems/Abstract/SymmetryFiniteReflect.agda` | proved in track 2 extension | `PrimeArithmetic/Foundation/FinitePairing` | Reuse this as the concrete `Fin base` reflection surface whenever the symmetry lane should be stated in modular arithmetic rather than only through ad hoc witnesses | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
@@ -175,6 +243,10 @@ Deferred hardening note:
 | `PrimeArithmetic/Density/Base6Residues` | `agda-proofs/Examples/CertifiedResonanceComplete.agda`, `README.md` | proved concrete base module | `PrimeArithmetic/Density/UnitResidues` | Keep base 6 aligned with the certified symmetry example while the residue API stays small | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Density/Base10Residues` | `agda-proofs/Examples/Base10ResidueFilter.agda` | proved concrete base module | `PrimeArithmetic/Density/UnitResidues` | Use this as the most familiar concrete entrypoint for the cross-base residue story | `collab/openprover/theorems/01-base10-prime-filter.md` |
 | `PrimeArithmetic/Density/Base12Residues` | `README.md`, `AGENTS.md` | proved concrete base module | `PrimeArithmetic/Density/UnitResidues`, `PrimeArithmetic/Density/RadicalFilter` | Emphasize the `rad(base)` versus `φ(base)` distinction in a non-squarefree base | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
+| `PrimeArithmetic/Density/Base14Residues` | `VERIFIED_FACTS_VS_SPECULATION.md`, `README.md` | proved concrete base module | `PrimeArithmetic/Density/UnitResidues` | Keep the documented base-14 counterexample base aligned with the exact residue filter lane without adding any speculative density surface | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
+| `PrimeArithmetic/Density/Base15Residues` | `README.md`, `VERIFIED_FACTS_VS_SPECULATION.md` | proved concrete base module | `PrimeArithmetic/Density/UnitResidues` | Keep one concrete odd composite example in the maintained residue catalog without broadening the density surface | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
+| `PrimeArithmetic/Density/Base18Residues` | `README.md`, `VERIFIED_FACTS_VS_SPECULATION.md` | proved concrete base module | `PrimeArithmetic/Density/UnitResidues`, `PrimeArithmetic/Density/RadicalFilter` | Keep a maintained even non-squarefree empirical base aligned with the exact residue filter lane | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
+| `PrimeArithmetic/Density/Base22Residues` | `VERIFIED_FACTS_VS_SPECULATION.md` | proved concrete base module | `PrimeArithmetic/Density/UnitResidues` | Keep the documented base-22 empirical case aligned with the maintained exact residue filter catalog without broadening the density surface | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Density/Base30Residues` | `README.md`, `AGENTS.md` | proved concrete base module | `PrimeArithmetic/Density/UnitResidues` | Use base 30 as the wheel-like concrete example before any Hardy-Littlewood formalization | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Density/WheelUnitProductEquiv` | `PrimeArithmetic/Density/WheelUnitCRT`, `PrimeArithmetic/Density/ZModUnitCRT`, `PrimeArithmetic/Density/WheelBases` | proved in track 2 extension | `PrimeArithmetic/Density/WheelUnitCRT`, `PrimeArithmetic/Density/ZModUnitCRT` | Use this when the wheel-base CRT theorem should be stated in canonical finite-family notation `∀ p ∈ S, (ZMod p)ˣ` rather than only through recursive tuples | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Density/ZModUnitAction` | `PrimeArithmetic/Density/ZModUnitNegation`, `PrimeArithmetic/Density/ZModUnitOrbits`, `PrimeArithmetic/Density/UnitResiduePairs` | proved in track 2 extension | `PrimeArithmetic/Density/ZModUnitNegation`, `PrimeArithmetic/Density/ZModUnitOrbits` | Use this when the `φ(n) / 2` quotient should be stated in group-action language via the order-two subgroup `{1, -1}` acting on `(ZMod n)ˣ` | `collab/openprover/theorems/02-symmetry-midpoint-obstruction.md` |
@@ -190,6 +262,7 @@ Deferred hardening note:
 | `PrimeArithmetic/Sieve/BoundedByteCoordinates` | `PrimeArithmetic/Sieve/BoundedBytePlans`, `src/prime_sieve.rs`, `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedBytePlans` | Reuse this when a local runtime coordinate shell should be bridged into one fixed `ByteMark`, or when grouped coordinate plans should reuse the generic grouped-plan theorem family without repeating boilerplate | `n/a` |
 | `PrimeArithmetic/Sieve/SegmentByteArray` | `src/prime_sieve.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedByteCoordinates`, `PrimeArithmetic/Sieve/SegmentBitMasks`, `PrimeArithmetic/Sieve/SegmentLayout` | Reuse this when the odd-only sieve should be treated as a bounded one-byte array update or bridged into the generic bounded byte-family surface through the shared coordinate shell | `n/a` |
 | `PrimeArithmetic/Sieve/SegmentRuntimePlans` | `src/prime_sieve.rs`, `PrimeArithmetic/Sieve/RuntimeCrossOff` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedByteCoordinates`, `PrimeArithmetic/Sieve/SegmentByteArray`, `PrimeArithmetic/Sieve/RuntimeCrossOff` | Reuse this when short executable odd-only mark families, especially those built from `runtimeMarkedBy`, should be bucketed by byte slot and discharged directly on the grouped-plan layer | `n/a` |
+| `PrimeArithmetic/Sieve/SegmentRuntimeSteps` | `src/prime_sieve.rs`, `PrimeArithmetic/Sieve/RuntimeCrossOff` | proved in track 2b extension | `PrimeArithmetic/Sieve/SegmentRuntimePlans` | Reuse this when executable odd-only mark families are still most naturally expressed as bounded `runtimeMarkedBy` step values rather than already rewrapped candidate coordinates | `n/a` |
 | `PrimeArithmetic/Sieve/Wheel30Residues` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Density/Base30Residues`, `PrimeArithmetic/Density/UnitResidues` | Reuse this as the exact wheel30 admissible-residue surface instead of hand-writing the surviving classes modulo `30` | `n/a` |
 | `PrimeArithmetic/Sieve/Wheel30Agreement` | `src/prime_sieve.rs`, `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/SegmentedSieve`, `PrimeArithmetic/Sieve/Wheel30Residues` | Reuse this when wheel30 candidate encodings should be related back to the filtered odd candidate domain without discussing performance or bit-array layout | `n/a` |
 | `PrimeArithmetic/Sieve/Wheel30Indexing` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/Wheel30Agreement` | Reuse this when the runtime wheel30 slot order, linear index `cycle * 8 + slot`, or byte/bit decomposition should be stated exactly rather than described informally | `n/a` |
@@ -197,6 +270,7 @@ Deferred hardening note:
 | `PrimeArithmetic/Sieve/Wheel30BitMasks` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/Wheel30BitCoordinates` | Reuse this when the executable wheel30 mask `1 << bit` and readback `((byte >> bit) & 1)` should be stated exactly, or when candidate-level corollaries are needed for the runtime slot order | `n/a` |
 | `PrimeArithmetic/Sieve/Wheel30ByteArray` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedByteCoordinates`, `PrimeArithmetic/Sieve/Wheel30BitMasks` | Reuse this when the wheel30 sieve should be treated as a bounded one-byte array update in the runtime `(cycle, slot)` coordinates, or bridged into the generic bounded byte-family surface through the shared coordinate shell | `n/a` |
 | `PrimeArithmetic/Sieve/Wheel30RuntimePlans` | `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/BoundedByteCoordinates`, `PrimeArithmetic/Sieve/Wheel30ByteArray` | Reuse this when short executable wheel30 mark families should be bucketed by cycle byte slot and discharged directly on the grouped-plan layer | `n/a` |
+| `PrimeArithmetic/Sieve/Wheel30RuntimeRebase` | `PrimeArithmetic/Sieve/Wheel30RuntimePlans`, `src/prime_sieve/wheel30.rs` | proved in track 2b extension | `PrimeArithmetic/Sieve/Wheel30RuntimePlans` | Reuse this when wheel30 runtime families must be transported across the phantom `base` parameter, especially to turn canonical cycle-slot constructors into grouped-plan writes or readback witnesses without rebuilding `List.mem_map` boilerplate | `n/a` |
 | `PrimeArithmetic/Connector/ConcatenationFilters` | `src/connector/mod.rs`, `src/connector/arithmetic.rs`, `src/connector/utils.rs`, `agda-proofs/LagrangePoints/ResidueField.agda`, `agda-proofs/LagrangePoints/ZeroPaddedPrimes/Asymmetry.agda` | proved in track 2a extension | `PrimeArithmetic/Structure/AffineTemplate` | Reuse this when connector scans should be stated as exact fixed-width arithmetic: forward and reverse concatenations reduce to the same residue sum when `base ≡ 1 (mod m)`, and the canonical decimal pair has exact `mod 3` / `mod 9` exclusion classes | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Connector/ConcatenationFamilies` | `PrimeArithmetic/Connector/ConcatenationFilters`, `src/connector/arithmetic.rs`, `src/connector/utils.rs` | proved in track 2a extension | `PrimeArithmetic/Connector/ConcatenationFilters` | Reuse this when a whole fixed-width connector family has a known left/right residue profile modulo `m`, so admissibility reduces to one generic connector class theorem rather than a bespoke proof per pair | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
 | `PrimeArithmetic/Connector/ConcatenationProfileExamples` | `examples/lagrange_tui_demo.rs`, `PrimeArithmetic/Connector/ConcatenationFamilies` | proved in track 2a extension | `PrimeArithmetic/Connector/ConcatenationFamilies` | Reuse this as the maintained client layer showing that the generic connector-family API applies cleanly to non-canonical preset pairs already present in the repo | `collab/openprover/theorems/03-base-radical-prime-filter.md` |
