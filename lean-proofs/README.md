@@ -18,7 +18,14 @@ Current scope:
   theorem stated in standard finite-symmetry language
 - the package now also has a template-structure lane: exact affine dependence
   on the middle block for fixed symmetric layouts, plus its modular search
-  consequences
+  consequences, and now a local affine lane-comparison surface relating shift /
+  gradient / zero-seed equality to the four report-facing local relation labels
+- the package now also has a bounded-`k` transfer-collapse lane: exact
+  compactness data, exact finite transfer-bucket combinatorics, local
+  coprime-modulus residue profiles for direct lane comparisons, a universal
+  conditional criterion saying profile agreement forces transfer identity, and
+  parallel `2p`-like / wheel-like theorem wrappers together with tracked
+  generated direct-lane witnesses
 - the package now also has a connector-arithmetic lane: exact fixed-width
   forward/reverse concatenation formulas and canonical decimal `mod 3` / `mod 9`
   exclusion filters for connector values, together with a reusable residue-class
@@ -141,6 +148,43 @@ lake env lean PrimeArithmetic/Structure/AffineResidueSearch.lean
 # Check the explicit seed classes induced by the affine residue map
 lake env lean PrimeArithmetic/Structure/AffineSeedClasses.lean
 
+# Check the local affine lane-comparison vocabulary
+lake env lean PrimeArithmetic/Structure/AffineLaneComparison.lean
+
+# Check the local affine period-lock criterion
+lake env lean PrimeArithmetic/Structure/AffinePeriodLock.lean
+
+# Check the bounded-k specialization of the period-lock criterion
+lake env lean PrimeArithmetic/Structure/BoundedKPeriodLock.lean
+
+# Check the concrete base-22 / mod-5 affine side-pocket theorem
+lake env lean PrimeArithmetic/Density/Base22GradientPocket.lean
+
+# Check the exact bounded-k compactness layer
+lake env lean PrimeArithmetic/Structure/BoundedKTemplate.lean
+
+# Check the exact finite mask-transfer combinatorics
+lake env lean PrimeArithmetic/Structure/FiniteMaskTransfer.lean
+
+# Check the direct lane-comparison residue-profile layer
+lake env lean PrimeArithmetic/Structure/BoundedKResidueProfile.lean
+
+# Check the universal transfer-collapse criterion
+lake env lean PrimeArithmetic/Structure/BoundedKTransferCollapse.lean
+
+# Check the generated direct-lane residue-profile shell
+lake env lean PrimeArithmetic/Generated/BoundedKResidueProfileShell.lean
+
+# Check the even-squarefree 2p-style wrapper family
+lake env lean PrimeArithmetic/Density/BoundedKTwoPrimeCollapse.lean
+
+# Check the wheel-base wrapper family
+lake env lean PrimeArithmetic/Density/BoundedKWheelCollapse.lean
+
+# Check tracked direct-lane counterexample witnesses
+lake env lean PrimeArithmetic/Generated/BoundedKProfiles/Base6M3Pair15K00ToK01.lean
+lake env lean PrimeArithmetic/Generated/BoundedKProfiles/Base30M3Pair11K00ToK01.lean
+
 # Check the odd-only segmented sieve arithmetic layer
 lake env lean PrimeArithmetic/Sieve/SegmentedSieve.lean
 
@@ -201,6 +245,9 @@ lake env lean PrimeArithmetic/Sieve/Wheel30ByteArray.lean
 # Check short wheel30 runtime mark families on grouped plans
 lake env lean PrimeArithmetic/Sieve/Wheel30RuntimePlans.lean
 
+# Check base-invariant rebasing for grouped wheel30 runtime families
+lake env lean PrimeArithmetic/Sieve/Wheel30RuntimeRebase.lean
+
 # Check the fixed-width connector arithmetic and canonical decimal filters
 lake env lean PrimeArithmetic/Connector/ConcatenationFilters.lean
 
@@ -245,6 +292,12 @@ lake env lean PrimeArithmetic/Symmetry/ZModUnitNegationWitness.lean
 
 # Check one concrete cross-base residue module
 lake env lean PrimeArithmetic/Density/Base12Residues.lean
+
+# Check concrete odd/even composite residue modules
+lake env lean PrimeArithmetic/Density/Base14Residues.lean
+lake env lean PrimeArithmetic/Density/Base15Residues.lean
+lake env lean PrimeArithmetic/Density/Base18Residues.lean
+lake env lean PrimeArithmetic/Density/Base22Residues.lean
 ```
 
 From the repo root, emit a Lean-shaped certificate artifact directly from a
@@ -280,6 +333,17 @@ catalog:
 - `PrimeArithmetic/Structure/AffineSeedClasses.lean`: explicit seed classes for
   target residues, including the unique zero-residue class modulo a coprime
   modulus
+- `PrimeArithmetic/Structure/AffinePeriodLock.lean`: exact local period-lock
+  criterion showing that affine gradient equality is controlled by the
+  multiplicative order of the base unit, with locked and unlocked corollaries
+  for the four local relation labels
+- `PrimeArithmetic/Structure/BoundedKPeriodLock.lean`: bounded-`k`
+  specialization of the period-lock criterion, rewriting the local theorem in
+  the lane-grid vocabulary and proving the `k = (0, 0) → (kOuter, kInner)`
+  lock condition `kOuter + kInner ≡ 0` modulo the base-unit order
+- `PrimeArithmetic/Density/Base22GradientPocket.lean`: concrete base-22,
+  modulus-5 affine lane comparison for `M = 2`, proving the exact
+  `identity`/`gradientOnly` split for `k = (0, 0)` vs `k = (2, 2)`
 - `PrimeArithmetic/Sieve/SegmentedSieve.lean`: odd-only segmented sieve
   candidate encoding, inverse indexing, first odd multiple arithmetic, and
   divisibility/oddness invariants for the marking progression
@@ -328,7 +392,8 @@ catalog:
   its characterization as the admissible residues modulo `30`
 - `PrimeArithmetic/Sieve/Wheel30Agreement.lean`: equivalence between wheel30
   representability and the odd candidate domain with the `mod 3` / `mod 5`
-  filters
+  filters, plus the exact base-30 CRT roundtrip back to the canonical
+  `mod 30` representative
 - `PrimeArithmetic/Sieve/Wheel30Indexing.lean`: runtime wheel30 slot order,
   linear index formula `cycle * 8 + slot`, and the corresponding byte / bit
   coordinates used by the wheel30 bit array
@@ -346,6 +411,8 @@ catalog:
 - `PrimeArithmetic/Sieve/Wheel30RuntimePlans.lean`: short wheel30 runtime mark
   families stated directly in executable `(cycle, slot)` coordinates and
   packaged on the grouped byte-plan layer
+- `PrimeArithmetic/Sieve/Wheel30RuntimeRebase.lean`: base-invariant transport
+  lemmas for grouped wheel30 runtime coordinate and plan families
 - `PrimeArithmetic/Connector/ConcatenationFilters.lean`: exact fixed-width
   forward/reverse concatenation formulas, reduction modulo `m` when
   `base ≡ 1 (mod m)`, and canonical decimal `mod 3` / `mod 9` connector filters
@@ -447,6 +514,12 @@ catalog:
 - `PrimeArithmetic/Density/Base6Residues.lean`: concrete unit residues mod 6
 - `PrimeArithmetic/Density/Base10Residues.lean`: concrete unit residues mod 10
 - `PrimeArithmetic/Density/Base12Residues.lean`: concrete unit residues mod 12
+- `PrimeArithmetic/Density/Base14Residues.lean`: concrete unit residues mod 14
+- `PrimeArithmetic/Density/Base15Residues.lean`: concrete unit residues mod 15
+- `PrimeArithmetic/Density/Base18Residues.lean`: concrete unit residues mod 18
+- `PrimeArithmetic/Density/Base22Residues.lean`: concrete unit residues mod 22
+- `PrimeArithmetic/Density/Base22GradientPocket.lean`: concrete mod-5 affine
+  side-pocket theorem for the base-22 `k = (0, 0)` vs `k = (2, 2)` comparison
 - `PrimeArithmetic/Density/Base30Residues.lean`: concrete unit residues mod 30
 - `PrimeArithmetic/Symmetry/ZModUnitNegationWitness.lean`: direct transport of
   negation on `(ZMod base)ˣ` into the abstract midpoint-obstruction witness
