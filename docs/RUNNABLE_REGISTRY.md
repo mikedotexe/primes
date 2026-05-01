@@ -21,6 +21,7 @@ interactive tools do not get mixed together.
 | Runnable | Class | Notes |
 |---|---|---|
 | `scripts/signal_spine.sh` | `repo-artifact` | Captures the maintained signal spine under `reports/signal-spine/<run-id>/`. |
+| `scripts/signal_spine.sh witness-engine` | `repo-artifact` | Prime Witness Engine umbrella smoke: runs seed-to-witness and large-witness report bundles under one group. |
 
 ## Scripts
 
@@ -72,6 +73,7 @@ interactive tools do not get mixed together.
 | `cargo run --bin export_bounded_k_profile_witness -- ... --out <path>` | `regenerates-tracked` | Output must live under Lean generated directory. |
 | `cargo run --bin export_bounded_k_transfer_agda_summary -- --out <path>` | `regenerates-tracked` | Output must live under Agda generated directory. |
 | `cargo run --bin membrane-prime-fast -- ...` | `repo-artifact` | Maintained deterministic `u64` affine membrane prime family generator; optional JSON/CSV exports. |
+| `cargo run --bin seed-to-witness -- [--seed <n>]` | `stdout-only` / `repo-artifact` | Prime Witness Engine demo entrypoint: seed origin to large readable probable-prime witness transcript; defaults to current epoch nanoseconds when `--seed` is omitted; optional JSON/Markdown exports. |
 | `cargo run --features metal --bin membrane-prime-metal-fast -- ...` | `repo-artifact` | macOS/Metal affine transfer-collapse prototype; sends residue metadata rather than candidate values, optional JSON/CSV exports. |
 | `cargo run --bin base57-affine-codec -- ...` | `stdout-only` | Baseline base58/base57 transcoding, base-invariant value maps, and framed affine base57 residue/prime notation encode/decode. |
 | `cargo run --bin membrane-prime*` | `repo-artifact` | Legacy/experimental prime-search binaries; `membrane-prime` can write `lattice_watermark.png`. |
@@ -124,6 +126,10 @@ interactive tools do not get mixed together.
 | `affine_period_lock_report` | `writes-/tmp` | Writes report bundle by default. |
 | `residue_torus_period_lock_report` | `writes-/tmp` | Writes visual-intuition residue torus bundle by default. |
 | `membrane_prime_throughput_report` | `writes-/tmp` | Writes deterministic fast-generation throughput bundle by default. |
+| `large_affine_witness_ladder_report` | `writes-/tmp` | Prime Witness Engine measurement entrypoint; writes large visible affine witness ladder bundle with confirmation tiers, local controls, OpenSSL calibration, primesieve scope rows, semantic rarity, and PNG panels. |
+| `seed_to_witness_demo_report` | `writes-/tmp` | Prime Witness Engine transcript bundle; writes one-seed-to-large-witness demo output with CSV/JSON rows and copyable WolframAlpha/Mathematica/PARI/Sage verification snippets. |
+| `timestamp_seed_policy_report` | `writes-/tmp` | Prime Witness Engine policy report; measures bounded timestamp-like seed-origin success rates and step quantiles for full-middle and 128-digit lanes. |
+| `special_form_witness_comparison_report` | `writes-/tmp` | Prime Witness Engine special-form comparison report; places Mersenne-prime examples beside affine membrane witnesses with exact Mersenne classification. |
 | `construction_density_atlas_report` | `writes-/tmp` | Writes density-drift atlas bundle for maintained plus stress-test affine membrane families, including layered controls and visual panels. |
 | `base30_wheel_compact_report` | `writes-/tmp` | Writes focused base-30 compact wheel bundle with all-pair heatmap, `(B,7)` residue funnel, and witness gallery. |
 | `base30_reversal_asymmetry_report` | `writes-/tmp` | Writes compact base-30 ordered-pair reversal bundle with signed delta heatmap, residue-phase rows, and witness gallery. |

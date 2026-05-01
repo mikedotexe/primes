@@ -46,6 +46,10 @@ const MAX_EXTERNAL_OPENSSL_GENERATIONS: usize = 20;
 const DEFAULT_METAL_BATCH_SEED_COUNT: u64 = 1_000_000;
 const DEFAULT_BIGUINT_SEED_COUNT: u64 = 20_000;
 const DEFAULT_BIGUINT_MILLER_RABIN_ROUNDS: usize = 20;
+const DEFAULT_BIGUINT_MIDDLE_LENGTHS: &[usize] = &[12, 15, 18];
+const DEFAULT_U128_SEED_COUNT: u64 = 20_000;
+const DEFAULT_U128_MIDDLE_LENGTHS: &[usize] = &[12, 15, 18, 21, 24, 27, 28];
+const U128_MILLER_RABIN_BASES: &[u128] = &[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37];
 
 #[derive(Debug)]
 struct Options {
@@ -56,6 +60,9 @@ struct Options {
     metal_batch_seed_count: u64,
     biguint_seed_count: u64,
     biguint_miller_rabin_rounds: usize,
+    biguint_middle_lengths: Vec<usize>,
+    u128_seed_count: u64,
+    u128_middle_lengths: Vec<usize>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -164,6 +171,10 @@ struct ReportSettings {
     metal_batch_seed_count: u64,
     biguint_seed_count: u64,
     biguint_miller_rabin_rounds: usize,
+    biguint_middle_lengths: Vec<usize>,
+    u128_seed_count: u64,
+    u128_middle_lengths: Vec<usize>,
+    u128_miller_rabin_bases: Vec<u128>,
     metal_host_surface: String,
     metal_kernel_surface: String,
     external_comparison_status: String,
@@ -248,6 +259,40 @@ struct BigUintProbablePrimeRow {
     survivor_count: u64,
     probable_prime_tests: u64,
     probable_primes_found: u64,
+    survivor_share: f64,
+    probable_prime_share_of_raw: f64,
+    probable_prime_share_of_survivors: f64,
+    seeds_per_probable_prime: f64,
+    residue_sieve_seconds: f64,
+    probable_prime_seconds: f64,
+    total_seconds: f64,
+    raw_per_second: f64,
+    tests_per_second: f64,
+    probable_primes_per_second: f64,
+    first_probable_prime: String,
+    first_template_digits: String,
+    note: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct U128ProbablePrimeRow {
+    role: String,
+    path: String,
+    status: String,
+    base: u32,
+    pair_label: String,
+    k_label: String,
+    middle_length: usize,
+    visible_template_digits: usize,
+    decimal_digits_min: usize,
+    scanned_count: u64,
+    survivor_count: u64,
+    probable_prime_tests: u64,
+    probable_primes_found: u64,
+    survivor_share: f64,
+    probable_prime_share_of_raw: f64,
+    probable_prime_share_of_survivors: f64,
+    seeds_per_probable_prime: f64,
     residue_sieve_seconds: f64,
     probable_prime_seconds: f64,
     total_seconds: f64,
@@ -270,6 +315,7 @@ struct ReportBundle {
     image_artifact_rows: Vec<ImageArtifactRow>,
     metal_batch_dispatch_rows: Vec<MetalBatchDispatchRow>,
     biguint_probable_prime_rows: Vec<BigUintProbablePrimeRow>,
+    u128_probable_prime_rows: Vec<U128ProbablePrimeRow>,
     external_benchmark_rows: Vec<ExternalBenchmarkRow>,
     external_comparison_rows: Vec<ExternalComparisonRow>,
     observations: Vec<String>,
@@ -279,6 +325,7 @@ struct ReportTables<'a> {
     benchmark_rows: &'a [BenchmarkRow],
     metal_batch_rows: &'a [MetalBatchDispatchRow],
     biguint_rows: &'a [BigUintProbablePrimeRow],
+    u128_rows: &'a [U128ProbablePrimeRow],
     external_benchmark_rows: &'a [ExternalBenchmarkRow],
     external_rows: &'a [ExternalComparisonRow],
     observations: &'a [String],
@@ -346,6 +393,7 @@ fn main() {
     ];
     let metal_batch_dispatch_rows = build_metal_batch_dispatch_rows(&options);
     let biguint_probable_prime_rows = build_biguint_probable_prime_rows(&options);
+    let u128_probable_prime_rows = build_u128_probable_prime_rows(&options);
     let external_benchmark_rows = build_external_benchmark_rows(&options);
 
     let settings = ReportSettings {
@@ -356,6 +404,10 @@ fn main() {
         metal_batch_seed_count: options.metal_batch_seed_count,
         biguint_seed_count: options.biguint_seed_count,
         biguint_miller_rabin_rounds: options.biguint_miller_rabin_rounds,
+        biguint_middle_lengths: options.biguint_middle_lengths.clone(),
+        u128_seed_count: options.u128_seed_count,
+        u128_middle_lengths: options.u128_middle_lengths.clone(),
+        u128_miller_rabin_bases: U128_MILLER_RABIN_BASES.to_vec(),
         metal_host_surface:
             "Rust `metal` crate host API: pipeline loading, shared buffers, dispatch, readback"
                 .to_string(),
@@ -365,11 +417,16 @@ fn main() {
             "primary-source comparison frame captured; optional local CLI adapters measured when available"
                 .to_string(),
     };
-    let summary = build_summary(&benchmark_rows);
+    let summary = build_summary(
+        &benchmark_rows,
+        &biguint_probable_prime_rows,
+        &u128_probable_prime_rows,
+    );
     let observations = build_observations(
         &benchmark_rows,
         &metal_batch_dispatch_rows,
         &biguint_probable_prime_rows,
+        &u128_probable_prime_rows,
         &external_benchmark_rows,
     );
     let external_rows = build_external_comparison_rows();
@@ -380,6 +437,7 @@ fn main() {
             benchmark_rows: &benchmark_rows,
             metal_batch_rows: &metal_batch_dispatch_rows,
             biguint_rows: &biguint_probable_prime_rows,
+            u128_rows: &u128_probable_prime_rows,
             external_benchmark_rows: &external_benchmark_rows,
             external_rows: &external_rows,
             observations: &observations,
@@ -395,6 +453,7 @@ fn main() {
         image_artifact_rows: image_rows,
         metal_batch_dispatch_rows: metal_batch_dispatch_rows.clone(),
         biguint_probable_prime_rows: biguint_probable_prime_rows.clone(),
+        u128_probable_prime_rows: u128_probable_prime_rows.clone(),
         external_benchmark_rows: external_benchmark_rows.clone(),
         external_comparison_rows: external_rows,
         observations,
@@ -422,6 +481,11 @@ fn main() {
         &biguint_probable_prime_rows,
     )
     .expect("write BigUint probable prime rows");
+    write_csv_rows(
+        options.out_dir.join("u128_probable_prime_rows.csv"),
+        &u128_probable_prime_rows,
+    )
+    .expect("write u128 probable prime rows");
     write_json_pretty(options.out_dir.join("summary.json"), &bundle).expect("write summary json");
     write_text_file(options.out_dir.join("report.md"), &report).expect("write report");
     write_artifact_manifest(
@@ -450,6 +514,7 @@ fn main() {
                 "external_benchmark_rows.csv".to_string(),
                 "metal_batch_dispatch_rows.csv".to_string(),
                 "biguint_probable_prime_rows.csv".to_string(),
+                "u128_probable_prime_rows.csv".to_string(),
                 "prime_throughput_by_path.png".to_string(),
                 "candidate_transfer_bytes.png".to_string(),
                 "artifact_manifest.json".to_string(),
@@ -473,6 +538,9 @@ fn parse_args() -> Options {
     let mut metal_batch_seed_count = DEFAULT_METAL_BATCH_SEED_COUNT;
     let mut biguint_seed_count = DEFAULT_BIGUINT_SEED_COUNT;
     let mut biguint_miller_rabin_rounds = DEFAULT_BIGUINT_MILLER_RABIN_ROUNDS;
+    let mut biguint_middle_lengths = DEFAULT_BIGUINT_MIDDLE_LENGTHS.to_vec();
+    let mut u128_seed_count = DEFAULT_U128_SEED_COUNT;
+    let mut u128_middle_lengths = DEFAULT_U128_MIDDLE_LENGTHS.to_vec();
     let mut args = env::args().skip(1);
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -519,6 +587,23 @@ fn parse_args() -> Options {
                     .parse()
                     .expect("invalid --biguint-miller-rabin-rounds")
             }
+            "--biguint-middle-lengths" => {
+                biguint_middle_lengths =
+                    parse_usize_list(&args.next().expect("missing --biguint-middle-lengths value"))
+                        .expect("invalid --biguint-middle-lengths");
+            }
+            "--u128-seed-count" => {
+                u128_seed_count = args
+                    .next()
+                    .expect("missing --u128-seed-count value")
+                    .parse()
+                    .expect("invalid --u128-seed-count")
+            }
+            "--u128-middle-lengths" => {
+                u128_middle_lengths =
+                    parse_usize_list(&args.next().expect("missing --u128-middle-lengths value"))
+                        .expect("invalid --u128-middle-lengths");
+            }
             _ => panic!("unrecognized argument: {arg}"),
         }
     }
@@ -530,6 +615,26 @@ fn parse_args() -> Options {
         metal_batch_seed_count,
         biguint_seed_count,
         biguint_miller_rabin_rounds,
+        biguint_middle_lengths,
+        u128_seed_count,
+        u128_middle_lengths,
+    }
+}
+
+fn parse_usize_list(value: &str) -> Result<Vec<usize>, String> {
+    let parsed = value
+        .split(',')
+        .filter(|part| !part.trim().is_empty())
+        .map(|part| {
+            part.trim()
+                .parse::<usize>()
+                .map_err(|err| format!("invalid integer `{part}`: {err}"))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    if parsed.is_empty() {
+        Err("list must contain at least one middle length".to_string())
+    } else {
+        Ok(parsed)
     }
 }
 
@@ -1045,7 +1150,11 @@ fn unavailable_row(spec: &LaneSpec, path: &str, status: &str) -> BenchmarkRow {
     }
 }
 
-fn build_summary(rows: &[BenchmarkRow]) -> ReportSummary {
+fn build_summary(
+    rows: &[BenchmarkRow],
+    biguint_rows: &[BigUintProbablePrimeRow],
+    u128_rows: &[U128ProbablePrimeRow],
+) -> ReportSummary {
     let fastest_prime = rows
         .iter()
         .filter(|row| row.status == "ok")
@@ -1058,6 +1167,18 @@ fn build_summary(rows: &[BenchmarkRow]) -> ReportSummary {
     let largest_decimal_digits = rows
         .iter()
         .map(|row| row.decimal_digits_max)
+        .chain(
+            biguint_rows
+                .iter()
+                .filter(|row| row.status == "ok")
+                .map(|row| row.decimal_digits_min),
+        )
+        .chain(
+            u128_rows
+                .iter()
+                .filter(|row| row.status == "ok")
+                .map(|row| row.decimal_digits_min),
+        )
         .max()
         .unwrap_or(0);
     let total_u64_candidate_value_bytes_avoided_by_metal = rows
@@ -1082,6 +1203,7 @@ fn build_observations(
     rows: &[BenchmarkRow],
     metal_batch_rows: &[MetalBatchDispatchRow],
     biguint_rows: &[BigUintProbablePrimeRow],
+    u128_rows: &[U128ProbablePrimeRow],
     external_rows: &[ExternalBenchmarkRow],
 ) -> Vec<String> {
     let mut observations = vec![
@@ -1106,10 +1228,59 @@ fn build_observations(
         ));
     }
     if let Some(row) = biguint_rows.iter().find(|row| row.status == "ok") {
+        let largest_digits = biguint_rows
+            .iter()
+            .filter(|row| row.status == "ok")
+            .map(|row| row.decimal_digits_min)
+            .max()
+            .unwrap_or(row.decimal_digits_min);
+        let total_scanned: u64 = biguint_rows
+            .iter()
+            .filter(|row| row.status == "ok")
+            .map(|row| row.scanned_count)
+            .sum();
+        let total_probable_primes: u64 = biguint_rows
+            .iter()
+            .filter(|row| row.status == "ok")
+            .map(|row| row.probable_primes_found)
+            .sum();
         observations.push(format!(
-            "The beyond-u64 BigUint row scans {} visible {}-digit candidates, residue-filters to {} probable-prime tests, and finds {} probable primes.",
-            row.scanned_count, row.decimal_digits_min, row.survivor_count, row.probable_primes_found
+            "The beyond-u64 BigUint rows scan {} visible candidates up to {} digits and find {} probable-prime witnesses after exact residue filtering.",
+            total_scanned, largest_digits, total_probable_primes
         ));
+    }
+    if let Some(row) = u128_rows.iter().find(|row| row.status == "ok") {
+        let largest_digits = u128_rows
+            .iter()
+            .filter(|row| row.status == "ok")
+            .map(|row| row.decimal_digits_min)
+            .max()
+            .unwrap_or(row.decimal_digits_min);
+        let total_scanned: u64 = u128_rows
+            .iter()
+            .filter(|row| row.status == "ok")
+            .map(|row| row.scanned_count)
+            .sum();
+        let total_probable_primes: u64 = u128_rows
+            .iter()
+            .filter(|row| row.status == "ok")
+            .map(|row| row.probable_primes_found)
+            .sum();
+        observations.push(format!(
+            "The u128 fixed-width rows scan {} visible candidates up to {} digits and find {} probable-prime witnesses before falling back to arbitrary precision.",
+            total_scanned, largest_digits, total_probable_primes
+        ));
+        if let Some(widest) = u128_rows
+            .iter()
+            .filter(|row| row.status == "ok")
+            .max_by_key(|row| row.decimal_digits_min)
+        {
+            observations.push(format!(
+                "At the widest u128 row, the raw witness share is {:.2}% (about {:.1} seeds per probable-prime witness), which is the efficacy metric to keep separate from primality-backend speed.",
+                widest.probable_prime_share_of_raw * 100.0,
+                widest.seeds_per_probable_prime
+            ));
+        }
     }
     if let Some(row) = rows
         .iter()
@@ -1223,15 +1394,27 @@ fn unavailable_metal_batch_row(role: &str, path: &str, status: &str) -> MetalBat
 }
 
 fn build_biguint_probable_prime_rows(options: &Options) -> Vec<BigUintProbablePrimeRow> {
-    let config = FastLaneConfig::new(10, 3, 7, 12, (2, 1));
+    options
+        .biguint_middle_lengths
+        .iter()
+        .copied()
+        .map(|middle_length| build_biguint_probable_prime_row(options, middle_length))
+        .collect()
+}
+
+fn build_biguint_probable_prime_row(
+    options: &Options,
+    middle_length: usize,
+) -> BigUintProbablePrimeRow {
+    let config = FastLaneConfig::new(10, 3, 7, middle_length, (2, 1));
     let lane = match build_biguint_affine_lane(config) {
         Ok(lane) => lane,
         Err(err) => {
-            return vec![unavailable_biguint_row(
-                "biguint_decimal_22_digit_visible_lane",
+            return unavailable_biguint_row(
+                &format!("biguint_decimal_m{middle_length}_visible_lane"),
                 "biguint_affine_residue_probable_prime",
                 &format!("lane unavailable: {err}"),
-            )];
+            );
         }
     };
     let scanned = options.biguint_seed_count.min(lane.seed_capacity);
@@ -1260,20 +1443,28 @@ fn build_biguint_probable_prime_rows(options: &Options) -> Vec<BigUintProbablePr
     }
     let probable_prime_seconds = confirm_start.elapsed().as_secs_f64();
     let total_seconds = residue_sieve_seconds + probable_prime_seconds;
-    vec![BigUintProbablePrimeRow {
-        role: "biguint_decimal_22_digit_visible_lane".to_string(),
+    let visible_digits = biguint_template_digits(&lane.config, 0).len();
+    BigUintProbablePrimeRow {
+        role: format!("biguint_decimal_{visible_digits}_digit_visible_lane"),
         path: "biguint_affine_residue_probable_prime".to_string(),
         status: "ok".to_string(),
         base: lane.config.base,
         pair_label: lane.config.pair_label(),
         k_label: lane.config.k_label(),
         middle_length: lane.config.middle_length,
-        visible_template_digits: biguint_template_digits(&lane.config, 0).len(),
+        visible_template_digits: visible_digits,
         decimal_digits_min: lane.shift.to_str_radix(10).len(),
         scanned_count: scanned,
         survivor_count: survivor_seeds.len() as u64,
         probable_prime_tests: survivor_seeds.len() as u64,
         probable_primes_found,
+        survivor_share: ratio_count(survivor_seeds.len() as u64, scanned),
+        probable_prime_share_of_raw: ratio_count(probable_primes_found, scanned),
+        probable_prime_share_of_survivors: ratio_count(
+            probable_primes_found,
+            survivor_seeds.len() as u64,
+        ),
+        seeds_per_probable_prime: ratio_count(scanned, probable_primes_found),
         residue_sieve_seconds,
         probable_prime_seconds,
         total_seconds,
@@ -1286,7 +1477,7 @@ fn build_biguint_probable_prime_rows(options: &Options) -> Vec<BigUintProbablePr
             "Beyond-u64 row using {} Miller-Rabin rounds after the same exact residue funnel",
             options.biguint_miller_rabin_rounds
         ),
-    }]
+    }
 }
 
 fn unavailable_biguint_row(role: &str, path: &str, status: &str) -> BigUintProbablePrimeRow {
@@ -1304,6 +1495,10 @@ fn unavailable_biguint_row(role: &str, path: &str, status: &str) -> BigUintProba
         survivor_count: 0,
         probable_prime_tests: 0,
         probable_primes_found: 0,
+        survivor_share: 0.0,
+        probable_prime_share_of_raw: 0.0,
+        probable_prime_share_of_survivors: 0.0,
+        seeds_per_probable_prime: 0.0,
         residue_sieve_seconds: 0.0,
         probable_prime_seconds: 0.0,
         total_seconds: 0.0,
@@ -1313,6 +1508,123 @@ fn unavailable_biguint_row(role: &str, path: &str, status: &str) -> BigUintProba
         first_probable_prime: String::new(),
         first_template_digits: String::new(),
         note: "BigUint probable-prime row unavailable".to_string(),
+    }
+}
+
+fn build_u128_probable_prime_rows(options: &Options) -> Vec<U128ProbablePrimeRow> {
+    options
+        .u128_middle_lengths
+        .iter()
+        .copied()
+        .map(|middle_length| build_u128_probable_prime_row(options, middle_length))
+        .collect()
+}
+
+fn build_u128_probable_prime_row(options: &Options, middle_length: usize) -> U128ProbablePrimeRow {
+    let config = FastLaneConfig::new(10, 3, 7, middle_length, (2, 1));
+    let lane = match build_u128_affine_lane(config) {
+        Ok(lane) => lane,
+        Err(err) => {
+            return unavailable_u128_row(
+                &format!("u128_decimal_m{middle_length}_visible_lane"),
+                "u128_affine_residue_probable_prime",
+                &format!("lane unavailable: {err}"),
+            );
+        }
+    };
+    let scanned = options.u128_seed_count.min(lane.seed_capacity);
+    let moduli = default_biguint_affine_moduli(lane.config.base);
+    let residue_rows = build_u128_residue_rows(&lane, 0, &moduli);
+
+    let sieve_start = Instant::now();
+    let survivor_seeds = (0..scanned)
+        .filter(|&seed| residue_rows_allow_local_seed(&residue_rows, seed))
+        .collect::<Vec<_>>();
+    let residue_sieve_seconds = sieve_start.elapsed().as_secs_f64();
+
+    let confirm_start = Instant::now();
+    let mut probable_primes_found = 0u64;
+    let mut first_probable_prime = String::new();
+    let mut first_template_digits = String::new();
+    for &seed in &survivor_seeds {
+        let Some(value) = u128_candidate_value(&lane, seed) else {
+            continue;
+        };
+        if is_probable_prime_u128(value) {
+            probable_primes_found += 1;
+            if first_probable_prime.is_empty() {
+                first_probable_prime = value.to_string();
+                first_template_digits = biguint_template_digits(&lane.config, seed);
+            }
+        }
+    }
+    let probable_prime_seconds = confirm_start.elapsed().as_secs_f64();
+    let total_seconds = residue_sieve_seconds + probable_prime_seconds;
+    let visible_digits = biguint_template_digits(&lane.config, 0).len();
+    U128ProbablePrimeRow {
+        role: format!("u128_decimal_{visible_digits}_digit_visible_lane"),
+        path: "u128_affine_residue_probable_prime".to_string(),
+        status: "ok".to_string(),
+        base: lane.config.base,
+        pair_label: lane.config.pair_label(),
+        k_label: lane.config.k_label(),
+        middle_length: lane.config.middle_length,
+        visible_template_digits: visible_digits,
+        decimal_digits_min: lane.shift.to_string().len(),
+        scanned_count: scanned,
+        survivor_count: survivor_seeds.len() as u64,
+        probable_prime_tests: survivor_seeds.len() as u64,
+        probable_primes_found,
+        survivor_share: ratio_count(survivor_seeds.len() as u64, scanned),
+        probable_prime_share_of_raw: ratio_count(probable_primes_found, scanned),
+        probable_prime_share_of_survivors: ratio_count(
+            probable_primes_found,
+            survivor_seeds.len() as u64,
+        ),
+        seeds_per_probable_prime: ratio_count(scanned, probable_primes_found),
+        residue_sieve_seconds,
+        probable_prime_seconds,
+        total_seconds,
+        raw_per_second: ratio_f64(scanned, total_seconds),
+        tests_per_second: ratio_f64(survivor_seeds.len() as u64, probable_prime_seconds),
+        probable_primes_per_second: ratio_f64(probable_primes_found, total_seconds),
+        first_probable_prime,
+        first_template_digits,
+        note: format!(
+            "Fixed-width u128 Miller-Rabin with {} bases after the same exact residue funnel",
+            U128_MILLER_RABIN_BASES.len()
+        ),
+    }
+}
+
+fn unavailable_u128_row(role: &str, path: &str, status: &str) -> U128ProbablePrimeRow {
+    U128ProbablePrimeRow {
+        role: role.to_string(),
+        path: path.to_string(),
+        status: status.to_string(),
+        base: 0,
+        pair_label: String::new(),
+        k_label: String::new(),
+        middle_length: 0,
+        visible_template_digits: 0,
+        decimal_digits_min: 0,
+        scanned_count: 0,
+        survivor_count: 0,
+        probable_prime_tests: 0,
+        probable_primes_found: 0,
+        survivor_share: 0.0,
+        probable_prime_share_of_raw: 0.0,
+        probable_prime_share_of_survivors: 0.0,
+        seeds_per_probable_prime: 0.0,
+        residue_sieve_seconds: 0.0,
+        probable_prime_seconds: 0.0,
+        total_seconds: 0.0,
+        raw_per_second: 0.0,
+        tests_per_second: 0.0,
+        probable_primes_per_second: 0.0,
+        first_probable_prime: String::new(),
+        first_template_digits: String::new(),
+        note: "u128 probable-prime row unavailable".to_string(),
     }
 }
 
@@ -1519,6 +1831,14 @@ struct BigUintAffineLane {
     seed_capacity: u64,
 }
 
+#[derive(Debug, Clone)]
+struct U128AffineLane {
+    config: FastLaneConfig,
+    shift: u128,
+    gradient: u128,
+    seed_capacity: u64,
+}
+
 fn build_biguint_affine_lane(config: FastLaneConfig) -> Result<BigUintAffineLane, String> {
     if config.base < 2 {
         return Err(format!("base must be at least 2, got {}", config.base));
@@ -1544,8 +1864,8 @@ fn build_biguint_affine_lane(config: FastLaneConfig) -> Result<BigUintAffineLane
         digits
     };
     let suffix_len = suffix_digits.len() as u32;
-    let seed_capacity = checked_pow_u64_local(config.base, config.middle_length)
-        .ok_or_else(|| "middle seed space does not fit in u64 for this report".to_string())?;
+    let seed_capacity =
+        checked_pow_u64_local(config.base, config.middle_length).unwrap_or(u64::MAX);
     let base_big = BigUint::from(config.base);
     let gradient = base_big.pow(suffix_len);
     let prefix_shift = base_big.pow(config.middle_length as u32 + suffix_len);
@@ -1561,8 +1881,63 @@ fn build_biguint_affine_lane(config: FastLaneConfig) -> Result<BigUintAffineLane
     })
 }
 
+fn build_u128_affine_lane(config: FastLaneConfig) -> Result<U128AffineLane, String> {
+    if config.base < 2 {
+        return Err(format!("base must be at least 2, got {}", config.base));
+    }
+    if config.outer >= config.base || config.inner >= config.base {
+        return Err("boundary digit outside configured base".to_string());
+    }
+
+    let prefix_digits = {
+        let mut digits = Vec::with_capacity((2 + config.k_outer + config.k_inner) as usize);
+        digits.push(config.outer);
+        digits.extend(std::iter::repeat_n(0, config.k_outer as usize));
+        digits.push(config.inner);
+        digits.extend(std::iter::repeat_n(0, config.k_inner as usize));
+        digits
+    };
+    let suffix_digits = {
+        let mut digits = Vec::with_capacity((2 + config.k_outer + config.k_inner) as usize);
+        digits.extend(std::iter::repeat_n(0, config.k_inner as usize));
+        digits.push(config.inner);
+        digits.extend(std::iter::repeat_n(0, config.k_outer as usize));
+        digits.push(config.outer);
+        digits
+    };
+    let suffix_len = suffix_digits.len() as u32;
+    let seed_capacity =
+        checked_pow_u64_local(config.base, config.middle_length).unwrap_or(u64::MAX);
+    let base = config.base as u128;
+    let gradient = checked_pow_u128_local(base, suffix_len as usize)
+        .ok_or_else(|| "suffix gradient does not fit u128 for this report".to_string())?;
+    let prefix_shift = checked_pow_u128_local(base, config.middle_length + suffix_len as usize)
+        .ok_or_else(|| "prefix shift does not fit u128 for this report".to_string())?;
+    let prefix_value = digits_to_u128_local(config.base, &prefix_digits)?;
+    let suffix_value = digits_to_u128_local(config.base, &suffix_digits)?;
+    let shift = prefix_value
+        .checked_mul(prefix_shift)
+        .and_then(|value| value.checked_add(suffix_value))
+        .ok_or_else(|| "lane shift does not fit u128 for this report".to_string())?;
+
+    Ok(U128AffineLane {
+        config,
+        shift,
+        gradient,
+        seed_capacity,
+    })
+}
+
 fn biguint_candidate_value(lane: &BigUintAffineLane, seed: u64) -> BigUint {
     &lane.shift + &lane.gradient * BigUint::from(seed)
+}
+
+fn u128_candidate_value(lane: &U128AffineLane, seed: u64) -> Option<u128> {
+    if seed >= lane.seed_capacity {
+        return None;
+    }
+    lane.shift
+        .checked_add(lane.gradient.checked_mul(seed as u128)?)
 }
 
 fn build_biguint_residue_rows(
@@ -1577,6 +1952,28 @@ fn build_biguint_residue_rows(
             let p = modulus as u64;
             let shift_mod = biguint_mod_u32(&lane.shift, modulus) as u64;
             let gradient_mod = biguint_mod_u32(&lane.gradient, modulus) as u64;
+            MetalAffineResidueRow {
+                a: ((shift_mod + (gradient_mod * (seed_offset % p)) % p) % p) as u32,
+                g: gradient_mod as u32,
+                p: modulus,
+                pad: 0,
+            }
+        })
+        .collect()
+}
+
+fn build_u128_residue_rows(
+    lane: &U128AffineLane,
+    seed_offset: u64,
+    moduli: &[u32],
+) -> Vec<MetalAffineResidueRow> {
+    moduli
+        .iter()
+        .copied()
+        .map(|modulus| {
+            let p = modulus as u64;
+            let shift_mod = (lane.shift % modulus as u128) as u64;
+            let gradient_mod = (lane.gradient % modulus as u128) as u64;
             MetalAffineResidueRow {
                 a: ((shift_mod + (gradient_mod * (seed_offset % p)) % p) % p) as u32,
                 g: gradient_mod as u32,
@@ -1629,10 +2026,32 @@ fn digits_to_biguint_local(base: u32, digits: &[u32]) -> BigUint {
     value
 }
 
+fn digits_to_u128_local(base: u32, digits: &[u32]) -> Result<u128, String> {
+    let mut value = 0u128;
+    for &digit in digits {
+        if digit >= base {
+            return Err(format!("digit {digit} outside base {base}"));
+        }
+        value = value
+            .checked_mul(base as u128)
+            .and_then(|value| value.checked_add(digit as u128))
+            .ok_or_else(|| "digit accumulation does not fit u128".to_string())?;
+    }
+    Ok(value)
+}
+
 fn biguint_mod_u32(value: &BigUint, modulus: u32) -> u32 {
     (value % BigUint::from(modulus))
         .to_u32()
         .expect("remainder should fit u32")
+}
+
+fn checked_pow_u128_local(base: u128, exp: usize) -> Option<u128> {
+    let mut value = 1u128;
+    for _ in 0..exp {
+        value = value.checked_mul(base)?;
+    }
+    Some(value)
 }
 
 fn checked_pow_u64_local(base: u32, exp: usize) -> Option<u64> {
@@ -1648,6 +2067,87 @@ fn digit_char_local(digit: u32) -> char {
         char::from_digit(digit, 10).expect("decimal digit")
     } else {
         char::from_u32('A' as u32 + digit - 10).expect("uppercase digit")
+    }
+}
+
+fn is_probable_prime_u128(n: u128) -> bool {
+    if n < 2 {
+        return false;
+    }
+    for &prime in U128_MILLER_RABIN_BASES {
+        if n == prime {
+            return true;
+        }
+        if n.is_multiple_of(prime) {
+            return false;
+        }
+    }
+
+    let mut d = n - 1;
+    let mut s = 0u32;
+    while d.is_multiple_of(2) {
+        d /= 2;
+        s += 1;
+    }
+
+    'bases: for &base in U128_MILLER_RABIN_BASES {
+        if base >= n - 1 {
+            continue;
+        }
+        let mut x = mod_pow_u128(base, d, n);
+        if x == 1 || x == n - 1 {
+            continue;
+        }
+        for _ in 1..s {
+            x = mod_mul_u128(x, x, n);
+            if x == n - 1 {
+                continue 'bases;
+            }
+        }
+        return false;
+    }
+    true
+}
+
+fn mod_pow_u128(mut base: u128, mut exp: u128, modulus: u128) -> u128 {
+    let mut acc = 1u128;
+    base %= modulus;
+    while exp > 0 {
+        if exp & 1 == 1 {
+            acc = mod_mul_u128(acc, base, modulus);
+        }
+        exp >>= 1;
+        if exp > 0 {
+            base = mod_mul_u128(base, base, modulus);
+        }
+    }
+    acc
+}
+
+fn mod_mul_u128(mut left: u128, mut right: u128, modulus: u128) -> u128 {
+    if let Some(product) = left.checked_mul(right) {
+        return product % modulus;
+    }
+
+    left %= modulus;
+    let mut acc = 0u128;
+    while right > 0 {
+        if right & 1 == 1 {
+            acc = add_mod_u128(acc, left, modulus);
+        }
+        right >>= 1;
+        if right > 0 {
+            left = add_mod_u128(left, left, modulus);
+        }
+    }
+    acc
+}
+
+fn add_mod_u128(left: u128, right: u128, modulus: u128) -> u128 {
+    if left >= modulus - right {
+        left - (modulus - right)
+    } else {
+        left + right
     }
 }
 
@@ -1742,6 +2242,34 @@ fn render_report(
         settings.biguint_miller_rabin_rounds
     ));
     lines.push(format!(
+        "- BigUint middle lengths: `{}`",
+        settings
+            .biguint_middle_lengths
+            .iter()
+            .map(|value| value.to_string())
+            .collect::<Vec<_>>()
+            .join(",")
+    ));
+    lines.push(format!("- u128 seed count: `{}`", settings.u128_seed_count));
+    lines.push(format!(
+        "- u128 middle lengths: `{}`",
+        settings
+            .u128_middle_lengths
+            .iter()
+            .map(|value| value.to_string())
+            .collect::<Vec<_>>()
+            .join(",")
+    ));
+    lines.push(format!(
+        "- u128 Miller-Rabin bases: `{}`",
+        settings
+            .u128_miller_rabin_bases
+            .iter()
+            .map(|value| value.to_string())
+            .collect::<Vec<_>>()
+            .join(",")
+    ));
+    lines.push(format!(
         "- Metal host surface: `{}`",
         settings.metal_host_surface
     ));
@@ -1811,20 +2339,44 @@ fn render_report(
     }
     lines.push(String::new());
     lines.push("## BigUint Probable-Prime Rows".to_string());
-    lines.push("| Role | Path | Status | Digits | Scanned | Survivors | Tests | Probable Primes | Raw/s | Probable primes/s | First Template |".to_string());
-    lines.push("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|".to_string());
+    lines.push("| Role | Path | Status | Digits | Scanned | Survivors | Probable Primes | Survivor % | Raw Hit % | Survivor Hit % | Seeds/Witness | Probable primes/s | First Template |".to_string());
+    lines.push("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|".to_string());
     for row in tables.biguint_rows {
         lines.push(format!(
-            "| `{}` | `{}` | `{}` | {} | {} | {} | {} | {} | {:.0} | {:.2} | `{}` |",
+            "| `{}` | `{}` | `{}` | {} | {} | {} | {} | {:.2} | {:.2} | {:.2} | {:.1} | {:.2} | `{}` |",
             row.role,
             row.path,
             row.status,
             row.decimal_digits_min,
             row.scanned_count,
             row.survivor_count,
-            row.probable_prime_tests,
             row.probable_primes_found,
-            row.raw_per_second,
+            row.survivor_share * 100.0,
+            row.probable_prime_share_of_raw * 100.0,
+            row.probable_prime_share_of_survivors * 100.0,
+            row.seeds_per_probable_prime,
+            row.probable_primes_per_second,
+            row.first_template_digits
+        ));
+    }
+    lines.push(String::new());
+    lines.push("## u128 Probable-Prime Rows".to_string());
+    lines.push("| Role | Path | Status | Digits | Scanned | Survivors | Probable Primes | Survivor % | Raw Hit % | Survivor Hit % | Seeds/Witness | Probable primes/s | First Template |".to_string());
+    lines.push("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|".to_string());
+    for row in tables.u128_rows {
+        lines.push(format!(
+            "| `{}` | `{}` | `{}` | {} | {} | {} | {} | {:.2} | {:.2} | {:.2} | {:.1} | {:.2} | `{}` |",
+            row.role,
+            row.path,
+            row.status,
+            row.decimal_digits_min,
+            row.scanned_count,
+            row.survivor_count,
+            row.probable_primes_found,
+            row.survivor_share * 100.0,
+            row.probable_prime_share_of_raw * 100.0,
+            row.probable_prime_share_of_survivors * 100.0,
+            row.seeds_per_probable_prime,
             row.probable_primes_per_second,
             row.first_template_digits
         ));
@@ -1885,6 +2437,10 @@ fn render_report(
     );
     lines.push(
         "- `biguint_probable_prime_rows.csv`: beyond-u64 residue funnel plus Miller-Rabin confirmation rows."
+            .to_string(),
+    );
+    lines.push(
+        "- `u128_probable_prime_rows.csv`: fixed-width u128 affine residue funnel plus Miller-Rabin confirmation rows."
             .to_string(),
     );
     lines.push(
@@ -2042,6 +2598,14 @@ fn ratio_f64(numerator: u64, denominator_seconds: f64) -> f64 {
         0.0
     } else {
         numerator as f64 / denominator_seconds
+    }
+}
+
+fn ratio_count(numerator: u64, denominator: u64) -> f64 {
+    if denominator == 0 {
+        0.0
+    } else {
+        numerator as f64 / denominator as f64
     }
 }
 

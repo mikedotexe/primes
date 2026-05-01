@@ -12,6 +12,11 @@ Report-style examples in this repo follow a shared artifact pattern:
 stdout summary first, then optional machine-readable JSON/CSV exports for reruns
 and follow-up analysis.
 
+For the large readable witness path, start with
+[`../docs/PRIME_WITNESS_ENGINE.md`](../docs/PRIME_WITNESS_ENGINE.md). The demo
+entrypoint is `seed-to-witness`; the measurement entrypoint is
+`large_affine_witness_ladder_report`.
+
 ## Quick Start (5 minutes)
 
 ```bash
@@ -47,6 +52,13 @@ cargo run --release --example affine_gradient_transition_report # Focused affine
 cargo run --release --example affine_period_lock_report # Exploratory period-lock pass for affine gradient agreement via multiplicative order and direct lane comparisons
 cargo run --release --example residue_torus_period_lock_report # Visual-intuition residue torus walkthrough for period lock with computed construction witnesses
 cargo run --release --example membrane_prime_throughput_report # Deterministic u64 affine generation throughput report for visible membrane lanes
+cargo run --release --example large_affine_witness_ladder_report # Large visible affine witness ladder with BigUint/u128/u64 backend scope and fair comparison rows
+cargo run --release --bin seed-to-witness # Current timestamp-ns seed origin to one large readable probable-prime witness transcript
+cargo run --release --bin seed-to-witness -- --seed 60 # Canonical fixed-seed 128-digit witness transcript
+cargo run --release --example seed_to_witness_demo_report # Report bundle for the seed-to-witness transcript demo
+cargo run --release --example timestamp_seed_policy_report # Bounded empirical timestamp-origin policy measurement
+cargo run --release --example special_form_witness_comparison_report # Mersenne-style special-form comparison for affine witnesses
+scripts/signal_spine.sh witness-engine # Prime Witness Engine umbrella smoke
 cargo run --release --example construction_density_atlas_report # Density-drift atlas across good, mediocre, and lousy affine membrane families
 cargo run --release --example base30_wheel_compact_report # Focused base-30 compact wheel report with all-pair heatmap, residue funnel, and witness gallery
 cargo run --release --example base30_reversal_asymmetry_report # Ordered-pair reversal asymmetry report for compact base-30 residue phases
@@ -113,6 +125,10 @@ cargo run --example prime_verification_report   # Verify all documented claims
 | `affine_period_lock_report` | Exploratory local-classifier report for period-locked affine gradient agreement, checking whether observed gradient equality is exactly explained by `Δposition ≡ 0 mod ord_p(base)` on the maintained direct lane surface and using the base-22 / mod-5 pocket as the anchor witness |
 | `residue_torus_period_lock_report` | Visual-intuition walkthrough for the period-lock residue torus, exporting torus phase rows, a base-22/mod-5 canonical panel, and a small gallery of computed prime construction witnesses while keeping density claims conservative |
 | `membrane_prime_throughput_report` | Deterministic `u64` throughput report for maintained affine membrane prime families, measuring the funnel from raw seeds through exact residue filters into deterministic prime witnesses |
+| `large_affine_witness_ladder_report` | Prime Witness Engine measurement entrypoint for the primary visible decimal lane `(3,7), k=(2,1)`, measuring time-to-first witness, residue funnel efficacy, confirmation tier scope across BigUint/u128/u64, local controls, OpenSSL calibration, primesieve scope, semantic rarity, and witness gallery rows |
+| `seed_to_witness_demo_report` | Prime Witness Engine transcript bundle with a canonical 128-digit probable-prime witness, a shorter teaching row, CSV/JSON exports, and copyable external verification snippets |
+| `timestamp_seed_policy_report` | Prime Witness Engine policy report that samples timestamp-like seed origins and measures bounded success rates, step quantiles, residue survivors, and witness rows for full-middle and 128-digit lanes |
+| `special_form_witness_comparison_report` | Prime Witness Engine comparison report placing known Mersenne-prime special forms beside affine membrane witnesses, with compact descriptors, confirmation language, and exact `not_mersenne` labels for affine rows |
 | `construction_density_atlas_report` | Density-drift atlas for maintained plus stress-test affine membrane families, exporting layered controls, witness rows, and visuals for residue survival, zero-run drift, and good-vs-lousy construction contrast |
 | `base30_wheel_compact_report` | Focused base-30 compact wheel report that scans all ordered unit pairs for `M=1..3`, exports the `(B,7)` residue funnel, and frames the result as a classical wheel-compressed affine surface rather than residual density magic |
 | `base30_reversal_asymmetry_report` | Focused compact base-30 report comparing each ordered unit pair against its reversal, exporting signed asymmetry heatmaps, residue-phase fingerprints, and witnesses for the strongest swapped-role cases |

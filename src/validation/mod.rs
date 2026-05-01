@@ -20,11 +20,14 @@ pub mod failure_analysis;
 pub mod fast_affine;
 pub mod hinge_atoms;
 pub mod hinge_robustness;
+pub mod large_affine_witness;
 pub mod matched_control;
 pub mod metal_affine;
 pub mod random_baseline;
 pub mod reporting;
+pub mod seed_to_witness;
 pub mod statistical_tests;
+pub mod timestamp_seed_policy;
 pub mod unit_cycle_neighbors;
 pub mod unit_cycle_phase;
 

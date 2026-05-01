@@ -18,6 +18,8 @@ they are not the primary mathematical interface.
 - `hzlib::*` for asymptotic heuristics, residue-class analysis, and statistics
 - `connector::*` for fixed-prime decimal concatenation, residue profiles, and
   matched connector-hit scans with density-aware residual audits
+- the **Prime Witness Engine** for seed-origin demos, affine residue funnels,
+  large readable probable-prime witnesses, and verification transcripts
 - `tools/prime_unified_cli.rs` and related CLIs for reproducible CSV workflows
 
 ## Current Checked Status
@@ -39,6 +41,10 @@ cargo clippy --lib -- -D warnings
 cargo run --example prime_count_smoke_test
 cargo run --example proper_membrane_generator
 cargo run --example prime_verification_report
+
+cargo run --release --bin seed-to-witness
+cargo run --release --bin seed-to-witness -- --seed 60
+scripts/signal_spine.sh witness-engine
 ```
 
 ## Core Rust API
@@ -82,6 +88,23 @@ Example in base 10 with boundary digits `(3, 7)`, `k=(1,1)`, and seed `5`:
 ```text
 3 0 7 0 5 0 7 0 3  ->  307050703
 ```
+
+## Prime Witness Engine
+
+The large-witness path has a maintained front door at
+[`docs/PRIME_WITNESS_ENGINE.md`](docs/PRIME_WITNESS_ENGINE.md). Its core
+workflow is:
+
+```text
+seed origin -> affine membrane lane -> residue funnel -> probable-prime witness -> verification transcript
+```
+
+The demo entrypoint is `seed-to-witness`: without `--seed`, it uses the current
+epoch nanoseconds as the seed origin; with `--seed 60`, it returns the canonical
+128-digit witness transcript for the default decimal `(3,7), k=(2,1)` lane. The
+measurement entrypoint is `large_affine_witness_ladder_report`, which records
+time-to-first witness, residue-funnel efficacy, backend scope, controls, and
+semantic rarity for large visible witnesses.
 
 ## Verified Statements
 
@@ -211,6 +234,9 @@ with:
 - [`EVIDENCE.md`](EVIDENCE.md): corrected data tables and external validation links
 - [`collab/HARDENED_RESEARCH_PROGRAMS.md`](collab/HARDENED_RESEARCH_PROGRAMS.md):
   stable collaborator-facing language for the repo's live research programs
+- [`docs/PRIME_WITNESS_ENGINE.md`](docs/PRIME_WITNESS_ENGINE.md): seed-origin
+  demo, large-witness ladder, confirmation tiers, and non-claims for large
+  readable affine witnesses
 - [`collab/TRANSFER_COLLAPSE_THEOREM_PROGRAM.md`](collab/TRANSFER_COLLAPSE_THEOREM_PROGRAM.md):
   theorem-program boundary for direct bounded-`k` lane comparisons and their
   current counterexample-pinned limit

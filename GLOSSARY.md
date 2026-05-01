@@ -56,6 +56,55 @@ An individual prime found inside a structured family. For example,
 `3007000000002907003` is a prime witness for the base-10 family
 `3 00 7 0 [seed] 0 7 00 3`.
 
+### Prime Witness Engine
+
+Repo section for the workflow:
+
+```text
+seed origin -> affine membrane lane -> residue funnel -> probable-prime witness -> verification transcript
+```
+
+The demo entrypoint is `seed-to-witness`; the measurement entrypoint is
+`large_affine_witness_ladder_report`. See
+[`docs/PRIME_WITNESS_ENGINE.md`](docs/PRIME_WITNESS_ENGINE.md).
+
+### Seed Origin
+
+The starting seed supplied to the Prime Witness Engine by a user, timestamp, or
+test fixture. It is a start point on the affine lane, not a guarantee that the
+exact seed is a witness.
+
+### Witness Seed
+
+The seed that actually produces the returned witness after walking forward from
+the seed origin. The witness seed may equal the seed origin, or it may be a
+later seed in the same affine membrane lane.
+
+### Residue Funnel
+
+Exact small-prime filtering applied before primality or probable-prime
+confirmation. The funnel removes seed classes that are provably divisible by
+configured small moduli, then sends survivors to the confirmation tier.
+
+### Confirmation Tier
+
+The local label for how a witness was checked: deterministic `u64`, fixed-width
+`u128`, or BigUint Miller-Rabin probable-prime. Above `u64`, current docs say
+probable-prime witness unless a proof certificate is added.
+
+### Mersenne Class
+
+Exact label for whether a witness is of the form `2^p - 1`. This classification
+is independent of primality confirmation: if `N + 1` is not a power of two, the
+witness is definitely `not_mersenne`, even when the prime check above `u64` is
+still labeled probable-prime.
+
+### Semantic Rarity
+
+The fact that a witness belongs to a tiny named construction slice of the
+same-digit space, such as a specific base, boundary pair, zero-run shape, middle
+length, and seed. It is a construction-family claim, not a density theorem.
+
 ### Density Drift
 
 Measured variation in prime rate across specified affine membrane prime

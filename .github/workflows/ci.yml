@@ -68,6 +68,37 @@ jobs:
       - name: Verification spine check
         run: cargo run --bin verify_verification_spine -- check
 
+  signal-spine-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfontconfig1-dev python3-matplotlib
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Run signal spine smoke
+        run: |
+          SIGNAL_SPINE_RUN_ID=ci-smoke \
+          SIGNAL_SPINE_OUT_DIR=/tmp/primes_signal_spine_smoke \
+          scripts/signal_spine.sh core affine fast-generation base57-codec
+
+      - name: Upload signal spine smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: signal-spine-smoke
+          path: |
+            /tmp/primes_signal_spine_smoke/signal_summary.md
+            /tmp/primes_signal_spine_smoke/run_manifest.json
+            /tmp/primes_signal_spine_smoke/commands.tsv
+            /tmp/primes_signal_spine_smoke/stdout/
+          if-no-files-found: warn
+          retention-days: 7
+
   examples:
     runs-on: ubuntu-latest
     steps:

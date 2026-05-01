@@ -13,7 +13,7 @@ MATCHED_MIN_SEED_LEN="${SIGNAL_SPINE_MATCHED_MIN_SEED_LEN:-1}"
 MATCHED_MAX_SEED_LEN="${SIGNAL_SPINE_MATCHED_MAX_SEED_LEN:-2}"
 
 DEFAULT_GROUPS=(core membrane connector affine transfer matched-control)
-ALL_GROUPS=(core membrane connector affine transfer matched-control fast-generation phase-residual shift-phase unit-cycle base-neighbor base57-codec proof-catalog)
+ALL_GROUPS=(core membrane connector affine transfer matched-control fast-generation large-witness seed-witness witness-engine phase-residual shift-phase unit-cycle base-neighbor base57-codec proof-catalog)
 
 usage() {
   cat <<EOF
@@ -27,6 +27,9 @@ Groups:
   transfer         M2/M3 transfer collapse and direct transfer-criterion audit
   matched-control  Membrane-vs-random-coprime matched-control run
   fast-generation  Non-default deterministic u64 affine generation throughput smoke
+  large-witness    Non-default large affine witness ladder smoke
+  seed-witness     Non-default one-seed-to-large-witness demo transcript
+  witness-engine   Non-default Prime Witness Engine umbrella smoke
   phase-residual   Non-default cross-base compact affine phase residual atlas
   shift-phase      Non-default curated shift-phase signal mining follow-up
   unit-cycle       Non-default unit-cycle normalized phase signal report
@@ -91,9 +94,10 @@ group_enabled() {
 
 mkdir -p "$OUT_ROOT/stdout" "$OUT_ROOT/core" "$OUT_ROOT/membrane" "$OUT_ROOT/connector" \
   "$OUT_ROOT/affine" "$OUT_ROOT/transfer" "$OUT_ROOT/matched-control" \
-  "$OUT_ROOT/fast-generation" "$OUT_ROOT/phase-residual" "$OUT_ROOT/shift-phase" \
-  "$OUT_ROOT/unit-cycle" "$OUT_ROOT/base-neighbor" "$OUT_ROOT/base57-codec" \
-  "$OUT_ROOT/proof-catalog"
+  "$OUT_ROOT/fast-generation" "$OUT_ROOT/large-witness" "$OUT_ROOT/seed-witness" \
+  "$OUT_ROOT/witness-engine" \
+  "$OUT_ROOT/phase-residual" "$OUT_ROOT/shift-phase" "$OUT_ROOT/unit-cycle" \
+  "$OUT_ROOT/base-neighbor" "$OUT_ROOT/base57-codec" "$OUT_ROOT/proof-catalog"
 
 COMMANDS_TSV="$OUT_ROOT/commands.tsv"
 printf "group\tname\texit_code\tduration_seconds\tlog_path\toutput_paths\tcommand\n" > "$COMMANDS_TSV"
@@ -215,6 +219,36 @@ run_fast_generation() {
       --out-dir "$OUT_ROOT/fast-generation/throughput_report"
 }
 
+run_large_witness() {
+  run_cmd large-witness large_affine_witness_ladder "$OUT_ROOT/large-witness/large_affine_witness_ladder" \
+    cargo run --release --example large_affine_witness_ladder_report -- \
+      --profile smoke \
+      --out-dir "$OUT_ROOT/large-witness/large_affine_witness_ladder"
+}
+
+run_seed_witness() {
+  run_cmd seed-witness seed_to_witness_demo "$OUT_ROOT/seed-witness/seed_to_witness_demo" \
+    cargo run --release --example seed_to_witness_demo_report -- \
+      --out-dir "$OUT_ROOT/seed-witness/seed_to_witness_demo"
+}
+
+run_witness_engine() {
+  run_cmd witness-engine seed_to_witness_demo "$OUT_ROOT/witness-engine/seed_to_witness_demo" \
+    cargo run --release --example seed_to_witness_demo_report -- \
+      --out-dir "$OUT_ROOT/witness-engine/seed_to_witness_demo"
+  run_cmd witness-engine large_affine_witness_ladder "$OUT_ROOT/witness-engine/large_affine_witness_ladder" \
+    cargo run --release --example large_affine_witness_ladder_report -- \
+      --profile smoke \
+      --out-dir "$OUT_ROOT/witness-engine/large_affine_witness_ladder"
+  run_cmd witness-engine timestamp_seed_policy "$OUT_ROOT/witness-engine/timestamp_seed_policy" \
+    cargo run --release --example timestamp_seed_policy_report -- \
+      --profile smoke \
+      --out-dir "$OUT_ROOT/witness-engine/timestamp_seed_policy"
+  run_cmd witness-engine special_form_witness_comparison "$OUT_ROOT/witness-engine/special_form_witness_comparison" \
+    cargo run --release --example special_form_witness_comparison_report -- \
+      --out-dir "$OUT_ROOT/witness-engine/special_form_witness_comparison"
+}
+
 run_phase_residual() {
   run_cmd phase-residual affine_phase_residual_atlas "$OUT_ROOT/phase-residual/affine_phase_residual_atlas" \
     cargo run --release --example affine_phase_residual_atlas_report -- \
@@ -254,7 +288,7 @@ run_proof_catalog() {
     scripts/agda_generated_catalog.sh verify
 }
 
-for group in "${DEFAULT_GROUPS[@]}" fast-generation phase-residual shift-phase unit-cycle base-neighbor base57-codec proof-catalog; do
+for group in "${DEFAULT_GROUPS[@]}" fast-generation large-witness seed-witness witness-engine phase-residual shift-phase unit-cycle base-neighbor base57-codec proof-catalog; do
   if group_enabled "$group"; then
     case "$group" in
       core) run_core ;;
@@ -264,6 +298,9 @@ for group in "${DEFAULT_GROUPS[@]}" fast-generation phase-residual shift-phase u
       transfer) run_transfer ;;
       matched-control) run_matched_control ;;
       fast-generation) run_fast_generation ;;
+      large-witness) run_large_witness ;;
+      seed-witness) run_seed_witness ;;
+      witness-engine) run_witness_engine ;;
       phase-residual) run_phase_residual ;;
       shift-phase) run_shift_phase ;;
       unit-cycle) run_unit_cycle ;;
@@ -374,6 +411,12 @@ for report_path in [
     out_root / "affine" / "residue_torus" / "report.md",
     out_root / "affine" / "gradient_transition" / "report.md",
     out_root / "fast-generation" / "throughput_report" / "report.md",
+    out_root / "large-witness" / "large_affine_witness_ladder" / "report.md",
+    out_root / "seed-witness" / "seed_to_witness_demo" / "report.md",
+    out_root / "witness-engine" / "seed_to_witness_demo" / "report.md",
+    out_root / "witness-engine" / "large_affine_witness_ladder" / "report.md",
+    out_root / "witness-engine" / "timestamp_seed_policy" / "report.md",
+    out_root / "witness-engine" / "special_form_witness_comparison" / "report.md",
     out_root / "transfer" / "m2_m3_transfer_collapse" / "report.md",
     out_root / "transfer" / "bounded_k_transfer_criterion" / "report.md",
     out_root / "base-neighbor" / "unit_cycle_base_neighbor" / "report.md",

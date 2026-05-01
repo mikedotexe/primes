@@ -94,3 +94,10 @@ collab.backup/
 
 # Result snapshots
 elbow_events.json
+
+# Signal spine raw report runs are reproducible from manifests. Track only the
+# policy note and explicitly curated summaries.
+/reports/signal-spine/*
+!/reports/signal-spine/README.md
+!/reports/signal-spine/curated/
+!/reports/signal-spine/curated/**

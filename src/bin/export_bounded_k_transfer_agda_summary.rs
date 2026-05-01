@@ -272,7 +272,7 @@ fn render_agda_catalog(rows: &[WitnessRow]) -> Result<String, Box<dyn std::error
     writeln!(out, "  ; toConfig")?;
     writeln!(out, "  )\n")?;
 
-    for row in rows {
+    for (idx, row) in rows.iter().enumerate() {
         let spec = row.spec;
         let stem = agda_theorem_stem(spec);
         let from_diameter = spec.middle_length + 4;
@@ -374,7 +374,10 @@ fn render_agda_catalog(rows: &[WitnessRow]) -> Result<String, Box<dyn std::error
             "{}-padding-step : paddingWeight (toConfig {}) ≡ {}",
             stem, row.binding_name, padding_step
         )?;
-        writeln!(out, "{}-padding-step = refl\n", stem)?;
+        writeln!(out, "{}-padding-step = refl", stem)?;
+        if idx + 1 < rows.len() {
+            writeln!(out)?;
+        }
     }
 
     Ok(out)
