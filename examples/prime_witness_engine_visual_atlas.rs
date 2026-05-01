@@ -16,6 +16,10 @@
 use plotters::coord::Shift;
 use plotters::prelude::*;
 use primes::validation::{
+    affine_singular_series::{
+        build_affine_singular_series_report, AffineSingularLaneRow, AffineSingularSeriesReport,
+    },
+    bounded_k::{digit_symbol, unit_residues},
     fast_affine::{build_fast_affine_lane, FastAffineLane, FastLaneConfig},
     metal_affine::{
         build_metal_affine_residue_rows, default_metal_affine_moduli,
@@ -29,6 +33,7 @@ use primes::validation::{
 use serde::Serialize;
 use std::{
     env,
+    f64::consts::PI,
     path::{Path, PathBuf},
 };
 
@@ -68,6 +73,7 @@ struct VisualData {
     residue_rows: Vec<MetalAffineResidueRow>,
     moduli: Vec<u32>,
     statuses: Vec<SeedStatus>,
+    singular_report: AffineSingularSeriesReport,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -164,6 +170,10 @@ fn main() {
                 "residue_gate_matrix.png".to_string(),
                 "throughput_funnel.png".to_string(),
                 "transfer_collapse.png".to_string(),
+                "geodesic_residue_path.png".to_string(),
+                "residue_weather_map.png".to_string(),
+                "singular_profile_dashboard.png".to_string(),
+                "unit_cycle_chord_map.png".to_string(),
                 "artifact_manifest.json".to_string(),
             ],
         },
@@ -218,11 +228,13 @@ fn build_visual_data(seed_count: u64) -> VisualData {
             }
         })
         .collect();
+    let singular_report = build_affine_singular_series_report(Default::default());
     VisualData {
         lane,
         residue_rows,
         moduli,
         statuses,
+        singular_report,
     }
 }
 
@@ -286,6 +298,14 @@ fn render_visuals(
     render_throughput_funnel(summary, &funnel_path);
     let transfer_path = out_dir.join("transfer_collapse.png");
     render_transfer_collapse(summary, &transfer_path);
+    let geodesic_path = out_dir.join("geodesic_residue_path.png");
+    render_geodesic_residue_path(data, &geodesic_path);
+    let weather_path = out_dir.join("residue_weather_map.png");
+    render_residue_weather_map(data, &weather_path);
+    let singular_path = out_dir.join("singular_profile_dashboard.png");
+    render_singular_profile_dashboard(&data.singular_report.lane_rows, &singular_path);
+    let chord_path = out_dir.join("unit_cycle_chord_map.png");
+    render_unit_cycle_chord_map(&data.singular_report.lane_rows, &chord_path);
 
     vec![
         VisualArtifactRow {
@@ -325,6 +345,38 @@ fn render_visuals(
             role: "candidate-transfer collapse".to_string(),
             what_to_notice:
                 "The GPU path receives lane metadata and returns a bitmask, not candidate values."
+                    .to_string(),
+        },
+        VisualArtifactRow {
+            variation: "F".to_string(),
+            path: geodesic_path.display().to_string(),
+            role: "geodesic residue path".to_string(),
+            what_to_notice:
+                "The affine seed walk becomes a winding path through residue phase space."
+                    .to_string(),
+        },
+        VisualArtifactRow {
+            variation: "G".to_string(),
+            path: weather_path.display().to_string(),
+            role: "residue weather map".to_string(),
+            what_to_notice:
+                "Composite weather is local and layered: some seeds hit several exact gates, while clearings become survivor candidates."
+                    .to_string(),
+        },
+        VisualArtifactRow {
+            variation: "H".to_string(),
+            path: singular_path.display().to_string(),
+            role: "singular-profile dashboard".to_string(),
+            what_to_notice:
+                "Observed yield is compared with PNT and finite residue-weather expectation before we call anything signal."
+                    .to_string(),
+        },
+        VisualArtifactRow {
+            variation: "I".to_string(),
+            path: chord_path.display().to_string(),
+            role: "unit-cycle chord map".to_string(),
+            what_to_notice:
+                "Digit-pair geometry becomes a base-normalized chord system for phase residual leads."
                     .to_string(),
         },
     ]
@@ -635,6 +687,295 @@ fn render_transfer_collapse(summary: &ReportSummary, path: &Path) {
     .unwrap();
 }
 
+fn render_geodesic_residue_path(data: &VisualData, path: &Path) {
+    let root = BitMapBackend::new(path, (1500, 760)).into_drawing_area();
+    fill_root(&root);
+    title(
+        &root,
+        "Variation F: geodesic residue path",
+        "Project the affine seed walk onto two residue cycles; witnesses appear as rare clear points.",
+    );
+
+    let mod_x = 7u64;
+    let mod_y = 11u64;
+    let limit = data.statuses.len().min(420);
+    let phase = |row: &SeedStatus| {
+        (
+            (row.value % mod_x) as f64 / mod_x as f64,
+            (row.value % mod_y) as f64 / mod_y as f64,
+        )
+    };
+
+    let chart_area = root.margin(95, 70, 90, 90);
+    let mut chart = ChartBuilder::on(&chart_area)
+        .margin(10)
+        .x_label_area_size(50)
+        .y_label_area_size(60)
+        .build_cartesian_2d(0.0..1.0, 0.0..1.0)
+        .unwrap();
+    chart
+        .configure_mesh()
+        .x_desc("phase mod 7")
+        .y_desc("phase mod 11")
+        .label_style(("sans-serif", 18).into_font().color(&MUTED))
+        .axis_style(MUTED)
+        .light_line_style(PALE)
+        .draw()
+        .unwrap();
+
+    chart
+        .draw_series(LineSeries::new(
+            data.statuses.iter().take(limit).map(phase),
+            BLUE.mix(0.25).stroke_width(2),
+        ))
+        .unwrap();
+    chart
+        .draw_series(data.statuses.iter().take(limit).map(|row| {
+            let color = if row.prime {
+                GOLD
+            } else if row.survivor {
+                GREEN
+            } else {
+                RED
+            };
+            Circle::new(
+                phase(row),
+                if row.prime { 6 } else { 3 },
+                color.mix(0.72).filled(),
+            )
+        }))
+        .unwrap();
+
+    root.draw(&Text::new(
+        "The line is straight in seed-space, but it winds when seen through modular cycles.",
+        (105, 690),
+        ("sans-serif", 22).into_font().color(&INK),
+    ))
+    .unwrap();
+    legend(
+        &root,
+        1120,
+        160,
+        &[
+            ("blocked seed", RED),
+            ("residue survivor", GREEN),
+            ("prime witness", GOLD),
+        ],
+    );
+}
+
+fn render_residue_weather_map(data: &VisualData, path: &Path) {
+    let root = BitMapBackend::new(path, (1500, 760)).into_drawing_area();
+    fill_root(&root);
+    title(
+        &root,
+        "Variation G: residue weather map",
+        "Each seed has local weather: how many exact small-prime gates block it?",
+    );
+
+    let limit = data.statuses.len().min(620);
+    let block_counts = data
+        .statuses
+        .iter()
+        .take(limit)
+        .map(|row| seed_block_count(&data.residue_rows, row.seed))
+        .collect::<Vec<_>>();
+    let max_blocks = block_counts.iter().copied().max().unwrap_or(1).max(1);
+    let chart_area = root.margin(95, 70, 85, 70);
+    let mut chart = ChartBuilder::on(&chart_area)
+        .margin(10)
+        .x_label_area_size(44)
+        .y_label_area_size(70)
+        .build_cartesian_2d(0u64..limit as u64, 0u32..max_blocks + 1)
+        .unwrap();
+    chart
+        .configure_mesh()
+        .disable_mesh()
+        .x_desc("seed s")
+        .y_desc("blocking gates")
+        .label_style(("sans-serif", 18).into_font().color(&MUTED))
+        .axis_style(MUTED)
+        .draw()
+        .unwrap();
+
+    chart
+        .draw_series(
+            data.statuses
+                .iter()
+                .take(limit)
+                .zip(block_counts.iter())
+                .map(|(row, &blocks)| {
+                    let color = if row.prime {
+                        GOLD
+                    } else if blocks == 0 {
+                        GREEN
+                    } else {
+                        RED
+                    };
+                    let height = blocks.max(1);
+                    Rectangle::new(
+                        [(row.seed, 0), (row.seed + 1, height)],
+                        color.mix(if blocks == 0 { 0.55 } else { 0.72 }).filled(),
+                    )
+                }),
+        )
+        .unwrap();
+
+    root.draw(&Text::new(
+        "Zero blocks means a seed survives the finite gate profile; gold bars are confirmed prime witnesses.",
+        (105, 690),
+        ("sans-serif", 22).into_font().color(&INK),
+    ))
+    .unwrap();
+}
+
+fn render_singular_profile_dashboard(rows: &[AffineSingularLaneRow], path: &Path) {
+    let root = BitMapBackend::new(path, (1500, 860)).into_drawing_area();
+    fill_root(&root);
+    title(
+        &root,
+        "Variation H: finite singular-profile dashboard",
+        "Observed yield, PNT size expectation, and residue-weather expectation share one lane card.",
+    );
+
+    let mut ranked = rows.iter().collect::<Vec<_>>();
+    ranked.sort_by(|left, right| {
+        right
+            .abs_residual_vs_residue_expected_pp
+            .total_cmp(&left.abs_residual_vs_residue_expected_pp)
+    });
+    ranked.truncate(9);
+    let max_rate = ranked
+        .iter()
+        .flat_map(|row| {
+            [
+                row.observed_prime_rate,
+                row.pnt_expected_density,
+                row.residue_adjusted_expected_density,
+            ]
+        })
+        .fold(0.01_f64, f64::max);
+    for (index, row) in ranked.iter().enumerate() {
+        let y = 145 + index as i32 * 72;
+        root.draw(&Text::new(
+            format!(
+                "{}  base {} {} {}",
+                row.role, row.base, row.pair_label, row.k_label
+            ),
+            (60, y + 20),
+            ("sans-serif", 17).into_font().color(&INK),
+        ))
+        .unwrap();
+        draw_rate_bar(
+            &root,
+            500,
+            y,
+            row.pnt_expected_density,
+            max_rate,
+            PALE,
+            "PNT",
+        );
+        draw_rate_bar(
+            &root,
+            760,
+            y,
+            row.residue_adjusted_expected_density,
+            max_rate,
+            TEAL,
+            "residue",
+        );
+        draw_rate_bar(
+            &root,
+            1020,
+            y,
+            row.observed_prime_rate,
+            max_rate,
+            GOLD,
+            "observed",
+        );
+        let residual_color = if row.residual_vs_residue_expected_pp >= 0.0 {
+            GREEN
+        } else {
+            RED
+        };
+        root.draw(&Text::new(
+            format!("{:+.2} pp", row.residual_vs_residue_expected_pp),
+            (1290, y + 22),
+            ("sans-serif", 20).into_font().color(&residual_color),
+        ))
+        .unwrap();
+    }
+}
+
+fn render_unit_cycle_chord_map(rows: &[AffineSingularLaneRow], path: &Path) {
+    let root = BitMapBackend::new(path, (1500, 860)).into_drawing_area();
+    fill_root(&root);
+    title(
+        &root,
+        "Variation I: unit-cycle chord map",
+        "Base-30 role swaps as chords on the unit-residue cycle, colored by finite residual.",
+    );
+
+    let units = unit_residues(30);
+    let center = (500, 440);
+    let radius = 275;
+    root.draw(&Circle::new(center, radius, MUTED.stroke_width(2)))
+        .unwrap();
+    for (index, digit) in units.iter().enumerate() {
+        let (x, y) = unit_cycle_point(index, units.len(), center, radius);
+        root.draw(&Circle::new((x, y), 8, BLUE.filled())).unwrap();
+        root.draw(&Text::new(
+            digit_symbol(*digit),
+            (x - 10, y - 18),
+            ("sans-serif", 18).into_font().color(&INK),
+        ))
+        .unwrap();
+    }
+
+    let focus_rows = rows
+        .iter()
+        .filter(|row| row.base == 30 && row.outer == 1 && row.k_label == "k=(0,0)")
+        .take(6)
+        .collect::<Vec<_>>();
+    for (index, row) in focus_rows.iter().enumerate() {
+        let Some(outer_index) = units.iter().position(|digit| *digit == row.outer) else {
+            continue;
+        };
+        let Some(inner_index) = units.iter().position(|digit| *digit == row.inner) else {
+            continue;
+        };
+        let from = unit_cycle_point(outer_index, units.len(), center, radius);
+        let to = unit_cycle_point(inner_index, units.len(), center, radius);
+        let color = if row.residual_vs_residue_expected_pp >= 0.0 {
+            GREEN
+        } else {
+            RED
+        };
+        root.draw(&PathElement::new(
+            vec![from, to],
+            color.mix(0.68).stroke_width(5),
+        ))
+        .unwrap();
+        root.draw(&Text::new(
+            format!(
+                "{} -> {}  {:+.2} pp",
+                digit_symbol(row.outer),
+                digit_symbol(row.inner),
+                row.residual_vs_residue_expected_pp
+            ),
+            (900, 190 + index as i32 * 58),
+            ("sans-serif", 24).into_font().color(&color),
+        ))
+        .unwrap();
+    }
+    root.draw(&Text::new(
+        "Same circle radius; bases differ by bead count and unit positions. Chords are a way to see role geometry.",
+        (80, 790),
+        ("sans-serif", 22).into_font().color(&INK),
+    ))
+    .unwrap();
+}
+
 fn render_report(summary: &ReportSummary, visuals: &[VisualArtifactRow]) -> String {
     let mut lines = Vec::new();
     lines.push("# Prime Witness Engine Visual Atlas".to_string());
@@ -668,7 +1009,7 @@ fn render_report(summary: &ReportSummary, visuals: &[VisualArtifactRow]) -> Stri
     }
     lines.push(String::new());
     lines.push("## Current Favorite".to_string());
-    lines.push("The residue gate matrix plus the transfer-collapse panel feel like the strongest pair: one explains the arithmetic, the other explains why the systems architecture is different.".to_string());
+    lines.push("The geodesic residue path plus the singular-profile dashboard feel like the strongest new pair: one lets the imagination see the affine walk, while the other keeps the claim honest against finite residue-weather accounting.".to_string());
     lines.push(String::new());
     lines.push("## Guardrail".to_string());
     lines.push("These visuals show a structured candidate funnel and real prime witnesses. They do not claim a global prime-density theorem.".to_string());
@@ -761,6 +1102,46 @@ fn draw_arrow(
         color.filled(),
     ))
     .unwrap();
+}
+
+fn draw_rate_bar(
+    root: &DrawingArea<BitMapBackend<'_>, Shift>,
+    x: i32,
+    y: i32,
+    rate: f64,
+    max_rate: f64,
+    color: RGBColor,
+    label: &str,
+) {
+    let width = ((rate / max_rate) * 190.0).max(5.0) as i32;
+    root.draw(&Rectangle::new(
+        [(x, y), (x + width, y + 26)],
+        color.mix(0.78).filled(),
+    ))
+    .unwrap();
+    root.draw(&Text::new(
+        format!("{label} {:.2}%", rate * 100.0),
+        (x, y + 50),
+        ("sans-serif", 14).into_font().color(&MUTED),
+    ))
+    .unwrap();
+}
+
+fn seed_block_count(rows: &[MetalAffineResidueRow], seed: u64) -> u32 {
+    rows.iter()
+        .filter(|row| {
+            let p = row.p as u64;
+            (row.a as u64 + ((seed % p) * row.g as u64) % p).is_multiple_of(p)
+        })
+        .count() as u32
+}
+
+fn unit_cycle_point(index: usize, count: usize, center: (i32, i32), radius: i32) -> (i32, i32) {
+    let angle = -PI / 2.0 + 2.0 * PI * index as f64 / count as f64;
+    (
+        center.0 + (radius as f64 * angle.cos()).round() as i32,
+        center.1 + (radius as f64 * angle.sin()).round() as i32,
+    )
 }
 
 fn ratio(num: u64, den: u64) -> f64 {

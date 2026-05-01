@@ -22,6 +22,7 @@ interactive tools do not get mixed together.
 |---|---|---|
 | `scripts/signal_spine.sh` | `repo-artifact` | Captures the maintained signal spine under `reports/signal-spine/<run-id>/`. |
 | `scripts/signal_spine.sh witness-engine` | `repo-artifact` | Prime Witness Engine umbrella smoke: runs seed-to-witness and large-witness report bundles under one group. |
+| `scripts/signal_spine.sh singular-series` | `repo-artifact` | Non-default finite affine singular-profile scout for small-prime residue-weather residuals. |
 
 ## Scripts
 
@@ -130,6 +131,7 @@ interactive tools do not get mixed together.
 | `seed_to_witness_demo_report` | `writes-/tmp` | Prime Witness Engine transcript bundle; writes one-seed-to-large-witness demo output with CSV/JSON rows and copyable WolframAlpha/Mathematica/PARI/Sage verification snippets. |
 | `timestamp_seed_policy_report` | `writes-/tmp` | Prime Witness Engine policy report; measures bounded timestamp-like seed-origin success rates and step quantiles for full-middle and 128-digit lanes. |
 | `special_form_witness_comparison_report` | `writes-/tmp` | Prime Witness Engine special-form comparison report; places Mersenne-prime examples beside affine membrane witnesses with exact Mersenne classification. |
+| `affine_singular_series_report` | `writes-/tmp` | Finite affine singular-profile scout comparing observed lane yield against PNT plus exact small-prime residue-weather expectation. |
 | `construction_density_atlas_report` | `writes-/tmp` | Writes density-drift atlas bundle for maintained plus stress-test affine membrane families, including layered controls and visual panels. |
 | `base30_wheel_compact_report` | `writes-/tmp` | Writes focused base-30 compact wheel bundle with all-pair heatmap, `(B,7)` residue funnel, and witness gallery. |
 | `base30_reversal_asymmetry_report` | `writes-/tmp` | Writes compact base-30 ordered-pair reversal bundle with signed delta heatmap, residue-phase rows, and witness gallery. |
@@ -141,7 +143,7 @@ interactive tools do not get mixed together.
 | `base57_affine_codec_report` | `writes-/tmp` | Writes base57 codec experiment bundle comparing ordinary radix transcoding with residue-filtered and prime-witness affine notation chunks. |
 | `metal_affine_transfer_collapse_report` | `writes-/tmp` | Feature-gated macOS/Metal report for candidate-transfer collapse; use `--features metal`. |
 | `metal_affine_benchmark_report` | `writes-/tmp` | Feature-gated local benchmark of Metal affine transfer-collapse against CPU affine and ordinary candidate baselines; includes repeated Metal dispatch setup timing, a beyond-`u64` BigUint probable-prime row, a source-grounded external comparison frame, and optional local CLI rows for tools such as OpenSSL and primesieve. |
-| `prime_witness_engine_visual_atlas` | `writes-/tmp` | Visual atlas for affine membrane prime families: construction strip, affine line, residue gate matrix, throughput funnel, and transfer-collapse panels. |
+| `prime_witness_engine_visual_atlas` | `writes-/tmp` | Visual atlas for affine membrane prime families: construction strip, affine line, residue gates, funnel, transfer collapse, geodesic residue path, singular-profile dashboard, and unit-cycle chords. |
 | `affine_period_lock_species_report` | `writes-/tmp` | Writes report bundle by default. |
 | `base22_gradient_pocket_report` | `writes-/tmp` | Writes report bundle by default. |
 | `base10_persistence_species_report` | `writes-/tmp` | Writes report bundle by default. |

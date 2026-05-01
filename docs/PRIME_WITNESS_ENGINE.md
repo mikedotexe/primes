@@ -47,6 +47,7 @@ construction family.
 | `cargo run --release --example large_affine_witness_ladder_report -- --profile release` | Measurement entrypoint for the large witness ladder. |
 | `cargo run --release --example timestamp_seed_policy_report -- --profile release` | Bounded empirical policy for timestamp-like seed origins. |
 | `cargo run --release --example special_form_witness_comparison_report` | Mersenne-style special-form comparison for compact descriptors and non-Mersenne affine witnesses. |
+| `cargo run --release --example affine_singular_series_report` | Finite residue-weather scout for choosing later ladder targets. |
 | `scripts/signal_spine.sh witness-engine` | Umbrella smoke group for seed and ladder reports. |
 
 ## One-Command Timestamp Demo
@@ -208,6 +209,8 @@ witnesses are large, readable, structured, and explicitly `not_mersenne`.
 
 - Add a proof/certificate path for large witnesses.
 - Broaden the lane catalog beyond decimal `(3,7), k=(2,1)`.
+- Use the finite affine singular-profile scout to choose which lanes deserve
+  witness-ladder expansion after size and residue-weather controls.
 - Strengthen residue gates and make the max-step policy adaptive.
 - Bridge Metal candidate-transfer collapse to BigUint survivor confirmation.
 - Keep matched-control density interpretation separate from witness throughput.

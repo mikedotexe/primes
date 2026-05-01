@@ -10,6 +10,7 @@ pub mod affine_hinge;
 pub mod affine_period_lock;
 pub mod affine_period_lock_species;
 pub mod affine_phase_residual;
+pub mod affine_singular_series;
 pub mod base30_reversal;
 pub mod base30_wheel;
 pub mod base57_affine_codec;

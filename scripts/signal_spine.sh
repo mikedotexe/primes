@@ -13,7 +13,7 @@ MATCHED_MIN_SEED_LEN="${SIGNAL_SPINE_MATCHED_MIN_SEED_LEN:-1}"
 MATCHED_MAX_SEED_LEN="${SIGNAL_SPINE_MATCHED_MAX_SEED_LEN:-2}"
 
 DEFAULT_GROUPS=(core membrane connector affine transfer matched-control)
-ALL_GROUPS=(core membrane connector affine transfer matched-control fast-generation large-witness seed-witness witness-engine phase-residual shift-phase unit-cycle base-neighbor base57-codec proof-catalog)
+ALL_GROUPS=(core membrane connector affine transfer matched-control fast-generation large-witness seed-witness witness-engine singular-series phase-residual shift-phase unit-cycle base-neighbor base57-codec proof-catalog)
 
 usage() {
   cat <<EOF
@@ -30,6 +30,7 @@ Groups:
   large-witness    Non-default large affine witness ladder smoke
   seed-witness     Non-default one-seed-to-large-witness demo transcript
   witness-engine   Non-default Prime Witness Engine umbrella smoke
+  singular-series  Non-default finite affine singular-profile scout
   phase-residual   Non-default cross-base compact affine phase residual atlas
   shift-phase      Non-default curated shift-phase signal mining follow-up
   unit-cycle       Non-default unit-cycle normalized phase signal report
@@ -95,7 +96,7 @@ group_enabled() {
 mkdir -p "$OUT_ROOT/stdout" "$OUT_ROOT/core" "$OUT_ROOT/membrane" "$OUT_ROOT/connector" \
   "$OUT_ROOT/affine" "$OUT_ROOT/transfer" "$OUT_ROOT/matched-control" \
   "$OUT_ROOT/fast-generation" "$OUT_ROOT/large-witness" "$OUT_ROOT/seed-witness" \
-  "$OUT_ROOT/witness-engine" \
+  "$OUT_ROOT/witness-engine" "$OUT_ROOT/singular-series" \
   "$OUT_ROOT/phase-residual" "$OUT_ROOT/shift-phase" "$OUT_ROOT/unit-cycle" \
   "$OUT_ROOT/base-neighbor" "$OUT_ROOT/base57-codec" "$OUT_ROOT/proof-catalog"
 
@@ -249,6 +250,12 @@ run_witness_engine() {
       --out-dir "$OUT_ROOT/witness-engine/special_form_witness_comparison"
 }
 
+run_singular_series() {
+  run_cmd singular-series affine_singular_series "$OUT_ROOT/singular-series/affine_singular_series" \
+    cargo run --release --example affine_singular_series_report -- \
+      --out-dir "$OUT_ROOT/singular-series/affine_singular_series"
+}
+
 run_phase_residual() {
   run_cmd phase-residual affine_phase_residual_atlas "$OUT_ROOT/phase-residual/affine_phase_residual_atlas" \
     cargo run --release --example affine_phase_residual_atlas_report -- \
@@ -288,7 +295,7 @@ run_proof_catalog() {
     scripts/agda_generated_catalog.sh verify
 }
 
-for group in "${DEFAULT_GROUPS[@]}" fast-generation large-witness seed-witness witness-engine phase-residual shift-phase unit-cycle base-neighbor base57-codec proof-catalog; do
+for group in "${DEFAULT_GROUPS[@]}" fast-generation large-witness seed-witness witness-engine singular-series phase-residual shift-phase unit-cycle base-neighbor base57-codec proof-catalog; do
   if group_enabled "$group"; then
     case "$group" in
       core) run_core ;;
@@ -301,6 +308,7 @@ for group in "${DEFAULT_GROUPS[@]}" fast-generation large-witness seed-witness w
       large-witness) run_large_witness ;;
       seed-witness) run_seed_witness ;;
       witness-engine) run_witness_engine ;;
+      singular-series) run_singular_series ;;
       phase-residual) run_phase_residual ;;
       shift-phase) run_shift_phase ;;
       unit-cycle) run_unit_cycle ;;
@@ -417,6 +425,7 @@ for report_path in [
     out_root / "witness-engine" / "large_affine_witness_ladder" / "report.md",
     out_root / "witness-engine" / "timestamp_seed_policy" / "report.md",
     out_root / "witness-engine" / "special_form_witness_comparison" / "report.md",
+    out_root / "singular-series" / "affine_singular_series" / "report.md",
     out_root / "transfer" / "m2_m3_transfer_collapse" / "report.md",
     out_root / "transfer" / "bounded_k_transfer_criterion" / "report.md",
     out_root / "base-neighbor" / "unit_cycle_base_neighbor" / "report.md",

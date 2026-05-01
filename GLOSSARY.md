@@ -213,6 +213,14 @@ The small-prime moduli, affine shift residues, gradient residues, and excluded
 seed classes attached to a lane. It is the exact finite bookkeeping layer
 between raw candidate generation and primality testing.
 
+### Finite Affine Singular Profile
+
+Small-prime obstruction profile for a specific finite affine lane
+`N(s)=A+G*s`. It compares observed prime yield with ordinary PNT size
+expectation and the exact survivor share through a bounded set of prime residue
+gates. This is a scout metric for ranking follow-up lanes, not an asymptotic
+singular-series theorem.
+
 ### Survivor Yield
 
 The prime rate among seeds that survive the exact residue gate profile used in

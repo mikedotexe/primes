@@ -59,6 +59,8 @@ cargo run --release --example seed_to_witness_demo_report # Report bundle for th
 cargo run --release --example timestamp_seed_policy_report # Bounded empirical timestamp-origin policy measurement
 cargo run --release --example special_form_witness_comparison_report # Mersenne-style special-form comparison for affine witnesses
 scripts/signal_spine.sh witness-engine # Prime Witness Engine umbrella smoke
+cargo run --release --example affine_singular_series_report # Finite singular-profile scout for residue-weather residual leads
+scripts/signal_spine.sh singular-series # Non-default signal-spine group for the singular-profile scout
 cargo run --release --example construction_density_atlas_report # Density-drift atlas across good, mediocre, and lousy affine membrane families
 cargo run --release --example base30_wheel_compact_report # Focused base-30 compact wheel report with all-pair heatmap, residue funnel, and witness gallery
 cargo run --release --example base30_reversal_asymmetry_report # Ordered-pair reversal asymmetry report for compact base-30 residue phases
@@ -70,7 +72,7 @@ cargo run --release --example unit_cycle_base_neighbor_report # Neighbor-base un
 cargo run --release --example base57_affine_codec_report # Base57 baseline transcoding plus affine residue/prime notation experiment
 cargo run --features metal --release --example metal_affine_transfer_collapse_report # Metal affine transfer-collapse report: residue metadata in, survivor bitmask out
 cargo run --features metal --release --example metal_affine_benchmark_report # Local benchmark of Metal affine transfer-collapse vs CPU affine and ordinary candidate baselines
-cargo run --release --example prime_witness_engine_visual_atlas # Visual atlas of construction grammar, affine line, residue gates, funnel, and transfer-collapse panels
+cargo run --release --example prime_witness_engine_visual_atlas # Visual atlas of construction grammar, affine paths, residue weather, singular profiles, and unit-cycle geometry
 cargo run --release --example affine_period_lock_species_report # Order-spectrum + shift-residual atlas exploiting the period-lock theorem on the hinge-family direct lane surface
 cargo run --release --example base22_gradient_pocket_report # Focused autopsy of the base-22, k=(2,2), mod-5 residual gradient_only pocket at M=2
 cargo run --release --example base10_persistence_species_report # Focused base-10 persistence-only report with nearest same-base neighbors and contrast outgroups
@@ -129,6 +131,7 @@ cargo run --example prime_verification_report   # Verify all documented claims
 | `seed_to_witness_demo_report` | Prime Witness Engine transcript bundle with a canonical 128-digit probable-prime witness, a shorter teaching row, CSV/JSON exports, and copyable external verification snippets |
 | `timestamp_seed_policy_report` | Prime Witness Engine policy report that samples timestamp-like seed origins and measures bounded success rates, step quantiles, residue survivors, and witness rows for full-middle and 128-digit lanes |
 | `special_form_witness_comparison_report` | Prime Witness Engine comparison report placing known Mersenne-prime special forms beside affine membrane witnesses, with compact descriptors, confirmation language, and exact `not_mersenne` labels for affine rows |
+| `affine_singular_series_report` | Finite affine singular-profile scout that ranks lane residuals after PNT size expectation and exact small-prime residue-weather accounting; positive rows are follow-up leads, not density theorems |
 | `construction_density_atlas_report` | Density-drift atlas for maintained plus stress-test affine membrane families, exporting layered controls, witness rows, and visuals for residue survival, zero-run drift, and good-vs-lousy construction contrast |
 | `base30_wheel_compact_report` | Focused base-30 compact wheel report that scans all ordered unit pairs for `M=1..3`, exports the `(B,7)` residue funnel, and frames the result as a classical wheel-compressed affine surface rather than residual density magic |
 | `base30_reversal_asymmetry_report` | Focused compact base-30 report comparing each ordered unit pair against its reversal, exporting signed asymmetry heatmaps, residue-phase fingerprints, and witnesses for the strongest swapped-role cases |
@@ -140,7 +143,7 @@ cargo run --example prime_verification_report   # Verify all documented claims
 | `base57_affine_codec_report` | Base57 codec experiment comparing ordinary base58/base57 transcoding and base-invariant value maps against residue-filtered and prime-witness affine notation chunks. |
 | `metal_affine_transfer_collapse_report` | Feature-gated Metal report comparing CPU fast affine, legacy candidate-buffer GPU, and maintained affine transfer-collapse paths; use `--features metal` on macOS |
 | `metal_affine_benchmark_report` | Feature-gated local benchmark comparing Metal affine transfer-collapse against CPU affine wheels, CPU residue rows, sequential odd scans, small-prime wheel scans, and random same-window odd candidates; includes repeated Metal dispatch setup timing, a beyond-`u64` BigUint probable-prime row, a source-grounded external comparison frame, and optional local CLI rows for tools such as OpenSSL and primesieve |
-| `prime_witness_engine_visual_atlas` | Visual atlas for explaining affine membrane prime families through five maintained panels: construction grammar, affine line, residue gate matrix, throughput funnel, and candidate-transfer collapse |
+| `prime_witness_engine_visual_atlas` | Visual atlas for explaining affine membrane prime families through construction grammar, affine lines, residue gates, transfer collapse, geodesic residue paths, residue weather, singular-profile dashboards, and unit-cycle chord geometry |
 | `affine_period_lock_species_report` | Downstream order-spectrum + shift-residual atlas for the period-lock lane, treating direct `k=(0,0) -> each noncompact lane` comparisons as the theorem surface, separating low-order lock mass from higher-order locked `gradient_only` side-pockets, and using base `30` as a theorem-facing control |
 | `base22_gradient_pocket_report` | Focused autopsy of the base-22 `M=2` residual `gradient_only` pocket, centered on the direct lane `k=(0,0) -> (2,2)` and the exact mod-5 shift/gradient formulas that separate the pocket rows from the collapsed columns `inner=5,F` |
 | `base10_persistence_species_report` | Focused base-10 follow-up on the load-bearing `persistence_only` witness `(3,3)`, comparing it against structured same-base neighbors plus tiny persistence-only and hinge outgroups and running a local exact rule search on the focused species surface |

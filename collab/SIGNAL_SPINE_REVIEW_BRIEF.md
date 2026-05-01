@@ -183,6 +183,8 @@ scripts/signal_spine.sh --all
 ## Next Research Queue
 
 - `phase-residual`: broaden compact same-gradient reversal leads.
+- `singular-series`: rank lanes by finite affine singular profiles before
+  treating residuals as density signal or ladder targets.
 - `shift-phase`: follow mature leads and foils through M4 surfaces.
 - `unit-cycle`: test whether arc geometry survives base normalization.
 - `witness-engine`: add proof/certificate paths, extend the visible ladder to
