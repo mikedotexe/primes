@@ -10,7 +10,7 @@ With k=(0,0) padding (no zeros between sections)
 
 | Base | Config | Success Rate | Example |
 |------|--------|--------------|---------|
-| 6 | (1,5) | 31% | 15651 → 2551 |
+| 6 | (1,5) | 31% | 15451 -> 2551 |
 | 4 | (3,1) | 28% | 31213 → 877 |
 | 30 | (11,7) | 24% | B7C7B → varies |
 | 12 | (1,11) | 23% | 1B5B1 → varies |

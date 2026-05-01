@@ -42,6 +42,23 @@ def rawSegmentHi (lo limit : ℕ) : ℕ :=
 @[simp] theorem oddSegmentSpan_eq : oddSegmentSpan = 524286 := by
   native_decide
 
+@[simp] theorem segOdds_pred_div_eight :
+    (segOdds - 1) / 8 = segBytes - 1 := by
+  unfold segOdds segBits segBytes
+  native_decide
+
+@[simp] theorem segOdds_pred_mod_eight :
+    (segOdds - 1) % 8 = 7 := by
+  unfold segOdds segBits segBytes
+  native_decide
+
+theorem segOdds_pred_eq_last_byte_mul_add_last_bit :
+    segOdds - 1 = 8 * (segBytes - 1) + 7 := by
+  have hDiv := segOdds_pred_div_eight
+  have hMod := segOdds_pred_mod_eight
+  have hDecomp := Nat.div_add_mod (segOdds - 1) 8
+  omega
+
 theorem oddSegmentNumber_last_index (lo : ℕ) :
     oddSegmentNumber lo (segOdds - 1) = lo + oddSegmentSpan := by
   unfold oddSegmentNumber oddSegmentSpan segOdds segBits segBytes

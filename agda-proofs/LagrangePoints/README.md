@@ -3,6 +3,15 @@
 This subtree contains Agda formalization attempts around prime connectors,
 buffer-position scans, and the repository's Lagrange/metaphor vocabulary.
 
+Arithmetic-first reading:
+
+- `ConnectorHit = (pair, width, position, digit, direction)`
+- `ResidueAdmissible` belongs to the exact residue-screen layer
+- `DirectionalAsymmetry` remains an empirical/open layer question
+- "Lagrange point" is still allowed as repo shorthand, but should be read as an
+  optional alias for a productive connector position rather than as a proved
+  equilibrium law
+
 ## Current Status
 
 This area is exploratory, not part of the strongest verified Agda spine.

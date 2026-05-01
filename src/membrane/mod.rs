@@ -186,27 +186,125 @@ impl MembraneConfig {
 
     /// Construct a number with the given middle digit(s)
     pub fn construct_number(&self, middle: u32) -> PhysicsResult<BigUint> {
-        // Handle different middle lengths
-        let middle_str = if self.middle_length == 0 {
-            String::new()
-        } else if self.middle_length == 1 {
-            (middle % 10).to_string()
-        } else {
-            // For longer middles, pad with zeros if needed
-            let mut s = middle.to_string();
-            while s.len() < self.middle_length {
-                s.insert(0, '0');
-            }
-            if s.len() > self.middle_length {
-                s.truncate(self.middle_length);
-            }
-            s
-        };
+        let middle_digits = self.middle_digits_from_seed(middle)?;
+        self.construct_number_from_middle_digits(&middle_digits)
+    }
 
-        let membrane_str = construct_membrane_number(self, &middle_str)?;
-        membrane_str.parse::<BigUint>().map_err(|_| {
-            PhysicsError::InvalidConfiguration("Failed to parse membrane as BigUint".to_string())
-        })
+    /// Convert a seed index into a fixed-width middle block in this
+    /// configuration's base.
+    ///
+    /// The seed is reduced modulo `base^middle_length`, preserving the older
+    /// attempt-number style API while making the digit interpretation explicit.
+    pub fn middle_digits_from_seed(&self, seed: u32) -> PhysicsResult<Vec<u32>> {
+        validate_base(self.base)?;
+
+        if self.middle_length == 0 {
+            return Ok(Vec::new());
+        }
+
+        let capacity = checked_seed_capacity(self.base, self.middle_length)?;
+        let mut value = (seed as u128) % capacity;
+        let base = self.base as u128;
+        let mut digits = vec![0u32; self.middle_length];
+
+        for digit in digits.iter_mut().rev() {
+            *digit = (value % base) as u32;
+            value /= base;
+        }
+
+        Ok(digits)
+    }
+
+    /// Construct the template digit vector in the configured base.
+    pub fn construct_digits_from_middle_digits(
+        &self,
+        middle_digits: &[u32],
+    ) -> PhysicsResult<Vec<u32>> {
+        self.validate_base_digits(middle_digits)?;
+
+        let mut digits = Vec::with_capacity(self.total_digits());
+
+        match &self.construction_type {
+            ConstructionType::Symmetric => {
+                push_symmetric_digits(
+                    &mut digits,
+                    self.outer,
+                    self.inner,
+                    self.k_outer,
+                    self.k_inner,
+                    middle_digits,
+                );
+            }
+            ConstructionType::Breathing {
+                left_k_outer,
+                left_k_inner,
+                right_k_outer,
+                right_k_inner,
+            } => {
+                digits.push(self.outer);
+                digits.extend(std::iter::repeat_n(0, *left_k_outer as usize));
+                digits.push(self.inner);
+                digits.extend(std::iter::repeat_n(0, *left_k_inner as usize));
+                digits.extend_from_slice(middle_digits);
+                digits.extend(std::iter::repeat_n(0, *right_k_inner as usize));
+                digits.push(self.inner);
+                digits.extend(std::iter::repeat_n(0, *right_k_outer as usize));
+                digits.push(self.outer);
+            }
+            ConstructionType::Adaptive { .. } | ConstructionType::Quantum { .. } => {
+                return Err(PhysicsError::InvalidConfiguration(
+                    "base-aware numeric construction currently supports symmetric and breathing membranes"
+                        .to_string(),
+                ));
+            }
+        }
+
+        Ok(digits)
+    }
+
+    /// Construct a numeric value from an explicit fixed-width middle block in
+    /// the configured base.
+    pub fn construct_number_from_middle_digits(
+        &self,
+        middle_digits: &[u32],
+    ) -> PhysicsResult<BigUint> {
+        let digits = self.construct_digits_from_middle_digits(middle_digits)?;
+        Ok(digits_to_biguint(self.base, &digits))
+    }
+
+    fn validate_base_digits(&self, middle_digits: &[u32]) -> PhysicsResult<()> {
+        validate_base(self.base)?;
+
+        if self.outer == 0 || self.outer >= self.base {
+            return Err(PhysicsError::InvalidConfiguration(format!(
+                "outer digit {} must be in 1..{}",
+                self.outer, self.base
+            )));
+        }
+
+        if self.inner == 0 || self.inner >= self.base {
+            return Err(PhysicsError::InvalidConfiguration(format!(
+                "inner digit {} must be in 1..{}",
+                self.inner, self.base
+            )));
+        }
+
+        if middle_digits.len() != self.middle_length {
+            return Err(PhysicsError::InvalidConfiguration(format!(
+                "middle digit length {} does not match configured length {}",
+                middle_digits.len(),
+                self.middle_length
+            )));
+        }
+
+        if let Some(&digit) = middle_digits.iter().find(|&&digit| digit >= self.base) {
+            return Err(PhysicsError::InvalidConfiguration(format!(
+                "middle digit {digit} is not valid in base {}",
+                self.base
+            )));
+        }
+
+        Ok(())
     }
 
     /// Create a breathing membrane with asymmetric padding
@@ -424,6 +522,61 @@ impl MembraneConfig {
         // Check that boundary digits are coprime to the base
         gcd(self.outer, self.base) == 1 && gcd(self.inner, self.base) == 1
     }
+}
+
+fn push_symmetric_digits(
+    digits: &mut Vec<u32>,
+    outer: u32,
+    inner: u32,
+    k_outer: u32,
+    k_inner: u32,
+    middle_digits: &[u32],
+) {
+    digits.push(outer);
+    digits.extend(std::iter::repeat_n(0, k_outer as usize));
+    digits.push(inner);
+    digits.extend(std::iter::repeat_n(0, k_inner as usize));
+    digits.extend_from_slice(middle_digits);
+    digits.extend(std::iter::repeat_n(0, k_inner as usize));
+    digits.push(inner);
+    digits.extend(std::iter::repeat_n(0, k_outer as usize));
+    digits.push(outer);
+}
+
+fn digits_to_biguint(base: u32, digits: &[u32]) -> BigUint {
+    let base = BigUint::from(base);
+    let mut value = BigUint::from(0u32);
+
+    for &digit in digits {
+        value *= &base;
+        value += digit;
+    }
+
+    value
+}
+
+fn validate_base(base: u32) -> PhysicsResult<()> {
+    if base < 2 {
+        return Err(PhysicsError::InvalidConfiguration(format!(
+            "base {base} must be at least 2"
+        )));
+    }
+
+    Ok(())
+}
+
+fn checked_seed_capacity(base: u32, width: usize) -> PhysicsResult<u128> {
+    let mut capacity = 1u128;
+
+    for _ in 0..width {
+        capacity = capacity.checked_mul(base as u128).ok_or_else(|| {
+            PhysicsError::InvalidConfiguration(format!(
+                "base^{width} overflows seed capacity for base {base}"
+            ))
+        })?;
+    }
+
+    Ok(capacity)
 }
 
 /// Builder for creating membrane-constructed prime particles
@@ -1019,6 +1172,29 @@ mod tests {
         let num = cfg.construct_number(5).unwrap();
         // 3-00-7-0-5-0-7-00-3 = 30070507003 (11 digits)
         assert_eq!(num, BigUint::from_str("30070507003").unwrap());
+    }
+
+    #[test]
+    fn test_base_aware_construct_number_base6_seed_four() {
+        let cfg = MembraneConfig::new(6, 1, 5, 0, 0);
+        let num = cfg.construct_number(4).unwrap();
+        // 15451 (base 6) = 2551 decimal.
+        assert_eq!(num, BigUint::from(2551u32));
+        assert!(crate::is_prime(&num), "base-6 witness should be prime");
+    }
+
+    #[test]
+    fn test_base_aware_digit_vector_base30() {
+        let cfg = MembraneConfig::new(30, 11, 7, 0, 0);
+        let digits = cfg.construct_digits_from_middle_digits(&[29]).unwrap();
+        assert_eq!(digits, vec![11, 7, 29, 7, 11]);
+    }
+
+    #[test]
+    fn test_construct_number_reduces_seed_to_middle_space() {
+        let cfg = MembraneConfig::new(10, 7, 3, 0, 0);
+        let num = cfg.construct_number(999).unwrap();
+        assert_eq!(num, BigUint::from(73937u32));
     }
 
     #[test]

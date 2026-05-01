@@ -351,9 +351,9 @@ theorem segmentRuntimeConsecutive_byte_separated_of_eight_le_p
     (hP : 8 ≤ p) :
     segmentByteIndex lo (runtimeMarkedBy p segLo step) ≠
       segmentByteIndex lo (runtimeMarkedBy p segLo (step + 1)) := by
-  rw [runtimeMarkedBy_succ]
-  exact segmentByteIndex_ne_of_add_two_mul_ge_eight
-    hLo hLoOdd (odd_runtimeMarkedBy hpOdd) hP
+  simpa using
+    (segmentByteIndex_runtimeMarkedBy_add_ne_of_eight_le_mul
+      (step := step) (k := 1) hLo hLoOdd hpOdd (by simpa using hP))
 
 theorem segmentRuntimeRead_step_of_consecutivePrefix_of_eight_le_p (bytes : SegmentByteState)
     {lo limit p segLo step : ℕ}

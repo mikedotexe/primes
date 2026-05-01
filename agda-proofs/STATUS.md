@@ -1,18 +1,18 @@
 # Agda Verification Status
 
-**Last Updated**: 2026-03-13 (updated after nonzero fixed-point recovery)
+**Last Updated**: 2026-04-14 (updated after affine hinge classifier mirror shell)
 **Agda Version**: 2.8.0 (installed via Homebrew)
 **Standard Library**: v2.3
-**Total modules**: 81
+**Total modules**: 87
 
 ## Summary
 
 | Category | Count | Percentage |
 |----------|-------|------------|
-| Pass (clean-local, no local postulates) | 40 | 49.4% |
-| Pass (with local postulates) | 41 | 50.6% |
+| Pass (clean-local, no local postulates) | 46 | 52.9% |
+| Pass (with local postulates) | 41 | 47.1% |
 | Fail | 0 | 0.0% |
-| **Total** | **81** | |
+| **Total** | **86** | |
 
 **Methodology**: Each module tested individually with `agda <file>` after clearing
 the `_build/` cache directory. Exit code 0 = pass, exit code 42 = fail. Postulate
@@ -22,7 +22,7 @@ postulated foundations are called out explicitly in the notes.
 
 ## Modules That Pass (Clean-Local -- No Local Postulates)
 
-These 40 modules type-check and contain no local postulates. Most are fully
+These 46 modules type-check and contain no local postulates. Most are fully
 machine-checked within the maintained spine; any clean-local module that still
 imports a postulated foundation is marked explicitly in the description.
 
@@ -34,6 +34,7 @@ imports a postulated foundation is marked explicitly in the description.
 | Theorems/Abstract/SymmetryFiniteReflect | Clean modular reflection layer: `reflect-involutive`, `reflect mid mid`, and the canonical even-base observed fixed-point classifier are constructive; generic callers now consume an explicit `ObservedFixedPointClassifier` contract instead of a hidden half-turn shell |
 | Theorems/Abstract/BucketsAutoMatch | Clean abstract certification bridge: support collection/transport, residue-distinctness, and involutive matching are now constructive; `SupportCountsAgree` is carried as an explicit API contract rather than a local theorem postulate |
 | Theorems/Abstract/WindowCertificate | Clean dual-certificate builder over explicit static contracts plus the narrower `PointwiseSafe` dynamic contract; `StableOrbital` is now derived internally, and the hypothetical Base-14 sketch remains extracted |
+| Theorems/Abstract/FiniteMaskTransfer | Clean five-bucket transfer partition for bounded-`k` witnesses: shared admissible overlap, admissible totals, same-mask totals, zero-union totals, and bucketwise good-count decomposition are now exact list-level identities |
 | Core/Primality | Primality definitions and basic properties |
 | Core/CRTVector | Chinese Remainder Theorem vector operations |
 | Core/Equiv | Equivalence relations |
@@ -61,11 +62,17 @@ imports a postulated foundation is marked explicitly in the description.
 | Theorems/CoordinateEigenspace | Clean eigenspace witnesses for bases 7, 14, and 18 with repaired variance/coprimality helpers |
 | Theorems/ConstrainedOrbitals | Non-abstract orbital wrapper recovered as a genuinely constructive narrative layer |
 | Theorems/AffineTransformComputation | Clean affine computation shell with maintained base-6 residue checks and reported base-10 observations |
+| Theorems/AffineLaneComparisonShell | Clean Lean-led mirror shell for local affine lane-comparison vocabulary: shift, gradient, zero-seed class, and the intended relation labels are stable in Agda, while the theorem engine remains Lean-first |
+| Theorems/AffinePeriodLockShell | Clean Lean-led mirror shell for local affine period-lock vocabulary: gradient positions, locked/unlocked comparisons, and the relation-label split stay stable in Agda while the exact theorem remains Lean-first |
+| Theorems/BoundedKCompactness | Clean bounded-`k` compactness shell: exact padding/diameter arithmetic, `k = (0,0)` minimization, and monotone coordinate shifts are constructive |
 | Theorems/MirrorObstruction | Mirror obstruction theorem |
 | Theorems/RationalStatistics | Rational number statistics |
 | Theorems/SpectralRigidity | Spectral rigidity theorem |
 | Complete/OrthogonalityFloat | Clean executable float backend for the prime-pair orthogonality experiment; not part of the maintained clean spine, but no local postulates remain |
+| Examples/BoundedKTransferWitnessShell | Clean Agda shell for exact bounded-`k` witness summaries: signed deltas, overlap/boundary predicates, and exact admissible-count projections are stable and generation-friendly |
 | Examples/CertifiedResonanceComplete | Base 6 certification (all proofs, no postulates) |
+| Examples/Generated/BoundedKTransferWitnessCatalog | Clean auto-generated witness catalog from the Rust bounded-`k` lane for the maintained base-10, base-14, base-22, and base-34 `M = 2` contrasts |
+| Examples/BoundedKTransferWitnesses | Clean maintained wrapper that re-exports the exact witness shell and the generated bounded-`k` witness catalog |
 | Examples/CertifiedResonanceParam | Clean-local one-shot certification wrapper; the canonical even-base path no longer needs a manual midpoint witness, and the concrete `countResid` path discharges its support-count contract constructively without any imported auto-pairing theorem |
 | Examples/CertifiedResonanceParamDyn | Clean-local dual certification wrapper; the canonical even-base path no longer needs a manual midpoint witness, and the old Base-6 runtime witness shell now lives in a separate sketch note |
 

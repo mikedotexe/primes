@@ -42,73 +42,7 @@ jobs:
         run: |
           echo "$(pwd)/agda-proofs/prime-physics-engine.agda-lib" >> ~/.agda/libraries
 
-      - name: Verify passing modules (19 clean + 13 postulated = 32 total)
+      - name: Verify maintained clean spine
         working-directory: agda-proofs
         run: |
-          echo "Verifying all 32 passing Agda modules..."
-          echo "See agda-proofs/STATUS.md for ground truth."
-          echo ""
-
-          passed=0
-          failed=0
-
-          # 19 modules that pass clean (no postulates)
-          clean_modules=(
-            Theorems/Abstract/SymmetryImpliesRepulsion.agda
-            Theorems/Abstract/SymmetryFromList.agda
-            Theorems/Abstract/ConstrainedOrbitals.agda
-            Core/Primality.agda
-            Core/CRTVector.agda
-            Core/Equiv.agda
-            Core/ResidueFold.agda
-            Specs/SpacingResidueModel.agda
-            Specs/PalindromeEvenDivides.agda
-            Specs/Tests.agda
-            Advanced/Statistics.agda
-            Dependencies.agda
-            Test/SimpleImportTest.agda
-            Tests/DevProofs.agda
-            Theorems/ElbowsFromCSV.agda
-            Theorems/GlobalElbowFacts.agda
-            Theorems/MirrorObstruction.agda
-            Theorems/RationalStatistics.agda
-            Theorems/SpectralRigidity.agda
-          )
-
-          # 13 modules that pass with postulates
-          postulated_modules=(
-            Core/HonoraryZero.agda
-            Theorems/Abstract/SymmetryFiniteReflect.agda
-            Theorems/Abstract/BucketsAutoMatch.agda
-            Theorems/Abstract/WindowCertificate.agda
-            Examples/CertifiedResonanceComplete.agda
-            Examples/CertifiedResonanceParam.agda
-            Examples/CertifiedResonanceParamDyn.agda
-            LagrangePoints/ZeroPaddedPrimes/Alphabet036.agda
-            LagrangePoints/ZeroPaddedPrimes/Asymmetry.agda
-            LagrangePoints/ZeroPaddedPrimes/Examples036.agda
-            Theorems/BifurcationRoster.agda
-            Theorems/ElbowEvents.agda
-            Theorems/TotientDensity.agda
-          )
-
-          for module in "${clean_modules[@]}" "${postulated_modules[@]}"; do
-            echo -n "  $module ... "
-            if agda "$module" 2>/dev/null; then
-              echo "OK"
-              passed=$((passed + 1))
-            else
-              echo "FAIL"
-              failed=$((failed + 1))
-            fi
-          done
-
-          echo ""
-          echo "Results: $passed passed, $failed failed out of 32"
-          echo ""
-
-          if [ $failed -gt 0 ]; then
-            echo "Some modules failed. This may be due to Agda version mismatch."
-            echo "Local verification with Agda 2.8.0 is the ground truth."
-            echo "See agda-proofs/STATUS.md for expected results."
-          fi
+          ./scripts/verify-clean-spine.sh

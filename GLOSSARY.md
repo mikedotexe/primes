@@ -25,6 +25,169 @@ Example:
 3 0 7 0 5 0 7 0 3  ->  307050703
 ```
 
+### Affine Membrane Prime Family
+
+A fixed membrane lane viewed as a family of prime candidates as the middle seed
+varies. Once the base, boundary digits, middle length, and zero-run padding are
+fixed, every candidate in the family has the affine form:
+
+```text
+N(s) = A + G*s
+```
+
+Use this as the precise collaborator term for the maintained structured prime
+families in this repo.
+
+### Symmetric Zero-Run Template Prime
+
+Accessible name for a prime that appears inside an affine membrane prime
+family. It highlights the visible digit shape:
+
+```text
+outer 0...0 inner 0...0 seed 0...0 inner 0...0 outer
+```
+
+This is adjacent to palindromic primes, but different: the symmetric frame is
+constrained, while the middle seed block need not itself be palindromic.
+
+### Prime Witness
+
+An individual prime found inside a structured family. For example,
+`3007000000002907003` is a prime witness for the base-10 family
+`3 00 7 0 [seed] 0 7 00 3`.
+
+### Density Drift
+
+Measured variation in prime rate across specified affine membrane prime
+families and their controls. This is a report-surface term: it describes how
+candidate yield changes with base, boundary digits, middle length, zero-run
+padding, and control design. It does not by itself assert a density theorem.
+
+### Wheel-Compressed Affine Surface
+
+A fixed affine membrane family in a base such as `30 = 2 * 3 * 5`, where the
+base itself removes the first small-prime residue traps whenever the boundary
+digits are units. This is classical wheel behavior expressed through the
+membrane grammar, not a claim of residual density magic.
+
+### Ordered-Pair Phase Asymmetry
+
+Measured difference between a compact lane `(outer, inner)` and its reversal
+`(inner, outer)`. The two lanes share the same compact grammar and gradient,
+but their affine shifts differ, so they can pass through later residue gates in
+different phases. This is a local residue-phase observation, not a standalone
+density theorem.
+
+### Reversal Residual
+
+The signed remainder in an ordered-pair phase comparison after separating the
+raw prime-rate delta from ordinary size/PNT expectation and exact small-prime
+residue survival. It is a lead for further controls, not a theorem that one
+role assignment is intrinsically better.
+
+### Affine Phase Residual
+
+Cross-base generalization of reversal residual for compact membrane lanes. It
+compares two lanes with the same grammar and gradient but swapped ordered
+boundary roles, then ranks what remains after size and exact residue-survivor
+accounting. This is signal-discovery language, not theorem language.
+
+### Shift-Phase Residual
+
+Preferred public phrase for the curated affine phase residual follow-up:
+same slope, different intercept, different residue weather. It compares
+same-gradient lanes and asks whether the shifted affine intercept leaves a
+measurable survivor-yield difference after size and residue accounting.
+
+### Unit-Cycle Phase Signal
+
+Base-normalized follow-up to shift-phase residuals. Unit digits are placed on
+their ordered unit-residue cycle for the base, then same-gradient swaps are
+compared by arc geometry, edge/complement status, residue gate profile, and
+survivor yield. This is cross-base signal-mining language, not theorem
+language.
+
+### Unit-Cycle Base Neighbor
+
+Adjacent or nearby bases compared as normalized unit-cycle geometries. The
+circle radius is fixed to `1`; what changes is the number of unit-residue beads,
+their arc/chord spacing, and which digit pairs become diameters, complements,
+edges, or interior arcs. This is a geometry scout for later residue and density
+questions, not a radix-conversion shortcut.
+
+### Base57 Affine Codec
+
+Experimental notation layer that compares ordinary base58/base57 transcoding
+against identifiers generated directly inside a constrained base-57 affine
+membrane grammar. The baseline base57 alphabet is Bitcoin-style base58 with
+`z` removed, while preserving leading-zero byte semantics with leading `1`
+characters. The affine notation uses framed chunks such as `a57r1:<len>:<body>`
+for residue-filtered identifiers and `a57p1:<len>:<body>` for prime-witness
+identifiers. This is a structured identifier namespace with fast residue
+validation, not compression magic or a shortcut around radix conversion.
+
+### Canonical Payload
+
+The base-invariant byte string or integer value being represented. Base16 hex,
+base58, base57, and affine envelopes can all render the same canonical payload.
+The spelling changes; the decoded bytes must not.
+
+### Base Rendering
+
+An ordinary reversible textual representation of a canonical payload, such as
+hex/base16, base58, or base57. A base rendering is a costume for the invariant
+payload, not a new arithmetic object.
+
+### Affine Envelope
+
+A structured representative of a canonical payload inside an affine membrane
+grammar. In the base57 codec experiment, payload bytes are packed into seed
+chunks with nonce bits, then emitted as residue-filtered or prime-witness
+chunks. An affine envelope is usually longer than an ordinary base rendering
+because it carries validation structure.
+
+### Same-Gradient Pair
+
+Two membrane lanes with the same affine gradient `G` in `N(s)=A+G*s` but
+different affine shifts `A`. Compact ordered-role reversals are the main
+current example: `(outer, inner)` versus `(inner, outer)`.
+
+### Shift Phase
+
+The residue-facing position of the affine shift `A` for a fixed lane. Changing
+the shift while holding the gradient fixed changes which seed classes are
+excluded by small-prime residue gates.
+
+### Residue Gate Profile
+
+The small-prime moduli, affine shift residues, gradient residues, and excluded
+seed classes attached to a lane. It is the exact finite bookkeeping layer
+between raw candidate generation and primality testing.
+
+### Survivor Yield
+
+The prime rate among seeds that survive the exact residue gate profile used in
+a report. It is narrower than raw prime density because obvious small-prime
+composites have already been filtered out.
+
+### Mature Lane
+
+A larger middle-length follow-up lane used to check whether a short-lane lead
+persists beyond tiny seed spaces. In the shift-phase signal mining report,
+`M=4` is the default mature follow-up when it remains deterministic `u64`-safe.
+
+### Phase Residual Lead
+
+A ranked empirical lead where a same-gradient comparison still looks
+interesting after size/PNT and exact residue-survivor layers are separated.
+This is explicitly a research queue item, not a density theorem.
+
+### Great Construction
+
+Internal shorthand for a high-yield affine membrane surface under specified
+controls. Use it only with the relevant measurement surface attached, such as
+deterministic `u64` density-atlas rows or matched-control exports.
+
 ### Configuration
 
 The fixed part of a membrane construction: base, boundary digits, and padding
@@ -34,10 +197,16 @@ Example: `(outer, inner) = (3, 7)` with `k=(1,1)`.
 
 ### Seed
 
-The variable middle part of a membrane candidate.
+The variable middle part of a membrane candidate. The seed is an integer index
+written as exactly `M` digits in the configured base.
 
 - single-digit seed: `5`
-- multi-digit seed: `"01"` means the digit string `0,1`, not the number `1`
+- base 10, `M=2`, seed `10` is written as `"10"`
+- base 6, `M=2`, seed `10` decimal is written as `"14"`
+- base 22, `M=2`, seed `10` decimal is written as `"0A"`
+
+This base-aware distinction is important: the seed index is an ordinary
+integer, but its middle digit representation depends on the base.
 
 ### `k=(k_outer, k_inner)`
 
@@ -116,6 +285,17 @@ two fixed primes.
 
 Core API: `connector::ConcatenationSystem`.
 
+### Connector hit
+
+Arithmetic-first name for one bounded connector case:
+
+```text
+(pair, width, position, digit, direction)
+```
+
+In the current repo, this specifically means a zero-padded single-digit
+connector in a fixed-width base-10 scan.
+
 ### Canonical pair
 
 The prime pair used most heavily in connector experiments:
@@ -131,6 +311,18 @@ An observed difference between forward and reverse concatenation success rates.
 The repo treats this as a real empirical effect for the canonical pair, but not
 yet as a general law.
 
+### Residue-admissible
+
+A connector candidate that survives the exact small-modulus exclusion layer.
+
+For the maintained base-10 connector lane, the exact proved filters currently
+highlight `mod 3` and `mod 9` behavior.
+
+### Resonance position
+
+A width/position bucket with multiple working digits in the same matched scan.
+This is an empirical pattern label, not a proved general mechanism.
+
 ### Lagrange point
 
 Repository shorthand for a productive insertion position in a connector buffer.
@@ -139,6 +331,8 @@ This is an analogy borrowed from physics, not a literal physical model.
 Use this term carefully:
 
 - acceptable: "Lagrange point" as the repo's connector vocabulary
+- acceptable: using it as an optional alias for a connector hit or resonance
+  position
 - not acceptable: implying a proven general equilibrium law for prime pairs
 
 ## Number-Theory and API Terms

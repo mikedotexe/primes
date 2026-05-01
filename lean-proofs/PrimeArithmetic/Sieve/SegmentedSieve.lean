@@ -48,6 +48,21 @@ theorem oddSegmentNumber_ge_lo (lo idx : ℕ) :
     lo ≤ oddSegmentNumber lo idx := by
   simp [oddSegmentNumber]
 
+theorem oddSegmentNumber_succ (lo idx : ℕ) :
+    oddSegmentNumber lo (idx + 1) = oddSegmentNumber lo idx + 2 := by
+  unfold oddSegmentNumber
+  omega
+
+theorem oddSegmentNumber_strictMono (lo : ℕ) :
+    StrictMono (oddSegmentNumber lo) := by
+  intro idx₁ idx₂ hIdx
+  unfold oddSegmentNumber
+  omega
+
+theorem oddSegmentNumber_injective (lo : ℕ) :
+    Function.Injective (oddSegmentNumber lo) :=
+  (oddSegmentNumber_strictMono lo).injective
+
 theorem oddSegmentNumber_oddSegmentIndex {lo n : ℕ}
     (hLoLe : lo ≤ n) (hLoOdd : Odd lo) (hNOdd : Odd n) :
     oddSegmentNumber lo (oddSegmentIndex lo n) = n := by
@@ -95,6 +110,42 @@ theorem odd_firstOddMultipleAtOrAbove {p segLo : ℕ}
       intro hEven
       exact h (Nat.even_iff.mp hEven)
     simpa [firstOddMultipleAtOrAbove, h] using hStartOdd
+
+@[simp] theorem markedBy_zero (p segLo : ℕ) :
+    markedBy p segLo 0 = firstOddMultipleAtOrAbove p segLo := by
+  simp [markedBy]
+
+theorem markedBy_succ (p segLo step : ℕ) :
+    markedBy p segLo (step + 1) = markedBy p segLo step + 2 * p := by
+  unfold markedBy
+  ring
+
+theorem markedBy_add (p segLo step k : ℕ) :
+    markedBy p segLo (step + k) =
+      markedBy p segLo step + k * (2 * p) := by
+  unfold markedBy
+  ring
+
+theorem markedBy_strictMono {p segLo : ℕ} (hp : 0 < p) :
+    StrictMono (markedBy p segLo) := by
+  intro step₁ step₂ hStep
+  unfold markedBy
+  have hFactor : 0 < 2 * p := by
+    omega
+  have hMul :
+      step₁ * (2 * p) < step₂ * (2 * p) :=
+    Nat.mul_lt_mul_of_pos_right hStep hFactor
+  exact Nat.add_lt_add_left hMul (firstOddMultipleAtOrAbove p segLo)
+
+theorem markedBy_injective {p segLo : ℕ} (hp : 0 < p) :
+    Function.Injective (markedBy p segLo) :=
+  (markedBy_strictMono (p := p) (segLo := segLo) hp).injective
+
+theorem markedBy_add_two_mul (p segLo step k : ℕ) :
+    markedBy p segLo (step + k) =
+      markedBy p segLo step + 2 * (k * p) := by
+  simpa [Nat.mul_comm, Nat.mul_left_comm, Nat.mul_assoc] using
+    markedBy_add p segLo step k
 
 theorem dvd_markedBy (p segLo step : ℕ) :
     p ∣ markedBy p segLo step := by

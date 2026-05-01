@@ -66,6 +66,7 @@ This is a companion lane, not a replacement for the Agda workspace.
 | `theorems/02-symmetry-midpoint-obstruction.md` | finite symmetry certification | Agda abstract certification stack, Lean midpoint lane, `ZMod`-unit symmetry witness lane |
 | `theorems/03-base-radical-prime-filter.md` | radical and wheel-base filter facts | Agda radical layer, Lean radical/unit-residue/wheel-base/unit-group CRT lane |
 | `theorems/04-diameter-density-reduction.md` | reduction of an empirical open question | `CLAIMS.md` open question O3 |
+| `theorems/05-residual-template-effect-reduction.md` | theorem-level route for any residual template effect | `README.md` open questions, Lean affine/residue shell, matched-control example lane |
 
 ## Example Commands
 
@@ -121,8 +122,8 @@ Avoid:
 1. Strengthen the Lean midpoint and symmetry witness lane, especially the direct
    `ZMod`-unit bridge.
 2. Reduce postulates around the radical/coprimality and wheel-base CRT layer.
-3. Run disciplined reduction passes on connector asymmetry and the
-   diameter-density question.
+3. Run disciplined reduction passes on connector asymmetry, the
+   diameter-density question, and any residual-template-effect route.
 4. Accumulate reusable sublemmas before any broader formalization sprint.
 
 ## Agda Backend Outlook

@@ -17,6 +17,8 @@ As of March 2026, the strongest audited theorem-area modules include:
 - `Abstract/SymmetryImpliesRepulsion.agda`
 - `Abstract/SymmetryFromList.agda`
 - `Abstract/ConstrainedOrbitals.agda`
+- `AffineLaneComparisonShell.agda`
+- `AffinePeriodLockShell.agda`
 - `ElbowsFromCSV.agda`
 - `GlobalElbowFacts.agda`
 - `MirrorObstruction.agda`

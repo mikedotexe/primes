@@ -68,11 +68,17 @@ These findings are the ones safest to cite today:
 2. Minimal padding `k=(0,0)` dominates for seed length `M >= 2`, with a
    documented base-10 `M=2` exception.
 3. Compactness / diameter correlates strongly with observed density.
-4. Connector asymmetry is real for the canonical pair `10301` and
-   `3007003007003`, but broader generality remains open.
-5. Membrane families tested exactly remain structurally broader than the
+4. The connector lane has an exact direction-independent residue layer on the
+   proved modulus surface (`mod 3` / `mod 9` for the canonical base-10 pair,
+   plus reusable pair-residue profiles beyond it).
+5. The canonical pair `10301` / `3007003007003` shows a narrow empirical
+   directional asymmetry in the maintained zero-padded single-digit scan
+   (11 forward prime hits vs 13 reverse prime hits across widths `5..7` after
+   the exact residue filter); the maintained density-aware rerun keeps a
+   residual gap for that pair, but broader generality remains open.
+6. Membrane families tested exactly remain structurally broader than the
    palindrome subset.
-6. Tested centered-gap scaffold controls do not show a consistent same-budget
+7. Tested centered-gap scaffold controls do not show a consistent same-budget
    advantage in the currently audited families.
 
 For source-by-source claim tracking, use [`CLAIMS.md`](CLAIMS.md).

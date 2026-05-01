@@ -29,6 +29,30 @@ building `PointwiseSafe` incrementally:
 `pointwiseSafeNil`, `pointwiseSafeCons`, `pointwiseSafeSingleton`, and
 `pointwiseSafeFromAll`.
 
+The exact bounded-`k` threshold substrate is now also live in the Agda tree:
+[`Theorems/BoundedKCompactness.agda`](Theorems/BoundedKCompactness.agda),
+[`Theorems/Abstract/FiniteMaskTransfer.agda`](Theorems/Abstract/FiniteMaskTransfer.agda),
+and
+[`Examples/BoundedKTransferWitnesses.agda`](Examples/BoundedKTransferWitnesses.agda)
+give the bounded-`k` lane an exact compactness shell, an exact five-bucket
+transfer partition, and a curated witness catalog. The concrete witness catalog
+is now generated from the Rust bounded-`k` lane into
+[`Examples/Generated/BoundedKTransferWitnessCatalog.agda`](Examples/Generated/BoundedKTransferWitnessCatalog.agda)
+via `cargo run --bin export_bounded_k_transfer_agda_summary`, while the
+catalog-wide threshold prose remains in the Rust report layer.
+
+The affine lane now also has a Lean-led mirror shell in
+[`Theorems/AffineLaneComparisonShell.agda`](Theorems/AffineLaneComparisonShell.agda),
+which preserves the local shift / gradient / zero-seed vocabulary and the four
+relation labels `identity`, `shift-only`, `gradient-only`, and
+`shift-and-gradient` without claiming proof parity with the Lean 4 theorem
+surface. That mirror is now sharper too:
+[`Theorems/AffinePeriodLockShell.agda`](Theorems/AffinePeriodLockShell.agda)
+preserves the period-lock vocabulary itself, including gradient positions,
+locked vs unlocked local comparisons, and the resulting split between
+`identity` / `gradient-only` and `shift-only` / `shift-and-gradient`, while the
+general theorem remains Lean-led.
+
 Do not infer proof coverage from filenames or older narrative docs alone.
 
 ## Active Entry Points

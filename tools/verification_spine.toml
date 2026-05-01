@@ -1,0 +1,93 @@
+[[entry]]
+id = "lean_window_generated"
+tier = "formal_generated"
+verify_mode = "diff"
+generator_cmd = ["scripts/lean_generated_catalog.sh"]
+tracked_outputs = [
+  "lean-proofs/PrimeArithmetic/Generated/Examples/WindowP3Base6Span5.lean",
+  "lean-proofs/PrimeArithmetic/Generated/Examples/WindowP5Base10Span5.lean",
+  "lean-proofs/PrimeArithmetic/Generated/Examples/WindowP5Base12Span17.lean",
+  "lean-proofs/PrimeArithmetic/Generated/Examples/WindowP11Base30Span5.lean",
+  "lean-proofs/PrimeArithmetic/Generated/Examples/WindowP101Base30Span29.lean",
+  "lean-proofs/PrimeArithmetic/Generated/Examples/WindowP163Base30Span35.lean",
+  "lean-proofs/PrimeArithmetic/Generated/Examples/WindowP41Base210Span5.lean",
+]
+owner_doc = "lean-proofs/PrimeArithmetic/Generated/README.md"
+
+[[entry]]
+id = "lean_bounded_k_generated"
+tier = "formal_generated"
+verify_mode = "diff"
+generator_cmd = ["scripts/lean_bounded_k_catalog.sh"]
+tracked_outputs = [
+  "lean-proofs/PrimeArithmetic/Generated/BoundedK/Base10M2Pair33.lean",
+  "lean-proofs/PrimeArithmetic/Generated/BoundedK/Base14M2PairDB.lean",
+  "lean-proofs/PrimeArithmetic/Generated/BoundedK/Base22M2PairHJ.lean",
+  "lean-proofs/PrimeArithmetic/Generated/BoundedK/Base34M2PairP9.lean",
+]
+owner_doc = "lean-proofs/THEOREM_INDEX.md"
+
+[[entry]]
+id = "agda_bounded_k_generated"
+tier = "formal_generated"
+verify_mode = "diff"
+generator_cmd = ["scripts/agda_generated_catalog.sh"]
+tracked_outputs = [
+  "agda-proofs/Examples/Generated/BoundedKTransferWitnessCatalog.agda",
+]
+owner_doc = "agda-proofs/README.md"
+
+[[entry]]
+id = "chaos_threshold_translation_report"
+tier = "report_bundle"
+verify_mode = "bundle_manifest"
+generator_cmd = [
+  "cargo",
+  "run",
+  "--release",
+  "--example",
+  "chaos_threshold_translation_report",
+  "--",
+  "--out-dir",
+  "/tmp/primes_chaos_threshold_translation",
+]
+bundle_dir = "/tmp/primes_chaos_threshold_translation"
+expected_outputs = [
+  "pair_threshold_rows.csv",
+  "base_m_rows.csv",
+  "metaphor_translation_rows.csv",
+  "summary.json",
+  "report.md",
+  "threshold_curve.png",
+  "threshold_decomposition_bars.png",
+  "threshold_regime_grid.png",
+]
+owner_doc = "examples/README.md"
+
+[[entry]]
+id = "chaos_threshold_translation_matplotlib"
+tier = "visual_bundle"
+verify_mode = "bundle_manifest"
+generator_cmd = [
+  "python3",
+  "scripts/plot_chaos_threshold_translation.py",
+  "--input-dir",
+  "/tmp/primes_chaos_threshold_translation",
+  "--out-dir",
+  "/tmp/primes_chaos_threshold_translation_matplotlib",
+]
+bundle_dir = "/tmp/primes_chaos_threshold_translation_matplotlib"
+expected_outputs = [
+  "chaos_threshold_storyboard.png",
+  "chaos_threshold_regime_heatmap.png",
+  "chaos_threshold_compactness_glossary.png",
+  "chaos_threshold_m2_decomposition_plane.png",
+  "chaos_threshold_m2_bubble_metric_comparison.png",
+  "chaos_threshold_m2_retention_labeled_plane.png",
+  "chaos_threshold_m2_unit_circle_chords_14_34.png",
+  "chaos_threshold_m2_unit_circle_chord_atlas.png",
+  "chaos_threshold_ordered_complex_embedding.png",
+  "chaos_threshold_m2_residue_geometry_plane.png",
+  "report.md",
+]
+owner_doc = "examples/README.md"

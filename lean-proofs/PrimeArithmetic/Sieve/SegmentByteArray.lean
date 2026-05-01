@@ -67,4 +67,113 @@ theorem segmentByteRead_written (bytes : SegmentByteState) {lo limit n : ℕ}
     (hWrite := fun bytes => segmentByteWrite_eq_byteMarkWrite bytes hLo hN)
     bytes
 
+theorem segmentByteSlot_ne_of_byteIndex_ne {lo limit n m : ℕ}
+    (hLoN : lo ≤ n) (hN : n ≤ rawSegmentHi lo limit)
+    (hLoM : lo ≤ m) (hM : m ≤ rawSegmentHi lo limit)
+    (hByte : segmentByteIndex lo n ≠ segmentByteIndex lo m) :
+    segmentByteSlot hLoN hN ≠ segmentByteSlot hLoM hM := by
+  intro hEq
+  apply hByte
+  simpa [segmentByteSlot] using congrArg Fin.val hEq
+
+theorem segmentByteSlot_eq_of_byteIndex_eq {lo limit n m : ℕ}
+    (hLoN : lo ≤ n) (hN : n ≤ rawSegmentHi lo limit)
+    (hLoM : lo ≤ m) (hM : m ≤ rawSegmentHi lo limit)
+    (hByte : segmentByteIndex lo n = segmentByteIndex lo m) :
+    segmentByteSlot hLoN hN = segmentByteSlot hLoM hM := by
+  apply Fin.ext
+  simpa [segmentByteSlot] using hByte
+
+theorem segmentByteRead_write_other_slot_eq (bytes : SegmentByteState)
+    {lo limit n m : ℕ}
+    (hLoN : lo ≤ n) (hN : n ≤ rawSegmentHi lo limit)
+    (hLoM : lo ≤ m) (hM : m ≤ rawSegmentHi lo limit)
+    (hSlot : segmentByteSlot hLoN hN ≠ segmentByteSlot hLoM hM) :
+    segmentByteRead (segmentByteWrite bytes hLoN hN) hLoM hM =
+      segmentByteRead bytes hLoM hM := by
+  have hSlot' : segmentByteSlot hLoM hM ≠ segmentByteSlot hLoN hN := hSlot.symm
+  unfold segmentByteRead segmentByteWrite
+  simp [Function.update, hSlot']
+
+theorem segmentByteRead_write_other_byte_eq (bytes : SegmentByteState)
+    {lo limit n m : ℕ}
+    (hLoN : lo ≤ n) (hN : n ≤ rawSegmentHi lo limit)
+    (hLoM : lo ≤ m) (hM : m ≤ rawSegmentHi lo limit)
+    (hByte : segmentByteIndex lo n ≠ segmentByteIndex lo m) :
+    segmentByteRead (segmentByteWrite bytes hLoN hN) hLoM hM =
+      segmentByteRead bytes hLoM hM := by
+  exact segmentByteRead_write_other_slot_eq bytes hLoN hN hLoM hM
+    (segmentByteSlot_ne_of_byteIndex_ne hLoN hN hLoM hM hByte)
+
+theorem segmentByteRead_write_other_bit_same_byte_eq (bytes : SegmentByteState)
+    {lo limit n m : ℕ}
+    (hLoN : lo ≤ n) (hN : n ≤ rawSegmentHi lo limit)
+    (hLoM : lo ≤ m) (hM : m ≤ rawSegmentHi lo limit)
+    (hByte : segmentByteIndex lo n = segmentByteIndex lo m)
+    (hBit : segmentBitIndex lo m ≠ segmentBitIndex lo n) :
+    segmentByteRead (segmentByteWrite bytes hLoN hN) hLoM hM =
+      segmentByteRead bytes hLoM hM := by
+  have hSlot :
+      segmentByteSlot hLoN hN = segmentByteSlot hLoM hM :=
+    segmentByteSlot_eq_of_byteIndex_eq hLoN hN hLoM hM hByte
+  simpa [segmentByteRead, segmentByteWrite, hSlot] using
+    (segmentReadValue_marked_other_eq
+      (byte := bytes (segmentByteSlot hLoM hM))
+      (lo := lo) (n := n) (m := m) hBit)
+
+theorem segmentByteRead_first_of_sequentialSameByteWrites
+    (bytes : SegmentByteState)
+    {lo limit n m : ℕ}
+    (hLoN : lo ≤ n) (hN : n ≤ rawSegmentHi lo limit)
+    (hLoM : lo ≤ m) (hM : m ≤ rawSegmentHi lo limit)
+    (hByte : segmentByteIndex lo n = segmentByteIndex lo m)
+    (hBit : segmentBitIndex lo n ≠ segmentBitIndex lo m) :
+    segmentByteRead
+        (segmentByteWrite
+          (segmentByteWrite bytes hLoN hN)
+          hLoM hM)
+        hLoN hN = 1 := by
+  rw [segmentByteRead_write_other_bit_same_byte_eq
+      (bytes := segmentByteWrite bytes hLoN hN)
+      (hLoN := hLoM) (hN := hM) (hLoM := hLoN) (hM := hN)
+      (hByte := hByte.symm) (hBit := hBit)]
+  exact segmentByteRead_written bytes hLoN hN
+
+theorem segmentByteRead_second_of_sequentialSameByteWrites
+    (bytes : SegmentByteState)
+    {lo limit n m : ℕ}
+    (hLoN : lo ≤ n) (hN : n ≤ rawSegmentHi lo limit)
+    (hLoM : lo ≤ m) (hM : m ≤ rawSegmentHi lo limit) :
+    segmentByteRead
+        (segmentByteWrite
+          (segmentByteWrite bytes hLoN hN)
+          hLoM hM)
+        hLoM hM = 1 := by
+  exact segmentByteRead_written
+    (bytes := segmentByteWrite bytes hLoN hN)
+    (hLo := hLoM) (hN := hM)
+
+theorem segmentByteReads_of_sequentialSameByteWrites
+    (bytes : SegmentByteState)
+    {lo limit n m : ℕ}
+    (hLoN : lo ≤ n) (hN : n ≤ rawSegmentHi lo limit)
+    (hLoM : lo ≤ m) (hM : m ≤ rawSegmentHi lo limit)
+    (hByte : segmentByteIndex lo n = segmentByteIndex lo m)
+    (hBit : segmentBitIndex lo n ≠ segmentBitIndex lo m) :
+    segmentByteRead
+        (segmentByteWrite
+          (segmentByteWrite bytes hLoN hN)
+          hLoM hM)
+        hLoN hN = 1 ∧
+      segmentByteRead
+        (segmentByteWrite
+          (segmentByteWrite bytes hLoN hN)
+          hLoM hM)
+        hLoM hM = 1 := by
+  constructor
+  · exact segmentByteRead_first_of_sequentialSameByteWrites
+      bytes hLoN hN hLoM hM hByte hBit
+  · exact segmentByteRead_second_of_sequentialSameByteWrites
+      bytes hLoN hN hLoM hM
+
 end PrimeArithmetic.Sieve

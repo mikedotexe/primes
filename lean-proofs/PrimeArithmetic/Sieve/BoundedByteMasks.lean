@@ -16,6 +16,7 @@ The scope is still intentionally small:
 - build one OR-mask from a finite list of target bits in a byte
 - update one bounded byte slot by ORing in that combined mask
 - prove that every listed bit reads back as `1`
+- prove that unlisted bits in the same byte are unchanged
 - show that the repeated same-byte write family collapses to the aggregated mask
 
 This handles same-byte collisions directly and leaves the next step as
@@ -59,6 +60,35 @@ theorem bitsMask_testBit_of_mem (bits : List (Fin 8)) (target : Fin 8)
           rw [hTailBit]
           simp
 
+theorem bitsMask_testBit_of_not_mem (bits : List (Fin 8)) (target : Fin 8)
+    (hNot : target ∉ bits) :
+    (bitsMask bits).testBit target.1 = false := by
+  induction bits generalizing target with
+  | nil =>
+      simp [bitsMask]
+  | cons bit bits ih =>
+      simp at hNot
+      rcases hNot with ⟨hNe, hTail⟩
+      rw [bitsMask, Nat.testBit_lor]
+      have hHead : ((1 <<< bit.1).testBit target.1) = false := by
+        simpa [Nat.shiftLeft_eq] using
+          (Nat.testBit_two_pow_of_ne <| by
+            intro hEq
+            apply hNe
+            exact (Fin.ext hEq).symm)
+      simp [hHead, ih target hTail]
+
+@[simp] theorem bitsMask_testBit_iff (bits : List (Fin 8)) (target : Fin 8) :
+    (bitsMask bits).testBit target.1 = true ↔ target ∈ bits := by
+  constructor
+  · intro hBit
+    by_cases hMem : target ∈ bits
+    · exact hMem
+    · rw [bitsMask_testBit_of_not_mem bits target hMem] at hBit
+      cases hBit
+  · intro hMem
+    exact bitsMask_testBit_of_mem bits target hMem
+
 theorem byteMaskWrite_zero {byteCount : ℕ} (bytes : BoundedByteState byteCount)
     (slot : Fin byteCount) :
     byteMaskWrite bytes slot 0 = bytes := by
@@ -82,6 +112,15 @@ theorem byteMarkRead_written_by_bits_of_mem {byteCount : ℕ}
     byteMarkRead (byteMaskWrite bytes slot (bitsMask bits)) (slot, target) = 1 := by
   exact byteMarkRead_written_by_mask_of_testBit bytes slot target (bitsMask bits)
     (bitsMask_testBit_of_mem bits target hMem)
+
+theorem byteMarkRead_same_slot_eq_of_not_mem_bits {byteCount : ℕ}
+    (bytes : BoundedByteState byteCount) (slot : Fin byteCount)
+    (bits : List (Fin 8)) (target : Fin 8) (hNot : target ∉ bits) :
+    byteMarkRead (byteMaskWrite bytes slot (bitsMask bits)) (slot, target) =
+      byteMarkRead bytes (slot, target) := by
+  rw [byteMarkRead_eq_toNat_testBit, byteMarkRead_eq_toNat_testBit]
+  unfold byteMaskWrite
+  simp [Function.update, bitsMask_testBit_of_not_mem bits target hNot]
 
 theorem byteMarkRead_preserved_by_mask_other_byte {byteCount : ℕ}
     (bytes : BoundedByteState byteCount) (target : ByteMark byteCount)
@@ -114,5 +153,13 @@ theorem byteMarkRead_of_mem_writeMany_at {byteCount : ℕ}
     byteMarkRead (byteMarkWriteMany bytes (byteMarksAt slot bits)) (slot, target) = 1 := by
   rw [byteMarkWriteMany_at_eq_byteMaskWrite]
   exact byteMarkRead_written_by_bits_of_mem bytes slot bits target hMem
+
+theorem byteMarkRead_writeMany_at_eq_of_not_mem {byteCount : ℕ}
+    (bytes : BoundedByteState byteCount) (slot : Fin byteCount)
+    (bits : List (Fin 8)) (target : Fin 8) (hNot : target ∉ bits) :
+    byteMarkRead (byteMarkWriteMany bytes (byteMarksAt slot bits)) (slot, target) =
+      byteMarkRead bytes (slot, target) := by
+  rw [byteMarkWriteMany_at_eq_byteMaskWrite]
+  exact byteMarkRead_same_slot_eq_of_not_mem_bits bytes slot bits target hNot
 
 end PrimeArithmetic.Sieve

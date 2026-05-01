@@ -2,13 +2,18 @@
 -- Lagrange example shell: canonical connector case study
 --
 -- Strongest live signal:
--- 1. the repo has one canonical connector pair with two reported insertion
---    points that preserve primality
+-- 1. the repo has one canonical connector pair with two reported width-5
+--    insertion cases in the source shell
 -- 2. reflection and center-void questions remain useful structure around that
 --    pair, but they are still example-level questions rather than settled
 --    general theory
 -- 3. the membrane-like second prime remains part of the story, but only as a
 --    narrow connector enhancement shell
+--
+-- Arithmetic-first reading:
+-- - the reported points below are connector hits first
+-- - the reflection shell is a position-analysis helper, not a proof of a
+--   general Lagrange law
 ------------------------------------------------------------------------
 
 module LagrangePoints.Examples where
@@ -21,11 +26,13 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Core.LagrangePoints using
   ( ConcatenatedStructureShell
+  ; ConnectorHitShell
   ; LagrangePointShell
   ; MembraneConnectionShell
   ; canonical-example
   ; canonical-L1
   ; canonical-L2
+  ; canonical-connector-hits
   ; canonical-points
   ; canonical-point-count
   ; canonical-membrane-connection
@@ -60,7 +67,7 @@ reflect-4 : buffer-reflect 4 ≡ 0
 reflect-4 = refl
 
 ------------------------------------------------------------------------
--- Reported insertion points
+-- Reported connector hits
 ------------------------------------------------------------------------
 
 canonical-L1-position : LagrangePointShell.position canonical-L1 ≡ 1
@@ -144,7 +151,7 @@ all-position-shells =
 record ExampleCaseShell : Set1 where
   field
     structure : ConcatenatedStructureShell
-    reported-points : List LagrangePointShell
+    reported-points : List ConnectorHitShell
     reported-count : ℕ
     membrane-connection : MembraneConnectionShell
     center-position : Maybe ℕ
@@ -154,7 +161,7 @@ record ExampleCaseShell : Set1 where
 canonical-case : ExampleCaseShell
 canonical-case = record
   { structure = canonical-example
-  ; reported-points = canonical-points
+  ; reported-points = canonical-connector-hits
   ; reported-count = canonical-point-count
   ; membrane-connection = canonical-membrane-connection
   ; center-position = just 2

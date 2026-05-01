@@ -88,3 +88,40 @@ kernel void sieve_affine(
         atomic_fetch_or_explicit((device atomic_uint*)&outBits[word], 1u << bit, memory_order_relaxed);
     }
 }
+
+struct AffineLaneParams {
+    uint numRows;
+    uint seedOffset;
+    uint numSeeds;
+    uint reserved;
+};
+
+struct AffineResidueRow {
+    uint a;
+    uint g;
+    uint p;
+    uint pad;
+};
+
+kernel void sieve_affine_lane(
+    constant AffineLaneParams &prm [[ buffer(0) ]],
+    constant AffineResidueRow *rows [[ buffer(1) ]],
+    device uint *outBits [[ buffer(2) ]],
+    uint tid [[ thread_position_in_grid ]])
+{
+    if (tid >= prm.numSeeds) return;
+
+    bool alive = true;
+    for (uint i = 0; i < prm.numRows && alive; i++) {
+        AffineResidueRow row = rows[i];
+        uint local = tid % row.p;
+        uint val = (row.a + ((local * row.g) % row.p)) % row.p;
+        alive = (val != 0);
+    }
+
+    if (alive) {
+        uint word = tid >> 5;
+        uint bit = tid & 31;
+        atomic_fetch_or_explicit((device atomic_uint*)&outBits[word], 1u << bit, memory_order_relaxed);
+    }
+}

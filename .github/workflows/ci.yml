@@ -20,7 +20,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libfontconfig1-dev
+          sudo apt-get install -y libfontconfig1-dev python3-matplotlib
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -51,6 +51,22 @@ jobs:
   # See agda-proofs/STATUS.md for ground truth (verified locally with Agda 2.8.0)
   agda-verification:
     uses: ./.github/workflows/agda-verification.yml
+
+  verification-spine:
+    runs-on: ubuntu-latest
+    needs: [test, lean-build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfontconfig1-dev python3-matplotlib
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Verification spine check
+        run: cargo run --bin verify_verification_spine -- check
 
   examples:
     runs-on: ubuntu-latest

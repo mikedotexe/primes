@@ -32,6 +32,36 @@ theorem mem_negationSubgroup_iff {base : ℕ} {u : (ZMod base)ˣ} :
     u ∈ negationSubgroup base ↔ u = 1 ∨ u = -1 := by
   rfl
 
+theorem negationSubgroup_smul_eq_self_or_neg
+    {base : ℕ} (g : negationSubgroup base) (u : (ZMod base)ˣ) :
+    g • u = u ∨ g • u = -u := by
+  rcases g.property with hg | hg
+  · left
+    simp [Subgroup.smul_def, hg]
+  · right
+    simp [Subgroup.smul_def, hg]
+
+theorem mem_negationSubgroup_orbit_iff
+    {base : ℕ} (u v : (ZMod base)ˣ) :
+    v ∈ MulAction.orbit (negationSubgroup base) u ↔ v = u ∨ v = -u := by
+  constructor
+  · intro hv
+    rcases MulAction.mem_orbit_iff.mp hv with ⟨g, rfl⟩
+    exact negationSubgroup_smul_eq_self_or_neg g u
+  · intro hv
+    rcases hv with hEq | hEq
+    · rw [hEq]
+      exact MulAction.mem_orbit_self u
+    · rw [hEq]
+      simpa [Subgroup.smul_def] using
+        (MulAction.mem_orbit u (⟨-1, Or.inr rfl⟩ : negationSubgroup base))
+
+theorem negationSubgroup_orbit_eq_pair
+    {base : ℕ} (u : (ZMod base)ˣ) :
+    MulAction.orbit (negationSubgroup base) u = { v | v = u ∨ v = -u } := by
+  ext v
+  exact mem_negationSubgroup_orbit_iff u v
+
 abbrev negationActionOrbitQuotient (base : ℕ) : Type :=
   Quotient (MulAction.orbitRel (negationSubgroup base) (ZMod base)ˣ)
 
@@ -187,6 +217,18 @@ noncomputable def negationActionQuotientEquivUnitNegationOrbitQuotient
     negationActionOrbitQuotient base ≃ Quotient (unitNegationOrbitSetoid base hBase) :=
   (negationActionQuotientEquivPairReps base hBase).trans
     (unitNegationOrbitQuotientEquivPairReps base hBase).symm
+
+theorem negationActionOrbitRel_iff
+    {base : ℕ} {u v : (ZMod base)ˣ} :
+    MulAction.orbitRel (negationSubgroup base) (ZMod base)ˣ u v ↔
+      u = v ∨ u = -v := by
+  rw [MulAction.orbitRel_apply, mem_negationSubgroup_orbit_iff]
+
+theorem negationActionOrbitQuotient_mk_eq_mk_iff
+    {base : ℕ} {u v : (ZMod base)ˣ} :
+    (Quotient.mk'' u : negationActionOrbitQuotient base) = Quotient.mk'' v ↔
+      u = v ∨ u = -v := by
+  rw [Quotient.eq'', negationActionOrbitRel_iff]
 
 theorem card_negationActionOrbitQuotient_eq_pairReps
     (base : ℕ) [NeZero base] (hBase : 2 < base) :

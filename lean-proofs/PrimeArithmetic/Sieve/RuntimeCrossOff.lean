@@ -51,6 +51,18 @@ theorem runtimeCrossOffStart_eq_firstOddMultiple_of_sq_lt {p segLo : ℕ}
   simp [runtimeCrossOffStart, runtimeCrossOffBase, firstOddMultipleAtOrAbove,
     Nat.not_le.mpr hSq]
 
+theorem runtimeMarkedBy_eq_sq_add_two_mul_of_sq_ge {p segLo step : ℕ}
+    (hpOdd : Odd p) (hSq : segLo ≤ p * p) :
+    runtimeMarkedBy p segLo step = p * p + 2 * (step * p) := by
+  rw [runtimeMarkedBy, runtimeCrossOffStart_eq_sq_of_sq_ge hpOdd hSq]
+  ring
+
+theorem runtimeMarkedBy_eq_markedBy_of_sq_lt {p segLo step : ℕ}
+    (hSq : p * p < segLo) :
+    runtimeMarkedBy p segLo step = markedBy p segLo step := by
+  simp [runtimeMarkedBy, markedBy,
+    runtimeCrossOffStart_eq_firstOddMultiple_of_sq_lt hSq]
+
 theorem dvd_runtimeCrossOffStart (p segLo : ℕ) :
     p ∣ runtimeCrossOffStart p segLo := by
   by_cases hSq : segLo ≤ p * p
@@ -104,6 +116,33 @@ theorem runtimeMarkedBy_succ (p segLo step : ℕ) :
     runtimeMarkedBy p segLo (step + 1) = runtimeMarkedBy p segLo step + 2 * p := by
   unfold runtimeMarkedBy
   ring
+
+theorem runtimeMarkedBy_add (p segLo step k : ℕ) :
+    runtimeMarkedBy p segLo (step + k) =
+      runtimeMarkedBy p segLo step + k * (2 * p) := by
+  unfold runtimeMarkedBy
+  ring
+
+theorem runtimeMarkedBy_strictMono {p segLo : ℕ} (hp : 0 < p) :
+    StrictMono (runtimeMarkedBy p segLo) := by
+  intro step₁ step₂ hStep
+  unfold runtimeMarkedBy
+  have hFactor : 0 < 2 * p := by
+    omega
+  have hMul :
+      step₁ * (2 * p) < step₂ * (2 * p) :=
+    Nat.mul_lt_mul_of_pos_right hStep hFactor
+  exact Nat.add_lt_add_left hMul (runtimeCrossOffStart p segLo)
+
+theorem runtimeMarkedBy_injective {p segLo : ℕ} (hp : 0 < p) :
+    Function.Injective (runtimeMarkedBy p segLo) :=
+  (runtimeMarkedBy_strictMono (p := p) (segLo := segLo) hp).injective
+
+theorem runtimeMarkedBy_add_two_mul (p segLo step k : ℕ) :
+    runtimeMarkedBy p segLo (step + k) =
+      runtimeMarkedBy p segLo step + 2 * (k * p) := by
+  simpa [Nat.mul_comm, Nat.mul_left_comm, Nat.mul_assoc] using
+    runtimeMarkedBy_add p segLo step k
 
 theorem dvd_runtimeMarkedBy (p segLo step : ℕ) :
     p ∣ runtimeMarkedBy p segLo step := by

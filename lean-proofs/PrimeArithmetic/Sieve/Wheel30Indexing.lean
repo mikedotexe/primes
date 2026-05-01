@@ -94,6 +94,21 @@ theorem wheel30SlotIndex_wheel30Slot (slot : Fin 8) :
     wheel30SlotIndex (wheel30Slot slot) = some slot := by
   fin_cases slot <;> rfl
 
+theorem wheel30SlotIndex_some_of_mem_wheel30Residues {r : ℕ}
+    (hr : r ∈ wheel30Residues) :
+    ∃ slot : Fin 8, wheel30SlotIndex r = some slot ∧ wheel30Slot slot = r := by
+  have hr' :
+      r = 1 ∨ r = 7 ∨ r = 11 ∨ r = 13 ∨ r = 17 ∨ r = 19 ∨ r = 23 ∨ r = 29 := by
+    simpa [wheel30Residues] using hr
+  rcases hr' with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  all_goals
+    refine ⟨_, rfl, rfl⟩
+
+theorem wheel30SlotIndex_eq_some_iff_of_lt_thirty {r : ℕ}
+    (hr : r < 30) (slot : Fin 8) :
+    wheel30SlotIndex r = some slot ↔ wheel30Slot slot = r := by
+  interval_cases r <;> fin_cases slot <;> decide
+
 theorem wheel30LinearIndex_byte (cycle : ℕ) (slot : Fin 8) :
     wheel30LinearIndex cycle slot / 8 = cycle := by
   unfold wheel30LinearIndex
@@ -102,6 +117,57 @@ theorem wheel30LinearIndex_byte (cycle : ℕ) (slot : Fin 8) :
 theorem wheel30LinearIndex_bit (cycle : ℕ) (slot : Fin 8) :
     wheel30LinearIndex cycle slot % 8 = slot.1 := by
   unfold wheel30LinearIndex
+  omega
+
+theorem wheel30Candidate_ge_base (base cycle : ℕ) (slot : Fin 8) :
+    base ≤ wheel30Candidate base cycle slot := by
+  unfold wheel30Candidate
+  omega
+
+theorem wheel30Candidate_sub_base (base cycle : ℕ) (slot : Fin 8) :
+    wheel30Candidate base cycle slot - base = 30 * cycle + wheel30Slot slot := by
+  unfold wheel30Candidate
+  omega
+
+theorem wheel30Candidate_sub_lt_thirty_of_same_cycle {base cycle : ℕ}
+    (slot₁ slot₂ : Fin 8) :
+    wheel30Candidate base cycle slot₂ - wheel30Candidate base cycle slot₁ < 30 := by
+  have hLe :
+      wheel30Candidate base cycle slot₂ - wheel30Candidate base cycle slot₁ ≤
+        wheel30Slot slot₂ := by
+    unfold wheel30Candidate
+    omega
+  exact lt_of_le_of_lt hLe (wheel30Slot_lt_thirty slot₂)
+
+theorem wheel30Candidate_cycle_ne_of_thirty_le_sub {base cycle₁ cycle₂ : ℕ}
+    (slot₁ slot₂ : Fin 8)
+    (hSep :
+      30 ≤ wheel30Candidate base cycle₂ slot₂ - wheel30Candidate base cycle₁ slot₁) :
+    cycle₁ ≠ cycle₂ := by
+  intro hCycle
+  subst hCycle
+  exact (not_lt_of_ge hSep)
+    (wheel30Candidate_sub_lt_thirty_of_same_cycle (base := base) (cycle := cycle₁) slot₁ slot₂)
+
+theorem wheel30Candidate_offset_mod (cycle : ℕ) (slot : Fin 8) :
+    (30 * cycle + wheel30Slot slot) % 30 = wheel30Slot slot := by
+  calc
+    (30 * cycle + wheel30Slot slot) % 30
+        = ((30 * cycle) % 30 + wheel30Slot slot % 30) % 30 := by
+            rw [Nat.add_mod]
+    _ = wheel30Slot slot := by
+          simp [Nat.mod_eq_of_lt (wheel30Slot_lt_thirty slot)]
+
+theorem wheel30Candidate_offset_div (cycle : ℕ) (slot : Fin 8) :
+    (30 * cycle + wheel30Slot slot) / 30 = cycle := by
+  rw [Nat.add_comm, Nat.mul_comm, Nat.add_mul_div_right _ _ (by decide : 0 < 30)]
+  simp [Nat.div_eq_of_lt (wheel30Slot_lt_thirty slot)]
+
+theorem wheel30Candidate_lt_base_plus_segmentSpan_of_cycle_lt {base cycle : ℕ}
+    (slot : Fin 8) (hCycle : cycle < wheel30SegmentCycles) :
+    wheel30Candidate base cycle slot < base + wheel30SegmentSpan := by
+  have hSlot : wheel30Slot slot < 30 := wheel30Slot_lt_thirty slot
+  unfold wheel30Candidate wheel30SegmentSpan at *
   omega
 
 theorem wheel30Candidate_mod {base cycle : ℕ} (slot : Fin 8)
@@ -131,61 +197,139 @@ theorem wheel30Index_candidate {base cycle : ℕ} (slot : Fin 8)
     wheel30Index base (wheel30Candidate base cycle slot) =
       some (wheel30LinearIndex cycle slot) := by
   unfold wheel30Index
-  have hGe : base ≤ wheel30Candidate base cycle slot := by
-    unfold wheel30Candidate
-    omega
+  have hGe : base ≤ wheel30Candidate base cycle slot :=
+    wheel30Candidate_ge_base base cycle slot
   simp [hGe]
-  have hOffset :
-      wheel30Candidate base cycle slot - base = 30 * cycle + wheel30Slot slot := by
-    unfold wheel30Candidate
-    omega
-  rw [hOffset]
-  have hMod : (30 * cycle + wheel30Slot slot) % 30 = wheel30Slot slot := by
-    calc
-      (30 * cycle + wheel30Slot slot) % 30
-          = ((30 * cycle) % 30 + wheel30Slot slot % 30) % 30 := by
-              rw [Nat.add_mod]
-      _ = wheel30Slot slot := by
-            simp [Nat.mod_eq_of_lt (wheel30Slot_lt_thirty slot)]
-  rw [hMod, wheel30SlotIndex_wheel30Slot]
-  have hDiv :
-      (30 * cycle + wheel30Slot slot) / 30 = cycle := by
-    rw [Nat.add_comm, Nat.mul_comm, Nat.add_mul_div_right _ _ (by decide : 0 < 30)]
-    simp [Nat.div_eq_of_lt (wheel30Slot_lt_thirty slot)]
-  rw [hDiv]
+  rw [wheel30Candidate_sub_base base cycle slot]
+  rw [wheel30Candidate_offset_mod cycle slot, wheel30SlotIndex_wheel30Slot]
+  rw [wheel30Candidate_offset_div cycle slot]
   have hCycle4096 : cycle < 4096 := by
-    simpa [wheel30SegmentCycles, wheel30SegmentBytes] using hCycleBound
+    simpa using hCycleBound
   simp [hCycle4096]
 
 theorem wheel30Index_candidate_none_of_segmentCycles_le {base cycle : ℕ} (slot : Fin 8)
     (hCycleBound : wheel30SegmentCycles ≤ cycle) :
     wheel30Index base (wheel30Candidate base cycle slot) = none := by
   unfold wheel30Index
-  have hGe : base ≤ wheel30Candidate base cycle slot := by
-    unfold wheel30Candidate
-    omega
+  have hGe : base ≤ wheel30Candidate base cycle slot :=
+    wheel30Candidate_ge_base base cycle slot
   simp [hGe]
-  have hOffset :
-      wheel30Candidate base cycle slot - base = 30 * cycle + wheel30Slot slot := by
-    unfold wheel30Candidate
-    omega
-  rw [hOffset]
-  have hMod : (30 * cycle + wheel30Slot slot) % 30 = wheel30Slot slot := by
-    calc
-      (30 * cycle + wheel30Slot slot) % 30
-          = ((30 * cycle) % 30 + wheel30Slot slot % 30) % 30 := by
-              rw [Nat.add_mod]
-      _ = wheel30Slot slot := by
-            simp [Nat.mod_eq_of_lt (wheel30Slot_lt_thirty slot)]
-  rw [hMod, wheel30SlotIndex_wheel30Slot]
-  have hDiv :
-      (30 * cycle + wheel30Slot slot) / 30 = cycle := by
-    rw [Nat.add_comm, Nat.mul_comm, Nat.add_mul_div_right _ _ (by decide : 0 < 30)]
-    simp [Nat.div_eq_of_lt (wheel30Slot_lt_thirty slot)]
-  rw [hDiv]
+  rw [wheel30Candidate_sub_base base cycle slot]
+  rw [wheel30Candidate_offset_mod cycle slot, wheel30SlotIndex_wheel30Slot]
+  rw [wheel30Candidate_offset_div cycle slot]
   have hCycle4096 : 4096 ≤ cycle := by
-    simpa [wheel30SegmentCycles, wheel30SegmentBytes] using hCycleBound
+    simpa using hCycleBound
   have hNot : ¬ cycle < 4096 := Nat.not_lt.mpr hCycle4096
   simp [hNot]
+
+theorem exists_wheel30Candidate_of_segmentRepresentable
+    {base n : ℕ} (hBase : base % 30 = 0)
+    (hGe : base ≤ n) (hLt : n < base + wheel30SegmentSpan)
+    (hRep : wheel30Representable n) :
+    ∃ cycle : ℕ, ∃ slot : Fin 8,
+      cycle < wheel30SegmentCycles ∧
+      n = wheel30Candidate base cycle slot ∧
+      wheel30Index base n = some (wheel30LinearIndex cycle slot) := by
+  have hOffsetRep : wheel30Representable (n - base) := by
+    exact (wheel30Representable_sub_base_iff hBase hGe).2 hRep
+  have hResidueMem : (n - base) % 30 ∈ wheel30Residues := by
+    exact (wheel30Representable_iff_mod_mem _).1 hOffsetRep
+  obtain ⟨slot, hSlotIndex, hSlotEq⟩ :=
+    wheel30SlotIndex_some_of_mem_wheel30Residues hResidueMem
+  have hOffsetLt : n - base < wheel30SegmentSpan := by
+    omega
+  have hCycle : (n - base) / 30 < wheel30SegmentCycles := by
+    exact Nat.div_lt_of_lt_mul (by simpa [wheel30SegmentSpan] using hOffsetLt)
+  have hCandidate :
+      n = wheel30Candidate base ((n - base) / 30) slot := by
+    have hOffsetEq :
+        n - base = 30 * ((n - base) / 30) + (n - base) % 30 := by
+      simpa [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc] using
+        (Nat.mod_add_div (n - base) 30).symm
+    calc
+      n = base + (n - base) := by omega
+      _ = base + (30 * ((n - base) / 30) + (n - base) % 30) := by
+        nth_rewrite 1 [hOffsetEq]
+        rfl
+      _ = base + (30 * ((n - base) / 30) + wheel30Slot slot) := by rw [← hSlotEq]
+      _ = wheel30Candidate base ((n - base) / 30) slot := by
+        unfold wheel30Candidate
+        omega
+  refine ⟨(n - base) / 30, slot, hCycle, hCandidate, ?_⟩
+  conv_lhs => rw [hCandidate]
+  exact wheel30Index_candidate (base := base) (cycle := (n - base) / 30) slot hCycle
+
+theorem exists_wheel30Index_of_segmentRepresentable
+    {base n : ℕ} (hBase : base % 30 = 0)
+    (hGe : base ≤ n) (hLt : n < base + wheel30SegmentSpan)
+    (hRep : wheel30Representable n) :
+    ∃ idx : ℕ, wheel30Index base n = some idx := by
+  obtain ⟨cycle, slot, hCycle, _, hIdx⟩ :=
+    exists_wheel30Candidate_of_segmentRepresentable hBase hGe hLt hRep
+  exact ⟨wheel30LinearIndex cycle slot, hIdx⟩
+
+theorem exists_wheel30Candidate_of_index_eq_some {base n idx : ℕ}
+    (hIndex : wheel30Index base n = some idx) :
+    ∃ cycle : ℕ, ∃ slot : Fin 8,
+      cycle < wheel30SegmentCycles ∧
+      n = wheel30Candidate base cycle slot ∧
+      idx = wheel30LinearIndex cycle slot := by
+  unfold wheel30Index at hIndex
+  by_cases hGe : base ≤ n
+  · simp [hGe] at hIndex
+    let offset := n - base
+    have hOffsetLtThirty : offset % 30 < 30 := Nat.mod_lt _ (by decide)
+    cases hSlot : wheel30SlotIndex (offset % 30) with
+    | none =>
+        rw [hSlot] at hIndex
+        cases hIndex
+    | some slot =>
+        by_cases hCycle : offset / 30 < wheel30SegmentCycles
+        · have hIdxPair :
+              offset / 30 < wheel30SegmentCycles ∧
+                wheel30LinearIndex (offset / 30) slot = idx := by
+            simpa [offset, wheel30SegmentCycles, hSlot] using hIndex
+          have hIdxEq : wheel30LinearIndex (offset / 30) slot = idx := hIdxPair.2
+          have hSlotEq : wheel30Slot slot = offset % 30 := by
+            exact (wheel30SlotIndex_eq_some_iff_of_lt_thirty hOffsetLtThirty slot).mp hSlot
+          refine ⟨offset / 30, slot, hCycle, ?_, hIdxEq.symm⟩
+          calc
+            n = base + offset := by
+                  omega
+            _ = base + (offset % 30 + 30 * (offset / 30)) := by
+                  rw [Nat.mod_add_div offset 30]
+            _ = base + (30 * (offset / 30) + offset % 30) := by omega
+            _ = base + (30 * (offset / 30) + wheel30Slot slot) := by rw [← hSlotEq]
+            _ = wheel30Candidate base (offset / 30) slot := by
+                  simp [wheel30Candidate, Nat.add_assoc]
+        · have hIdxPair :
+              offset / 30 < wheel30SegmentCycles ∧
+                wheel30LinearIndex (offset / 30) slot = idx := by
+            simpa [offset, wheel30SegmentCycles, hSlot] using hIndex
+          exact False.elim (hCycle hIdxPair.1)
+  · simp [hGe] at hIndex
+
+theorem wheel30Index_eq_some_iff {base n idx : ℕ} :
+    wheel30Index base n = some idx ↔
+      ∃ cycle : ℕ, ∃ slot : Fin 8,
+        cycle < wheel30SegmentCycles ∧
+        n = wheel30Candidate base cycle slot ∧
+        idx = wheel30LinearIndex cycle slot := by
+  constructor
+  · exact exists_wheel30Candidate_of_index_eq_some
+  · rintro ⟨cycle, slot, hCycle, hCandidate, hIdx⟩
+    rw [hCandidate, hIdx]
+    exact wheel30Index_candidate (base := base) (cycle := cycle) slot hCycle
+
+theorem exists_wheel30Candidate_of_segmentPrimeGtThirty
+    {base p : ℕ} (hBase : base % 30 = 0)
+    (hGe : base ≤ p) (hLt : p < base + wheel30SegmentSpan)
+    (hPrime : Nat.Prime p) (hGt : 30 < p) :
+    ∃ cycle : ℕ, ∃ slot : Fin 8,
+      cycle < wheel30SegmentCycles ∧
+      p = wheel30Candidate base cycle slot ∧
+      wheel30Index base p = some (wheel30LinearIndex cycle slot) := by
+  exact exists_wheel30Candidate_of_segmentRepresentable hBase hGe hLt
+    (primeGtThirty_wheel30Representable hPrime hGt)
 
 end PrimeArithmetic.Sieve

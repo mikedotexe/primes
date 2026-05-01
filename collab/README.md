@@ -82,6 +82,24 @@ exact answer to what survives inside that regime, and the current maintained
 reading that the meaningful `M = 2` winners are low-order while the base-22
 higher-order story survives only as a direct-lane side pocket.
 
+### Affine core visual intuition
+
+[`AFFINE_CORE_VISUAL_INTUITION.md`](./AFFINE_CORE_VISUAL_INTUITION.md)
+
+This note freezes the human-facing explanation of the affine core:
+fixed templates become `N(s)=A+G*s`, residue filters are exact local affine
+constraints, the residue torus visualizes multiplicative-order period lock,
+and prime witnesses remain construction examples rather than density proofs.
+
+### Prime generation external comparison
+
+[`PRIME_GENERATION_EXTERNAL_COMPARISON.md`](./PRIME_GENERATION_EXTERNAL_COMPARISON.md)
+
+This note anchors the fast-generation comparison frame against primesieve,
+GMP, OpenSSL, CUDASieve, and GIMPS-style special-form systems, with the main
+boundary that our maintained path searches structured affine lanes rather than
+general intervals or cryptographic random primes.
+
 ### Strongest repo-wide evidence docs
 
 | Document | Purpose |

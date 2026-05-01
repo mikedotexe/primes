@@ -2,11 +2,16 @@
 
 # Test which examples from prime-physics-engine compile and run
 
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+cd "$REPO_ROOT"
+
 echo "Testing prime-physics-engine examples..."
 echo "========================================"
 echo
-
-cd prime-physics-engine
 
 SUCCESS_COUNT=0
 FAIL_COUNT=0

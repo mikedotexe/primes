@@ -5,8 +5,9 @@
 //!
 //! # Purpose
 //!
-//! Demonstrates symmetric "membrane" structures that systematically favor primality.
-//! Shows 30-55% success rates vs ~5% for random numbers.
+//! Demonstrates symmetric "membrane" structures as base-aware candidate
+//! generators. The point of this example is deterministic construction, not a
+//! new density theorem.
 //!
 //! # Expected Output
 //!
@@ -51,7 +52,7 @@
 //!
 //! # Success Indicator
 //!
-//! You should see success rates of 30-55% with multiple primes marked ✓.
+//! You should see multiple known seed/configuration witnesses marked ✓.
 
 use num_bigint::BigUint;
 use primes::{is_prime, MembraneConfig};
@@ -59,30 +60,13 @@ use rand::prelude::*;
 
 /// Generate a membrane prime using the seed AS the middle digit(s)
 fn generate_membrane_directly(config: &MembraneConfig, seed: u32) -> Option<BigUint> {
-    // For single-digit seeds in base 10
-    if config.base == 10 && seed < 10 {
-        // Build the membrane string directly
-        let membrane_str = format!(
-            "{}{}{}{}{}{}{}{}{}",
-            config.outer,
-            "0".repeat(config.k_outer as usize),
-            config.inner,
-            "0".repeat(config.k_inner as usize),
-            seed,
-            "0".repeat(config.k_inner as usize),
-            config.inner,
-            "0".repeat(config.k_outer as usize),
-            config.outer
-        );
+    let num = config.construct_number(seed).ok()?;
 
-        if let Ok(num) = membrane_str.parse::<BigUint>() {
-            if is_prime(&num) {
-                return Some(num);
-            }
-        }
+    if is_prime(&num) {
+        Some(num)
+    } else {
+        None
     }
-
-    None
 }
 
 /// Statistical prime generator based on empirical data
@@ -126,15 +110,16 @@ impl StatisticalGenerator {
                 // Base 6 champion - 33% success
                 EmpiricalConfig {
                     config: MembraneConfig::new(6, 1, 5, 0, 0),
-                    success_rate: 0.33,
-                    known_seeds: vec![1, 3, 5],
+                    success_rate: 1.0 / 6.0,
+                    known_seeds: vec![4],
                     description: "Base 6 champion (1,5) k=(0,0)".to_string(),
                 },
             ],
         }
     }
 
-    /// Generate a prime using weighted random selection
+    /// Generate a prime by selecting among known witness seeds with report
+    /// weights. This is a deterministic-witness demo, not a density sampler.
     fn generate_weighted(&self) -> Option<(BigUint, String)> {
         let mut rng = thread_rng();
 
@@ -166,25 +151,33 @@ impl StatisticalGenerator {
         for emp_config in &self.configs {
             println!("\n{}", emp_config.description);
             println!(
-                "Expected success rate: {:.0}%",
-                emp_config.success_rate * 100.0
+                "Known single-digit witness rate: {:.1}%",
+                known_witness_rate(emp_config) * 100.0
             );
+            println!("Search weight: {:.1}%", emp_config.success_rate * 100.0);
 
             let mut found = 0;
             let mut successful_seeds = Vec::new();
+            let seed_space = single_digit_seed_space(&emp_config.config);
 
-            for seed in 0..10 {
+            for seed in 0..seed_space {
                 if let Some(prime) = generate_membrane_directly(&emp_config.config, seed) {
                     found += 1;
                     successful_seeds.push(seed);
-                    println!("  Seed {}: {} ✓", seed, prime);
+                    println!(
+                        "  Seed {}: {} [{}] ✓",
+                        seed,
+                        prime,
+                        membrane_digit_label(&emp_config.config, seed)
+                    );
                 }
             }
 
             println!(
-                "Actual success rate: {:.0}% ({}/10)",
-                found as f64 * 10.0,
-                found
+                "Actual single-digit witness rate: {:.1}% ({}/{})",
+                found as f64 * 100.0 / seed_space as f64,
+                found,
+                seed_space
             );
             println!("Successful seeds: {:?}", successful_seeds);
 
@@ -205,8 +198,8 @@ fn main() {
     // First, verify our empirical data
     generator.test_all_configs();
 
-    // Generate some primes statistically
-    println!("\n\n📊 Statistical Generation (100 attempts)");
+    // Generate some primes from known witnesses.
+    println!("\n\n📊 Known-Seed Weighted Generation (100 draws)");
     println!("{}", "-".repeat(80));
 
     let mut successes = 0;
@@ -224,7 +217,7 @@ fn main() {
     }
 
     println!("\nResults:");
-    println!("  Success rate: {}%", successes);
+    println!("  Witness draws that produced primes: {}%", successes);
     println!("\nBreakdown by configuration:");
     for (config, count) in by_config.iter() {
         println!("  {}: {} primes", config, count);
@@ -251,21 +244,88 @@ fn main() {
             5,
             "Symmetric pattern, seed 5",
         ),
+        (
+            MembraneConfig::new(6, 1, 5, 0, 0),
+            4,
+            "Base-6 witness, seed 4",
+        ),
     ];
 
     for (config, seed, desc) in deterministic_pairs {
         if let Some(prime) = generate_membrane_directly(&config, seed) {
-            println!("\n{}: {} ✓", desc, prime);
-
-            // Verify structure
-            let prime_str = prime.to_string();
             println!(
-                "  Structure: {}",
-                prime_str
-                    .chars()
-                    .map(|c| if c == '0' { '◯' } else { c })
-                    .collect::<String>()
+                "\n{}: {} [{}] ✓",
+                desc,
+                prime,
+                membrane_digit_label(&config, seed)
             );
+
+            println!("  Structure: {}", membrane_structure_label(&config, seed));
         }
     }
+}
+
+fn single_digit_seed_space(config: &MembraneConfig) -> u32 {
+    config.base
+}
+
+fn known_witness_rate(emp_config: &EmpiricalConfig) -> f64 {
+    emp_config.known_seeds.len() as f64 / single_digit_seed_space(&emp_config.config) as f64
+}
+
+fn membrane_digit_label(config: &MembraneConfig, seed: u32) -> String {
+    let middle_digits = match config.middle_digits_from_seed(seed) {
+        Ok(digits) => digits,
+        Err(_) => return "invalid middle".to_string(),
+    };
+    let digits = match config.construct_digits_from_middle_digits(&middle_digits) {
+        Ok(digits) => digits,
+        Err(_) => return "invalid template".to_string(),
+    };
+
+    format!(
+        "{} (base {})",
+        digits
+            .iter()
+            .map(|&digit| digit_symbol(digit))
+            .collect::<Vec<_>>()
+            .join(""),
+        config.base
+    )
+}
+
+fn digit_symbol(digit: u32) -> String {
+    if digit < 10 {
+        digit.to_string()
+    } else {
+        let offset = digit - 10;
+        if offset < 26 {
+            ((b'A' + offset as u8) as char).to_string()
+        } else {
+            format!("[{digit}]")
+        }
+    }
+}
+
+fn membrane_structure_label(config: &MembraneConfig, seed: u32) -> String {
+    let middle_digits = match config.middle_digits_from_seed(seed) {
+        Ok(digits) => digits,
+        Err(_) => return "invalid middle".to_string(),
+    };
+    let digits = match config.construct_digits_from_middle_digits(&middle_digits) {
+        Ok(digits) => digits,
+        Err(_) => return "invalid template".to_string(),
+    };
+
+    digits
+        .iter()
+        .map(|&digit| {
+            if digit == 0 {
+                "◯".to_string()
+            } else {
+                digit_symbol(digit)
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("")
 }

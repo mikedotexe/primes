@@ -107,9 +107,52 @@ theorem goldbachLocalFactorQ_pos {p : ℕ} (hp : 2 < p) :
 def oddPrimeSupport (n : ℕ) : Finset ℕ :=
   n.primeFactors.erase 2
 
+theorem oddPrimeSupport_two_mul (n : ℕ) :
+    oddPrimeSupport (2 * n) = oddPrimeSupport n := by
+  by_cases hn : n = 0
+  · subst hn
+    simp [oddPrimeSupport]
+  · unfold oddPrimeSupport
+    rw [Nat.primeFactors_mul (by decide : 2 ≠ 0) hn,
+      (show Nat.Prime 2 by decide).primeFactors]
+    simp
+
+theorem oddPrimeSupport_two_pow_mul (n k : ℕ) (hk : k ≠ 0) :
+    oddPrimeSupport (2 ^ k * n) = oddPrimeSupport n := by
+  by_cases hn : n = 0
+  · subst hn
+    simp [oddPrimeSupport]
+  · unfold oddPrimeSupport
+    rw [Nat.primeFactors_mul (pow_ne_zero _ (by decide : 2 ≠ 0)) hn,
+      Nat.primeFactors_prime_pow hk (show Nat.Prime 2 by decide)]
+    simp
+
+/-- Every factor in the odd-prime support is an odd prime, hence strictly larger than `2`. -/
+theorem two_lt_of_mem_oddPrimeSupport {n p : ℕ} (hp : p ∈ oddPrimeSupport n) :
+    2 < p := by
+  unfold oddPrimeSupport at hp
+  rcases Finset.mem_erase.mp hp with ⟨hpNeTwo, hpMem⟩
+  have hpPrime : p.Prime := Nat.prime_of_mem_primeFactors hpMem
+  exact lt_of_le_of_ne hpPrime.two_le (Ne.symm hpNeTwo)
+
 /-- Exact multiplicative singular-series shell over the distinct odd prime support. -/
 def goldbachSingularSeriesQ (n : ℕ) : ℚ :=
   Finset.prod (oddPrimeSupport n) fun p => goldbachLocalFactorQ p
+
+theorem goldbachSingularSeriesQ_two_mul (n : ℕ) :
+    goldbachSingularSeriesQ (2 * n) = goldbachSingularSeriesQ n := by
+  unfold goldbachSingularSeriesQ
+  rw [oddPrimeSupport_two_mul]
+
+theorem goldbachSingularSeriesQ_two_pow_mul (n k : ℕ) (hk : k ≠ 0) :
+    goldbachSingularSeriesQ (2 ^ k * n) = goldbachSingularSeriesQ n := by
+  unfold goldbachSingularSeriesQ
+  rw [oddPrimeSupport_two_pow_mul n k hk]
+
+theorem goldbachSingularSeriesQ_pos (n : ℕ) :
+    0 < goldbachSingularSeriesQ n := by
+  unfold goldbachSingularSeriesQ
+  exact Finset.prod_pos fun p hp => goldbachLocalFactorQ_pos (two_lt_of_mem_oddPrimeSupport hp)
 
 theorem oddPrimeSupport_radical (n : ℕ) :
     oddPrimeSupport (radical n) = oddPrimeSupport n := by
@@ -154,12 +197,36 @@ theorem goldbachLambdaShell_ordered_eq_two_mul_unordered
   simp [goldbachLambdaShell, goldbachLogScale, kappaShell]
   ring
 
+theorem goldbachLambdaShell_singularSeriesQ_two_mul
+    (pairing : PairCount) (C2 n : ℝ) (m : ℕ) :
+    goldbachLambdaShell pairing C2 (goldbachSingularSeriesQ (2 * m)) n =
+      goldbachLambdaShell pairing C2 (goldbachSingularSeriesQ m) n := by
+  rw [goldbachSingularSeriesQ_two_mul]
+
+theorem goldbachLambdaShell_singularSeriesQ_two_pow_mul
+    (pairing : PairCount) (C2 n : ℝ) (m k : ℕ) (hk : k ≠ 0) :
+    goldbachLambdaShell pairing C2 (goldbachSingularSeriesQ (2 ^ k * m)) n =
+      goldbachLambdaShell pairing C2 (goldbachSingularSeriesQ m) n := by
+  rw [goldbachSingularSeriesQ_two_pow_mul m k hk]
+
 theorem goldbachLambdaTruncatedShell_ordered_eq_two_mul_unordered
     (C2 singularSeries truncatedScale : ℝ) :
     goldbachLambdaTruncatedShell PairCount.ordered C2 singularSeries truncatedScale =
       2 * goldbachLambdaTruncatedShell PairCount.unordered C2 singularSeries truncatedScale := by
   simp [goldbachLambdaTruncatedShell, kappaShell]
   ring
+
+theorem goldbachLambdaTruncatedShell_singularSeriesQ_two_mul
+    (pairing : PairCount) (C2 truncatedScale : ℝ) (m : ℕ) :
+    goldbachLambdaTruncatedShell pairing C2 (goldbachSingularSeriesQ (2 * m)) truncatedScale =
+      goldbachLambdaTruncatedShell pairing C2 (goldbachSingularSeriesQ m) truncatedScale := by
+  rw [goldbachSingularSeriesQ_two_mul]
+
+theorem goldbachLambdaTruncatedShell_singularSeriesQ_two_pow_mul
+    (pairing : PairCount) (C2 truncatedScale : ℝ) (m k : ℕ) (hk : k ≠ 0) :
+    goldbachLambdaTruncatedShell pairing C2 (goldbachSingularSeriesQ (2 ^ k * m)) truncatedScale =
+      goldbachLambdaTruncatedShell pairing C2 (goldbachSingularSeriesQ m) truncatedScale := by
+  rw [goldbachSingularSeriesQ_two_pow_mul m k hk]
 
 @[simp] theorem goldbachCoverageFromLambda_zero :
     goldbachCoverageFromLambda 0 = 0 := by
@@ -177,6 +244,28 @@ theorem goldbachCoverageFromLambda_lt_one (lam : ℝ) :
     goldbachCoverageFromLambda lam < 1 := by
   unfold goldbachCoverageFromLambda
   have hPos : 0 < Real.exp (-lam) := Real.exp_pos (-lam)
+  linarith
+
+theorem goldbachCoverageFromLambda_pos {lam : ℝ} (hLam : 0 < lam) :
+    0 < goldbachCoverageFromLambda lam := by
+  unfold goldbachCoverageFromLambda
+  have hExpLt : Real.exp (-lam) < 1 := by
+    have hNeg : -lam < 0 := by
+      linarith
+    simpa using Real.exp_lt_exp.mpr hNeg
+  linarith
+
+theorem goldbachCoverageFromLambda_le_one (lam : ℝ) :
+    goldbachCoverageFromLambda lam ≤ 1 :=
+  le_of_lt (goldbachCoverageFromLambda_lt_one lam)
+
+theorem goldbachCoverageFromLambda_monotone :
+    Monotone goldbachCoverageFromLambda := by
+  intro a b hab
+  unfold goldbachCoverageFromLambda
+  have hNeg : -b ≤ -a := by
+    linarith
+  have hExp : Real.exp (-b) ≤ Real.exp (-a) := Real.exp_le_exp.mpr hNeg
   linarith
 
 end PrimeArithmetic.Analysis

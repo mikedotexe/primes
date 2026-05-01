@@ -130,6 +130,75 @@ summary of durable current signal lives in
 5. Lean should now move in small classical steps from the new symmetry base,
    because a narrow live package is more valuable than a broad aspirational one.
 
+## Significance-Grade Research Gates
+
+If the goal shifts from "interesting and well-hardened" to "significant and
+novel in a publication-grade sense," the repo now needs to clear **both** of
+the following gates. Either one alone is not enough.
+
+### Gate A: Residual Template Effect Under Matched Controls
+
+Why this gate matters:
+- beating naive random baselines is already established, but the active docs
+  also record that the best current matched control does not yet isolate a
+  template-specific lift
+- any future "new mechanism" claim has to survive controls that match
+  coprimality, magnitude, and scaffold budget, not only raw prime rate
+
+What this gate should produce:
+- a maintained family sweep extending
+  [`examples/membrane_vs_random.rs`](examples/membrane_vs_random.rs) beyond one
+  convenient base and one narrow layout
+- matched same-budget and same-anchor comparisons aligned with
+  [`examples/membrane_scaffold_probe.rs`](examples/membrane_scaffold_probe.rs)
+- one canonical report surface giving effect sizes, confidence intervals, and
+  multiple-testing-aware significance decisions across families
+- a predeclared residual criterion strong enough that a skeptical reader could
+  tell whether a template effect is present or absent
+
+What would count as success:
+- a stable positive residual effect across more than one family after matched
+  controls and multiplicity correction, or
+- a stable negative result strong enough to retire the mechanism claim and
+  present the repo's novelty instead as empirical reduction and falsification
+
+### Gate B: Theorem-Level Reduction Of Any Residual
+
+Why this gate matters:
+- even a positive empirical residual would still not explain *why* the effect
+  exists
+- the theorem-level job is to prove exactly which parts of the observed density
+  are already forced by classical coprimality, residue filtering, and candidate
+  magnitude, then isolate the smallest remaining structural hypothesis
+
+What this gate should produce:
+- a theorem decomposition built from the exact arithmetic already present in the
+  Lean package, especially affine template structure, residue-class filters,
+  unit-residue / CRT facts, and the conservative Hardy-Littlewood shell
+- a short theorem-planning note for the diameter-density question that states
+  what is already explained and what residual feature would still need a new
+  theorem
+- a clear boundary between exact structural lemmas and any still-empirical
+  density claim
+
+What would count as success:
+- either a conservative reduction showing that the remaining question is much
+  narrower than the original membrane narrative, or
+- a genuine theorem shell identifying one exact structural feature that could
+  plausibly support a residual density effect beyond the current controls
+
+Current best next steps:
+1. strengthen the matched-control lane until the repo can answer "is there a
+   stable residual template effect across families?" with one reproducible
+   report rather than scattered examples
+2. in parallel, use
+   [`collab/openprover/theorems/04-diameter-density-reduction.md`](collab/openprover/theorems/04-diameter-density-reduction.md)
+   and the Lean exact-arithmetic lane to keep shrinking the unexplained part
+3. only revive "new mechanism" wording if Gates A and B both move in the same
+   direction
+4. otherwise, present the contribution clearly as rigorous empirical reduction,
+   structural probing, and formalization/tooling
+
 ## Active Tranche
 
 ### Lean Formalization Consolidation

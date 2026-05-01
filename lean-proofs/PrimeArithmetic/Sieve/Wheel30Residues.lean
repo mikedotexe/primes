@@ -39,10 +39,38 @@ theorem mod_mem_wheel30Residues_iff (n : ℕ) :
   have hcase := hfin ⟨n % 30, Nat.mod_lt _ (by decide)⟩
   simpa [hmod2, hmod3, hmod5] using hcase
 
+theorem mod_mem_wheel30Residues_iff_coprime (n : ℕ) :
+    n % 30 ∈ wheel30Residues ↔ n.Coprime 30 := by
+  rw [mem_wheel30Residues_iff]
+  constructor
+  · intro h
+    exact (ZMod.coprime_mod_iff_coprime n 30).1 h.2.symm
+  · intro h
+    exact ⟨Nat.mod_lt _ (by decide), ((ZMod.coprime_mod_iff_coprime n 30).2 h).symm⟩
+
+theorem mod_mem_wheel30Residues_iff_gcd_eq_one (n : ℕ) :
+    n % 30 ∈ wheel30Residues ↔ Nat.gcd n 30 = 1 := by
+  rw [mod_mem_wheel30Residues_iff_coprime, Nat.coprime_iff_gcd_eq_one]
+
+theorem primeGtFive_mod_mem_wheel30Residues {p : ℕ}
+    (hPrime : Nat.Prime p) (hGt : 5 < p) :
+    p % 30 ∈ wheel30Residues := by
+  refine (mod_mem_wheel30Residues_iff_coprime p).2 ?_
+  have hNotDvd2 : ¬ p ∣ 2 := by
+    exact Nat.not_dvd_of_pos_of_lt (by decide : 0 < 2) (lt_trans (by decide : 2 < 5) hGt)
+  have hNotDvd3 : ¬ p ∣ 3 := by
+    exact Nat.not_dvd_of_pos_of_lt (by decide : 0 < 3) (lt_trans (by decide : 3 < 5) hGt)
+  have hNotDvd5 : ¬ p ∣ 5 := by
+    exact Nat.not_dvd_of_pos_of_lt (by decide : 0 < 5) hGt
+  have hNotDvd30 : ¬ p ∣ 30 := by
+    change ¬ p ∣ 2 * (3 * 5)
+    exact hPrime.not_dvd_mul hNotDvd2 (hPrime.not_dvd_mul hNotDvd3 hNotDvd5)
+  exact (hPrime.coprime_iff_not_dvd).2 hNotDvd30
+
 theorem primeGtThirty_mod_mem_wheel30Residues {p : ℕ}
     (hPrime : Nat.Prime p) (hGt : 30 < p) :
     p % 30 ∈ wheel30Residues := by
-  simpa [wheel30Residues, PrimeArithmetic.Density.Base30Residues.expected] using
-    PrimeArithmetic.Density.Base30Residues.primeGtThirtyMod_memExpected hPrime hGt
+  exact primeGtFive_mod_mem_wheel30Residues hPrime <|
+    lt_trans (by decide : 5 < 30) hGt
 
 end PrimeArithmetic.Sieve

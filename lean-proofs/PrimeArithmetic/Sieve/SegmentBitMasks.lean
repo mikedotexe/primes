@@ -70,6 +70,22 @@ theorem segmentMarkByte_preserves_other_bits (byte lo n j : ℕ)
   rw [Nat.testBit_lor, segmentBitMask_targets_other _ _ _ h]
   simp
 
+theorem segmentReadBit_marked_other_eq (byte lo n m : ℕ)
+    (h : segmentBitIndex lo m ≠ segmentBitIndex lo n) :
+    segmentReadBit (segmentMarkByte byte lo n) lo m =
+      segmentReadBit byte lo m := by
+  unfold segmentReadBit
+  simpa using
+    (segmentMarkByte_preserves_other_bits
+      (byte := byte) (lo := lo) (n := n) (j := segmentBitIndex lo m) h)
+
+theorem segmentReadValue_marked_other_eq (byte lo n m : ℕ)
+    (h : segmentBitIndex lo m ≠ segmentBitIndex lo n) :
+    segmentReadValue (segmentMarkByte byte lo n) lo m =
+      segmentReadValue byte lo m := by
+  rw [segmentReadValue_eq_toNat_readBit, segmentReadValue_eq_toNat_readBit]
+  simp [segmentReadBit_marked_other_eq (byte := byte) (lo := lo) (n := n) (m := m) h]
+
 theorem segmentReadValue_marked (byte lo n : ℕ) :
     segmentReadValue (segmentMarkByte byte lo n) lo n = 1 := by
   rw [segmentReadValue_eq_toNat_readBit]

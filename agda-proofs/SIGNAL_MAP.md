@@ -101,6 +101,30 @@ Why this matters:
 - `Complete/OrthogonalityFloat.agda` now gives the orthogonality lane a live
   executable backend again instead of a broken parser-era float module
 
+### Bounded-k Threshold Substrate
+
+- `Theorems/BoundedKCompactness.agda`
+- `Theorems/Abstract/FiniteMaskTransfer.agda`
+- `Examples/BoundedKTransferWitnessShell.agda`
+- `Examples/Generated/BoundedKTransferWitnessCatalog.agda`
+- `Examples/BoundedKTransferWitnesses.agda`
+
+Why this matters:
+
+- this is the first Agda lane that cleanly mirrors the repo's bounded-`k`
+  threshold hardening without importing the threshold prose itself
+- `BoundedKCompactness.agda` makes compactness exact as padding/diameter
+  arithmetic and isolates the `k = (0,0)` minimizer cleanly from density talk
+- `FiniteMaskTransfer.agda` turns the overlap/boundary discussion into exact
+  five-bucket transfer arithmetic with exact admissible and bucketwise-good
+  count identities
+- `BoundedKTransferWitnessShell.agda` keeps the exact witness vocabulary stable
+  while `Generated/BoundedKTransferWitnessCatalog.agda` is regenerated from the
+  Rust bounded-`k` lane
+- `BoundedKTransferWitnesses.agda` now acts as the stable maintained wrapper,
+  so the live base-10/base-14/base-22/base-34 `M = 2` contrasts stay generated
+  without making downstream imports brittle
+
 ## Tier 2: Promising but Assumption-Heavy Extensions
 
 These modules compile, but they depend on postulates and should be described as

@@ -17,6 +17,7 @@ The theorems stay intentionally small and exact. They cover:
 
 - one-mark correctness
 - preservation under writes to other byte slots
+- concatenation of finite write traces
 - finite families of marks whose byte slots are pairwise distinct
 
 This gives a short but real whole-segment agreement surface without yet taking
@@ -48,6 +49,15 @@ def byteMarkWriteMany {byteCount : ℕ} (bytes : BoundedByteState byteCount) :
 /-- Pairwise disjointness of the touched byte slots. -/
 def marksHaveDistinctByteSlots {byteCount : ℕ} (marks : List (ByteMark byteCount)) : Prop :=
   marks.Pairwise fun a b => a.1 ≠ b.1
+
+theorem byteMarkWriteMany_append {byteCount : ℕ} (bytes : BoundedByteState byteCount)
+    (xs ys : List (ByteMark byteCount)) :
+    byteMarkWriteMany bytes (xs ++ ys) = byteMarkWriteMany (byteMarkWriteMany bytes xs) ys := by
+  induction xs generalizing bytes with
+  | nil =>
+      simp [byteMarkWriteMany]
+  | cons x xs ih =>
+      simp [byteMarkWriteMany, ih]
 
 theorem byteMarkRead_eq_toNat_testBit {byteCount : ℕ}
     (bytes : BoundedByteState byteCount) (mark : ByteMark byteCount) :

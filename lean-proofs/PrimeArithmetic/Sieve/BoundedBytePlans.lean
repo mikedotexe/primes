@@ -21,6 +21,7 @@ The resulting theorem family shows:
 - one grouped plan is equivalent to its flattened single-bit write trace
 - a whole grouped plan family is equivalent to the corresponding flattened
   write trace
+- grouped plan families concatenate exactly, both before and after flattening
 - if the planned byte slots are pairwise distinct, then every planned bit reads
   back as `1` after the whole family update
 
@@ -55,14 +56,23 @@ def bytePlanMarkFamily {byteCount : ℕ} : List (BytePlan byteCount) → List (B
 def plansHaveDistinctByteSlots {byteCount : ℕ} (plans : List (BytePlan byteCount)) : Prop :=
   plans.Pairwise fun a b => a.1 ≠ b.1
 
-theorem byteMarkWriteMany_append {byteCount : ℕ} (bytes : BoundedByteState byteCount)
-    (xs ys : List (ByteMark byteCount)) :
-    byteMarkWriteMany bytes (xs ++ ys) = byteMarkWriteMany (byteMarkWriteMany bytes xs) ys := by
+theorem bytePlanMarkFamily_append {byteCount : ℕ}
+    (xs ys : List (BytePlan byteCount)) :
+    bytePlanMarkFamily (xs ++ ys) = bytePlanMarkFamily xs ++ bytePlanMarkFamily ys := by
+  induction xs with
+  | nil =>
+      simp [bytePlanMarkFamily]
+  | cons plan plans ih =>
+      simp [bytePlanMarkFamily, ih, List.append_assoc]
+
+theorem bytePlanWriteMany_append {byteCount : ℕ} (bytes : BoundedByteState byteCount)
+    (xs ys : List (BytePlan byteCount)) :
+    bytePlanWriteMany bytes (xs ++ ys) = bytePlanWriteMany (bytePlanWriteMany bytes xs) ys := by
   induction xs generalizing bytes with
   | nil =>
-      simp [byteMarkWriteMany]
-  | cons x xs ih =>
-      simp [byteMarkWriteMany, ih]
+      simp [bytePlanWriteMany]
+  | cons plan plans ih =>
+      simp [bytePlanWriteMany, ih]
 
 theorem bytePlanWrite_eq_byteMarkWriteMany {byteCount : ℕ}
     (bytes : BoundedByteState byteCount) (plan : BytePlan byteCount) :
@@ -81,6 +91,39 @@ theorem bytePlanWriteMany_eq_byteMarkWriteMany {byteCount : ℕ}
   | cons plan plans ih =>
       simp [bytePlanWriteMany, bytePlanMarkFamily]
       rw [bytePlanWrite_eq_byteMarkWriteMany, ih, ← byteMarkWriteMany_append]
+
+theorem mem_bytePlanMarks_iff {byteCount : ℕ}
+    (plan : BytePlan byteCount) (target : ByteMark byteCount) :
+    target ∈ bytePlanMarks plan ↔ target.1 = plan.1 ∧ target.2 ∈ plan.2 := by
+  cases plan with
+  | mk slot bits =>
+      cases target with
+      | mk targetSlot targetBit =>
+          induction bits with
+          | nil =>
+              simp [bytePlanMarks, byteMarksAt]
+          | cons bit bits ih =>
+              have ih' :
+                  (targetSlot, targetBit) ∈ byteMarksAt slot bits ↔
+                    targetSlot = slot ∧ targetBit ∈ bits := by
+                simpa [bytePlanMarks] using ih
+              simp [bytePlanMarks, byteMarksAt, ih', and_or_left]
+
+theorem exists_bytePlan_mem_of_mem_bytePlanMarkFamily {byteCount : ℕ}
+    (plans : List (BytePlan byteCount))
+    {target : ByteMark byteCount} (hTarget : target ∈ bytePlanMarkFamily plans) :
+    ∃ plan ∈ plans, target.1 = plan.1 ∧ target.2 ∈ plan.2 := by
+  induction plans with
+  | nil =>
+      cases hTarget
+  | cons plan plans ih =>
+      simp only [bytePlanMarkFamily, List.mem_append] at hTarget
+      cases hTarget with
+      | inl hHead =>
+          exact ⟨plan, by simp, (mem_bytePlanMarks_iff plan target).mp hHead⟩
+      | inr hTail =>
+          rcases ih hTail with ⟨plan', hPlan', hSlot, hBit⟩
+          exact ⟨plan', by simp [hPlan'], hSlot, hBit⟩
 
 theorem byteMarkRead_preserved_by_planWrite_other_byte {byteCount : ℕ}
     (bytes : BoundedByteState byteCount) (target : ByteMark byteCount)
@@ -130,5 +173,21 @@ theorem byteMarkRead_of_mem_planWriteMany_distinct {byteCount : ℕ}
               simp [bytePlanWriteMany]
               exact ih (bytes := bytePlanWrite bytes plan) (slot := slot) (bits := bits)
                 (target := target) hTail hTailMem hBit
+
+theorem byteMarkRead_of_mem_bytePlanMarkFamily_distinct {byteCount : ℕ}
+    (plans : List (BytePlan byteCount)) (bytes : BoundedByteState byteCount)
+    (hDistinct : plansHaveDistinctByteSlots plans)
+    {target : ByteMark byteCount} (hTarget : target ∈ bytePlanMarkFamily plans) :
+    byteMarkRead (bytePlanWriteMany bytes plans) target = 1 := by
+  rcases exists_bytePlan_mem_of_mem_bytePlanMarkFamily (plans := plans) hTarget with
+    ⟨plan, hPlan, hSlot, hBit⟩
+  cases target with
+  | mk slot bit =>
+      simp only at hSlot hBit
+      subst slot
+      simpa using
+        (byteMarkRead_of_mem_planWriteMany_distinct
+          (plans := plans) (bytes := bytes) (slot := plan.1)
+          (bits := plan.2) (target := bit) hDistinct hPlan hBit)
 
 end PrimeArithmetic.Sieve

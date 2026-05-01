@@ -82,6 +82,20 @@ theorem xor_mem_unitResiduePairReps_complement
       exact hPair (mem_unitResiduePairReps.2 ⟨ha, hlt⟩)
     exact Or.inr ⟨complement_mem_unitResiduePairReps_of_not_lt hBase ha hlt, hPair⟩
 
+theorem primeGtBaseMod_mem_unitResiduePairReps_or_complement
+    {p base : ℕ} (hBase : 2 < base) (hPrime : Nat.Prime p) (hGt : base < p) :
+    p % base ∈ unitResiduePairReps base ∨
+      base - (p % base) ∈ unitResiduePairReps base := by
+  exact (mem_unitResidues_iff_mem_pairReps_or_complement_mem_pairReps hBase).1 <|
+    primeGtBaseMod_memUnitResidues (le_of_lt hBase) hPrime hGt
+
+theorem primeGtBaseMod_xor_mem_unitResiduePairReps_complement
+    {p base : ℕ} (hBase : 2 < base) (hPrime : Nat.Prime p) (hGt : base < p) :
+    Xor' (p % base ∈ unitResiduePairReps base)
+      (base - (p % base) ∈ unitResiduePairReps base) := by
+  exact xor_mem_unitResiduePairReps_complement hBase <|
+    primeGtBaseMod_memUnitResidues (le_of_lt hBase) hPrime hGt
+
 def unitResiduePairEquiv
     (base : ℕ) (hBase : 2 < base) :
     ({ a : ℕ // a ∈ unitResiduePairReps base } × Bool) ≃

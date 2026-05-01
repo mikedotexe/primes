@@ -66,6 +66,27 @@ theorem wheel30BitCoordinates_candidate {base cycle : ℕ} (slot : Fin 8)
   rw [wheel30Index_candidate (base := base) (cycle := cycle) slot hCycle]
   simp [wheel30LinearIndex_byte, wheel30LinearIndex_bit]
 
+theorem wheel30ByteIndex_candidate_base_invariant {base₁ base₂ cycle : ℕ}
+    (slot : Fin 8) (hCycle : cycle < wheel30SegmentCycles) :
+    wheel30ByteIndex base₁ (wheel30Candidate base₁ cycle slot) =
+      wheel30ByteIndex base₂ (wheel30Candidate base₂ cycle slot) := by
+  rw [wheel30ByteIndex_candidate (base := base₁) (cycle := cycle) slot hCycle]
+  rw [wheel30ByteIndex_candidate (base := base₂) (cycle := cycle) slot hCycle]
+
+theorem wheel30BitIndex_candidate_base_invariant {base₁ base₂ cycle : ℕ}
+    (slot : Fin 8) (hCycle : cycle < wheel30SegmentCycles) :
+    wheel30BitIndex base₁ (wheel30Candidate base₁ cycle slot) =
+      wheel30BitIndex base₂ (wheel30Candidate base₂ cycle slot) := by
+  rw [wheel30BitIndex_candidate (base := base₁) (cycle := cycle) slot hCycle]
+  rw [wheel30BitIndex_candidate (base := base₂) (cycle := cycle) slot hCycle]
+
+theorem wheel30BitCoordinates_candidate_base_invariant {base₁ base₂ cycle : ℕ}
+    (slot : Fin 8) (hCycle : cycle < wheel30SegmentCycles) :
+    wheel30BitCoordinates base₁ (wheel30Candidate base₁ cycle slot) =
+      wheel30BitCoordinates base₂ (wheel30Candidate base₂ cycle slot) := by
+  rw [wheel30BitCoordinates_candidate (base := base₁) (cycle := cycle) slot hCycle]
+  rw [wheel30BitCoordinates_candidate (base := base₂) (cycle := cycle) slot hCycle]
+
 theorem wheel30BitIndex_lt_eight {base n bit : ℕ}
     (hBit : wheel30BitIndex base n = some bit) :
     bit < 8 := by

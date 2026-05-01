@@ -15,6 +15,9 @@ the repository's connector/TUI surface:
 
 These examples keep the family layer honest by showing that it applies beyond
 the canonical pair `10301 ∘ 3007003007003`.
+
+They should be read as same-language comparison profiles, not as evidence that
+the canonical pair's empirical asymmetry already generalizes.
 -/
 
 def zeroPaddedRight : ℕ := 30305070305070303
@@ -111,6 +114,14 @@ theorem zeroPaddedMembrane_forward_divisibleBy3_iff_connector_mod1
         1 + zeroPaddedMembraneProfileMod3.pairResidue ≡ 0 [MOD zeroPaddedMembraneProfileMod3.modulus])
       connector connWidth
 
+theorem zeroPaddedMembrane_forward_divisibleBy3_iff_across_widths
+    (connector connWidth₁ connWidth₂ : ℕ) :
+    concatForward 10 canonicalLeft zeroPaddedRight connector 17 connWidth₁ ≡ 0 [MOD 3] ↔
+      concatForward 10 canonicalLeft zeroPaddedRight connector 17 connWidth₂ ≡ 0 [MOD 3] := by
+  simpa [zeroPaddedMembraneProfileMod3] using
+    PairResidueProfile.concatForward_modEq_target_iff_across_widths
+      zeroPaddedMembraneProfileMod3 connector connWidth₁ connWidth₂ 0
+
 theorem zeroPaddedMembrane_reverse_divisibleBy9_iff_connector_mod1
     (connector connWidth : ℕ) :
     concatReverse 10 canonicalLeft zeroPaddedRight connector 5 connWidth ≡ 0 [MOD 9] ↔
@@ -122,6 +133,14 @@ theorem zeroPaddedMembrane_reverse_divisibleBy9_iff_connector_mod1
       (by native_decide :
         1 + zeroPaddedMembraneProfileMod9.pairResidue ≡ 0 [MOD zeroPaddedMembraneProfileMod9.modulus])
       connector connWidth
+
+theorem zeroPaddedMembrane_reverse_divisibleBy9_iff_across_widths
+    (connector connWidth₁ connWidth₂ : ℕ) :
+    concatReverse 10 canonicalLeft zeroPaddedRight connector 5 connWidth₁ ≡ 0 [MOD 9] ↔
+      concatReverse 10 canonicalLeft zeroPaddedRight connector 5 connWidth₂ ≡ 0 [MOD 9] := by
+  simpa [zeroPaddedMembraneProfileMod9] using
+    PairResidueProfile.concatReverse_modEq_target_iff_across_widths
+      zeroPaddedMembraneProfileMod9 connector connWidth₁ connWidth₂ 0
 
 theorem twinSmall_forward_reverse_same_mod9
     (connector connWidth : ℕ) :

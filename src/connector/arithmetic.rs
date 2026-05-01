@@ -213,21 +213,27 @@ mod tests {
     }
 
     #[test]
-    fn test_lagrange_equilibrium_l1() {
-        // Buffer=5, Position=4: connector = 6 * 10^(5-4) = 60
-        // But with length 5, this is "00060"
-        let connector = 6 * pow10(5 - 4).unwrap();
+    fn test_width5_position4_single_digit_connector() {
+        // Width=5, position=4 from the left gives the connector string "00006".
+        let connector = 6 * pow10(0).unwrap();
         let result = concat_forward(10301, 3007003007003, connector, 5, 13, 5).unwrap();
-        assert_eq!(result, 10301000603007003007003u128);
+        assert_eq!(result, 10301000063007003007003u128);
     }
 
     #[test]
-    fn test_lagrange_equilibrium_l2() {
-        // Buffer=6, Position=2: connector = 6 * 10^(6-2) = 60000
-        let connector = 6 * pow10(6 - 2).unwrap();
+    fn test_width5_position1_single_digit_connector() {
+        // Width=5, position=1 from the left gives the connector string "06000".
+        let connector = 6 * pow10(3).unwrap();
+        let result = concat_forward(10301, 3007003007003, connector, 5, 13, 5).unwrap();
+        assert_eq!(result, 10301060003007003007003u128);
+    }
+
+    #[test]
+    fn test_width6_position1_single_digit_connector() {
+        // Width=6, position=1 from the left gives the connector string "060000".
+        let connector = 6 * pow10(4).unwrap();
         let result = concat_forward(10301, 3007003007003, connector, 5, 13, 6).unwrap();
         // 10301 || 060000 || 3007003007003
-        // = 10301 * 10^19 + 60000 * 10^13 + 3007003007003
         assert_eq!(result, 103010600003007003007003u128);
     }
 }

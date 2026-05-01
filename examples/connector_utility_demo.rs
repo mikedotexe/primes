@@ -1,11 +1,15 @@
 //! Connector Utility Demonstration
 //!
 //! This example demonstrates the connector concatenation utilities introduced
-//! for directional asymmetry analysis of Lagrange point prime pairs.
+//! for arithmetic-first directional asymmetry analysis of the maintained
+//! canonical connector pair.
 //!
 //! Run with: cargo run --example connector_utility_demo
 
-use primes::connector::{utils, ConcatenationSystem};
+use primes::connector::{
+    canonical_source_hits, utils, ConcatenationSystem, ConnectorHit,
+    CANONICAL_DOCUMENTED_FORWARD_HITS,
+};
 
 fn main() {
     println!("╔═══════════════════════════════════════════════════════════════╗");
@@ -13,37 +17,21 @@ fn main() {
     println!("╚═══════════════════════════════════════════════════════════════╝");
     println!();
 
-    // Create the canonical Lagrange point prime pair system
+    // Create the canonical connector pair system
     let sys = ConcatenationSystem::new(10301, 3007003007003);
 
-    println!("📊 Canonical Lagrange Point Prime Pair");
+    println!("📊 Canonical Connector Pair");
     println!("   Left  (L): {} ({} digits)", sys.left, sys.left_len);
     println!("   Right (R): {} ({} digits)", sys.right, sys.right_len);
     println!();
 
-    // Demonstrate the 4 known Lagrange equilibrium points
-    println!("✨ Known Lagrange Equilibrium Points");
-    println!("   (Connectors that produce prime concatenations)");
+    // Demonstrate the maintained connector source cases.
+    println!("✨ Maintained Connector Source Cases");
+    println!("   (Repo alias: Lagrange points)");
     println!();
 
-    let equilibria = [
-        (6, 5, 4, "L₁"),     // Buffer=5, Position=4
-        (60000, 6, 2, "L₂"), // Buffer=6, Position=2
-        (60, 6, 4, "L₃"),    // Buffer=6, Position=4
-        (6000, 7, 3, "L₄"),  // Buffer=7, Position=3
-    ];
-
-    for (connector, buf_len, pos, name) in equilibria {
-        if let Some(n) = sys.forward(connector, buf_len) {
-            let formatted_conn = format!("{:0width$}", connector, width = buf_len as usize);
-            println!(
-                "   {} (buffer={}, pos={}): L || {} || R",
-                name, buf_len, pos, formatted_conn
-            );
-            println!("      → {}", n);
-            println!("      ({} digits total)", sys.total_digits(buf_len));
-            println!();
-        }
+    for hit in canonical_source_hits() {
+        render_hit(&sys, hit);
     }
 
     // Demonstrate forward vs reverse concatenation
@@ -140,13 +128,45 @@ fn main() {
     // Research context
     println!("📚 Research Context");
     println!("   These utilities enabled:");
-    println!("   - Lagrange Point Asymmetry discovery (~2% bias)");
-    println!("   - Resonance Peak phenomenon (59% peak at length 10)");
-    println!("   - Post-sieve mystery investigation");
+    println!("   - exact residue-admissibility filters for the canonical pair");
+    println!("   - maintained connector-hit source cases across widths 5..7");
+    println!("   - matched forward/reverse comparison scans");
     println!();
-    println!("   See: collab/CORE_ASYMMETRY_NOTES.md");
-    println!("        collab/LAGRANGE_POINT_ASYMMETRY.md");
+    println!("   See: collab/CONNECTOR_SIGNAL.md");
+    println!("        cargo run --example connector_signal_report");
     println!();
 
     println!("✅ Demo complete!");
+}
+
+fn render_hit(sys: &ConcatenationSystem, hit: ConnectorHit) {
+    if let (Some(connector), Some(connector_str), Some(value)) = (
+        hit.connector_value(),
+        hit.connector_string(),
+        hit.concatenated_value(),
+    ) {
+        let source_label =
+            if CANONICAL_DOCUMENTED_FORWARD_HITS
+                .iter()
+                .any(|&(width, position, digit)| {
+                    width == hit.width && position == hit.position && digit == hit.digit
+                })
+            {
+                "documented forward case"
+            } else {
+                "shell-only source case"
+            };
+        println!(
+            "   width={} pos={} digit={} ({}, {})",
+            hit.width, hit.position, hit.digit, hit.direction, source_label
+        );
+        println!("      L || {} || R", connector_str);
+        println!("      → {}", value);
+        println!(
+            "      (connector value {}, {} digits total)",
+            connector,
+            sys.total_digits(hit.width)
+        );
+        println!();
+    }
 }

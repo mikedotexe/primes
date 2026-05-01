@@ -21,6 +21,26 @@ theorem mem_unitResidues {base a : ℕ} :
     a ∈ unitResidues base ↔ a < base ∧ base.Coprime a := by
   simp [unitResidues]
 
+theorem mem_unitResidues_iff_coprime_radical {base a : ℕ} :
+    a ∈ unitResidues base ↔ a < base ∧ (radical base).Coprime a := by
+  rw [mem_unitResidues]
+  constructor
+  · rintro ⟨ha, hcop⟩
+    exact ⟨ha, ((coprime_radical_iff (m := a) (n := base)).2 hcop.symm).symm⟩
+  · rintro ⟨ha, hcop⟩
+    exact ⟨ha, ((coprime_radical_iff (m := a) (n := base)).1 hcop.symm).symm⟩
+
+theorem mem_unitResidues_iff_gcd_radical_eq_one {base a : ℕ} :
+    a ∈ unitResidues base ↔ a < base ∧ Nat.gcd a (radical base) = 1 := by
+  rw [mem_unitResidues_iff_coprime_radical]
+  constructor
+  · rintro ⟨ha, hcop⟩
+    exact ⟨ha, by simpa [Nat.gcd_comm] using hcop.gcd_eq_one⟩
+  · rintro ⟨ha, hgcd⟩
+    refine ⟨ha, ?_⟩
+    rw [Nat.coprime_iff_gcd_eq_one]
+    simpa [Nat.gcd_comm] using hgcd
+
 theorem card_unitResidues (base : ℕ) :
     (unitResidues base).card = Nat.totient base := by
   simpa [unitResidues] using Nat.totient_eq_card_coprime base

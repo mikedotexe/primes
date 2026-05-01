@@ -1,12 +1,23 @@
 //! Core types for connector concatenation systems
 
+use serde::{Deserialize, Serialize};
+
 /// Direction of concatenation between two primes
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Direction {
     /// Forward: Left || Connector || Right
     Forward,
     /// Reverse: Right || Connector || Left
     Reverse,
+}
+
+impl std::fmt::Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Forward => write!(f, "forward"),
+            Self::Reverse => write!(f, "reverse"),
+        }
+    }
 }
 
 /// A system for concatenating two fixed primes with variable connectors
@@ -15,14 +26,14 @@ pub enum Direction {
 /// ```
 /// use primes::connector::ConcatenationSystem;
 ///
-/// // Canonical Lagrange point pair
+/// // Canonical connector pair
 /// let sys = ConcatenationSystem::new(10301, 3007003007003);
 ///
 /// // Forward: 10301 || 00006 || 3007003007003
 /// let n = sys.forward(6, 5).unwrap();
 /// assert_eq!(n, 10301000063007003007003u128);
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ConcatenationSystem {
     /// Left prime value
     pub left: u128,

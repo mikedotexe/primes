@@ -41,6 +41,7 @@ modules=(
   "Theorems/Abstract/ConstrainedOrbitals.agda"
   "Theorems/Abstract/BucketsAutoMatch.agda"
   "Theorems/Abstract/WindowCertificate.agda"
+  "Theorems/Abstract/FiniteMaskTransfer.agda"
   "Core/Primality.agda"
   "Core/CRTVector.agda"
   "Core/Equiv.agda"
@@ -61,10 +62,12 @@ modules=(
   "Theorems/ElbowEvents.agda"
   "Theorems/ElbowsFromCSV.agda"
   "Theorems/GlobalElbowFacts.agda"
+  "Theorems/BoundedKCompactness.agda"
   "Theorems/MirrorObstruction.agda"
   "Theorems/RationalStatistics.agda"
   "Theorems/SpectralRigidity.agda"
   "Examples/CertifiedResonanceComplete.agda"
+  "Examples/BoundedKTransferWitnesses.agda"
 )
 
 echo "Using Agda binary: $agda_bin"

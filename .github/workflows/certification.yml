@@ -1,173 +1,47 @@
-name: Certification Framework
+name: Verification Artifacts
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch:
+  schedule:
+    - cron: "0 10 * * 1"
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
-  # Note: Agda type-checking is handled by agda-verification.yml workflow
-
-  framework-validation:
-    name: Framework Structure Validation
+  chaos-threshold-artifacts:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify framework structure
+      - name: Install system dependencies
         run: |
-          echo "Verifying certification framework structure..."
+          sudo apt-get update
+          sudo apt-get install -y libfontconfig1-dev python3-matplotlib
 
-          # Check all required modules exist
-          modules=(
-            "agda-proofs/Theorems/Abstract/SymmetryImpliesRepulsion.agda"
-            "agda-proofs/Theorems/Abstract/SymmetryFromList.agda"
-            "agda-proofs/Theorems/Abstract/ConstrainedOrbitals.agda"
-            "agda-proofs/Theorems/Abstract/SymmetryFiniteReflect.agda"
-            "agda-proofs/Theorems/Abstract/BucketsAutoMatch.agda"
-            "agda-proofs/Theorems/Abstract/WindowCertificate.agda"
-            "agda-proofs/Examples/CertifiedResonance.agda"
-            "agda-proofs/Examples/CertifiedResonanceComplete.agda"
-            "agda-proofs/Examples/CertifiedResonanceParam.agda"
-            "agda-proofs/Examples/CertifiedResonanceParamDyn.agda"
-          )
+      - uses: dtolnay/rust-toolchain@stable
 
-          missing=0
-          for module in "${modules[@]}"; do
-            if [ ! -f "$module" ]; then
-              echo "❌ Missing: $module"
-              missing=$((missing + 1))
-            else
-              echo "✓ Found: $module"
-            fi
-          done
-
-          if [ $missing -gt 0 ]; then
-            echo "Error: $missing modules missing"
-            exit 1
-          fi
-
-          echo "✅ All 10 modules present"
-
-      - name: Verify documentation
+      - name: Generate full arithmetic artifact bundle
         run: |
-          echo "Verifying certification documentation..."
+          cargo run --release --example chaos_threshold_translation_report -- --full --out-dir /tmp/primes_chaos_threshold_translation_full
 
-          docs=(
-            "CERTIFICATION_COMPLETE.md"
-            "COMPLETE_CERTIFICATION_ARCHITECTURE.md"
-            "COMPLETE_VERIFICATION_FRAMEWORK.md"
-            "ABSTRACT_FRAMEWORK_INTEGRATION.md"
-            "STATIC_TO_DYNAMIC_INVARIANTS.md"
-            "QUICK_START_VERIFICATION.md"
-            "DOCUMENTATION_MAP.md"
-          )
-
-          missing=0
-          for doc in "${docs[@]}"; do
-            if [ ! -f "$doc" ]; then
-              echo "❌ Missing: $doc"
-              missing=$((missing + 1))
-            else
-              echo "✓ Found: $doc"
-            fi
-          done
-
-          if [ $missing -gt 0 ]; then
-            echo "Error: $missing docs missing"
-            exit 1
-          fi
-
-          echo "✅ All documentation present"
-
-      - name: Check for TODOs in framework
+      - name: Generate full matplotlib visual bundle
         run: |
-          echo "Checking for TODOs in certification framework..."
-          todos=$(grep -r "TODO\|FIXME\|XXX" agda-proofs/Theorems/Abstract/ agda-proofs/Examples/CertifiedResonance*.agda 2>/dev/null | wc -l)
+          python3 scripts/plot_chaos_threshold_translation.py \
+            --input-dir /tmp/primes_chaos_threshold_translation_full \
+            --out-dir /tmp/primes_chaos_threshold_translation_matplotlib_full
 
-          if [ "$todos" -gt 0 ]; then
-            echo "⚠️  Found $todos TODO/FIXME markers"
-            grep -r "TODO\|FIXME\|XXX" agda-proofs/Theorems/Abstract/ agda-proofs/Examples/CertifiedResonance*.agda 2>/dev/null || true
-          else
-            echo "✅ No TODOs found - framework is clean"
-          fi
-
-  documentation-links:
-    name: Documentation Link Checking
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Check for broken internal links
-        run: |
-          echo "Checking internal documentation links..."
-          # Simple check for obviously broken local links
-          broken=0
-          for doc in CERTIFICATION_COMPLETE.md DOCUMENTATION_MAP.md CLAUDE.md; do
-            if [ -f "$doc" ]; then
-              echo "Checking $doc..."
-            else
-              echo "⚠️  Missing: $doc"
-              broken=$((broken + 1))
-            fi
-          done
-
-          if [ $broken -gt 0 ]; then
-            echo "Some documentation files missing"
-          else
-            echo "✅ Core documentation files present"
-          fi
-
-  metrics:
-    name: Framework Metrics
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Count proof lines
-        run: |
-          echo "# Certification Framework Metrics" > metrics.md
-          echo "" >> metrics.md
-          echo "**Generated**: $(date)" >> metrics.md
-          echo "" >> metrics.md
-
-          # Count Agda proof code
-          total_lines=$(find agda-proofs/Theorems/Abstract agda-proofs/Examples/CertifiedResonance*.agda -name "*.agda" -type f -exec wc -l {} + | tail -1 | awk '{print $1}')
-
-          echo "## Code Metrics" >> metrics.md
-          echo "" >> metrics.md
-          echo "- **Total proof lines**: $total_lines" >> metrics.md
-          echo "- **Modules**: 10" >> metrics.md
-          echo "" >> metrics.md
-
-          # Layer breakdown
-          echo "## Layer Breakdown" >> metrics.md
-          echo "" >> metrics.md
-
-          layer1=$(find agda-proofs/Theorems/Abstract/SymmetryImpliesRepulsion.agda agda-proofs/Theorems/Abstract/SymmetryFromList.agda agda-proofs/Theorems/Abstract/ConstrainedOrbitals.agda -type f -exec wc -l {} + | tail -1 | awk '{print $1}' 2>/dev/null || echo "0")
-          layer2=$(find agda-proofs/Theorems/Abstract/SymmetryFiniteReflect.agda agda-proofs/Theorems/Abstract/BucketsAutoMatch.agda agda-proofs/Theorems/Abstract/WindowCertificate.agda -type f -exec wc -l {} + | tail -1 | awk '{print $1}' 2>/dev/null || echo "0")
-          layer3=$(find agda-proofs/Examples/CertifiedResonance*.agda -type f -exec wc -l {} + | tail -1 | awk '{print $1}' 2>/dev/null || echo "0")
-
-          echo "- **Layer 1** (Abstract): $layer1 lines" >> metrics.md
-          echo "- **Layer 2** (Modular): $layer2 lines" >> metrics.md
-          echo "- **Layer 3** (Examples): $layer3 lines" >> metrics.md
-          echo "" >> metrics.md
-
-          # Documentation
-          doc_size=$(du -sh CERTIFICATION_COMPLETE.md COMPLETE_CERTIFICATION_ARCHITECTURE.md COMPLETE_VERIFICATION_FRAMEWORK.md ABSTRACT_FRAMEWORK_INTEGRATION.md STATIC_TO_DYNAMIC_INVARIANTS.md QUICK_START_VERIFICATION.md 2>/dev/null | awk '{sum+=$1} END {print sum "K"}')
-
-          echo "## Documentation" >> metrics.md
-          echo "" >> metrics.md
-          echo "- **Guides**: 6" >> metrics.md
-          echo "- **Total size**: $doc_size" >> metrics.md
-
-          cat metrics.md
-
-      - name: Upload Metrics
+      - name: Upload arithmetic artifact bundle
         uses: actions/upload-artifact@v4
         with:
-          name: framework-metrics
-          path: metrics.md
-          retention-days: 90
+          name: chaos-threshold-arithmetic
+          path: /tmp/primes_chaos_threshold_translation_full
+          retention-days: 14
+
+      - name: Upload visual artifact bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaos-threshold-matplotlib
+          path: /tmp/primes_chaos_threshold_translation_matplotlib_full
+          retention-days: 14

@@ -12,6 +12,12 @@ This module formalizes the arithmetic core behind connector scans:
 - decimal `mod 3` and `mod 9` filters for the canonical pair
   `(10301, 3007003007003)`.
 
+Arithmetic-first connector vocabulary:
+
+- a bounded scan entry is a connector hit `(pair, width, position, digit, direction)`,
+- this file covers the exact `ResidueAdmissible` layer,
+- broader `DirectionalAsymmetry` claims live above this file and remain open.
+
 The statements are purely arithmetic. They do not depend on any physics or
 Lagrange-language layer.
 -/
@@ -71,6 +77,82 @@ theorem forward_reverse_modEq_of_base_modEq_one
       concatReverse base left right connector leftWidth connWidth [MOD modulus] := by
   exact (concatForward_modEq_sum_of_base_modEq_one hBase).trans
     (concatReverse_modEq_sum_of_base_modEq_one hBase).symm
+
+theorem concatForward_same_mod_across_widths_of_base_modEq_one
+    {base modulus left right connector rightWidth connWidth₁ connWidth₂ : ℕ}
+    (hBase : base ≡ 1 [MOD modulus]) :
+    concatForward base left right connector rightWidth connWidth₁ ≡
+      concatForward base left right connector rightWidth connWidth₂ [MOD modulus] := by
+  exact
+    (concatForward_modEq_sum_of_base_modEq_one
+      (base := base) (modulus := modulus)
+      (left := left) (right := right)
+      (connector := connector) (rightWidth := rightWidth)
+      (connWidth := connWidth₁) hBase).trans
+      (concatForward_modEq_sum_of_base_modEq_one
+        (base := base) (modulus := modulus)
+        (left := left) (right := right)
+        (connector := connector) (rightWidth := rightWidth)
+        (connWidth := connWidth₂) hBase).symm
+
+theorem concatReverse_same_mod_across_widths_of_base_modEq_one
+    {base modulus left right connector leftWidth connWidth₁ connWidth₂ : ℕ}
+    (hBase : base ≡ 1 [MOD modulus]) :
+    concatReverse base left right connector leftWidth connWidth₁ ≡
+      concatReverse base left right connector leftWidth connWidth₂ [MOD modulus] := by
+  exact
+    (concatReverse_modEq_sum_of_base_modEq_one
+      (base := base) (modulus := modulus)
+      (left := left) (right := right)
+      (connector := connector) (leftWidth := leftWidth)
+      (connWidth := connWidth₁) hBase).trans
+      (concatReverse_modEq_sum_of_base_modEq_one
+        (base := base) (modulus := modulus)
+        (left := left) (right := right)
+        (connector := connector) (leftWidth := leftWidth)
+        (connWidth := connWidth₂) hBase).symm
+
+theorem concatForward_modEq_target_iff_across_widths_of_base_modEq_one
+    {base modulus left right connector rightWidth connWidth₁ connWidth₂ target : ℕ}
+    (hBase : base ≡ 1 [MOD modulus]) :
+    concatForward base left right connector rightWidth connWidth₁ ≡ target [MOD modulus] ↔
+      concatForward base left right connector rightWidth connWidth₂ ≡ target [MOD modulus] := by
+  constructor
+  · intro hWidth₁
+    exact
+      (concatForward_same_mod_across_widths_of_base_modEq_one
+        (base := base) (modulus := modulus)
+        (left := left) (right := right)
+        (connector := connector) (rightWidth := rightWidth)
+        (connWidth₁ := connWidth₂) (connWidth₂ := connWidth₁) hBase).trans hWidth₁
+  · intro hWidth₂
+    exact
+      (concatForward_same_mod_across_widths_of_base_modEq_one
+        (base := base) (modulus := modulus)
+        (left := left) (right := right)
+        (connector := connector) (rightWidth := rightWidth)
+        (connWidth₁ := connWidth₁) (connWidth₂ := connWidth₂) hBase).trans hWidth₂
+
+theorem concatReverse_modEq_target_iff_across_widths_of_base_modEq_one
+    {base modulus left right connector leftWidth connWidth₁ connWidth₂ target : ℕ}
+    (hBase : base ≡ 1 [MOD modulus]) :
+    concatReverse base left right connector leftWidth connWidth₁ ≡ target [MOD modulus] ↔
+      concatReverse base left right connector leftWidth connWidth₂ ≡ target [MOD modulus] := by
+  constructor
+  · intro hWidth₁
+    exact
+      (concatReverse_same_mod_across_widths_of_base_modEq_one
+        (base := base) (modulus := modulus)
+        (left := left) (right := right)
+        (connector := connector) (leftWidth := leftWidth)
+        (connWidth₁ := connWidth₂) (connWidth₂ := connWidth₁) hBase).trans hWidth₁
+  · intro hWidth₂
+    exact
+      (concatReverse_same_mod_across_widths_of_base_modEq_one
+        (base := base) (modulus := modulus)
+        (left := left) (right := right)
+        (connector := connector) (leftWidth := leftWidth)
+        (connWidth₁ := connWidth₁) (connWidth₂ := connWidth₂) hBase).trans hWidth₂
 
 theorem base10_modEq_one_mod3 : 10 ≡ 1 [MOD 3] := by
   native_decide

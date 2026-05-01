@@ -113,6 +113,95 @@ theorem wheelCRTRepresentative_mem_unitResidues
     wheelCRTRepresentative_mod_eq residue hPrimes hp ((mem_unitResidues.1 (hResidue p hp)).1)
   simpa [hEq] using hResidue p hp
 
+theorem wheelCRTRepresentative_mem_unitResidues_of_mod_ne_zero
+    {primes : Finset ℕ} {residue : ℕ → ℕ} (hPrimes : ∀ p ∈ primes, p.Prime)
+    (hResidue : ∀ p ∈ primes, residue p % p ≠ 0) :
+    (wheelCRTRepresentative residue hPrimes : ℕ) ∈ unitResidues (wheelBase primes) := by
+  rw [mem_unitResidues_wheelBase_iff_mod_ne_zero hPrimes]
+  refine ⟨wheelCRTRepresentative_lt residue hPrimes, ?_⟩
+  intro p hp
+  have hEq :
+      (wheelCRTRepresentative residue hPrimes : ℕ) % p = residue p % p := by
+    apply Nat.ModEq.eq_of_lt_of_lt
+    · calc
+        (wheelCRTRepresentative residue hPrimes : ℕ) % p ≡
+            (wheelCRTRepresentative residue hPrimes : ℕ) [MOD p] := Nat.mod_modEq _ _
+        _ ≡ residue p [MOD p] := wheelCRTRepresentative_modEq residue hPrimes hp
+        _ ≡ residue p % p [MOD p] := (Nat.mod_modEq _ _).symm
+    · exact Nat.mod_lt _ (hPrimes p hp).pos
+    · exact Nat.mod_lt _ (hPrimes p hp).pos
+  rw [hEq]
+  exact hResidue p hp
+
+theorem wheelCRTRepresentative_mem_unitResidues_of_lt_and_ne_zero
+    {primes : Finset ℕ} {residue : ℕ → ℕ} (hPrimes : ∀ p ∈ primes, p.Prime)
+    (hResidueLt : ∀ p ∈ primes, residue p < p)
+    (hResidueNeZero : ∀ p ∈ primes, residue p ≠ 0) :
+    (wheelCRTRepresentative residue hPrimes : ℕ) ∈ unitResidues (wheelBase primes) := by
+  apply wheelCRTRepresentative_mem_unitResidues_of_mod_ne_zero hPrimes
+  intro p hp
+  rw [Nat.mod_eq_of_lt (hResidueLt p hp)]
+  exact hResidueNeZero p hp
+
+theorem pairwiseCoprime_toList_primes
+    {primes : Finset ℕ} (hPrimes : ∀ p ∈ primes, p.Prime) :
+    primes.toList.Pairwise Nat.Coprime := by
+  have hPairwiseSet : (↑(primes.toList.toFinset) : Set ℕ).Pairwise Nat.Coprime := by
+    simpa [Finset.toList_toFinset] using
+      (pairwiseCoprime_primes (primes := primes) hPrimes)
+  simpa using
+    List.pairwise_of_coe_toFinset_pairwise
+      (l := primes.toList)
+      (r := Nat.Coprime)
+      hPairwiseSet
+      (Finset.nodup_toList primes)
+
+theorem mod_mem_unitResidues_of_mem_unitResidues_wheelBase
+    {primes : Finset ℕ} (hPrimes : ∀ p ∈ primes, p.Prime)
+    {a : ℕ} (ha : a ∈ unitResidues (wheelBase primes))
+    {p : ℕ} (hp : p ∈ primes) :
+    a % p ∈ unitResidues p := by
+  exact ((mem_unitResidues_wheelBase_iff_primeUnitResidues hPrimes).1 ha).2 p hp
+
+theorem wheelCRTRepresentative_modEq_of_forall_modEq
+    {primes : Finset ℕ} {residue : ℕ → ℕ} (hPrimes : ∀ p ∈ primes, p.Prime)
+    {a : ℕ} (hResidue : ∀ p ∈ primes, a ≡ residue p [MOD p]) :
+    wheelCRTRepresentative residue hPrimes ≡ a [MOD wheelBase primes] := by
+  rw [wheelBase, ← Finset.prod_toList]
+  simpa using
+    (Nat.modEq_list_map_prod_iff
+      (a := wheelCRTRepresentative residue hPrimes)
+      (b := a)
+      (s := fun p : ℕ => p)
+      (l := primes.toList)
+      (pairwiseCoprime_toList_primes hPrimes)).2 <|
+      by
+        intro p hp
+        have hp' : p ∈ primes := by simpa using hp
+        exact (wheelCRTRepresentative_modEq residue hPrimes hp').trans (hResidue p hp').symm
+
+theorem wheelCRTRepresentative_eq_of_forall_modEq
+    {primes : Finset ℕ} {residue : ℕ → ℕ} (hPrimes : ∀ p ∈ primes, p.Prime)
+    {a : ℕ} (haLt : a < wheelBase primes)
+    (hResidue : ∀ p ∈ primes, a ≡ residue p [MOD p]) :
+    wheelCRTRepresentative residue hPrimes = a := by
+  exact (wheelCRTRepresentative_modEq_of_forall_modEq hPrimes hResidue).eq_of_lt_of_lt
+    (wheelCRTRepresentative_lt residue hPrimes) haLt
+
+theorem wheelCRTRepresentative_residueMap_eq
+    {primes : Finset ℕ} (hPrimes : ∀ p ∈ primes, p.Prime)
+    {a : ℕ} (haLt : a < wheelBase primes) :
+    wheelCRTRepresentative (fun p => a % p) hPrimes = a := by
+  apply wheelCRTRepresentative_eq_of_forall_modEq hPrimes haLt
+  intro p hp
+  exact (Nat.mod_modEq a p).symm
+
+theorem wheelCRTRepresentative_residueMap_eq_of_mem_unitResidues
+    {primes : Finset ℕ} (hPrimes : ∀ p ∈ primes, p.Prime)
+    {a : ℕ} (ha : a ∈ unitResidues (wheelBase primes)) :
+    wheelCRTRepresentative (fun p => a % p) hPrimes = a := by
+  exact wheelCRTRepresentative_residueMap_eq hPrimes (mem_unitResidues.1 ha).1
+
 theorem mem_unitResidues_twoHundredTen_iff {a : ℕ} :
     a ∈ unitResidues 210 ↔
       a < 210 ∧ a % 2 ≠ 0 ∧ a % 3 ≠ 0 ∧ a % 5 ≠ 0 ∧ a % 7 ≠ 0 := by

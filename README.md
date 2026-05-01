@@ -16,7 +16,8 @@ they are not the primary mathematical interface.
 - `MembraneConfig` for symmetric digit-template construction
 - `BitSieve` and `is_prime` for prime enumeration and primality testing
 - `hzlib::*` for asymptotic heuristics, residue-class analysis, and statistics
-- `connector::ConcatenationSystem` for fixed-prime decimal concatenation
+- `connector::*` for fixed-prime decimal concatenation, residue profiles, and
+  matched connector-hit scans with density-aware residual audits
 - `tools/prime_unified_cli.rs` and related CLIs for reproducible CSV workflows
 
 ## Current Checked Status
@@ -115,8 +116,14 @@ Verified in the current audited docs:
   prime candidates in the tested families
 - exact same-budget scaffold controls do not show a consistent centered-gap
   advantage in the tested base-10 and base-6 families
-- the connector asymmetry result is real for the canonical pair
-  `10301` and `3007003007003`, but is not yet established as a general law
+- the connector lane has exact direction-independent residue filters on the
+  proved modulus surface, including canonical decimal `mod 3` / `mod 9`
+  exclusions and reusable pair-residue profiles beyond the canonical pair
+- the canonical pair `10301` / `3007003007003` shows a narrow empirical
+  directional asymmetry in the maintained zero-padded single-digit scan
+  (11 forward prime hits vs 13 reverse prime hits across widths 5..7 after the
+  exact residue filter); the maintained density-aware rerun keeps a residual
+  gap for that pair, but broader connector-law generality remains open
 
 ## Open Questions
 
@@ -168,6 +175,11 @@ Verified in the current audited docs:
   same-byte mask layer for repeated writes landing in one byte, now unified by
   a grouped per-byte plan layer, a tiny shared coordinate bridge, and the first
   odd-only and wheel30 runtime mark-family shells on top of that layer.
+  The bounded-`k` theorem lane now also includes an exact compactness layer,
+  finite transfer-bucket combinatorics, direct residue-profile comparison for
+  lane-to-lane audits, a universal conditional transfer-collapse criterion, and
+  tracked generated counterexamples showing that the strongest direct-lane
+  `M = 3` collapse theorem does not yet survive on the maintained full surface.
   The detailed theorem ledger and future queue live in
   [`lean-proofs/ROADMAP.md`](lean-proofs/ROADMAP.md) and
   [`lean-proofs/THEOREM_INDEX.md`](lean-proofs/THEOREM_INDEX.md).
@@ -197,6 +209,13 @@ with:
 - [`VERIFIED_FACTS_VS_SPECULATION.md`](VERIFIED_FACTS_VS_SPECULATION.md):
   verified facts, falsified hypotheses, and open questions
 - [`EVIDENCE.md`](EVIDENCE.md): corrected data tables and external validation links
+- [`collab/HARDENED_RESEARCH_PROGRAMS.md`](collab/HARDENED_RESEARCH_PROGRAMS.md):
+  stable collaborator-facing language for the repo's live research programs
+- [`collab/TRANSFER_COLLAPSE_THEOREM_PROGRAM.md`](collab/TRANSFER_COLLAPSE_THEOREM_PROGRAM.md):
+  theorem-program boundary for direct bounded-`k` lane comparisons and their
+  current counterexample-pinned limit
+- [`collab/CONNECTOR_SIGNAL.md`](collab/CONNECTOR_SIGNAL.md): arithmetic-first
+  connector framing, bounded claim wording, and comparison protocol
 - [`examples/README.md`](examples/README.md): curated example catalog
 - [`tools/README.md`](tools/README.md): research CLI reference and CSV schemas
 - [`agda-proofs/STATUS.md`](agda-proofs/STATUS.md): current Agda status

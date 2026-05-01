@@ -91,4 +91,78 @@ theorem wheel30ReadValue_marked_candidate {byte base cycle : ℕ} (slot : Fin 8)
     (n := wheel30Candidate base cycle slot) (bit := slot.1)
     (wheel30BitIndex_candidate slot hCycle)
 
+theorem wheel30ReadBit_marked_candidate {byte base cycle : ℕ} (slot : Fin 8)
+    (hCycle : cycle < wheel30SegmentCycles) :
+    wheel30ReadBit (byte ||| (1 <<< slot.1)) base (wheel30Candidate base cycle slot) =
+      some true := by
+  exact wheel30MarkByte_sets_target_bit_of_some (byte := byte) (base := base)
+    (n := wheel30Candidate base cycle slot) (bit := slot.1)
+    (wheel30BitIndex_candidate slot hCycle)
+
+theorem wheel30ReadBit_marked_other_candidate_eq {byte base cycle : ℕ}
+    (slot target : Fin 8) (hCycle : cycle < wheel30SegmentCycles)
+    (hNe : target ≠ slot) :
+    wheel30ReadBit (byte ||| (1 <<< slot.1)) base (wheel30Candidate base cycle target) =
+      wheel30ReadBit byte base (wheel30Candidate base cycle target) := by
+  have hValNe : target.1 ≠ slot.1 := by
+    intro hEq
+    apply hNe
+    exact Fin.ext hEq
+  unfold wheel30ReadBit
+  rw [wheel30BitIndex_candidate (base := base) (cycle := cycle) target hCycle]
+  simpa using
+    (wheel30MarkByte_preserves_other_bits (byte := byte) (bit := slot.1)
+      (j := target.1) hValNe)
+
+theorem wheel30ReadValue_marked_other_candidate_eq {byte base cycle : ℕ}
+    (slot target : Fin 8) (hCycle : cycle < wheel30SegmentCycles)
+    (hNe : target ≠ slot) :
+    wheel30ReadValue (byte ||| (1 <<< slot.1)) base (wheel30Candidate base cycle target) =
+      wheel30ReadValue byte base (wheel30Candidate base cycle target) := by
+  have hBit := wheel30BitIndex_candidate (base := base) (cycle := cycle) target hCycle
+  have hValNe : target.1 ≠ slot.1 := by
+    intro hEq
+    apply hNe
+    exact Fin.ext hEq
+  rw [wheel30ReadValue_eq_toNat_readBit_of_some
+      (byte := byte ||| (1 <<< slot.1)) (base := base)
+      (n := wheel30Candidate base cycle target) (bit := target.1) hBit]
+  rw [wheel30ReadValue_eq_toNat_readBit_of_some
+      (byte := byte) (base := base)
+      (n := wheel30Candidate base cycle target) (bit := target.1) hBit]
+  simp [wheel30MarkByte_preserves_other_bits
+    (byte := byte) (bit := slot.1) (j := target.1) hValNe]
+
+theorem wheel30BitMask_candidate_base_invariant {base₁ base₂ cycle : ℕ}
+    (slot : Fin 8) (hCycle : cycle < wheel30SegmentCycles) :
+    wheel30BitMask base₁ (wheel30Candidate base₁ cycle slot) =
+      wheel30BitMask base₂ (wheel30Candidate base₂ cycle slot) := by
+  rw [wheel30BitMask_candidate (base := base₁) (cycle := cycle) slot hCycle]
+  rw [wheel30BitMask_candidate (base := base₂) (cycle := cycle) slot hCycle]
+
+theorem wheel30MarkByte_candidate_base_invariant {byte base₁ base₂ cycle : ℕ}
+    (slot : Fin 8) (hCycle : cycle < wheel30SegmentCycles) :
+    wheel30MarkByte byte base₁ (wheel30Candidate base₁ cycle slot) =
+      wheel30MarkByte byte base₂ (wheel30Candidate base₂ cycle slot) := by
+  rw [wheel30MarkByte_candidate (byte := byte) (base := base₁) (cycle := cycle) slot hCycle]
+  rw [wheel30MarkByte_candidate (byte := byte) (base := base₂) (cycle := cycle) slot hCycle]
+
+theorem wheel30ReadValue_marked_candidate_base_invariant {byte base₁ base₂ cycle : ℕ}
+    (slot : Fin 8) (hCycle : cycle < wheel30SegmentCycles) :
+    wheel30ReadValue (byte ||| (1 <<< slot.1)) base₁ (wheel30Candidate base₁ cycle slot) =
+      wheel30ReadValue (byte ||| (1 <<< slot.1)) base₂ (wheel30Candidate base₂ cycle slot) := by
+  rw [wheel30ReadValue_marked_candidate (byte := byte) (base := base₁) (cycle := cycle)
+      slot hCycle]
+  rw [wheel30ReadValue_marked_candidate (byte := byte) (base := base₂) (cycle := cycle)
+      slot hCycle]
+
+theorem wheel30ReadBit_marked_candidate_base_invariant {byte base₁ base₂ cycle : ℕ}
+    (slot : Fin 8) (hCycle : cycle < wheel30SegmentCycles) :
+    wheel30ReadBit (byte ||| (1 <<< slot.1)) base₁ (wheel30Candidate base₁ cycle slot) =
+      wheel30ReadBit (byte ||| (1 <<< slot.1)) base₂ (wheel30Candidate base₂ cycle slot) := by
+  rw [wheel30ReadBit_marked_candidate (byte := byte) (base := base₁) (cycle := cycle)
+      slot hCycle]
+  rw [wheel30ReadBit_marked_candidate (byte := byte) (base := base₂) (cycle := cycle)
+      slot hCycle]
+
 end PrimeArithmetic.Sieve

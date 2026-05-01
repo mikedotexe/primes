@@ -3,12 +3,17 @@
 -- Lagrange-point shell for prime concatenation
 --
 -- Strongest live signal:
--- 1. the repo has a concrete canonical pair with two reported insertion points
---    that preserve primality
+-- 1. the repo has a concrete canonical pair with two reported width-5
+--    insertion cases that remain part of the maintained source shell
 -- 2. that canonical pair is worth keeping as a formal shell even though the
 --    general insertion/existence theory is still open
 -- 3. digit-bias and clustering stories remain empirical; the canonical pair
 --    itself already shows the claims need to stay narrow
+--
+-- Arithmetic-first reading:
+-- - ConnectorHitShell is the preferred neutral term for one reported hit
+-- - Residue and asymmetry questions should be stated separately
+-- - "Lagrange point" remains as repository shorthand only
 ------------------------------------------------------------------------
 
 module Core.LagrangePoints where
@@ -44,6 +49,9 @@ record LagrangePointShell : Set where
     result : ℕ
     reported-prime : Bool
 
+ConnectorHitShell : Set
+ConnectorHitShell = LagrangePointShell
+
 canonical-L1 : LagrangePointShell
 canonical-L1 = record
   { position = 1
@@ -62,6 +70,9 @@ canonical-L2 = record
 
 canonical-points : List LagrangePointShell
 canonical-points = canonical-L1 ∷ canonical-L2 ∷ []
+
+canonical-connector-hits : List ConnectorHitShell
+canonical-connector-hits = canonical-points
 
 ------------------------------------------------------------------------
 -- Empirical shell summaries

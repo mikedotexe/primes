@@ -144,7 +144,55 @@ pub fn should_skip_mod3(connector: u64, left_mod3: u8, right_mod3: u8) -> bool {
     sum_mod3 == 0
 }
 
-/// Precomputed mod-3 values for canonical Lagrange pair
+/// Check whether a connector is excluded by one exact modulus filter.
+///
+/// This is the arithmetic core behind the repo's connector residue language:
+/// for base-10 scans modulo `m` with `10 ≡ 1 (mod m)`, the concatenated value
+/// depends only on `left + connector + right (mod m)`.
+pub fn should_skip_modulo(
+    connector: u128,
+    left_residue: u32,
+    right_residue: u32,
+    modulus: u32,
+) -> bool {
+    debug_assert!(modulus > 0, "modulus must be positive");
+
+    let pair_sum = (left_residue + right_residue) % modulus;
+    let connector_residue = (connector % modulus as u128) as u32;
+    (pair_sum + connector_residue).is_multiple_of(modulus)
+}
+
+/// Compute `(left + right) mod modulus` for one fixed pair.
+pub fn pair_residue_mod(left: u128, right: u128, modulus: u32) -> u32 {
+    debug_assert!(modulus > 0, "modulus must be positive");
+    ((left % modulus as u128) as u32 + (right % modulus as u128) as u32) % modulus
+}
+
+/// Compute the connector residue class blocked by a small modulus.
+///
+/// If `pair_residue = (left + right) mod modulus`, then any connector with
+/// residue `(-pair_residue) mod modulus` forces divisibility.
+pub fn blocked_connector_residue(left: u128, right: u128, modulus: u32) -> u32 {
+    let pair_residue = pair_residue_mod(left, right, modulus);
+    (modulus - pair_residue) % modulus
+}
+
+/// Build a zero-padded, single-digit connector value from width/position/digit.
+///
+/// Positions are counted from the left edge of the buffer using zero-based
+/// indexing. For example, width `5`, position `1`, digit `6` yields the
+/// connector string `06000`.
+pub fn single_digit_connector_value(width: u32, position: u32, digit: u8) -> Option<u128> {
+    if width == 0 || position >= width || !(1..=9).contains(&digit) {
+        return None;
+    }
+
+    let shift = width - position - 1;
+    let place = crate::connector::arithmetic::pow10(shift)?;
+    Some(u128::from(digit) * place)
+}
+
+/// Precomputed mod-3 values for the canonical connector pair
 pub const CANONICAL_LEFT_MOD3: u8 = 2; // 10301 % 3 = 2
 pub const CANONICAL_RIGHT_MOD3: u8 = 2; // 3007003007003 % 3 = 2
 
@@ -232,5 +280,32 @@ mod tests {
     fn test_canonical_constants() {
         assert_eq!(10301 % 3, CANONICAL_LEFT_MOD3 as u128);
         assert_eq!(3007003007003 % 3, CANONICAL_RIGHT_MOD3 as u128);
+    }
+
+    #[test]
+    fn test_should_skip_modulo() {
+        assert!(should_skip_modulo(8, 2, 2, 3));
+        assert!(!should_skip_modulo(6, 2, 2, 3));
+
+        assert!(should_skip_modulo(8, 2, 8, 9));
+        assert!(!should_skip_modulo(6, 2, 8, 9));
+    }
+
+    #[test]
+    fn test_pair_residue_helpers() {
+        assert_eq!(pair_residue_mod(10301, 3007003007003, 3), 1);
+        assert_eq!(blocked_connector_residue(10301, 3007003007003, 3), 2);
+        assert_eq!(pair_residue_mod(10301, 3007003007003, 9), 1);
+        assert_eq!(blocked_connector_residue(10301, 3007003007003, 9), 8);
+    }
+
+    #[test]
+    fn test_single_digit_connector_value() {
+        assert_eq!(single_digit_connector_value(5, 1, 6), Some(6000));
+        assert_eq!(single_digit_connector_value(5, 4, 6), Some(6));
+        assert_eq!(single_digit_connector_value(7, 3, 6), Some(6000));
+        assert_eq!(single_digit_connector_value(0, 0, 6), None);
+        assert_eq!(single_digit_connector_value(5, 5, 6), None);
+        assert_eq!(single_digit_connector_value(5, 1, 0), None);
     }
 }

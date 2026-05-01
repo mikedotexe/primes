@@ -49,6 +49,16 @@ theorem wheel30CandidateRead_eq_byteMarkRead (bytes : Wheel30ByteState) (base cy
   rw [wheel30BitIndex_candidate (base := base) (cycle := cycle) slot hCycle]
   simp
 
+theorem wheel30CandidateRead_base_invariant (bytes : Wheel30ByteState)
+    {base₁ base₂ cycle : ℕ} (slot : Fin 8)
+    (hCycle : cycle < wheel30SegmentBytes) :
+    wheel30CandidateRead bytes base₁ cycle slot hCycle =
+      wheel30CandidateRead bytes base₂ cycle slot hCycle := by
+  rw [wheel30CandidateRead_eq_byteMarkRead (bytes := bytes) (base := base₁)
+    (cycle := cycle) (slot := slot) (hCycle := hCycle)]
+  rw [wheel30CandidateRead_eq_byteMarkRead (bytes := bytes) (base := base₂)
+    (cycle := cycle) (slot := slot) (hCycle := hCycle)]
+
 theorem wheel30CandidateWrite_eq_byteMarkWrite (bytes : Wheel30ByteState) (cycle : ℕ)
     (slot : Fin 8) (hCycle : cycle < wheel30SegmentBytes) :
     wheel30CandidateWrite bytes cycle slot hCycle =
@@ -67,5 +77,112 @@ theorem wheel30CandidateRead_written (bytes : Wheel30ByteState) (base cycle : �
     (hRead := fun bytes => wheel30CandidateRead_eq_byteMarkRead bytes base cycle slot hCycle)
     (hWrite := fun bytes => wheel30CandidateWrite_eq_byteMarkWrite bytes cycle slot hCycle)
     bytes
+
+theorem wheel30CandidateByteSlot_ne_of_cycle_ne {cycle₁ cycle₂ : ℕ}
+    (hCycle₁ : cycle₁ < wheel30SegmentBytes)
+    (hCycle₂ : cycle₂ < wheel30SegmentBytes)
+    (hCycle : cycle₁ ≠ cycle₂) :
+    wheel30CandidateByteSlot cycle₁ hCycle₁ ≠ wheel30CandidateByteSlot cycle₂ hCycle₂ := by
+  intro hEq
+  apply hCycle
+  simpa [wheel30CandidateByteSlot] using congrArg Fin.val hEq
+
+theorem wheel30CandidateRead_write_other_slot_eq (bytes : Wheel30ByteState)
+    {base cycleWrite cycleRead : ℕ} (slotWrite slotRead : Fin 8)
+    (hCycleWrite : cycleWrite < wheel30SegmentBytes)
+    (hCycleRead : cycleRead < wheel30SegmentBytes)
+    (hSlot :
+      wheel30CandidateByteSlot cycleWrite hCycleWrite ≠
+        wheel30CandidateByteSlot cycleRead hCycleRead) :
+    wheel30CandidateRead
+        (wheel30CandidateWrite bytes cycleWrite slotWrite hCycleWrite)
+        base cycleRead slotRead hCycleRead =
+      wheel30CandidateRead bytes base cycleRead slotRead hCycleRead := by
+  have hSlot' :
+      wheel30CandidateByteSlot cycleRead hCycleRead ≠
+        wheel30CandidateByteSlot cycleWrite hCycleWrite := hSlot.symm
+  unfold wheel30CandidateRead wheel30CandidateWrite
+  simp [Function.update, hSlot']
+
+theorem wheel30CandidateRead_write_other_cycle_eq (bytes : Wheel30ByteState)
+    {base cycleWrite cycleRead : ℕ} (slotWrite slotRead : Fin 8)
+    (hCycleWrite : cycleWrite < wheel30SegmentBytes)
+    (hCycleRead : cycleRead < wheel30SegmentBytes)
+    (hCycle : cycleWrite ≠ cycleRead) :
+    wheel30CandidateRead
+        (wheel30CandidateWrite bytes cycleWrite slotWrite hCycleWrite)
+        base cycleRead slotRead hCycleRead =
+      wheel30CandidateRead bytes base cycleRead slotRead hCycleRead := by
+  exact wheel30CandidateRead_write_other_slot_eq bytes slotWrite slotRead
+    hCycleWrite hCycleRead
+    (wheel30CandidateByteSlot_ne_of_cycle_ne hCycleWrite hCycleRead hCycle)
+
+theorem wheel30CandidateRead_write_other_slot_same_cycle_eq
+    (bytes : Wheel30ByteState) (base cycle : ℕ)
+    (slotWrite slotRead : Fin 8)
+    (hCycle : cycle < wheel30SegmentBytes)
+    (hSlot : slotRead ≠ slotWrite) :
+    wheel30CandidateRead
+        (wheel30CandidateWrite bytes cycle slotWrite hCycle)
+        base cycle slotRead hCycle =
+      wheel30CandidateRead bytes base cycle slotRead hCycle := by
+  unfold wheel30CandidateRead wheel30CandidateWrite
+  simpa [Function.update] using
+    congrArg (fun value => Option.getD value 0)
+      (wheel30ReadValue_marked_other_candidate_eq
+        (byte := bytes (wheel30CandidateByteSlot cycle hCycle))
+        (base := base) (cycle := cycle)
+        (slot := slotWrite) (target := slotRead) hCycle hSlot)
+
+theorem wheel30CandidateRead_first_of_sequentialSameCycleWrites
+    (bytes : Wheel30ByteState) (base cycle : ℕ)
+    (slot₁ slot₂ : Fin 8)
+    (hCycle : cycle < wheel30SegmentBytes)
+    (hDistinct : slot₁ ≠ slot₂) :
+    wheel30CandidateRead
+        (wheel30CandidateWrite
+          (wheel30CandidateWrite bytes cycle slot₁ hCycle)
+          cycle slot₂ hCycle)
+        base cycle slot₁ hCycle = 1 := by
+  rw [wheel30CandidateRead_write_other_slot_same_cycle_eq
+      (bytes := wheel30CandidateWrite bytes cycle slot₁ hCycle)
+      (base := base) (cycle := cycle)
+      (slotWrite := slot₂) (slotRead := slot₁)
+      (hCycle := hCycle) (hSlot := hDistinct)]
+  exact wheel30CandidateRead_written bytes base cycle slot₁ hCycle
+
+theorem wheel30CandidateRead_second_of_sequentialSameCycleWrites
+    (bytes : Wheel30ByteState) (base cycle : ℕ)
+    (slot₁ slot₂ : Fin 8)
+    (hCycle : cycle < wheel30SegmentBytes) :
+    wheel30CandidateRead
+        (wheel30CandidateWrite
+          (wheel30CandidateWrite bytes cycle slot₁ hCycle)
+          cycle slot₂ hCycle)
+        base cycle slot₂ hCycle = 1 := by
+  exact wheel30CandidateRead_written
+    (bytes := wheel30CandidateWrite bytes cycle slot₁ hCycle)
+    (base := base) (cycle := cycle) (slot := slot₂) (hCycle := hCycle)
+
+theorem wheel30CandidateReads_of_sequentialSameCycleWrites
+    (bytes : Wheel30ByteState) (base cycle : ℕ)
+    (slot₁ slot₂ : Fin 8)
+    (hCycle : cycle < wheel30SegmentBytes)
+    (hDistinct : slot₁ ≠ slot₂) :
+    wheel30CandidateRead
+        (wheel30CandidateWrite
+          (wheel30CandidateWrite bytes cycle slot₁ hCycle)
+          cycle slot₂ hCycle)
+        base cycle slot₁ hCycle = 1 ∧
+      wheel30CandidateRead
+        (wheel30CandidateWrite
+          (wheel30CandidateWrite bytes cycle slot₁ hCycle)
+          cycle slot₂ hCycle)
+        base cycle slot₂ hCycle = 1 := by
+  constructor
+  · exact wheel30CandidateRead_first_of_sequentialSameCycleWrites
+      bytes base cycle slot₁ slot₂ hCycle hDistinct
+  · exact wheel30CandidateRead_second_of_sequentialSameCycleWrites
+      bytes base cycle slot₁ slot₂ hCycle
 
 end PrimeArithmetic.Sieve

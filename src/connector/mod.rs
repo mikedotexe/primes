@@ -7,6 +7,20 @@
 //! directional asymmetry studies and exact enumeration over bounded connector
 //! ranges.
 //!
+//! Arithmetic-first connector vocabulary:
+//!
+//! - [`analysis::ConnectorHit`] for one fixed width/position/digit/direction
+//!   case,
+//! - [`analysis::ResidueAdmissible`] for the exact small-modulus filter layer,
+//! - [`analysis::ResonancePosition`] for width/position buckets with multiple
+//!   working digits in a matched scan,
+//! - [`analysis::DirectionalAsymmetry`] for the remaining forward/reverse gap
+//!   after those exact filters.
+//!
+//! The repository still permits "Lagrange point" as a historical alias for a
+//! productive insertion position, but this module treats that language as
+//! secondary to the arithmetic formulation.
+//!
 //! # Mathematical Setting
 //!
 //! For a fixed pair of primes `L` and `R`, the module studies the two families
@@ -114,8 +128,8 @@
 //! - modular prefilters such as the mod-3 admissibility test
 //! - exhaustive or stratified connector scans at bounded width
 //!
-//! See `collab/CORE_ASYMMETRY_NOTES.md` and `collab/LAGRANGE_POINT_ASYMMETRY.md`
-//! for the current empirical summaries.
+//! See [`collab/CONNECTOR_SIGNAL.md`](../../collab/CONNECTOR_SIGNAL.md) for the
+//! current claim boundaries and comparison protocol.
 //!
 //! # Related Tools
 //!
@@ -127,11 +141,19 @@
 //!
 //! These tools are the repository's current connector-analysis front ends.
 
+pub mod analysis;
 pub mod arithmetic;
 pub mod types;
 pub mod utils;
 
 // Re-export key types at module level for convenience
+pub use analysis::{
+    canonical_source_hits, scan_single_digit_hits, small_primes_up_to, ConnectorCandidate,
+    ConnectorHit, DirectionScanStats, DirectionSignalStats, DirectionalAsymmetry,
+    PairResidueProfile, PairScanSummary, PairSignalAudit, PositionSignalRow, ResidueAdmissible,
+    ResonancePosition, SmallPrimeProfile, CANONICAL_DOCUMENTED_FORWARD_HITS, CANONICAL_SOURCE_HITS,
+    CANONICAL_WIDTH5_HITS, DEFAULT_SMALL_PRIMES,
+};
 pub use types::{ConcatenationSystem, Direction};
 
 // Re-export commonly used functions
@@ -164,25 +186,29 @@ mod integration_tests {
     }
 
     #[test]
-    fn test_known_lagrange_equilibria() {
+    fn test_maintained_forward_connector_hits() {
         let sys = ConcatenationSystem::new(CANONICAL_LEFT, CANONICAL_RIGHT);
 
-        // Known Lagrange equilibrium points from research
-        // These are connectors that produce prime concatenations
+        // Maintained forward-direction source hits.
+        // Position counts use the left-to-right buffer convention.
 
-        // L1: Buffer=5, Position=4 → connector = 6 (as "00006")
+        // Width=5, position=1, digit=6 -> "06000"
+        let n = sys.forward(6000, 5).unwrap();
+        assert_eq!(n, 10301060003007003007003u128);
+
+        // Width=5, position=4, digit=6 -> "00006"
         let n = sys.forward(6, 5).unwrap();
         assert_eq!(n, 10301000063007003007003u128);
 
-        // L2: Buffer=6, Position=2 → connector = 60000 (as "060000")
+        // Width=6, position=1, digit=6 -> "060000"
         let n = sys.forward(60000, 6).unwrap();
         assert_eq!(n, 103010600003007003007003u128);
 
-        // L3: Buffer=6, Position=4 → connector = 60 (as "000060")
+        // Width=6, position=4, digit=6 -> "000060"
         let n = sys.forward(60, 6).unwrap();
         assert_eq!(n, 103010000603007003007003u128);
 
-        // L4: Buffer=7, Position=3 → connector = 6000 (as "0006000")
+        // Width=7, position=3, digit=6 -> "0006000"
         let n = sys.forward(6000, 7).unwrap();
         assert_eq!(n, 1030100060003007003007003u128);
     }

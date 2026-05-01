@@ -47,6 +47,52 @@ This combines:
 The current repo interpretation is that the template structure is mainly a
 convenient way to generate candidates in reduced residue classes.
 
+## Construction Density Atlas Addendum
+
+The construction density atlas is the right next instrument for this
+interpretation. It does not replace the matched-control conclusion above; it
+turns that conclusion into a visible landscape.
+
+The atlas uses the language:
+
+```text
+density drift across controlled affine membrane families
+```
+
+and compares good, mediocre, and intentionally lousy lanes with layered
+controls:
+
+- raw random numbers with the same decimal digit counts
+- random numbers with the same digit counts and coprime to `rad(base)`
+- same-slot random constructions with the zero-run grammar preserved
+- same-budget scaffold controls with noncanonical zero placement
+
+This lets us say "great construction" in a stricter way: a high-yield affine
+membrane surface under specified controls. The atlas is allowed to be exciting
+because it shows real drift and real prime witnesses, but its claim boundary is
+the same as this note: no global density theorem follows from the visual alone.
+
+## Base 30 Wheel Compact Addendum
+
+The base-30 compact report is a focused explanatory companion to the density
+atlas. Its job is not to prove residual density lift. Its job is to make the
+classical wheel effect legible inside the affine membrane grammar.
+
+For base `30 = 2 * 3 * 5`, unit boundary digits automatically avoid the first
+small-prime traps that dominate naive random comparisons. Compact `k=(0,0)`
+lanes then keep candidate size low, which also helps ordinary prime density.
+The `(B,7)` walkthrough is a good anchor because it has the exact lane:
+
+```text
+N(s) = 272970221 + 900*s
+```
+
+but it should be described as strong, not uniquely exceptional. The report's
+all-pair heatmap is meant to show that base 30 contains a family of strong
+compact unit-pair lanes. The careful sentence is: base 30 is a clean
+wheel-compressed affine candidate surface, and the residual-density question
+remains open until it survives the matched controls.
+
 ## Why This Interpretation Won
 
 Several stronger or more exotic explanations were tested and did not survive the

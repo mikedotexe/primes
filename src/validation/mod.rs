@@ -9,15 +9,24 @@
 pub mod affine_hinge;
 pub mod affine_period_lock;
 pub mod affine_period_lock_species;
+pub mod affine_phase_residual;
+pub mod base30_reversal;
+pub mod base30_wheel;
+pub mod base57_affine_codec;
 pub mod bounded_k;
+pub mod construction_density;
 pub mod exhaustive_tracker;
 pub mod failure_analysis;
+pub mod fast_affine;
 pub mod hinge_atoms;
 pub mod hinge_robustness;
 pub mod matched_control;
+pub mod metal_affine;
 pub mod random_baseline;
 pub mod reporting;
 pub mod statistical_tests;
+pub mod unit_cycle_neighbors;
+pub mod unit_cycle_phase;
 
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};

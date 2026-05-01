@@ -61,6 +61,20 @@ theorem runtimeSegmentHi_ge_lo {lo limit : ℕ}
   · have hRawGe : lo ≤ rawSegmentHi lo limit := rawSegmentHi_ge_lo hLoLe
     simpa [runtimeSegmentHi, hEven] using hRawGe
 
+theorem odd_le_runtimeSegmentHi_of_le_rawSegmentHi {lo limit n : ℕ}
+    (hN : n ≤ rawSegmentHi lo limit) (hNOdd : Odd n) :
+    n ≤ runtimeSegmentHi lo limit := by
+  by_cases hEven : rawSegmentHi lo limit % 2 = 0
+  · have hOddMod : n % 2 = 1 := by
+      simpa [Nat.odd_iff] using hNOdd
+    have hNe : n ≠ rawSegmentHi lo limit := by
+      intro hEq
+      omega
+    have hLt : n < rawSegmentHi lo limit := lt_of_le_of_ne hN hNe
+    simp [runtimeSegmentHi, hEven]
+    omega
+  · simpa [runtimeSegmentHi, hEven] using hN
+
 theorem oddSegmentNumber_le_runtimeSegmentHi_of_index_le {lo limit idx : ℕ}
     (hLoLe : lo ≤ limit) (hLoPos : 0 < lo) (hLoOdd : Odd lo)
     (hIdx : idx ≤ oddSegmentIndex lo (runtimeSegmentHi lo limit)) :
@@ -102,6 +116,23 @@ theorem exists_index_of_runtimeMarkedBy_in_runtimeCollection
   exact exists_index_of_in_runtimeCollection
     hLoLe hLoPos hLoOdd hLo hHi (odd_runtimeMarkedBy hpOdd)
 
+theorem runtimeMarkedBy_le_runtimeSegmentHi_of_le_rawSegmentHi
+    {lo limit p segLo step : ℕ} (hpOdd : Odd p)
+    (hHi : runtimeMarkedBy p segLo step ≤ rawSegmentHi lo limit) :
+    runtimeMarkedBy p segLo step ≤ runtimeSegmentHi lo limit := by
+  exact odd_le_runtimeSegmentHi_of_le_rawSegmentHi hHi (odd_runtimeMarkedBy hpOdd)
+
+theorem exists_index_of_runtimeMarkedBy_of_le_rawSegmentHi
+    {lo limit p segLo step : ℕ}
+    (hLoLe : lo ≤ limit) (hLoPos : 0 < lo) (hLoOdd : Odd lo) (hpOdd : Odd p)
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hHi : runtimeMarkedBy p segLo step ≤ rawSegmentHi lo limit) :
+    ∃ idx, idx ≤ oddSegmentIndex lo (runtimeSegmentHi lo limit) ∧
+      oddSegmentNumber lo idx = runtimeMarkedBy p segLo step := by
+  exact exists_index_of_runtimeMarkedBy_in_runtimeCollection
+    hLoLe hLoPos hLoOdd hpOdd hLo
+    (runtimeMarkedBy_le_runtimeSegmentHi_of_le_rawSegmentHi hpOdd hHi)
+
 theorem runtimeMarkedBy_index_le_runtimeSegmentHi
     {lo limit p segLo step : ℕ}
     (hLoLe : lo ≤ limit) (hLoPos : 0 < lo) (hLoOdd : Odd lo) (hpOdd : Odd p)
@@ -114,5 +145,27 @@ theorem runtimeMarkedBy_index_le_runtimeSegmentHi
     ⟨idx, hIdx, hEq⟩
   rw [← hEq, oddSegmentIndex_oddSegmentNumber]
   exact hIdx
+
+theorem runtimeMarkedBy_index_le_runtimeSegmentHi_of_le_rawSegmentHi
+    {lo limit p segLo step : ℕ}
+    (hLoLe : lo ≤ limit) (hLoPos : 0 < lo) (hLoOdd : Odd lo) (hpOdd : Odd p)
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hHi : runtimeMarkedBy p segLo step ≤ rawSegmentHi lo limit) :
+    oddSegmentIndex lo (runtimeMarkedBy p segLo step) ≤
+      oddSegmentIndex lo (runtimeSegmentHi lo limit) := by
+  exact runtimeMarkedBy_index_le_runtimeSegmentHi hLoLe hLoPos hLoOdd hpOdd hLo
+    (runtimeMarkedBy_le_runtimeSegmentHi_of_le_rawSegmentHi hpOdd hHi)
+
+theorem oddSegmentIndex_lt_segOdds_of_le_runtimeSegmentHi {lo limit n : ℕ}
+    (hLo : lo ≤ n) (hN : n ≤ runtimeSegmentHi lo limit) :
+    oddSegmentIndex lo n < segOdds := by
+  exact oddSegmentIndex_lt_segOdds_of_le_rawSegmentHi hLo
+    (le_trans hN (runtimeSegmentHi_le_raw lo limit))
+
+theorem oddSegmentIndex_runtimeSegmentHi_lt_segOdds {lo limit : ℕ}
+    (hLoLe : lo ≤ limit) (hLoOdd : Odd lo) :
+    oddSegmentIndex lo (runtimeSegmentHi lo limit) < segOdds := by
+  exact oddSegmentIndex_lt_segOdds_of_le_runtimeSegmentHi
+    (runtimeSegmentHi_ge_lo hLoLe hLoOdd) le_rfl
 
 end PrimeArithmetic.Sieve

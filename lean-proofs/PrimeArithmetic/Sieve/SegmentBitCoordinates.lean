@@ -1,4 +1,6 @@
 import Mathlib
+import PrimeArithmetic.Sieve.RuntimeCollection
+import PrimeArithmetic.Sieve.RuntimeCrossOff
 import PrimeArithmetic.Sieve.SegmentLayout
 
 namespace PrimeArithmetic.Sieve
@@ -51,6 +53,21 @@ theorem segmentByteIndex_lt_segBytes_of_le_rawSegmentHi {lo limit n : ℕ}
   exact (Nat.div_lt_iff_lt_mul (by decide : 0 < 8)).2 <| by
     simpa [segOdds_eq, segBytes_eq, Nat.mul_comm] using hIdx
 
+theorem segmentByteIndex_lt_segBytes_of_le_runtimeSegmentHi {lo limit n : ℕ}
+    (hLo : lo ≤ n) (hN : n ≤ runtimeSegmentHi lo limit) :
+    segmentByteIndex lo n < segBytes := by
+  have hIdx : oddSegmentIndex lo n < segOdds :=
+    oddSegmentIndex_lt_segOdds_of_le_runtimeSegmentHi hLo hN
+  unfold segmentByteIndex
+  exact (Nat.div_lt_iff_lt_mul (by decide : 0 < 8)).2 <| by
+    simpa [segOdds_eq, segBytes_eq, Nat.mul_comm] using hIdx
+
+theorem segmentByteIndex_runtimeSegmentHi_lt_segBytes {lo limit : ℕ}
+    (hLoLe : lo ≤ limit) (hLoOdd : Odd lo) :
+    segmentByteIndex lo (runtimeSegmentHi lo limit) < segBytes := by
+  exact segmentByteIndex_lt_segBytes_of_le_runtimeSegmentHi
+    (runtimeSegmentHi_ge_lo hLoLe hLoOdd) le_rfl
+
 theorem segmentBitCoordinates_injective_of_odd
     {lo m n : ℕ} (hLoOdd : Odd lo)
     (hLoM : lo ≤ m) (hMOdd : Odd m)
@@ -80,6 +97,35 @@ theorem oddSegmentIndex_add_two_mul_of_odd {lo n k : ℕ}
   rw [ht]
   omega
 
+theorem oddSegmentIndex_runtimeMarkedBy_add {lo p segLo step k : ℕ}
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hLoOdd : Odd lo) (hpOdd : Odd p) :
+    oddSegmentIndex lo (runtimeMarkedBy p segLo (step + k)) =
+      oddSegmentIndex lo (runtimeMarkedBy p segLo step) + k * p := by
+  rw [runtimeMarkedBy_add_two_mul]
+  simpa [Nat.mul_comm, Nat.mul_left_comm, Nat.mul_assoc] using
+    (oddSegmentIndex_add_two_mul_of_odd
+      (n := runtimeMarkedBy p segLo step) (k := k * p)
+      hLo hLoOdd (odd_runtimeMarkedBy hpOdd))
+
+theorem oddSegmentIndex_runtimeMarkedBy_succ {lo p segLo step : ℕ}
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hLoOdd : Odd lo) (hpOdd : Odd p) :
+    oddSegmentIndex lo (runtimeMarkedBy p segLo (step + 1)) =
+      oddSegmentIndex lo (runtimeMarkedBy p segLo step) + p := by
+  simpa using
+    (oddSegmentIndex_runtimeMarkedBy_add
+      (step := step) (k := 1) hLo hLoOdd hpOdd)
+
+theorem segmentBitCoordinates_runtimeMarkedBy_add {lo p segLo step k : ℕ}
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hLoOdd : Odd lo) (hpOdd : Odd p) :
+    segmentBitCoordinates lo (runtimeMarkedBy p segLo (step + k)) =
+      ((oddSegmentIndex lo (runtimeMarkedBy p segLo step) + k * p) / 8,
+        (oddSegmentIndex lo (runtimeMarkedBy p segLo step) + k * p) % 8) := by
+  simp [segmentBitCoordinates, segmentByteIndex, segmentBitIndex,
+    oddSegmentIndex_runtimeMarkedBy_add hLo hLoOdd hpOdd]
+
 theorem segmentByteIndex_ne_of_add_two_mul_ge_eight {lo n k : ℕ}
     (hLo : lo ≤ n) (hLoOdd : Odd lo) (hNOdd : Odd n)
     (hk : 8 ≤ k) :
@@ -93,5 +139,16 @@ theorem segmentByteIndex_ne_of_add_two_mul_ge_eight {lo n k : ℕ}
   have hDecompLo := segmentIndex_eq_byte_mul_add_bit lo n
   have hDecompHi := segmentIndex_eq_byte_mul_add_bit lo (n + 2 * k)
   omega
+
+theorem segmentByteIndex_runtimeMarkedBy_add_ne_of_eight_le_mul
+    {lo p segLo step k : ℕ}
+    (hLo : lo ≤ runtimeMarkedBy p segLo step)
+    (hLoOdd : Odd lo) (hpOdd : Odd p)
+    (hk : 8 ≤ k * p) :
+    segmentByteIndex lo (runtimeMarkedBy p segLo step) ≠
+      segmentByteIndex lo (runtimeMarkedBy p segLo (step + k)) := by
+  rw [runtimeMarkedBy_add_two_mul]
+  exact segmentByteIndex_ne_of_add_two_mul_ge_eight
+    hLo hLoOdd (odd_runtimeMarkedBy hpOdd) hk
 
 end PrimeArithmetic.Sieve
