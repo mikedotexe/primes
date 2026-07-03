@@ -100,7 +100,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         )
     fi
     if cargo build "${feature_args[@]}" --verbose 2>&1 | tail -10; then
-        echo "   ✅ All-features build successful"
+        echo "   ✅ Feature build successful"
     else
         echo "   ❌ Feature build failed"
         exit 1
