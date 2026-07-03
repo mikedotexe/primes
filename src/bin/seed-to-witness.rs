@@ -5,8 +5,9 @@ use primes::validation::{
     large_affine_witness::PROBABLE_PRIME_BASES,
     reporting::{write_json_pretty, write_text_file},
     seed_to_witness::{
-        find_seed_to_witness, render_seed_to_witness_transcript, SeedToWitnessConfig,
-        DEFAULT_MAX_STEPS, DEFAULT_VISIBLE_DIGITS,
+        build_proof_carrying_witness_certificate, find_seed_to_witness,
+        render_seed_to_witness_transcript, SeedToWitnessConfig, DEFAULT_MAX_STEPS,
+        DEFAULT_VISIBLE_DIGITS,
     },
 };
 use std::{
@@ -51,6 +52,9 @@ struct Args {
     json_out: Option<PathBuf>,
 
     #[arg(long)]
+    certificate_json_out: Option<PathBuf>,
+
+    #[arg(long)]
     markdown_out: Option<PathBuf>,
 }
 
@@ -76,6 +80,7 @@ fn run() -> Result<(), Box<dyn Error>> {
         visible_digits: args.visible_digits,
         probable_prime_bases: PROBABLE_PRIME_BASES.to_vec(),
     };
+    let probable_prime_bases = config.probable_prime_bases.clone();
 
     let result = find_seed_to_witness(config)?;
     let transcript = render_seed_to_witness_transcript(&result);
@@ -83,6 +88,10 @@ fn run() -> Result<(), Box<dyn Error>> {
 
     if let Some(path) = args.json_out {
         write_json_pretty(path, &result)?;
+    }
+    if let Some(path) = args.certificate_json_out {
+        let certificate = build_proof_carrying_witness_certificate(&result, &probable_prime_bases);
+        write_json_pretty(path, &certificate)?;
     }
     if let Some(path) = args.markdown_out {
         write_text_file(path, &transcript)?;

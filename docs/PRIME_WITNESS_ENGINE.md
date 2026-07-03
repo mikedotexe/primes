@@ -42,13 +42,22 @@ construction family.
 |---|---|
 | `cargo run --release --bin seed-to-witness` | Timestamp-nanosecond seed origin to one large readable probable-prime witness. |
 | `cargo run --release --bin seed-to-witness -- --seed 60` | Canonical fixed-seed 128-digit transcript. |
+| `cargo run --release --bin seed-to-witness -- --seed 60 --certificate-json-out /tmp/seed60_certificate.json` | Deterministic construction/residue certificate for the canonical witness. |
+| `cargo run --bin verify-proof-carrying-witness -- docs/witness/seed60_proof_carrying_witness.json` | Independently verify a witness certificate's affine and residue evidence without rerunning search. |
+| `cargo run --bin export_proof_carrying_witness_bundle -- --out-dir docs/witness` | Regenerate the canonical multi-witness certificate bundle and manifest. |
+| `cargo run --bin export_proof_carrying_witness_lean_certificate -- --catalog --certificate-dir docs/witness --out-dir lean-proofs/PrimeArithmetic/Generated/Witness --manifest-out docs/witness/witness_lean_catalog_manifest.json` | Regenerate the Lean arithmetic mirrors and Lean catalog manifest for the canonical witness certificate bundle. |
+| `cargo run --bin export_proof_carrying_witness_lean_certificate -- --policy-matrix-catalog --certificate-dir docs/witness/policy_matrix --out-dir lean-proofs/PrimeArithmetic/Generated/Witness --manifest-out docs/witness/witness_policy_matrix_lean_catalog_manifest.json` | Regenerate the generated Lean replay modules and Lean catalog manifest for the promoted policy-matrix witness rows. |
+| `cargo run --bin export_proof_carrying_witness_search_policy_atlas -- --certificate-dir docs/witness --out-dir docs/witness` | Regenerate the deterministic search-policy atlas over the maintained witness certificate bundle. |
+| `cargo run --bin export_proof_carrying_witness_policy_matrix -- --out-dir /tmp/proof-carrying-witness-policy-matrix` | Run the deterministic multi-lane policy matrix and emit certificate candidates, matrix JSON/Markdown, and policy-matrix atlas JSON/Markdown. |
 | `cargo run --release --bin seed-to-witness -- --visible-digits 1024 --max-steps 20000` | Larger timestamp-seeded demo on the same lane. |
 | `cargo run --release --example seed_to_witness_demo_report` | Small report bundle for the transcript demo. |
 | `cargo run --release --example large_affine_witness_ladder_report -- --profile release` | Measurement entrypoint for the large witness ladder. |
 | `cargo run --release --example timestamp_seed_policy_report -- --profile release` | Bounded empirical policy for timestamp-like seed origins. |
 | `cargo run --release --example special_form_witness_comparison_report` | Mersenne-style special-form comparison for compact descriptors and non-Mersenne affine witnesses. |
 | `cargo run --release --example affine_singular_series_report` | Finite residue-weather scout for choosing later ladder targets. |
-| `scripts/signal_spine.sh witness-engine` | Umbrella smoke group for seed and ladder reports. |
+| `scripts/proof_carrying_witness.sh verify` | Drift-check the tracked canonical witness certificate bundle and assert zero unpromoted smoke policy-matrix replay rows. |
+| `scripts/lean_proof_carrying_witness_certificate.sh timing --repeat 3 --json-out /tmp/witness_lean_timing.json` | Local repeated timing report for generated witness Lean exporters and Lake proof-catalog targets. |
+| `scripts/signal_spine.sh witness-engine` | Umbrella smoke group for the certificate gate plus seed and ladder reports. |
 
 ## One-Command Timestamp Demo
 
@@ -88,6 +97,92 @@ The transcript includes snippets for WolframAlpha `isprime(...)`, Mathematica
 default affine lane, the canonical witness reports `not_mersenne`, which is the
 interesting comparison against the Mersenne-prime tradition: small input, large
 prime-shaped output, but not the `2^p - 1` special form.
+
+## Proof-Carrying Certificates
+
+The canonical proof-carrying witness bundle is indexed by
+[`docs/witness/witness_certificate_manifest.json`](witness/witness_certificate_manifest.json).
+It currently contains the seed-60 128-digit witness, a small 38-digit teaching
+witness, and a deterministic timestamp-policy witness. Each certificate records
+the exact affine construction, per-modulus residue-funnel checks, a bounded
+search replay from input seed to first accepted residue survivor, nearby seeds
+rejected by small-prime residue gates, Mersenne-shape classification, and fixed
+Miller-Rabin probable-prime metadata. It deliberately does not claim a primality
+proof; its
+`primality_proof_status` is `probable-prime-not-proof-certified`.
+
+Every artifact in the bundle has a generated Lean mirror under
+`PrimeArithmetic/Generated/Witness/`, indexed by
+[`docs/witness/witness_lean_catalog_manifest.json`](witness/witness_lean_catalog_manifest.json).
+The witness Lean gate regenerates and builds the tracked
+`PrimeArithmetic/Generated/Witness/CatalogChecks.lean` silent declaration-check
+umbrella from that manifest, so the machine-readable theorem links must resolve
+in Lean. The umbrella imports deterministic `CatalogChecksShardNN.lean` files,
+one per canonical witness artifact.
+Each generated module carries a `SearchReplayCertificate` object, replay
+soundness theorem, exact survivor-list theorem, replay accounting theorem, and
+first-accepted-survivor theorem for its finite replay window. The accounting
+theorem checks that residue-rejected rows and survivor rows form a disjoint
+replay partition and that scanned/rejected/survivor counts match the certificate
+metadata. The first-accepted theorem checks the search-policy layer: any
+pre-witness residue survivor in the replay window is explicitly non-accepted,
+and the witness seed is the first accepted residue survivor.
+The theorem-facing wrapper `PrimeArithmetic/Witness/TeachingSeedCertificate.lean`
+is kept only for the small teaching artifact and forwards compact names for
+construction, residue-funnel survival, search-replay soundness, exact
+survivor-list, first-accepted-survivor, and rejection-example arithmetic.
+Generated Lean and catalog JSON writes are content-stable, so no-drift witness
+verification runs preserve tracked file mtimes and avoid unnecessary Lake cache
+invalidation.
+
+The derived search-policy atlas
+[`docs/witness/witness_search_policy_atlas.json`](witness/witness_search_policy_atlas.json)
+summarizes the same bundle by lane, visible digit length, seed-origin policy,
+rejection geometry, survivor counts, first-accepted distance, and Lean replay
+links. It is meant to guide and falsify search-policy claims; it is not a
+prime-density or primality-proof artifact.
+
+For broader sweeps, `export_proof_carrying_witness_policy_matrix` runs a
+deterministic smoke matrix over the canonical decimal lane, decimal comparison
+lanes, compact base-6/base-12/base-30 lanes, a complete 64-digit non-small
+tranche, and a 96-digit tranche where decimal-readable, decimal-classic,
+decimal-breathing, base6-compact, base12-compact, and base30-wheel are already promoted. It emits certificate candidates and matrix rows,
+while distinguishing rows already covered by generated Lean from future
+atlas-only rows. The exporter also writes `witness_policy_matrix_atlas.json` and
+`.md`, which summarize rows by lane, first-accepted distance, rejection
+geometry, Lean replay coverage, and a structured next replay target. The
+promoted policy-matrix tranche now checks generated Lean replay modules for all
+six small matrix rows, all six 64-digit matrix rows, and the decimal-readable/
+decimal-classic/decimal-breathing/base6-compact/base12-compact/base30-wheel 96-digit rows. Large replay windows use
+compact aggregate replay theorem links instead of per-seed convenience
+wrappers. The atlas compares promoted large rows across decimal, base6,
+base12, and base30 lanes by replay distance, survivor count, and rejection geometry
+only; it does not rank primality evidence. The current smoke policy matrix now
+has no atlas-only large replay target. These generated modules are indexed by
+[`docs/witness/witness_policy_matrix_lean_catalog_manifest.json`](witness/witness_policy_matrix_lean_catalog_manifest.json),
+and `PrimeArithmetic/Generated/Witness/MatrixCatalogChecks.lean` is regenerated
+from that manifest so every matrix theorem string is part of the maintained
+Lean declaration-check surface. That matrix check module is an umbrella over
+deterministic `MatrixCatalogChecksShardNN.lean` files generated from fixed-size
+manifest chunks. The witness gate now asserts
+`unpromoted_replay_candidate_count == 0` and
+`atlas_only_large_candidate_count == 0` for the canonical smoke matrix before
+accepting tracked artifacts. The Lean side builds the catalog-check modules
+directly, which still imports every generated witness module and validates every
+theorem string while avoiding both the old monolithic check file and a redundant
+per-module Lake build loop.
+
+Verify or regenerate the tracked bundle with:
+
+```bash
+scripts/proof_carrying_witness.sh verify
+scripts/proof_carrying_witness.sh regenerate
+scripts/lean_proof_carrying_witness_certificate.sh verify
+scripts/lean_proof_carrying_witness_certificate.sh timing --repeat 3 --json-out /tmp/witness_lean_timing.json
+cargo run --bin verify-proof-carrying-witness -- docs/witness/seed60_proof_carrying_witness.json
+cargo run --bin verify-proof-carrying-witness -- docs/witness/teaching38_proof_carrying_witness.json
+cargo run --bin verify-proof-carrying-witness -- docs/witness/timestamp_policy_29d_trial0_proof_carrying_witness.json
+```
 
 ## Large Ladder Reading
 

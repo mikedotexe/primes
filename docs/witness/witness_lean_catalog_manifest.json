@@ -1,0 +1,444 @@
+{
+  "schema_version": "proof-carrying-witness-lean-catalog-v1",
+  "artifact_set_id": "canonical-proof-carrying-witnesses-v1",
+  "witness_manifest_path": "docs/witness/witness_certificate_manifest.json",
+  "generated_lean_dir": "lean-proofs/PrimeArithmetic/Generated/Witness",
+  "generator_command": "cargo run --bin export_proof_carrying_witness_lean_certificate -- --catalog --certificate-dir docs/witness --out-dir lean-proofs/PrimeArithmetic/Generated/Witness --manifest-out docs/witness/witness_lean_catalog_manifest.json",
+  "drift_check_command": "scripts/lean_proof_carrying_witness_certificate.sh verify",
+  "ci_gate": "scripts/ci_witness_certificate.sh",
+  "ci_status": "maintained-ci-gate",
+  "claim_status": "construction-and-residue-only",
+  "artifacts": [
+    {
+      "artifact_id": "seed60-canonical-128d",
+      "role": "canonical_seed60_128d",
+      "certificate_path": "docs/witness/seed60_proof_carrying_witness.json",
+      "generated_lean_path": "lean-proofs/PrimeArithmetic/Generated/Witness/Seed60.lean",
+      "generated_lean_module": "PrimeArithmetic.Generated.Witness.Seed60",
+      "theorem_names": {
+        "certificate_schema_version": "PrimeArithmetic.Generated.Witness.Seed60.certificateSchemaVersion_value",
+        "source_certificate_path": "PrimeArithmetic.Generated.Witness.Seed60.sourceCertificatePath_value",
+        "width": "PrimeArithmetic.Generated.Witness.Seed60.width_value",
+        "shift": "PrimeArithmetic.Generated.Witness.Seed60.shift_value",
+        "gradient": "PrimeArithmetic.Generated.Witness.Seed60.gradient_value",
+        "witness_value": "PrimeArithmetic.Generated.Witness.Seed60.witness_value",
+        "witness_value_eq_shift_add_gradient": "PrimeArithmetic.Generated.Witness.Seed60.witness_value_eq_shift_add_gradient",
+        "residue_moduli_length": "PrimeArithmetic.Generated.Witness.Seed60.residueModuli_length",
+        "residue_moduli_nodup": "PrimeArithmetic.Generated.Witness.Seed60.residueModuli_nodup",
+        "residue_funnel_affine_checks": "PrimeArithmetic.Generated.Witness.Seed60.residueFunnelAffineChecks",
+        "residue_funnel_survives": "PrimeArithmetic.Generated.Witness.Seed60.residueFunnelSurvives",
+        "rejection_examples_reject": "PrimeArithmetic.Generated.Witness.Seed60.rejectionExamplesReject",
+        "search_replay_seeds_length": "PrimeArithmetic.Generated.Witness.Seed60.searchReplaySeeds_length",
+        "search_replay_witness_seed": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayWitnessSeed",
+        "search_replay_rejections_reject": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayResidueRejectionsReject",
+        "search_replay_survivors_survive": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayResidueSurvivorsSurvive",
+        "search_replay_scanned_seed_count": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayScannedSeedCount_value",
+        "search_replay_residue_rejected_count": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayResidueRejectedCount_value",
+        "search_replay_residue_survivor_count": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayResidueSurvivorCount_value",
+        "search_replay_certificate": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayCertificate",
+        "search_replay_pre_witness_complete": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayPreWitnessComplete",
+        "search_replay_witness_survives": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayWitnessSurvives",
+        "search_replay_sound": "PrimeArithmetic.Generated.Witness.Seed60.searchReplaySound",
+        "search_replay_survivor_list_exact": "PrimeArithmetic.Generated.Witness.Seed60.searchReplaySurvivorListExact",
+        "search_replay_partition_exact": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayPartitionExact",
+        "search_replay_count_exact": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayCountExact",
+        "search_replay_accounting_exact": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayAccountingExact",
+        "search_replay_survivor_acceptance_exact": "PrimeArithmetic.Generated.Witness.Seed60.searchReplaySurvivorAcceptanceExact",
+        "search_replay_accepted_survivor_exact": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayAcceptedSurvivorExact",
+        "search_replay_pre_witness_survivors_non_accepted": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayPreWitnessSurvivorsNonAccepted",
+        "search_replay_first_accepted_survivor": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayFirstAcceptedSurvivor"
+      },
+      "residue_theorem_names": [
+        {
+          "modulus": 3,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Seed60.residue_row_mod3",
+          "survives": "PrimeArithmetic.Generated.Witness.Seed60.survives_mod3"
+        },
+        {
+          "modulus": 7,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Seed60.residue_row_mod7",
+          "survives": "PrimeArithmetic.Generated.Witness.Seed60.survives_mod7"
+        },
+        {
+          "modulus": 11,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Seed60.residue_row_mod11",
+          "survives": "PrimeArithmetic.Generated.Witness.Seed60.survives_mod11"
+        },
+        {
+          "modulus": 13,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Seed60.residue_row_mod13",
+          "survives": "PrimeArithmetic.Generated.Witness.Seed60.survives_mod13"
+        },
+        {
+          "modulus": 17,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Seed60.residue_row_mod17",
+          "survives": "PrimeArithmetic.Generated.Witness.Seed60.survives_mod17"
+        },
+        {
+          "modulus": 19,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Seed60.residue_row_mod19",
+          "survives": "PrimeArithmetic.Generated.Witness.Seed60.survives_mod19"
+        },
+        {
+          "modulus": 23,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Seed60.residue_row_mod23",
+          "survives": "PrimeArithmetic.Generated.Witness.Seed60.survives_mod23"
+        },
+        {
+          "modulus": 29,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Seed60.residue_row_mod29",
+          "survives": "PrimeArithmetic.Generated.Witness.Seed60.survives_mod29"
+        },
+        {
+          "modulus": 31,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Seed60.residue_row_mod31",
+          "survives": "PrimeArithmetic.Generated.Witness.Seed60.survives_mod31"
+        }
+      ],
+      "rejection_theorem_names": [
+        {
+          "seed": 61,
+          "modulus": 3,
+          "rejection": "PrimeArithmetic.Generated.Witness.Seed60.rejection_seed61_mod3"
+        },
+        {
+          "seed": 62,
+          "modulus": 7,
+          "rejection": "PrimeArithmetic.Generated.Witness.Seed60.rejection_seed62_mod7"
+        },
+        {
+          "seed": 63,
+          "modulus": 13,
+          "rejection": "PrimeArithmetic.Generated.Witness.Seed60.rejection_seed63_mod13"
+        }
+      ],
+      "search_replay_theorem_names": [
+        {
+          "seed": 60,
+          "status": "accepted-probable-prime-witness",
+          "rejected_by_modulus": null,
+          "rejection": null,
+          "survives_residue_funnel": "PrimeArithmetic.Generated.Witness.Seed60.search_replay_seed60_survives"
+        }
+      ],
+      "theorem_wrapper": null,
+      "primality_proof_status": "probable-prime-not-proof-certified"
+    },
+    {
+      "artifact_id": "teaching-seed0-38d",
+      "role": "teaching_seed0_38d",
+      "certificate_path": "docs/witness/teaching38_proof_carrying_witness.json",
+      "generated_lean_path": "lean-proofs/PrimeArithmetic/Generated/Witness/Teaching38.lean",
+      "generated_lean_module": "PrimeArithmetic.Generated.Witness.Teaching38",
+      "theorem_names": {
+        "certificate_schema_version": "PrimeArithmetic.Generated.Witness.Teaching38.certificateSchemaVersion_value",
+        "source_certificate_path": "PrimeArithmetic.Generated.Witness.Teaching38.sourceCertificatePath_value",
+        "width": "PrimeArithmetic.Generated.Witness.Teaching38.width_value",
+        "shift": "PrimeArithmetic.Generated.Witness.Teaching38.shift_value",
+        "gradient": "PrimeArithmetic.Generated.Witness.Teaching38.gradient_value",
+        "witness_value": "PrimeArithmetic.Generated.Witness.Teaching38.witness_value",
+        "witness_value_eq_shift_add_gradient": "PrimeArithmetic.Generated.Witness.Teaching38.witness_value_eq_shift_add_gradient",
+        "residue_moduli_length": "PrimeArithmetic.Generated.Witness.Teaching38.residueModuli_length",
+        "residue_moduli_nodup": "PrimeArithmetic.Generated.Witness.Teaching38.residueModuli_nodup",
+        "residue_funnel_affine_checks": "PrimeArithmetic.Generated.Witness.Teaching38.residueFunnelAffineChecks",
+        "residue_funnel_survives": "PrimeArithmetic.Generated.Witness.Teaching38.residueFunnelSurvives",
+        "rejection_examples_reject": "PrimeArithmetic.Generated.Witness.Teaching38.rejectionExamplesReject",
+        "search_replay_seeds_length": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplaySeeds_length",
+        "search_replay_witness_seed": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayWitnessSeed",
+        "search_replay_rejections_reject": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayResidueRejectionsReject",
+        "search_replay_survivors_survive": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayResidueSurvivorsSurvive",
+        "search_replay_scanned_seed_count": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayScannedSeedCount_value",
+        "search_replay_residue_rejected_count": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayResidueRejectedCount_value",
+        "search_replay_residue_survivor_count": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayResidueSurvivorCount_value",
+        "search_replay_certificate": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayCertificate",
+        "search_replay_pre_witness_complete": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayPreWitnessComplete",
+        "search_replay_witness_survives": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayWitnessSurvives",
+        "search_replay_sound": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplaySound",
+        "search_replay_survivor_list_exact": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplaySurvivorListExact",
+        "search_replay_partition_exact": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayPartitionExact",
+        "search_replay_count_exact": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayCountExact",
+        "search_replay_accounting_exact": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayAccountingExact",
+        "search_replay_survivor_acceptance_exact": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplaySurvivorAcceptanceExact",
+        "search_replay_accepted_survivor_exact": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayAcceptedSurvivorExact",
+        "search_replay_pre_witness_survivors_non_accepted": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayPreWitnessSurvivorsNonAccepted",
+        "search_replay_first_accepted_survivor": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayFirstAcceptedSurvivor"
+      },
+      "residue_theorem_names": [
+        {
+          "modulus": 3,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Teaching38.residue_row_mod3",
+          "survives": "PrimeArithmetic.Generated.Witness.Teaching38.survives_mod3"
+        },
+        {
+          "modulus": 7,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Teaching38.residue_row_mod7",
+          "survives": "PrimeArithmetic.Generated.Witness.Teaching38.survives_mod7"
+        },
+        {
+          "modulus": 11,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Teaching38.residue_row_mod11",
+          "survives": "PrimeArithmetic.Generated.Witness.Teaching38.survives_mod11"
+        },
+        {
+          "modulus": 13,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Teaching38.residue_row_mod13",
+          "survives": "PrimeArithmetic.Generated.Witness.Teaching38.survives_mod13"
+        },
+        {
+          "modulus": 17,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Teaching38.residue_row_mod17",
+          "survives": "PrimeArithmetic.Generated.Witness.Teaching38.survives_mod17"
+        },
+        {
+          "modulus": 19,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Teaching38.residue_row_mod19",
+          "survives": "PrimeArithmetic.Generated.Witness.Teaching38.survives_mod19"
+        },
+        {
+          "modulus": 23,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Teaching38.residue_row_mod23",
+          "survives": "PrimeArithmetic.Generated.Witness.Teaching38.survives_mod23"
+        },
+        {
+          "modulus": 29,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Teaching38.residue_row_mod29",
+          "survives": "PrimeArithmetic.Generated.Witness.Teaching38.survives_mod29"
+        },
+        {
+          "modulus": 31,
+          "residue_row": "PrimeArithmetic.Generated.Witness.Teaching38.residue_row_mod31",
+          "survives": "PrimeArithmetic.Generated.Witness.Teaching38.survives_mod31"
+        }
+      ],
+      "rejection_theorem_names": [
+        {
+          "seed": 0,
+          "modulus": 11,
+          "rejection": "PrimeArithmetic.Generated.Witness.Teaching38.rejection_seed0_mod11"
+        },
+        {
+          "seed": 1,
+          "modulus": 3,
+          "rejection": "PrimeArithmetic.Generated.Witness.Teaching38.rejection_seed1_mod3"
+        },
+        {
+          "seed": 4,
+          "modulus": 3,
+          "rejection": "PrimeArithmetic.Generated.Witness.Teaching38.rejection_seed4_mod3"
+        }
+      ],
+      "search_replay_theorem_names": [
+        {
+          "seed": 0,
+          "status": "residue-rejected",
+          "rejected_by_modulus": 11,
+          "rejection": "PrimeArithmetic.Generated.Witness.Teaching38.search_replay_seed0_rejected_mod11",
+          "survives_residue_funnel": null
+        },
+        {
+          "seed": 1,
+          "status": "residue-rejected",
+          "rejected_by_modulus": 3,
+          "rejection": "PrimeArithmetic.Generated.Witness.Teaching38.search_replay_seed1_rejected_mod3",
+          "survives_residue_funnel": null
+        },
+        {
+          "seed": 2,
+          "status": "residue-survivor-probable-prime-rejected",
+          "rejected_by_modulus": null,
+          "rejection": null,
+          "survives_residue_funnel": "PrimeArithmetic.Generated.Witness.Teaching38.search_replay_seed2_survives"
+        },
+        {
+          "seed": 3,
+          "status": "accepted-probable-prime-witness",
+          "rejected_by_modulus": null,
+          "rejection": null,
+          "survives_residue_funnel": "PrimeArithmetic.Generated.Witness.Teaching38.search_replay_seed3_survives"
+        }
+      ],
+      "theorem_wrapper": {
+        "lean_path": "lean-proofs/PrimeArithmetic/Witness/TeachingSeedCertificate.lean",
+        "lean_module": "PrimeArithmetic.Witness.TeachingSeedCertificate",
+        "theorem_names": [
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_width",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_shift",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_gradient",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_value",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_value_eq_shift_add_gradient",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_residue_moduli_nodup",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_residue_funnel_affine_checks",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_residue_funnel_survives",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_rejection_examples_reject",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_search_replay_seeds_length",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_search_replay_witness_seed",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_search_replay_rejections_reject",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_search_replay_survivors_survive",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_pre_witness_replay_complete",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_search_replay_witness_survives",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_search_replay_sound",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_search_replay_survivor_list_exact",
+          "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_search_replay_first_accepted_survivor"
+        ]
+      },
+      "primality_proof_status": "probable-prime-not-proof-certified"
+    },
+    {
+      "artifact_id": "timestamp-policy-trial0-29d",
+      "role": "timestamp_policy_29d_trial0",
+      "certificate_path": "docs/witness/timestamp_policy_29d_trial0_proof_carrying_witness.json",
+      "generated_lean_path": "lean-proofs/PrimeArithmetic/Generated/Witness/TimestampPolicy29Trial0.lean",
+      "generated_lean_module": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0",
+      "theorem_names": {
+        "certificate_schema_version": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.certificateSchemaVersion_value",
+        "source_certificate_path": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.sourceCertificatePath_value",
+        "width": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.width_value",
+        "shift": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.shift_value",
+        "gradient": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.gradient_value",
+        "witness_value": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.witness_value",
+        "witness_value_eq_shift_add_gradient": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.witness_value_eq_shift_add_gradient",
+        "residue_moduli_length": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residueModuli_length",
+        "residue_moduli_nodup": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residueModuli_nodup",
+        "residue_funnel_affine_checks": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residueFunnelAffineChecks",
+        "residue_funnel_survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residueFunnelSurvives",
+        "rejection_examples_reject": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.rejectionExamplesReject",
+        "search_replay_seeds_length": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplaySeeds_length",
+        "search_replay_witness_seed": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayWitnessSeed",
+        "search_replay_rejections_reject": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayResidueRejectionsReject",
+        "search_replay_survivors_survive": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayResidueSurvivorsSurvive",
+        "search_replay_scanned_seed_count": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayScannedSeedCount_value",
+        "search_replay_residue_rejected_count": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayResidueRejectedCount_value",
+        "search_replay_residue_survivor_count": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayResidueSurvivorCount_value",
+        "search_replay_certificate": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayCertificate",
+        "search_replay_pre_witness_complete": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayPreWitnessComplete",
+        "search_replay_witness_survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayWitnessSurvives",
+        "search_replay_sound": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplaySound",
+        "search_replay_survivor_list_exact": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplaySurvivorListExact",
+        "search_replay_partition_exact": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayPartitionExact",
+        "search_replay_count_exact": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayCountExact",
+        "search_replay_accounting_exact": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayAccountingExact",
+        "search_replay_survivor_acceptance_exact": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplaySurvivorAcceptanceExact",
+        "search_replay_accepted_survivor_exact": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayAcceptedSurvivorExact",
+        "search_replay_pre_witness_survivors_non_accepted": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayPreWitnessSurvivorsNonAccepted",
+        "search_replay_first_accepted_survivor": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayFirstAcceptedSurvivor"
+      },
+      "residue_theorem_names": [
+        {
+          "modulus": 3,
+          "residue_row": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residue_row_mod3",
+          "survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.survives_mod3"
+        },
+        {
+          "modulus": 7,
+          "residue_row": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residue_row_mod7",
+          "survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.survives_mod7"
+        },
+        {
+          "modulus": 11,
+          "residue_row": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residue_row_mod11",
+          "survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.survives_mod11"
+        },
+        {
+          "modulus": 13,
+          "residue_row": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residue_row_mod13",
+          "survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.survives_mod13"
+        },
+        {
+          "modulus": 17,
+          "residue_row": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residue_row_mod17",
+          "survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.survives_mod17"
+        },
+        {
+          "modulus": 19,
+          "residue_row": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residue_row_mod19",
+          "survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.survives_mod19"
+        },
+        {
+          "modulus": 23,
+          "residue_row": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residue_row_mod23",
+          "survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.survives_mod23"
+        },
+        {
+          "modulus": 29,
+          "residue_row": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residue_row_mod29",
+          "survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.survives_mod29"
+        },
+        {
+          "modulus": 31,
+          "residue_row": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.residue_row_mod31",
+          "survives": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.survives_mod31"
+        }
+      ],
+      "rejection_theorem_names": [
+        {
+          "seed": 1777651200000000000,
+          "modulus": 7,
+          "rejection": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.rejection_seed1777651200000000000_mod7"
+        },
+        {
+          "seed": 1777651200000000001,
+          "modulus": 3,
+          "rejection": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.rejection_seed1777651200000000001_mod3"
+        },
+        {
+          "seed": 1777651200000000002,
+          "modulus": 17,
+          "rejection": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.rejection_seed1777651200000000002_mod17"
+        }
+      ],
+      "search_replay_theorem_names": [
+        {
+          "seed": 1777651200000000000,
+          "status": "residue-rejected",
+          "rejected_by_modulus": 7,
+          "rejection": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.search_replay_seed1777651200000000000_rejected_mod7",
+          "survives_residue_funnel": null
+        },
+        {
+          "seed": 1777651200000000001,
+          "status": "residue-rejected",
+          "rejected_by_modulus": 3,
+          "rejection": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.search_replay_seed1777651200000000001_rejected_mod3",
+          "survives_residue_funnel": null
+        },
+        {
+          "seed": 1777651200000000002,
+          "status": "residue-rejected",
+          "rejected_by_modulus": 17,
+          "rejection": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.search_replay_seed1777651200000000002_rejected_mod17",
+          "survives_residue_funnel": null
+        },
+        {
+          "seed": 1777651200000000003,
+          "status": "residue-survivor-probable-prime-rejected",
+          "rejected_by_modulus": null,
+          "rejection": null,
+          "survives_residue_funnel": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.search_replay_seed1777651200000000003_survives"
+        },
+        {
+          "seed": 1777651200000000004,
+          "status": "residue-rejected",
+          "rejected_by_modulus": 3,
+          "rejection": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.search_replay_seed1777651200000000004_rejected_mod3",
+          "survives_residue_funnel": null
+        },
+        {
+          "seed": 1777651200000000005,
+          "status": "residue-survivor-probable-prime-rejected",
+          "rejected_by_modulus": null,
+          "rejection": null,
+          "survives_residue_funnel": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.search_replay_seed1777651200000000005_survives"
+        },
+        {
+          "seed": 1777651200000000006,
+          "status": "accepted-probable-prime-witness",
+          "rejected_by_modulus": null,
+          "rejection": null,
+          "survives_residue_funnel": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.search_replay_seed1777651200000000006_survives"
+        }
+      ],
+      "theorem_wrapper": null,
+      "primality_proof_status": "probable-prime-not-proof-certified"
+    }
+  ]
+}

@@ -4,13 +4,14 @@
 //! transcript plus a shorter teaching row.
 
 use primes::validation::{
+    large_affine_witness::PROBABLE_PRIME_BASES,
     reporting::{
         ensure_dir, export_timestamp_utc, write_artifact_manifest, write_csv_rows,
         write_json_pretty, write_text_file, ArtifactManifest,
     },
     seed_to_witness::{
-        find_seed_to_witness, render_seed_to_witness_transcript, SeedToWitnessConfig,
-        SeedToWitnessResult,
+        build_proof_carrying_witness_certificate, find_seed_to_witness,
+        render_seed_to_witness_transcript, SeedToWitnessConfig, SeedToWitnessResult,
     },
 };
 use serde::Serialize;
@@ -80,6 +81,8 @@ fn main() {
 
     let canonical = find_seed_to_witness(SeedToWitnessConfig::default_for_seed(60))
         .expect("canonical seed-to-witness demo should find a witness");
+    let canonical_certificate =
+        build_proof_carrying_witness_certificate(&canonical, PROBABLE_PRIME_BASES);
     let teaching = find_seed_to_witness(
         SeedToWitnessConfig::default_for_seed(0)
             .with_visible_digits(38)
@@ -109,6 +112,11 @@ fn main() {
     write_text_file(options.out_dir.join("report.md"), &report).expect("write report");
     write_text_file(options.out_dir.join("transcript.md"), &transcript).expect("write transcript");
     write_json_pretty(options.out_dir.join("summary.json"), &bundle).expect("write summary json");
+    write_json_pretty(
+        options.out_dir.join("canonical_certificate.json"),
+        &canonical_certificate,
+    )
+    .expect("write canonical certificate json");
     write_csv_rows(options.out_dir.join("witness_rows.csv"), &rows).expect("write witness rows");
     write_artifact_manifest(
         &options.out_dir,
@@ -129,6 +137,7 @@ fn main() {
             expected_outputs: vec![
                 "report.md".to_string(),
                 "summary.json".to_string(),
+                "canonical_certificate.json".to_string(),
                 "transcript.md".to_string(),
                 "witness_rows.csv".to_string(),
                 "artifact_manifest.json".to_string(),
@@ -251,6 +260,7 @@ fn render_report(
     lines.push(String::new());
     lines.push("## Artifacts".to_string());
     lines.push("- `transcript.md`: human-facing seed-to-witness transcript.".to_string());
+    lines.push("- `canonical_certificate.json`: deterministic construction and residue-funnel certificate for the canonical seed-60 witness.".to_string());
     lines.push(
         "- `witness_rows.csv`: compact row export for the canonical and teaching witnesses."
             .to_string(),

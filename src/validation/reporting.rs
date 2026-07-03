@@ -9,11 +9,7 @@
 
 use chrono::{SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
-use std::{
-    fs::{self, File},
-    io::{BufWriter, Write},
-    path::Path,
-};
+use std::{fs, io::ErrorKind, path::Path};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -41,10 +37,9 @@ pub fn write_json_pretty<T: Serialize>(
 ) -> Result<(), ReportExportError> {
     let path = path.as_ref();
     ensure_parent_dir(path)?;
-    let file = File::create(path)?;
-    let writer = BufWriter::new(file);
-    serde_json::to_writer_pretty(writer, value)?;
-    Ok(())
+    let mut bytes = Vec::new();
+    serde_json::to_writer_pretty(&mut bytes, value)?;
+    write_bytes_if_changed(path, &bytes)
 }
 
 pub fn write_csv_rows<T: Serialize>(
@@ -64,11 +59,7 @@ pub fn write_csv_rows<T: Serialize>(
 pub fn write_text_file(path: impl AsRef<Path>, text: &str) -> Result<(), ReportExportError> {
     let path = path.as_ref();
     ensure_parent_dir(path)?;
-    let file = File::create(path)?;
-    let mut writer = BufWriter::new(file);
-    writer.write_all(text.as_bytes())?;
-    writer.flush()?;
-    Ok(())
+    write_bytes_if_changed(path, text.as_bytes())
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -99,6 +90,21 @@ fn ensure_parent_dir(path: &Path) -> Result<(), ReportExportError> {
     Ok(())
 }
 
+fn write_bytes_if_changed(path: &Path, bytes: &[u8]) -> Result<(), ReportExportError> {
+    match fs::read(path) {
+        Ok(existing) if existing == bytes => Ok(()),
+        Ok(_) => {
+            fs::write(path, bytes)?;
+            Ok(())
+        }
+        Err(err) if err.kind() == ErrorKind::NotFound => {
+            fs::write(path, bytes)?;
+            Ok(())
+        }
+        Err(err) => Err(err.into()),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -106,8 +112,8 @@ mod tests {
     use std::{
         fs,
         path::PathBuf,
-        process,
-        time::{SystemTime, UNIX_EPOCH},
+        process, thread,
+        time::{Duration, SystemTime, UNIX_EPOCH},
     };
 
     #[derive(Debug, Serialize)]
@@ -156,6 +162,85 @@ mod tests {
         assert!(json_text.contains("\"label\": \"alpha\""));
         assert!(csv_text.starts_with("label,value"));
         assert_eq!(text, "# Demo\n");
+
+        fs::remove_dir_all(base).expect("cleanup temp dir");
+    }
+
+    #[test]
+    fn text_export_preserves_mtime_when_content_is_unchanged() {
+        let base = unique_test_dir("stable-text");
+        let text_path = base.join("nested/report.md");
+
+        write_text_file(&text_path, "# Demo\n").expect("write text");
+        let first_modified = fs::metadata(&text_path)
+            .expect("text metadata")
+            .modified()
+            .expect("text modified time");
+
+        thread::sleep(Duration::from_millis(25));
+        write_text_file(&text_path, "# Demo\n").expect("rewrite same text");
+        let second_modified = fs::metadata(&text_path)
+            .expect("text metadata")
+            .modified()
+            .expect("text modified time");
+
+        assert_eq!(first_modified, second_modified);
+
+        thread::sleep(Duration::from_millis(25));
+        write_text_file(&text_path, "# Changed\n").expect("write changed text");
+        let third_modified = fs::metadata(&text_path)
+            .expect("text metadata")
+            .modified()
+            .expect("text modified time");
+
+        assert_ne!(second_modified, third_modified);
+        assert_eq!(
+            fs::read_to_string(&text_path).expect("read changed text"),
+            "# Changed\n"
+        );
+
+        fs::remove_dir_all(base).expect("cleanup temp dir");
+    }
+
+    #[test]
+    fn pretty_json_export_preserves_mtime_when_content_is_unchanged() {
+        let base = unique_test_dir("stable-json");
+        let json_path = base.join("nested/report.json");
+        let first_rows = [DemoRow {
+            label: "alpha",
+            value: 7,
+        }];
+        let changed_rows = [DemoRow {
+            label: "alpha",
+            value: 8,
+        }];
+
+        write_json_pretty(&json_path, &first_rows).expect("write json");
+        let first_modified = fs::metadata(&json_path)
+            .expect("json metadata")
+            .modified()
+            .expect("json modified time");
+
+        thread::sleep(Duration::from_millis(25));
+        write_json_pretty(&json_path, &first_rows).expect("rewrite same json");
+        let second_modified = fs::metadata(&json_path)
+            .expect("json metadata")
+            .modified()
+            .expect("json modified time");
+
+        assert_eq!(first_modified, second_modified);
+
+        thread::sleep(Duration::from_millis(25));
+        write_json_pretty(&json_path, &changed_rows).expect("write changed json");
+        let third_modified = fs::metadata(&json_path)
+            .expect("json metadata")
+            .modified()
+            .expect("json modified time");
+
+        assert_ne!(second_modified, third_modified);
+        assert!(fs::read_to_string(&json_path)
+            .expect("read changed json")
+            .contains("\"value\": 8"));
 
         fs::remove_dir_all(base).expect("cleanup temp dir");
     }

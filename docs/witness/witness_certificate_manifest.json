@@ -1,0 +1,54 @@
+{
+  "schema_version": "proof-carrying-witness-manifest-v1",
+  "artifact_set_id": "canonical-proof-carrying-witnesses-v1",
+  "verifier_command": "cargo run --bin verify-proof-carrying-witness -- <certificate.json>",
+  "ci_gate": "scripts/ci_witness_certificate.sh",
+  "ci_status": "maintained-ci-gate",
+  "artifacts": [
+    {
+      "artifact_id": "seed60-canonical-128d",
+      "role": "canonical_seed60_128d",
+      "path": "docs/witness/seed60_proof_carrying_witness.json",
+      "certificate_schema_version": "proof-carrying-witness-v1",
+      "input_seed": 60,
+      "witness_seed": 60,
+      "visible_digits": 128,
+      "middle_width": 118,
+      "residue_row_count": 9,
+      "rejection_example_count": 3,
+      "search_replay_row_count": 1,
+      "confirmation_method": "probable_prime_fixed_20_bases",
+      "primality_proof_status": "probable-prime-not-proof-certified"
+    },
+    {
+      "artifact_id": "teaching-seed0-38d",
+      "role": "teaching_seed0_38d",
+      "path": "docs/witness/teaching38_proof_carrying_witness.json",
+      "certificate_schema_version": "proof-carrying-witness-v1",
+      "input_seed": 0,
+      "witness_seed": 3,
+      "visible_digits": 38,
+      "middle_width": 28,
+      "residue_row_count": 9,
+      "rejection_example_count": 3,
+      "search_replay_row_count": 4,
+      "confirmation_method": "probable_prime_fixed_20_bases",
+      "primality_proof_status": "probable-prime-not-proof-certified"
+    },
+    {
+      "artifact_id": "timestamp-policy-trial0-29d",
+      "role": "timestamp_policy_29d_trial0",
+      "path": "docs/witness/timestamp_policy_29d_trial0_proof_carrying_witness.json",
+      "certificate_schema_version": "proof-carrying-witness-v1",
+      "input_seed": 1777651200000000000,
+      "witness_seed": 1777651200000000006,
+      "visible_digits": 29,
+      "middle_width": 19,
+      "residue_row_count": 9,
+      "rejection_example_count": 3,
+      "search_replay_row_count": 7,
+      "confirmation_method": "probable_prime_fixed_20_bases",
+      "primality_proof_status": "probable-prime-not-proof-certified"
+    }
+  ]
+}

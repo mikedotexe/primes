@@ -1,0 +1,825 @@
+{
+  "schema_version": "proof-carrying-witness-v1",
+  "settings": {
+    "input_seed": 0,
+    "max_steps": 256,
+    "exact_seed_only": false,
+    "base": 6,
+    "outer": 1,
+    "inner": 5,
+    "k_outer": 0,
+    "k_inner": 0,
+    "visible_digits": 18,
+    "probable_prime_bases": [
+      2,
+      3,
+      5,
+      7,
+      11,
+      13,
+      17,
+      19,
+      23,
+      29,
+      31,
+      37,
+      41,
+      43,
+      47,
+      53,
+      59,
+      61,
+      67,
+      71
+    ]
+  },
+  "witness": {
+    "witness_seed": 4,
+    "steps_to_witness": 4,
+    "scanned_seed_count": 5,
+    "residue_survivor_count": 3,
+    "residue_rejected_count": 2,
+    "probable_prime_tests": 3,
+    "middle_width": 14,
+    "decimal_digits": 14,
+    "compact_description": "base=6, pair=(1,5), k=(0,0), M=14, seed=4"
+  },
+  "affine_construction": {
+    "base": 6,
+    "outer": 1,
+    "inner": 5,
+    "k_outer": 0,
+    "k_inner": 0,
+    "middle_width": 14,
+    "shift": "31032208982047",
+    "gradient": "36",
+    "witness_seed": 4,
+    "decimal_value": "31032208982191",
+    "template_digits": "150000000000000451",
+    "middle_digits": "00000000000004",
+    "affine_line": "N(s) = 31032208982047 + 36*s",
+    "affine_value_matches_decimal": true,
+    "template_digits_match_result": true,
+    "middle_digits_match_result": true,
+    "visible_digit_count_matches_template": true,
+    "decimal_digit_count_matches_value": true
+  },
+  "residue_rows": [
+    {
+      "modulus": 5,
+      "coprime_to_base": true,
+      "shift_mod": 2,
+      "gradient_mod": 1,
+      "seed_mod": 4,
+      "value_mod": 1,
+      "affine_residue_mod": 1,
+      "affine_residue_check": true,
+      "survived": true
+    },
+    {
+      "modulus": 7,
+      "coprime_to_base": true,
+      "shift_mod": 0,
+      "gradient_mod": 1,
+      "seed_mod": 4,
+      "value_mod": 4,
+      "affine_residue_mod": 4,
+      "affine_residue_check": true,
+      "survived": true
+    },
+    {
+      "modulus": 11,
+      "coprime_to_base": true,
+      "shift_mod": 9,
+      "gradient_mod": 3,
+      "seed_mod": 4,
+      "value_mod": 10,
+      "affine_residue_mod": 10,
+      "affine_residue_check": true,
+      "survived": true
+    },
+    {
+      "modulus": 13,
+      "coprime_to_base": true,
+      "shift_mod": 0,
+      "gradient_mod": 10,
+      "seed_mod": 4,
+      "value_mod": 1,
+      "affine_residue_mod": 1,
+      "affine_residue_check": true,
+      "survived": true
+    },
+    {
+      "modulus": 17,
+      "coprime_to_base": true,
+      "shift_mod": 8,
+      "gradient_mod": 2,
+      "seed_mod": 4,
+      "value_mod": 16,
+      "affine_residue_mod": 16,
+      "affine_residue_check": true,
+      "survived": true
+    },
+    {
+      "modulus": 19,
+      "coprime_to_base": true,
+      "shift_mod": 16,
+      "gradient_mod": 17,
+      "seed_mod": 4,
+      "value_mod": 8,
+      "affine_residue_mod": 8,
+      "affine_residue_check": true,
+      "survived": true
+    },
+    {
+      "modulus": 23,
+      "coprime_to_base": true,
+      "shift_mod": 7,
+      "gradient_mod": 13,
+      "seed_mod": 4,
+      "value_mod": 13,
+      "affine_residue_mod": 13,
+      "affine_residue_check": true,
+      "survived": true
+    },
+    {
+      "modulus": 29,
+      "coprime_to_base": true,
+      "shift_mod": 21,
+      "gradient_mod": 7,
+      "seed_mod": 4,
+      "value_mod": 20,
+      "affine_residue_mod": 20,
+      "affine_residue_check": true,
+      "survived": true
+    },
+    {
+      "modulus": 31,
+      "coprime_to_base": true,
+      "shift_mod": 27,
+      "gradient_mod": 5,
+      "seed_mod": 4,
+      "value_mod": 16,
+      "affine_residue_mod": 16,
+      "affine_residue_check": true,
+      "survived": true
+    }
+  ],
+  "rejection_examples": [
+    {
+      "seed": 0,
+      "offset_from_input_seed": 0,
+      "rejected_by_modulus": 7,
+      "shift_mod": 0,
+      "gradient_mod": 1,
+      "seed_mod": 0,
+      "value_mod": 0,
+      "affine_residue_mod": 0,
+      "affine_residue_check": true,
+      "rejected": true
+    },
+    {
+      "seed": 3,
+      "offset_from_input_seed": 3,
+      "rejected_by_modulus": 5,
+      "shift_mod": 2,
+      "gradient_mod": 1,
+      "seed_mod": 3,
+      "value_mod": 0,
+      "affine_residue_mod": 0,
+      "affine_residue_check": true,
+      "rejected": true
+    },
+    {
+      "seed": 7,
+      "offset_from_input_seed": 7,
+      "rejected_by_modulus": 7,
+      "shift_mod": 0,
+      "gradient_mod": 1,
+      "seed_mod": 0,
+      "value_mod": 0,
+      "affine_residue_mod": 0,
+      "affine_residue_check": true,
+      "rejected": true
+    }
+  ],
+  "search_replay": {
+    "search_order": "walk-forward-by-one",
+    "input_seed": 0,
+    "witness_seed": 4,
+    "witness_offset": 4,
+    "scanned_seed_count": 5,
+    "residue_survivor_count": 3,
+    "residue_rejected_count": 2,
+    "probable_prime_tests": 3,
+    "complete_through_witness": true,
+    "rows": [
+      {
+        "offset_from_input_seed": 0,
+        "seed": 0,
+        "status": "residue-rejected",
+        "rejected_by_modulus": 7,
+        "residue_survived": false,
+        "probable_prime_tested": false,
+        "probable_prime_result": false,
+        "accepted_witness": false,
+        "residue_rows": [
+          {
+            "modulus": 5,
+            "coprime_to_base": true,
+            "shift_mod": 2,
+            "gradient_mod": 1,
+            "seed_mod": 0,
+            "value_mod": 2,
+            "affine_residue_mod": 2,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 7,
+            "coprime_to_base": true,
+            "shift_mod": 0,
+            "gradient_mod": 1,
+            "seed_mod": 0,
+            "value_mod": 0,
+            "affine_residue_mod": 0,
+            "affine_residue_check": true,
+            "survived": false
+          },
+          {
+            "modulus": 11,
+            "coprime_to_base": true,
+            "shift_mod": 9,
+            "gradient_mod": 3,
+            "seed_mod": 0,
+            "value_mod": 9,
+            "affine_residue_mod": 9,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 13,
+            "coprime_to_base": true,
+            "shift_mod": 0,
+            "gradient_mod": 10,
+            "seed_mod": 0,
+            "value_mod": 0,
+            "affine_residue_mod": 0,
+            "affine_residue_check": true,
+            "survived": false
+          },
+          {
+            "modulus": 17,
+            "coprime_to_base": true,
+            "shift_mod": 8,
+            "gradient_mod": 2,
+            "seed_mod": 0,
+            "value_mod": 8,
+            "affine_residue_mod": 8,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 19,
+            "coprime_to_base": true,
+            "shift_mod": 16,
+            "gradient_mod": 17,
+            "seed_mod": 0,
+            "value_mod": 16,
+            "affine_residue_mod": 16,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 23,
+            "coprime_to_base": true,
+            "shift_mod": 7,
+            "gradient_mod": 13,
+            "seed_mod": 0,
+            "value_mod": 7,
+            "affine_residue_mod": 7,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 29,
+            "coprime_to_base": true,
+            "shift_mod": 21,
+            "gradient_mod": 7,
+            "seed_mod": 0,
+            "value_mod": 21,
+            "affine_residue_mod": 21,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 31,
+            "coprime_to_base": true,
+            "shift_mod": 27,
+            "gradient_mod": 5,
+            "seed_mod": 0,
+            "value_mod": 27,
+            "affine_residue_mod": 27,
+            "affine_residue_check": true,
+            "survived": true
+          }
+        ]
+      },
+      {
+        "offset_from_input_seed": 1,
+        "seed": 1,
+        "status": "residue-survivor-probable-prime-rejected",
+        "rejected_by_modulus": null,
+        "residue_survived": true,
+        "probable_prime_tested": true,
+        "probable_prime_result": false,
+        "accepted_witness": false,
+        "residue_rows": [
+          {
+            "modulus": 5,
+            "coprime_to_base": true,
+            "shift_mod": 2,
+            "gradient_mod": 1,
+            "seed_mod": 1,
+            "value_mod": 3,
+            "affine_residue_mod": 3,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 7,
+            "coprime_to_base": true,
+            "shift_mod": 0,
+            "gradient_mod": 1,
+            "seed_mod": 1,
+            "value_mod": 1,
+            "affine_residue_mod": 1,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 11,
+            "coprime_to_base": true,
+            "shift_mod": 9,
+            "gradient_mod": 3,
+            "seed_mod": 1,
+            "value_mod": 1,
+            "affine_residue_mod": 1,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 13,
+            "coprime_to_base": true,
+            "shift_mod": 0,
+            "gradient_mod": 10,
+            "seed_mod": 1,
+            "value_mod": 10,
+            "affine_residue_mod": 10,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 17,
+            "coprime_to_base": true,
+            "shift_mod": 8,
+            "gradient_mod": 2,
+            "seed_mod": 1,
+            "value_mod": 10,
+            "affine_residue_mod": 10,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 19,
+            "coprime_to_base": true,
+            "shift_mod": 16,
+            "gradient_mod": 17,
+            "seed_mod": 1,
+            "value_mod": 14,
+            "affine_residue_mod": 14,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 23,
+            "coprime_to_base": true,
+            "shift_mod": 7,
+            "gradient_mod": 13,
+            "seed_mod": 1,
+            "value_mod": 20,
+            "affine_residue_mod": 20,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 29,
+            "coprime_to_base": true,
+            "shift_mod": 21,
+            "gradient_mod": 7,
+            "seed_mod": 1,
+            "value_mod": 28,
+            "affine_residue_mod": 28,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 31,
+            "coprime_to_base": true,
+            "shift_mod": 27,
+            "gradient_mod": 5,
+            "seed_mod": 1,
+            "value_mod": 1,
+            "affine_residue_mod": 1,
+            "affine_residue_check": true,
+            "survived": true
+          }
+        ]
+      },
+      {
+        "offset_from_input_seed": 2,
+        "seed": 2,
+        "status": "residue-survivor-probable-prime-rejected",
+        "rejected_by_modulus": null,
+        "residue_survived": true,
+        "probable_prime_tested": true,
+        "probable_prime_result": false,
+        "accepted_witness": false,
+        "residue_rows": [
+          {
+            "modulus": 5,
+            "coprime_to_base": true,
+            "shift_mod": 2,
+            "gradient_mod": 1,
+            "seed_mod": 2,
+            "value_mod": 4,
+            "affine_residue_mod": 4,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 7,
+            "coprime_to_base": true,
+            "shift_mod": 0,
+            "gradient_mod": 1,
+            "seed_mod": 2,
+            "value_mod": 2,
+            "affine_residue_mod": 2,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 11,
+            "coprime_to_base": true,
+            "shift_mod": 9,
+            "gradient_mod": 3,
+            "seed_mod": 2,
+            "value_mod": 4,
+            "affine_residue_mod": 4,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 13,
+            "coprime_to_base": true,
+            "shift_mod": 0,
+            "gradient_mod": 10,
+            "seed_mod": 2,
+            "value_mod": 7,
+            "affine_residue_mod": 7,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 17,
+            "coprime_to_base": true,
+            "shift_mod": 8,
+            "gradient_mod": 2,
+            "seed_mod": 2,
+            "value_mod": 12,
+            "affine_residue_mod": 12,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 19,
+            "coprime_to_base": true,
+            "shift_mod": 16,
+            "gradient_mod": 17,
+            "seed_mod": 2,
+            "value_mod": 12,
+            "affine_residue_mod": 12,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 23,
+            "coprime_to_base": true,
+            "shift_mod": 7,
+            "gradient_mod": 13,
+            "seed_mod": 2,
+            "value_mod": 10,
+            "affine_residue_mod": 10,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 29,
+            "coprime_to_base": true,
+            "shift_mod": 21,
+            "gradient_mod": 7,
+            "seed_mod": 2,
+            "value_mod": 6,
+            "affine_residue_mod": 6,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 31,
+            "coprime_to_base": true,
+            "shift_mod": 27,
+            "gradient_mod": 5,
+            "seed_mod": 2,
+            "value_mod": 6,
+            "affine_residue_mod": 6,
+            "affine_residue_check": true,
+            "survived": true
+          }
+        ]
+      },
+      {
+        "offset_from_input_seed": 3,
+        "seed": 3,
+        "status": "residue-rejected",
+        "rejected_by_modulus": 5,
+        "residue_survived": false,
+        "probable_prime_tested": false,
+        "probable_prime_result": false,
+        "accepted_witness": false,
+        "residue_rows": [
+          {
+            "modulus": 5,
+            "coprime_to_base": true,
+            "shift_mod": 2,
+            "gradient_mod": 1,
+            "seed_mod": 3,
+            "value_mod": 0,
+            "affine_residue_mod": 0,
+            "affine_residue_check": true,
+            "survived": false
+          },
+          {
+            "modulus": 7,
+            "coprime_to_base": true,
+            "shift_mod": 0,
+            "gradient_mod": 1,
+            "seed_mod": 3,
+            "value_mod": 3,
+            "affine_residue_mod": 3,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 11,
+            "coprime_to_base": true,
+            "shift_mod": 9,
+            "gradient_mod": 3,
+            "seed_mod": 3,
+            "value_mod": 7,
+            "affine_residue_mod": 7,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 13,
+            "coprime_to_base": true,
+            "shift_mod": 0,
+            "gradient_mod": 10,
+            "seed_mod": 3,
+            "value_mod": 4,
+            "affine_residue_mod": 4,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 17,
+            "coprime_to_base": true,
+            "shift_mod": 8,
+            "gradient_mod": 2,
+            "seed_mod": 3,
+            "value_mod": 14,
+            "affine_residue_mod": 14,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 19,
+            "coprime_to_base": true,
+            "shift_mod": 16,
+            "gradient_mod": 17,
+            "seed_mod": 3,
+            "value_mod": 10,
+            "affine_residue_mod": 10,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 23,
+            "coprime_to_base": true,
+            "shift_mod": 7,
+            "gradient_mod": 13,
+            "seed_mod": 3,
+            "value_mod": 0,
+            "affine_residue_mod": 0,
+            "affine_residue_check": true,
+            "survived": false
+          },
+          {
+            "modulus": 29,
+            "coprime_to_base": true,
+            "shift_mod": 21,
+            "gradient_mod": 7,
+            "seed_mod": 3,
+            "value_mod": 13,
+            "affine_residue_mod": 13,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 31,
+            "coprime_to_base": true,
+            "shift_mod": 27,
+            "gradient_mod": 5,
+            "seed_mod": 3,
+            "value_mod": 11,
+            "affine_residue_mod": 11,
+            "affine_residue_check": true,
+            "survived": true
+          }
+        ]
+      },
+      {
+        "offset_from_input_seed": 4,
+        "seed": 4,
+        "status": "accepted-probable-prime-witness",
+        "rejected_by_modulus": null,
+        "residue_survived": true,
+        "probable_prime_tested": true,
+        "probable_prime_result": true,
+        "accepted_witness": true,
+        "residue_rows": [
+          {
+            "modulus": 5,
+            "coprime_to_base": true,
+            "shift_mod": 2,
+            "gradient_mod": 1,
+            "seed_mod": 4,
+            "value_mod": 1,
+            "affine_residue_mod": 1,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 7,
+            "coprime_to_base": true,
+            "shift_mod": 0,
+            "gradient_mod": 1,
+            "seed_mod": 4,
+            "value_mod": 4,
+            "affine_residue_mod": 4,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 11,
+            "coprime_to_base": true,
+            "shift_mod": 9,
+            "gradient_mod": 3,
+            "seed_mod": 4,
+            "value_mod": 10,
+            "affine_residue_mod": 10,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 13,
+            "coprime_to_base": true,
+            "shift_mod": 0,
+            "gradient_mod": 10,
+            "seed_mod": 4,
+            "value_mod": 1,
+            "affine_residue_mod": 1,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 17,
+            "coprime_to_base": true,
+            "shift_mod": 8,
+            "gradient_mod": 2,
+            "seed_mod": 4,
+            "value_mod": 16,
+            "affine_residue_mod": 16,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 19,
+            "coprime_to_base": true,
+            "shift_mod": 16,
+            "gradient_mod": 17,
+            "seed_mod": 4,
+            "value_mod": 8,
+            "affine_residue_mod": 8,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 23,
+            "coprime_to_base": true,
+            "shift_mod": 7,
+            "gradient_mod": 13,
+            "seed_mod": 4,
+            "value_mod": 13,
+            "affine_residue_mod": 13,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 29,
+            "coprime_to_base": true,
+            "shift_mod": 21,
+            "gradient_mod": 7,
+            "seed_mod": 4,
+            "value_mod": 20,
+            "affine_residue_mod": 20,
+            "affine_residue_check": true,
+            "survived": true
+          },
+          {
+            "modulus": 31,
+            "coprime_to_base": true,
+            "shift_mod": 27,
+            "gradient_mod": 5,
+            "seed_mod": 4,
+            "value_mod": 16,
+            "affine_residue_mod": 16,
+            "affine_residue_check": true,
+            "survived": true
+          }
+        ]
+      }
+    ]
+  },
+  "confirmation": {
+    "method_label": "deterministic_primal_u64",
+    "probable_prime_bases": [
+      2,
+      3,
+      5,
+      7,
+      11,
+      13,
+      17,
+      19,
+      23,
+      29,
+      31,
+      37,
+      41,
+      43,
+      47,
+      53,
+      59,
+      61,
+      67,
+      71
+    ],
+    "probable_prime_result": true,
+    "primality_proof_status": "probable-prime-not-proof-certified"
+  },
+  "shape": {
+    "is_mersenne": false,
+    "mersenne_exponent": null,
+    "mersenne_class": "not_mersenne",
+    "exact_not_mersenne": true
+  },
+  "verification_snippets": [
+    {
+      "tool": "WolframAlpha",
+      "snippet": "isprime(31032208982191)"
+    },
+    {
+      "tool": "Mathematica",
+      "snippet": "PrimeQ[31032208982191]"
+    },
+    {
+      "tool": "PARI/GP",
+      "snippet": "isprime(31032208982191)"
+    },
+    {
+      "tool": "Sage",
+      "snippet": "is_prime(Integer(\"31032208982191\"))"
+    }
+  ]
+}

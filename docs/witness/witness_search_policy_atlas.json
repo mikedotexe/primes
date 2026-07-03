@@ -1,0 +1,288 @@
+{
+  "schema_version": "proof-carrying-witness-search-policy-atlas-v1",
+  "artifact_set_id": "canonical-proof-carrying-witnesses-v1",
+  "witness_manifest_path": "docs/witness/witness_certificate_manifest.json",
+  "lean_catalog_manifest_path": "docs/witness/witness_lean_catalog_manifest.json",
+  "generator_command": "cargo run --bin export_proof_carrying_witness_search_policy_atlas -- --certificate-dir docs/witness --out-dir docs/witness",
+  "drift_check_command": "scripts/proof_carrying_witness.sh verify",
+  "ci_gate": "scripts/ci_witness_certificate.sh",
+  "ci_status": "maintained-ci-gate",
+  "claim_status": "search-replay-residue-only",
+  "summary": {
+    "artifact_count": 3,
+    "lane_count": 1,
+    "seed_origin_policy_count": 3,
+    "visible_digit_count": 3,
+    "total_scanned_seed_count": 12,
+    "total_residue_rejected_count": 6,
+    "total_residue_survivor_count": 6,
+    "max_first_accepted_distance": 6,
+    "max_non_accepted_residue_survivor_count": 2,
+    "all_replays_complete_through_witness": true,
+    "all_have_first_accepted_survivor_theorem": true,
+    "primality_proof_status": "probable-prime-not-proof-certified"
+  },
+  "coverage_rows": [
+    {
+      "artifact_id": "seed60-canonical-128d",
+      "role": "canonical_seed60_128d",
+      "certificate_path": "docs/witness/seed60_proof_carrying_witness.json",
+      "seed_origin_policy": "canonical-fixed-seed",
+      "lane_id": "base10_outer3_inner7_k2_1",
+      "base": 10,
+      "outer": 3,
+      "inner": 7,
+      "k_outer": 2,
+      "k_inner": 1,
+      "visible_digits": 128,
+      "middle_width": 118,
+      "input_seed": 60,
+      "witness_seed": 60,
+      "first_accepted_distance": 0,
+      "scanned_seed_count": 1,
+      "residue_rejected_count": 0,
+      "residue_survivor_count": 1,
+      "non_accepted_residue_survivor_count": 0,
+      "accepted_residue_survivor_count": 1,
+      "probable_prime_tests": 1,
+      "complete_through_witness": true,
+      "residue_moduli": [
+        3,
+        7,
+        11,
+        13,
+        17,
+        19,
+        23,
+        29,
+        31
+      ],
+      "rejection_modulus_sequence": [],
+      "rejection_modulus_counts": [],
+      "rejection_example_modulus_counts": [
+        {
+          "modulus": 3,
+          "count": 1
+        },
+        {
+          "modulus": 7,
+          "count": 1
+        },
+        {
+          "modulus": 13,
+          "count": 1
+        }
+      ],
+      "rejection_geometry": "none",
+      "proof_status": "lean-search-replay-certified",
+      "lean_links": {
+        "generated_lean_module": "PrimeArithmetic.Generated.Witness.Seed60",
+        "search_replay_certificate": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayCertificate",
+        "replay_accounting_exact": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayAccountingExact",
+        "first_accepted_survivor": "PrimeArithmetic.Generated.Witness.Seed60.searchReplayFirstAcceptedSurvivor",
+        "theorem_wrapper_first_accepted_survivor": null
+      },
+      "primality_proof_status": "probable-prime-not-proof-certified"
+    },
+    {
+      "artifact_id": "teaching-seed0-38d",
+      "role": "teaching_seed0_38d",
+      "certificate_path": "docs/witness/teaching38_proof_carrying_witness.json",
+      "seed_origin_policy": "teaching-fixed-seed",
+      "lane_id": "base10_outer3_inner7_k2_1",
+      "base": 10,
+      "outer": 3,
+      "inner": 7,
+      "k_outer": 2,
+      "k_inner": 1,
+      "visible_digits": 38,
+      "middle_width": 28,
+      "input_seed": 0,
+      "witness_seed": 3,
+      "first_accepted_distance": 3,
+      "scanned_seed_count": 4,
+      "residue_rejected_count": 2,
+      "residue_survivor_count": 2,
+      "non_accepted_residue_survivor_count": 1,
+      "accepted_residue_survivor_count": 1,
+      "probable_prime_tests": 2,
+      "complete_through_witness": true,
+      "residue_moduli": [
+        3,
+        7,
+        11,
+        13,
+        17,
+        19,
+        23,
+        29,
+        31
+      ],
+      "rejection_modulus_sequence": [
+        11,
+        3
+      ],
+      "rejection_modulus_counts": [
+        {
+          "modulus": 3,
+          "count": 1
+        },
+        {
+          "modulus": 11,
+          "count": 1
+        }
+      ],
+      "rejection_example_modulus_counts": [
+        {
+          "modulus": 3,
+          "count": 2
+        },
+        {
+          "modulus": 11,
+          "count": 1
+        }
+      ],
+      "rejection_geometry": "mod3x1_mod11x1",
+      "proof_status": "lean-search-replay-certified",
+      "lean_links": {
+        "generated_lean_module": "PrimeArithmetic.Generated.Witness.Teaching38",
+        "search_replay_certificate": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayCertificate",
+        "replay_accounting_exact": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayAccountingExact",
+        "first_accepted_survivor": "PrimeArithmetic.Generated.Witness.Teaching38.searchReplayFirstAcceptedSurvivor",
+        "theorem_wrapper_first_accepted_survivor": "PrimeArithmetic.Witness.TeachingSeedCertificate.teaching38_search_replay_first_accepted_survivor"
+      },
+      "primality_proof_status": "probable-prime-not-proof-certified"
+    },
+    {
+      "artifact_id": "timestamp-policy-trial0-29d",
+      "role": "timestamp_policy_29d_trial0",
+      "certificate_path": "docs/witness/timestamp_policy_29d_trial0_proof_carrying_witness.json",
+      "seed_origin_policy": "timestamp-policy",
+      "lane_id": "base10_outer3_inner7_k2_1",
+      "base": 10,
+      "outer": 3,
+      "inner": 7,
+      "k_outer": 2,
+      "k_inner": 1,
+      "visible_digits": 29,
+      "middle_width": 19,
+      "input_seed": 1777651200000000000,
+      "witness_seed": 1777651200000000006,
+      "first_accepted_distance": 6,
+      "scanned_seed_count": 7,
+      "residue_rejected_count": 4,
+      "residue_survivor_count": 3,
+      "non_accepted_residue_survivor_count": 2,
+      "accepted_residue_survivor_count": 1,
+      "probable_prime_tests": 3,
+      "complete_through_witness": true,
+      "residue_moduli": [
+        3,
+        7,
+        11,
+        13,
+        17,
+        19,
+        23,
+        29,
+        31
+      ],
+      "rejection_modulus_sequence": [
+        7,
+        3,
+        17,
+        3
+      ],
+      "rejection_modulus_counts": [
+        {
+          "modulus": 3,
+          "count": 2
+        },
+        {
+          "modulus": 7,
+          "count": 1
+        },
+        {
+          "modulus": 17,
+          "count": 1
+        }
+      ],
+      "rejection_example_modulus_counts": [
+        {
+          "modulus": 3,
+          "count": 1
+        },
+        {
+          "modulus": 7,
+          "count": 1
+        },
+        {
+          "modulus": 17,
+          "count": 1
+        }
+      ],
+      "rejection_geometry": "mod3x2_mod7x1_mod17x1",
+      "proof_status": "lean-search-replay-certified",
+      "lean_links": {
+        "generated_lean_module": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0",
+        "search_replay_certificate": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayCertificate",
+        "replay_accounting_exact": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayAccountingExact",
+        "first_accepted_survivor": "PrimeArithmetic.Generated.Witness.TimestampPolicy29Trial0.searchReplayFirstAcceptedSurvivor",
+        "theorem_wrapper_first_accepted_survivor": null
+      },
+      "primality_proof_status": "probable-prime-not-proof-certified"
+    }
+  ],
+  "lane_rows": [
+    {
+      "lane_id": "base10_outer3_inner7_k2_1",
+      "artifact_count": 3,
+      "visible_digits": [
+        29,
+        38,
+        128
+      ],
+      "seed_origin_policies": [
+        "canonical-fixed-seed",
+        "teaching-fixed-seed",
+        "timestamp-policy"
+      ],
+      "max_first_accepted_distance": 6,
+      "total_scanned_seed_count": 12,
+      "total_residue_rejected_count": 6,
+      "total_residue_survivor_count": 6
+    }
+  ],
+  "rejection_modulus_rows": [
+    {
+      "modulus": 3,
+      "replay_rejection_count": 3,
+      "rejection_example_count": 4,
+      "artifact_count": 3
+    },
+    {
+      "modulus": 7,
+      "replay_rejection_count": 1,
+      "rejection_example_count": 2,
+      "artifact_count": 2
+    },
+    {
+      "modulus": 11,
+      "replay_rejection_count": 1,
+      "rejection_example_count": 1,
+      "artifact_count": 1
+    },
+    {
+      "modulus": 13,
+      "replay_rejection_count": 0,
+      "rejection_example_count": 1,
+      "artifact_count": 1
+    },
+    {
+      "modulus": 17,
+      "replay_rejection_count": 1,
+      "rejection_example_count": 1,
+      "artifact_count": 1
+    }
+  ]
+}
