@@ -1,0 +1,10 @@
+import PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificateChecksShard01
+import PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificateChecksShard02
+import PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificateChecksShard03
+import PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificateChecksShard04
+import PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificateChecksShard05
+
+/-!
+Silent Lean smoke-profile certificate check umbrella generated from Rust metadata.
+Each imported shard should elaborate if its certificate and pair theorem links resolve.
+-/

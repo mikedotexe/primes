@@ -70,6 +70,11 @@ fn main() {
         comparison.after_export_version
     );
     println!(
+        "Panels: before={}  |  after={}",
+        format_panel_id(comparison.before_panel_id.as_deref()),
+        format_panel_id(comparison.after_panel_id.as_deref())
+    );
+    println!(
         "Material thresholds: |delta lift| >= {:.3}x, |delta q| >= {:.3}",
         options.settings.lift_threshold, options.settings.q_threshold
     );
@@ -136,6 +141,18 @@ fn main() {
         } else {
             format!(" ({})", audit.reasons.join(", "))
         }
+    );
+    println!(
+        "Audit conditions: residual={} material={} sampling={} added={} removed={}",
+        audit
+            .conditions
+            .residual_criterion_changed
+            .severity
+            .as_str(),
+        audit.conditions.material_family_change.severity.as_str(),
+        audit.conditions.sampling_plan_drift.severity.as_str(),
+        audit.conditions.added_families.severity.as_str(),
+        audit.conditions.removed_families.severity.as_str(),
     );
 
     println!();
@@ -323,6 +340,10 @@ fn bool_status(value: bool) -> &'static str {
     } else {
         "not met"
     }
+}
+
+fn format_panel_id(panel_id: Option<&str>) -> &str {
+    panel_id.unwrap_or("manual")
 }
 
 fn format_ratio(value: Option<f64>) -> String {

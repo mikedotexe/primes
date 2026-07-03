@@ -1,0 +1,450 @@
+{
+  "schema_version": "matched-control-atlas-v1",
+  "panel_id": "canonical-smoke-v1",
+  "panel": "smoke",
+  "settings": {
+    "samples": 250,
+    "min_seed_len": 1,
+    "max_seed_len": 2,
+    "fdr": 0.05,
+    "confidence_level": 0.95
+  },
+  "family_count": 8,
+  "lane_count": 16,
+  "lean_lane_module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+  "claim_status": "no-density-mechanism-claim",
+  "families": [
+    {
+      "family_label": "Base 6 champion",
+      "family_code": "B 6 ( 1, 5) k=(0,0) M=1",
+      "base": 6,
+      "outer": 1,
+      "inner": 5,
+      "k_outer": 0,
+      "k_inner": 0,
+      "middle_width": 1,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base6ChampionM1Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base6ChampionM1Lane",
+        "lookup_theorem": "base6ChampionM1Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base6ChampionM1Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base6ChampionM1Mod7Certificate",
+        "modulus": 7,
+        "excluded_seed_class": 1,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base6ChampionM1ProfileAt_mod7_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base6ChampionM1_mod7_eq_zero_iff_seed_mod_eq_one",
+        "separation_theorem": null
+      }
+    },
+    {
+      "family_label": "Base 6 champion",
+      "family_code": "B 6 ( 1, 5) k=(0,0) M=2",
+      "base": 6,
+      "outer": 1,
+      "inner": 5,
+      "k_outer": 0,
+      "k_inner": 0,
+      "middle_width": 2,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base6ChampionM2Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base6ChampionM2Lane",
+        "lookup_theorem": "base6ChampionM2Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base6ChampionM2Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base6ChampionM2Mod7Certificate",
+        "modulus": 7,
+        "excluded_seed_class": 0,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base6ChampionM2ProfileAt_mod7_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base6ChampionM2_mod7_eq_zero_iff_seed_mod_eq_zero",
+        "separation_theorem": null
+      }
+    },
+    {
+      "family_label": "Base 10 classic",
+      "family_code": "B10 ( 3, 7) k=(0,0) M=1",
+      "base": 10,
+      "outer": 3,
+      "inner": 7,
+      "k_outer": 0,
+      "k_inner": 0,
+      "middle_width": 1,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base10ClassicM1Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10ClassicM1Lane",
+        "lookup_theorem": "base10ClassicM1Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10ClassicM1Lane_lookup"
+      },
+      "proof_status": "exact-seed-class-separation",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Density.Base10SeedClassSeparation",
+        "certificate_constant": null,
+        "modulus": 11,
+        "excluded_seed_class": 8,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.classicM1ProfileAt_mod11_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.templateValue_classicM1_mod11_eq_zero_iff_seed_mod_eq_eight",
+        "separation_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.forbiddenSeedMask_classicM1_ne_exclusiveM1_mod11"
+      }
+    },
+    {
+      "family_label": "Base 10 classic",
+      "family_code": "B10 ( 3, 7) k=(0,0) M=2",
+      "base": 10,
+      "outer": 3,
+      "inner": 7,
+      "k_outer": 0,
+      "k_inner": 0,
+      "middle_width": 2,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base10ClassicM2Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10ClassicM2Lane",
+        "lookup_theorem": "base10ClassicM2Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10ClassicM2Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base10ClassicM2Mod7Certificate",
+        "modulus": 7,
+        "excluded_seed_class": 5,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base10ClassicM2ProfileAt_mod7_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base10ClassicM2_mod7_eq_zero_iff_seed_mod_eq_five",
+        "separation_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.forbiddenSeedMask_base10ClassicM2_ne_base10ExclusiveM2_mod7"
+      }
+    },
+    {
+      "family_label": "Base 10 breathing",
+      "family_code": "B10 ( 3, 3) k=(0,1) M=1",
+      "base": 10,
+      "outer": 3,
+      "inner": 3,
+      "k_outer": 0,
+      "k_inner": 1,
+      "middle_width": 1,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base10BreathingM1Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10BreathingM1Lane",
+        "lookup_theorem": "base10BreathingM1Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10BreathingM1Lane_lookup"
+      },
+      "proof_status": "exact-seed-class-separation",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Density.Base10SeedClassSeparation",
+        "certificate_constant": null,
+        "modulus": 11,
+        "excluded_seed_class": 0,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.breathingM1ProfileAt_mod11_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.templateValue_breathingM1_mod11_eq_zero_iff_seed_mod_eq_zero",
+        "separation_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.forbiddenSeedMask_breathingM1_ne_symmetricM1_mod11"
+      }
+    },
+    {
+      "family_label": "Base 10 breathing",
+      "family_code": "B10 ( 3, 3) k=(0,1) M=2",
+      "base": 10,
+      "outer": 3,
+      "inner": 3,
+      "k_outer": 0,
+      "k_inner": 1,
+      "middle_width": 2,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base10BreathingM2Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10BreathingM2Lane",
+        "lookup_theorem": "base10BreathingM2Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10BreathingM2Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base10BreathingM2Mod7Certificate",
+        "modulus": 7,
+        "excluded_seed_class": 3,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base10BreathingM2ProfileAt_mod7_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base10BreathingM2_mod7_eq_zero_iff_seed_mod_eq_three",
+        "separation_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.forbiddenSeedMask_base10BreathingM2_ne_base10SymmetricM2_mod7"
+      }
+    },
+    {
+      "family_label": "Base 10 symmetric",
+      "family_code": "B10 ( 3, 3) k=(1,1) M=1",
+      "base": 10,
+      "outer": 3,
+      "inner": 3,
+      "k_outer": 1,
+      "k_inner": 1,
+      "middle_width": 1,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base10SymmetricM1Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10SymmetricM1Lane",
+        "lookup_theorem": "base10SymmetricM1Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10SymmetricM1Lane_lookup"
+      },
+      "proof_status": "exact-seed-class-separation",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Density.Base10SeedClassSeparation",
+        "certificate_constant": null,
+        "modulus": 11,
+        "excluded_seed_class": 10,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.symmetricM1ProfileAt_mod11_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.templateValue_symmetricM1_mod11_eq_zero_iff_seed_mod_eq_ten",
+        "separation_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.forbiddenSeedMask_breathingM1_ne_symmetricM1_mod11"
+      }
+    },
+    {
+      "family_label": "Base 10 symmetric",
+      "family_code": "B10 ( 3, 3) k=(1,1) M=2",
+      "base": 10,
+      "outer": 3,
+      "inner": 3,
+      "k_outer": 1,
+      "k_inner": 1,
+      "middle_width": 2,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base10SymmetricM2Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10SymmetricM2Lane",
+        "lookup_theorem": "base10SymmetricM2Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10SymmetricM2Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base10SymmetricM2Mod7Certificate",
+        "modulus": 7,
+        "excluded_seed_class": 5,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base10SymmetricM2ProfileAt_mod7_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base10SymmetricM2_mod7_eq_zero_iff_seed_mod_eq_five",
+        "separation_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.forbiddenSeedMask_base10BreathingM2_ne_base10SymmetricM2_mod7"
+      }
+    },
+    {
+      "family_label": "Base 10 exclusive",
+      "family_code": "B10 ( 3, 7) k=(1,1) M=1",
+      "base": 10,
+      "outer": 3,
+      "inner": 7,
+      "k_outer": 1,
+      "k_inner": 1,
+      "middle_width": 1,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base10ExclusiveM1Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10ExclusiveM1Lane",
+        "lookup_theorem": "base10ExclusiveM1Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10ExclusiveM1Lane_lookup"
+      },
+      "proof_status": "exact-seed-class-separation",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Density.Base10SeedClassSeparation",
+        "certificate_constant": null,
+        "modulus": 11,
+        "excluded_seed_class": 2,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.exclusiveM1ProfileAt_mod11_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.templateValue_exclusiveM1_mod11_eq_zero_iff_seed_mod_eq_two",
+        "separation_theorem": "PrimeArithmetic.Density.Base10SeedClassSeparation.forbiddenSeedMask_classicM1_ne_exclusiveM1_mod11"
+      }
+    },
+    {
+      "family_label": "Base 10 exclusive",
+      "family_code": "B10 ( 3, 7) k=(1,1) M=2",
+      "base": 10,
+      "outer": 3,
+      "inner": 7,
+      "k_outer": 1,
+      "k_inner": 1,
+      "middle_width": 2,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base10ExclusiveM2Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10ExclusiveM2Lane",
+        "lookup_theorem": "base10ExclusiveM2Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base10ExclusiveM2Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base10ExclusiveM2Mod7Certificate",
+        "modulus": 7,
+        "excluded_seed_class": 0,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base10ExclusiveM2ProfileAt_mod7_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base10ExclusiveM2_mod7_eq_zero_iff_seed_mod_eq_zero",
+        "separation_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.forbiddenSeedMask_base10ClassicM2_ne_base10ExclusiveM2_mod7"
+      }
+    },
+    {
+      "family_label": "Base 12 compact",
+      "family_code": "B12 ( 1, 1) k=(0,0) M=1",
+      "base": 12,
+      "outer": 1,
+      "inner": 1,
+      "k_outer": 0,
+      "k_inner": 0,
+      "middle_width": 1,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base12CompactM1Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base12CompactM1Lane",
+        "lookup_theorem": "base12CompactM1Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base12CompactM1Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base12CompactM1Mod5Certificate",
+        "modulus": 5,
+        "excluded_seed_class": 2,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base12CompactM1ProfileAt_mod5_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base12CompactM1_mod5_eq_zero_iff_seed_mod_eq_two",
+        "separation_theorem": null
+      }
+    },
+    {
+      "family_label": "Base 12 compact",
+      "family_code": "B12 ( 1, 1) k=(0,0) M=2",
+      "base": 12,
+      "outer": 1,
+      "inner": 1,
+      "k_outer": 0,
+      "k_inner": 0,
+      "middle_width": 2,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base12CompactM2Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base12CompactM2Lane",
+        "lookup_theorem": "base12CompactM2Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base12CompactM2Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base12CompactM2Mod5Certificate",
+        "modulus": 5,
+        "excluded_seed_class": 1,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base12CompactM2ProfileAt_mod5_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base12CompactM2_mod5_eq_zero_iff_seed_mod_eq_one",
+        "separation_theorem": null
+      }
+    },
+    {
+      "family_label": "Base 14 offset",
+      "family_code": "B14 ( 1, 3) k=(0,0) M=1",
+      "base": 14,
+      "outer": 1,
+      "inner": 3,
+      "k_outer": 0,
+      "k_inner": 0,
+      "middle_width": 1,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base14OffsetM1Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base14OffsetM1Lane",
+        "lookup_theorem": "base14OffsetM1Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base14OffsetM1Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base14OffsetM1Mod5Certificate",
+        "modulus": 5,
+        "excluded_seed_class": 4,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base14OffsetM1ProfileAt_mod5_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base14OffsetM1_mod5_eq_zero_iff_seed_mod_eq_four",
+        "separation_theorem": null
+      }
+    },
+    {
+      "family_label": "Base 14 offset",
+      "family_code": "B14 ( 1, 3) k=(0,0) M=2",
+      "base": 14,
+      "outer": 1,
+      "inner": 3,
+      "k_outer": 0,
+      "k_inner": 0,
+      "middle_width": 2,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base14OffsetM2Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base14OffsetM2Lane",
+        "lookup_theorem": "base14OffsetM2Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base14OffsetM2Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base14OffsetM2Mod5Certificate",
+        "modulus": 5,
+        "excluded_seed_class": 0,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base14OffsetM2ProfileAt_mod5_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base14OffsetM2_mod5_eq_zero_iff_seed_mod_eq_zero",
+        "separation_theorem": null
+      }
+    },
+    {
+      "family_label": "Base 30 wheel-like",
+      "family_code": "B30 (11, 7) k=(0,0) M=1",
+      "base": 30,
+      "outer": 11,
+      "inner": 7,
+      "k_outer": 0,
+      "k_inner": 0,
+      "middle_width": 1,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base30WheelLikeM1Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base30WheelLikeM1Lane",
+        "lookup_theorem": "base30WheelLikeM1Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base30WheelLikeM1Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base30WheelLikeM1Mod7Certificate",
+        "modulus": 7,
+        "excluded_seed_class": 4,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base30WheelLikeM1ProfileAt_mod7_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base30WheelLikeM1_mod7_eq_zero_iff_seed_mod_eq_four",
+        "separation_theorem": null
+      }
+    },
+    {
+      "family_label": "Base 30 wheel-like",
+      "family_code": "B30 (11, 7) k=(0,0) M=2",
+      "base": 30,
+      "outer": 11,
+      "inner": 7,
+      "k_outer": 0,
+      "k_inner": 0,
+      "middle_width": 2,
+      "lean": {
+        "module": "PrimeArithmetic.Generated.MatchedControlFamilyLanes",
+        "lane_constant": "base30WheelLikeM2Lane",
+        "lane_constant_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base30WheelLikeM2Lane",
+        "lookup_theorem": "base30WheelLikeM2Lane_lookup",
+        "lookup_theorem_qualified": "PrimeArithmetic.Generated.MatchedControlFamilyLanes.base30WheelLikeM2Lane_lookup"
+      },
+      "proof_status": "exact-residue-profile",
+      "proof_certificate": {
+        "module": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates",
+        "certificate_constant": "base30WheelLikeM2Mod7Certificate",
+        "modulus": 7,
+        "excluded_seed_class": 2,
+        "excluded_seed_class_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.base30WheelLikeM2ProfileAt_mod7_excludedSeedClass",
+        "divisibility_iff_theorem": "PrimeArithmetic.Generated.MatchedControlSmokeProfileCertificates.templateValue_base30WheelLikeM2_mod7_eq_zero_iff_seed_mod_eq_two",
+        "separation_theorem": null
+      }
+    }
+  ]
+}

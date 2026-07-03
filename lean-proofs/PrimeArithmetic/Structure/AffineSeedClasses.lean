@@ -119,6 +119,82 @@ theorem templateValue_zeroSeedClass_val_modEq_zero
     templateValue_seedClassForResidue_val_modEq_target
       (conf := conf) (modulus := modulus) (target := 0) hcop
 
+def forbiddenSeedMask (conf : SymmetricTemplateConfig) (modulus : ℕ) : Set ℕ :=
+  { seed | templateValue conf seed % modulus = 0 }
+
+theorem zeroSeedClass_val_mem_forbiddenSeedMask
+    (conf : SymmetricTemplateConfig) {modulus : ℕ}
+    [NeZero modulus]
+    (hcop : modulus.Coprime conf.base) :
+    (zeroSeedClass conf modulus hcop).val ∈ forbiddenSeedMask conf modulus := by
+  simpa [forbiddenSeedMask] using
+    (templateValue_mod_eq_zero_iff_seed_mod_eq_zeroSeedClass
+      (conf := conf) (modulus := modulus)
+      (seed := (zeroSeedClass conf modulus hcop).val) hcop).2
+      (Nat.mod_eq_of_lt (ZMod.val_lt (zeroSeedClass conf modulus hcop)))
+
+theorem zeroSeedClass_val_not_mem_forbiddenSeedMask_of_zeroSeedClass_ne
+    (conf₁ conf₂ : SymmetricTemplateConfig) {modulus : ℕ}
+    [NeZero modulus]
+    (hcop₁ : modulus.Coprime conf₁.base) (hcop₂ : modulus.Coprime conf₂.base)
+    (hne :
+      zeroSeedClass conf₁ modulus hcop₁ ≠ zeroSeedClass conf₂ modulus hcop₂) :
+    (zeroSeedClass conf₁ modulus hcop₁).val ∉ forbiddenSeedMask conf₂ modulus := by
+  intro hmem
+  have hdiv :
+      templateValue conf₂ (zeroSeedClass conf₁ modulus hcop₁).val % modulus = 0 := by
+    simpa [forbiddenSeedMask] using hmem
+  have hseed :
+      (zeroSeedClass conf₁ modulus hcop₁).val % modulus =
+        (zeroSeedClass conf₁ modulus hcop₁).val :=
+    Nat.mod_eq_of_lt (ZMod.val_lt (zeroSeedClass conf₁ modulus hcop₁))
+  have hseed₂ :
+      (zeroSeedClass conf₁ modulus hcop₁).val % modulus =
+        (zeroSeedClass conf₂ modulus hcop₂).val :=
+    (templateValue_mod_eq_zero_iff_seed_mod_eq_zeroSeedClass
+      (conf := conf₂) (modulus := modulus)
+      (seed := (zeroSeedClass conf₁ modulus hcop₁).val) hcop₂).1 hdiv
+  have hval :
+      (zeroSeedClass conf₁ modulus hcop₁).val =
+        (zeroSeedClass conf₂ modulus hcop₂).val :=
+    hseed.symm.trans hseed₂
+  apply hne
+  calc
+    zeroSeedClass conf₁ modulus hcop₁ =
+        ((zeroSeedClass conf₁ modulus hcop₁).val : ZMod modulus) := by
+          symm
+          exact ZMod.natCast_zmod_val _
+    _ = ((zeroSeedClass conf₂ modulus hcop₂).val : ZMod modulus) := by
+          rw [hval]
+    _ = zeroSeedClass conf₂ modulus hcop₂ := by
+          exact ZMod.natCast_zmod_val _
+
+theorem exists_seed_mem_forbiddenSeedMask_not_mem_of_zeroSeedClass_ne
+    (conf₁ conf₂ : SymmetricTemplateConfig) {modulus : ℕ}
+    [NeZero modulus]
+    (hcop₁ : modulus.Coprime conf₁.base) (hcop₂ : modulus.Coprime conf₂.base)
+    (hne :
+      zeroSeedClass conf₁ modulus hcop₁ ≠ zeroSeedClass conf₂ modulus hcop₂) :
+    ∃ seed : ℕ, seed ∈ forbiddenSeedMask conf₁ modulus ∧
+      seed ∉ forbiddenSeedMask conf₂ modulus := by
+  exact ⟨(zeroSeedClass conf₁ modulus hcop₁).val,
+    zeroSeedClass_val_mem_forbiddenSeedMask conf₁ hcop₁,
+    zeroSeedClass_val_not_mem_forbiddenSeedMask_of_zeroSeedClass_ne
+      conf₁ conf₂ hcop₁ hcop₂ hne⟩
+
+theorem forbiddenSeedMask_ne_of_zeroSeedClass_ne
+    (conf₁ conf₂ : SymmetricTemplateConfig) {modulus : ℕ}
+    [NeZero modulus]
+    (hcop₁ : modulus.Coprime conf₁.base) (hcop₂ : modulus.Coprime conf₂.base)
+    (hne :
+      zeroSeedClass conf₁ modulus hcop₁ ≠ zeroSeedClass conf₂ modulus hcop₂) :
+    forbiddenSeedMask conf₁ modulus ≠ forbiddenSeedMask conf₂ modulus := by
+  intro hmask
+  obtain ⟨seed, hmem₁, hmem₂⟩ :=
+    exists_seed_mem_forbiddenSeedMask_not_mem_of_zeroSeedClass_ne
+      conf₁ conf₂ hcop₁ hcop₂ hne
+  exact hmem₂ (hmask ▸ hmem₁)
+
 @[simp] theorem seedClassForResidue_eq_iff
     (conf : SymmetricTemplateConfig) (modulus : ℕ)
     (hcop : modulus.Coprime conf.base)

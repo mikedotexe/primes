@@ -61,7 +61,7 @@ theorem zeroSeedClass_eq_of_shift_eq_and_gradient_eq
   have hz₁ : (templateValue conf₁ seed : ZMod modulus) = 0 := by
     have hseed :
         (seed : ZMod modulus) = zeroSeedClass conf₁ modulus hcop₁ := by
-      simpa [seed] using (ZMod.natCast_zmod_val (zeroSeedClass conf₁ modulus hcop₁))
+      simp [seed]
     exact
       (templateValue_eq_zero_iff_seed_eq_zeroSeedClass conf₁ modulus seed hcop₁).2 hseed
   have hz₁' :
@@ -71,9 +71,9 @@ theorem zeroSeedClass_eq_of_shift_eq_and_gradient_eq
     calc
       (templateValue conf₂ seed : ZMod modulus)
           = (templateShift conf₂ : ZMod modulus) + (seed : ZMod modulus) * templateGradient conf₂ := by
-              simpa [templateValue_eq_shift_add_gradient]
+              simp [templateValue_eq_shift_add_gradient]
       _ = (templateShift conf₁ : ZMod modulus) + (seed : ZMod modulus) * templateGradient conf₁ := by
-            simpa [hShift, hGrad]
+            simp [hShift, hGrad]
       _ = 0 := hz₁'
   have hseed₂ :
       (seed : ZMod modulus) = zeroSeedClass conf₂ modulus hcop₂ :=
@@ -95,7 +95,7 @@ theorem zeroSeedClass_eq_iff_shift_eq_of_gradient_eq
     let seed := (zeroSeedClass conf₁ modulus hcop₁).val
     have hseed₁ :
         (seed : ZMod modulus) = zeroSeedClass conf₁ modulus hcop₁ := by
-      simpa [seed] using (ZMod.natCast_zmod_val (zeroSeedClass conf₁ modulus hcop₁))
+      simp [seed]
     have hseed₂ :
         (seed : ZMod modulus) = zeroSeedClass conf₂ modulus hcop₂ := by
       calc

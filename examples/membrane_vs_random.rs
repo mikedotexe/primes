@@ -13,9 +13,9 @@
 
 use primes::validation::matched_control::{
     format_p_like, run_cross_family_report_with_progress, summarize_reports, write_csv_export,
-    write_json_export, MatchedControlDecision, MatchedControlRunSettings, DEFAULT_FDR,
-    DEFAULT_MAX_SEED_LEN, DEFAULT_MIN_SEED_LEN, DEFAULT_SAMPLES,
-    MAINTAINED_MATCHED_CONTROL_FAMILIES,
+    write_json_export_with_panel, MatchedControlDecision, MatchedControlPanel,
+    MatchedControlRunSettings, DEFAULT_FDR, DEFAULT_MAX_SEED_LEN, DEFAULT_MIN_SEED_LEN,
+    DEFAULT_SAMPLES, MAINTAINED_MATCHED_CONTROL_FAMILIES,
 };
 use std::env;
 use std::path::PathBuf;
@@ -24,6 +24,7 @@ use std::str::FromStr;
 fn main() {
     let options = parse_args();
     let settings = options.settings;
+    let panel_id = options.panel.map(MatchedControlPanel::panel_id);
     eprintln!(
         "Running matched-control report: {} samples, seed lengths {}..={} across {} families",
         settings.samples,
@@ -37,10 +38,12 @@ fn main() {
     let mut archived_outputs = Vec::new();
 
     if let Some(path) = options.json_out {
-        write_json_export(&path, &reports, &summary, settings).unwrap_or_else(|err| {
-            eprintln!("Failed to write JSON export to {}: {err}", path.display());
-            std::process::exit(1);
-        });
+        write_json_export_with_panel(&path, &reports, &summary, settings, panel_id).unwrap_or_else(
+            |err| {
+                eprintln!("Failed to write JSON export to {}: {err}", path.display());
+                std::process::exit(1);
+            },
+        );
         archived_outputs.push(format!("JSON: {}", path.display()));
     }
 
@@ -54,6 +57,10 @@ fn main() {
 
     println!("Matched-Control Membrane Report");
     println!("{}", "=".repeat(112));
+    if let Some(panel) = options.panel {
+        println!("Panel: {} ({})", panel.panel_id(), panel.as_str());
+        println!();
+    }
     println!("Maintained families:");
     for family in MAINTAINED_MATCHED_CONTROL_FAMILIES {
         println!(
@@ -215,26 +222,44 @@ fn main() {
 
 struct CliOptions {
     settings: MatchedControlRunSettings,
+    panel: Option<MatchedControlPanel>,
     json_out: Option<PathBuf>,
     csv_out: Option<PathBuf>,
 }
 
 fn parse_args() -> CliOptions {
     let mut settings = MatchedControlRunSettings::default();
+    let mut panel = None;
+    let mut manual_setting_flags = Vec::new();
     let mut json_out = None;
     let mut csv_out = None;
     let mut args = env::args().skip(1);
 
     while let Some(arg) = args.next() {
         match arg.as_str() {
-            "--samples" => settings.samples = parse_next(&mut args, "--samples"),
+            "--panel" => {
+                let value = parse_next::<String>(&mut args, "--panel");
+                panel = Some(MatchedControlPanel::from_name(&value).unwrap_or_else(|| {
+                    eprintln!("Invalid value for --panel: {value} (expected smoke or audit)");
+                    std::process::exit(2);
+                }));
+            }
+            "--samples" => {
+                manual_setting_flags.push("--samples");
+                settings.samples = parse_next(&mut args, "--samples");
+            }
             "--min-seed-len" => {
+                manual_setting_flags.push("--min-seed-len");
                 settings.min_seed_len = parse_next(&mut args, "--min-seed-len");
             }
             "--max-seed-len" => {
+                manual_setting_flags.push("--max-seed-len");
                 settings.max_seed_len = parse_next(&mut args, "--max-seed-len");
             }
-            "--fdr" => settings.fdr = parse_next(&mut args, "--fdr"),
+            "--fdr" => {
+                manual_setting_flags.push("--fdr");
+                settings.fdr = parse_next(&mut args, "--fdr");
+            }
             "--json-out" => {
                 json_out = Some(PathBuf::from(parse_next::<String>(&mut args, "--json-out")));
             }
@@ -251,6 +276,17 @@ fn parse_args() -> CliOptions {
                 std::process::exit(2);
             }
         }
+    }
+
+    if let Some(panel) = panel {
+        if !manual_setting_flags.is_empty() {
+            eprintln!(
+                "--panel cannot be combined with manual sampling settings: {}",
+                manual_setting_flags.join(", ")
+            );
+            std::process::exit(2);
+        }
+        settings = panel.settings();
     }
 
     if settings.samples < 2 {
@@ -272,6 +308,7 @@ fn parse_args() -> CliOptions {
 
     CliOptions {
         settings,
+        panel,
         json_out,
         csv_out,
     }
@@ -284,6 +321,7 @@ fn print_help() {
     println!("  cargo run --release --example membrane_vs_random -- [options]");
     println!();
     println!("Options:");
+    println!("  --panel <name>        Use canonical panel: smoke or audit");
     println!("  --samples <n>         Samples per family (default: {DEFAULT_SAMPLES})");
     println!(
         "  --min-seed-len <n>    Minimum base-digit seed length (default: {DEFAULT_MIN_SEED_LEN})"
