@@ -154,14 +154,49 @@ cargo run --example prime_verification_report   # Verify all documented claims
 | `membrane_palindrome_probe` | Exact structure probe: palindrome overlap and zero-layout symmetry |
 | `membrane_scaffold_probe` | Exact centered-scaffold vs same-budget control probe |
 | `membrane_showcase` | Demonstration of membrane prime patterns across different bases |
-| `membrane_vs_random` | Canonical cross-family matched-control report with effect sizes, confidence intervals, BH-adjusted decisions, and optional `--json-out`/`--csv-out` archival export |
-| `membrane_vs_random_compare` | Compares two matched-control JSON exports, can emit machine-readable diff JSON, and supports policy flags that optionally promote sampling drift or family-set changes into nonzero audit failures |
+| `membrane_vs_random` | Canonical cross-family matched-control report with effect sizes, confidence intervals, BH-adjusted decisions, named `--panel smoke|audit` sampling plans, and optional `--json-out`/`--csv-out` archival export |
+| `membrane_vs_random_compare` | Compares two matched-control JSON exports, can emit machine-readable diff JSON with structured audit severities, and supports policy flags that optionally promote sampling drift or family-set changes into nonzero audit failures |
+| `membrane_vs_random_compare_batch` | Summarizes many matched-control comparison JSON exports into run/family stability rows, structured severity tallies, and optional archive artifacts |
 | `membrane_vs_random_fast` | Fast single-base exploratory control run using base 30 |
 | `proper_membrane_generator` | Deterministic membrane generator using seeds (not random search) |
 | `solution_space_explorer` | Systematic parameter space mapping (base, M, k_outer, k_inner) |
 | `statistical_prime_factory` | Production-ready prime generator using verified membrane patterns |
 | `statistical_prime_generator` | Statistical prime generator using empirically-derived patterns |
 | `statistical_sampling_demo` | Demonstrates proper statistical sampling of membrane configurations |
+
+### Matched-Control Archive Workflow
+
+Use the named panels when producing rerun archives that should be compared over
+time:
+
+```bash
+cargo run --release --example membrane_vs_random -- --panel smoke --json-out /tmp/mc-smoke-a.json
+cargo run --release --example membrane_vs_random -- --panel smoke --json-out /tmp/mc-smoke-b.json
+cargo run --example membrane_vs_random_compare -- /tmp/mc-smoke-a.json /tmp/mc-smoke-b.json --json-out /tmp/mc-diff-ab.json
+cargo run --example membrane_vs_random_compare_batch -- /tmp/mc-diff-ab.json --out-dir /tmp/mc-batch
+cargo run --bin export_matched_control_atlas_manifest -- --panel smoke --out docs/atlas/matched_control_smoke_atlas_manifest.json
+cargo run --bin export_matched_control_residue_masks -- --panel smoke --prime-bound 31 --out-dir /tmp/mc-residue-masks
+cargo run --bin export_matched_control_residue_masks -- --panel smoke --prime-bound 31 --format theorem-queue --out docs/atlas/matched_control_theorem_queue.md
+cargo run --bin export_matched_control_residue_masks -- --panel smoke --prime-bound 31 --format lean-candidate-checks
+./scripts/matched_control_atlas_bridge.sh verify
+```
+
+The batch summary is a stability and regression surface for Gate A. It prepares
+later forbidden-seed-class theorem work by keeping empirical drift records
+machine-readable, while the proof-carrying atlas and residue-mask scanner link
+maintained family codes to generated Lean lane identities and exact local
+residue facts. The residue-mask scanner now emits v4 cross-modulus fingerprint
+rows with exact survivor-count products, shared-overlap products, displacement
+lists, optional Lean pair-certificate links, and summary-level
+`pair_certified_count` / `pair_uncertified_count` / `top_theorem_candidate`
+fields, ranking mask geometry rather than claiming a same-modulus survivor-count
+advantage. The scanner also emits `theorem_queue.md` from the same selected
+candidate summary so the human planning queue and CI gate consume the same
+target surface. Neither layer is itself evidence for a new residual mechanism.
+The atlas bridge now fails if the canonical smoke scanner reports any
+uncertified pair fingerprint, drifts from the maintained scanner summary
+counts, drifts from the tracked theorem queue, or selects a theorem candidate
+whose Lean proof links no longer elaborate.
 
 ## Lagrange Points and Connectors
 

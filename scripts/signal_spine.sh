@@ -29,14 +29,14 @@ Groups:
   fast-generation  Non-default deterministic u64 affine generation throughput smoke
   large-witness    Non-default large affine witness ladder smoke
   seed-witness     Non-default one-seed-to-large-witness demo transcript
-  witness-engine   Non-default Prime Witness Engine umbrella smoke
+  witness-engine   Non-default Prime Witness Engine certificate and report smoke
   singular-series  Non-default finite affine singular-profile scout
   phase-residual   Non-default cross-base compact affine phase residual atlas
   shift-phase      Non-default curated shift-phase signal mining follow-up
   unit-cycle       Non-default unit-cycle normalized phase signal report
   base-neighbor    Non-default unit-cycle base-neighbor geometry scout
   base57-codec     Non-default base57 affine codec experiment
-  proof-catalog    Generated Lean/Agda catalog drift checks
+  proof-catalog    Generated Lean/Agda catalog, atlas proof-link, signal-catalog, and fingerprint-coverage checks
 
 Environment:
   SIGNAL_SPINE_RUN_ID             Override run id
@@ -234,6 +234,8 @@ run_seed_witness() {
 }
 
 run_witness_engine() {
+  run_cmd witness-engine proof_carrying_witness_verify "" \
+    scripts/proof_carrying_witness.sh verify
   run_cmd witness-engine seed_to_witness_demo "$OUT_ROOT/witness-engine/seed_to_witness_demo" \
     cargo run --release --example seed_to_witness_demo_report -- \
       --out-dir "$OUT_ROOT/witness-engine/seed_to_witness_demo"
@@ -291,6 +293,12 @@ run_proof_catalog() {
     scripts/lean_generated_catalog.sh verify
   run_cmd proof-catalog lean_bounded_k_catalog "" \
     scripts/lean_bounded_k_catalog.sh verify
+  run_cmd proof-catalog matched_control_atlas_bridge "" \
+    scripts/matched_control_atlas_bridge.sh verify
+  run_cmd proof-catalog connector_signal_atlas "" \
+    scripts/connector_signal_atlas.sh verify
+  run_cmd proof-catalog signal_catalog "" \
+    scripts/signal_catalog.sh verify
   run_cmd proof-catalog agda_generated_catalog "" \
     scripts/agda_generated_catalog.sh verify
 }

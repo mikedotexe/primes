@@ -101,3 +101,8 @@ elbow_events.json
 !/reports/signal-spine/README.md
 !/reports/signal-spine/curated/
 !/reports/signal-spine/curated/**
+
+# Proof-build observatory timing runs are machine/cache dependent. Track only
+# the directory note; keep raw local archives untracked.
+/reports/proof-build-observatory/*
+!/reports/proof-build-observatory/README.md

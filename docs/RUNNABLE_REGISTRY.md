@@ -21,7 +21,7 @@ interactive tools do not get mixed together.
 | Runnable | Class | Notes |
 |---|---|---|
 | `scripts/signal_spine.sh` | `repo-artifact` | Captures the maintained signal spine under `reports/signal-spine/<run-id>/`. |
-| `scripts/signal_spine.sh witness-engine` | `repo-artifact` | Prime Witness Engine umbrella smoke: runs seed-to-witness and large-witness report bundles under one group. |
+| `scripts/signal_spine.sh witness-engine` | `repo-artifact` | Prime Witness Engine umbrella smoke: verifies the proof-carrying witness certificate bundle and runs seed-to-witness / large-witness report bundles under one group. |
 | `scripts/signal_spine.sh singular-series` | `repo-artifact` | Non-default finite affine singular-profile scout for small-prime residue-weather residuals. |
 
 ## Scripts
@@ -30,6 +30,7 @@ interactive tools do not get mixed together.
 |---|---|---|
 | `scripts/quick-ci.sh` | `stdout-only` | Format, clippy, build, and tests. |
 | `scripts/ci-preflight.sh` | `stdout-only` | Local CI-style preflight, including formal checks when configured. |
+| `scripts/ci_witness_certificate.sh` | `stdout-only` | CI-facing alias for the proof-carrying witness certificate bundle gate. |
 | `scripts/test_all_examples.sh` | `stdout-only` | Builds/runs examples with short timeouts; TUI runs are expected to timeout. |
 | `scripts/verification_spine.sh check` | `stdout-only` | Checks Rust verification spine, Lean build, and Agda clean spine. |
 | `scripts/verification_spine.sh regenerate` | `regenerates-tracked` | Regenerates maintained verification-spine artifacts. |
@@ -39,6 +40,18 @@ interactive tools do not get mixed together.
 | `scripts/lean_bounded_k_catalog.sh regenerate` | `regenerates-tracked` | Rewrites tracked Lean bounded-k witnesses. |
 | `scripts/agda_generated_catalog.sh verify` | `stdout-only` | Verifies generated Agda bounded-k catalog. |
 | `scripts/agda_generated_catalog.sh regenerate` | `regenerates-tracked` | Rewrites tracked Agda generated catalog. |
+| `scripts/lean_proof_carrying_witness_certificate.sh verify` | `stdout-only` | Verifies the generated proof-carrying witness Lean catalogs plus promoted policy-matrix witness modules against tracked JSON sources, then builds the catalog-check modules and teaching wrapper. The matrix checks are deterministic shards imported by an umbrella module, and the checks import every generated witness module and validate every theorem string. |
+| `scripts/lean_proof_carrying_witness_certificate.sh regenerate` | `regenerates-tracked` | Rewrites the generated proof-carrying witness Lean catalogs, catalog-check modules, and promoted policy-matrix witness modules from tracked JSON sources. |
+| `scripts/lean_proof_carrying_witness_certificate.sh timing --repeat 3 --json-out /tmp/witness_lean_timing.json` | `writes-/tmp` | Follows the generated witness Lean catalog verify path and reports raw repeated timings plus min/median/max summaries for each exporter and Lake target. |
+| `scripts/matched_control_atlas_bridge.sh timing --repeat 3 --json-out /tmp/matched_control_atlas_timing.json` | `writes-/tmp` | Follows the matched-control atlas bridge verify path and reports raw repeated timings plus min/median/max summaries for each bridge substep. |
+| `scripts/lean_umbrella_build_timing.sh timing --repeat 3 --json-out /tmp/lean_umbrella_timing.json` | `writes-/tmp` | Times selected Lean catalog and umbrella targets under warm-cache conditions by default; `--cold-lean` runs `lake clean` before each repeat for heavier local baselines. |
+| `scripts/proof_build_observatory.sh timing --repeat 3` | `repo-artifact` | Builds a local proof-build performance atlas under `reports/proof-build-observatory/<run-id>/` from witness, matched-control, and umbrella Lean timing JSONs. Timing artifacts are cache-aware engineering data, not tracked benchmark claims. |
+| `scripts/proof_carrying_witness.sh verify` | `stdout-only` | Verifies the tracked canonical proof-carrying witness certificate bundle, derived search-policy atlas, promoted policy-matrix certificate sources, and zero-unpromoted smoke policy-matrix replay coverage against regeneration. |
+| `scripts/proof_carrying_witness.sh regenerate` | `regenerates-tracked` | Rewrites the tracked canonical proof-carrying witness certificate bundle, manifest, search-policy atlas, and promoted policy-matrix certificate sources. |
+| `scripts/connector_signal_atlas.sh verify` | `stdout-only` | Verifies the deterministic connector signal atlas and width-6 stress artifacts against regeneration, then checks that every atlas/stress Lean proof-link declaration resolves. |
+| `scripts/connector_signal_atlas.sh regenerate` | `regenerates-tracked` | Rewrites the tracked connector signal atlas and width-6 stress artifacts under `docs/connector/`. |
+| `scripts/signal_catalog.sh verify` | `stdout-only` | Verifies the lightweight top-level signal catalog against regeneration and checks that every row points at an existing artifact and known drift gate; add `--deep --timeout-seconds <n>` to run row drift gates. |
+| `scripts/signal_catalog.sh regenerate` | `regenerates-tracked` | Rewrites the tracked matched-control/witness/connector signal catalog under `docs/signal_catalog/`. |
 | `scripts/fix-agda-imports.sh` | `regenerates-tracked` | Rewrites Agda imports and creates `.bak` files. |
 | `agda-proofs/scripts/fix-agda-imports.sh` | `regenerates-tracked` | Same purpose scoped under `agda-proofs`. |
 | `agda-proofs/scripts/verify-clean-spine.sh` | `stdout-only` | Type-checks maintained clean-local Agda spine. |
@@ -74,7 +87,21 @@ interactive tools do not get mixed together.
 | `cargo run --bin export_bounded_k_profile_witness -- ... --out <path>` | `regenerates-tracked` | Output must live under Lean generated directory. |
 | `cargo run --bin export_bounded_k_transfer_agda_summary -- --out <path>` | `regenerates-tracked` | Output must live under Agda generated directory. |
 | `cargo run --bin membrane-prime-fast -- ...` | `repo-artifact` | Maintained deterministic `u64` affine membrane prime family generator; optional JSON/CSV exports. |
-| `cargo run --bin seed-to-witness -- [--seed <n>]` | `stdout-only` / `repo-artifact` | Prime Witness Engine demo entrypoint: seed origin to large readable probable-prime witness transcript; defaults to current epoch nanoseconds when `--seed` is omitted; optional JSON/Markdown exports. |
+| `cargo run --bin seed-to-witness -- [--seed <n>]` | `stdout-only` / `repo-artifact` | Prime Witness Engine demo entrypoint: seed origin to large readable probable-prime witness transcript; defaults to current epoch nanoseconds when `--seed` is omitted; optional JSON/Markdown and proof-carrying certificate exports. |
+| `cargo run --bin verify-proof-carrying-witness -- <certificate.json>` | `stdout-only` | Independently verifies a proof-carrying witness certificate's affine construction and residue rows without rerunning witness search; optional verification JSON export. |
+| `cargo run --bin export_proof_carrying_witness_bundle -- --out-dir docs/witness` | `regenerates-tracked` | Rewrites the canonical multi-witness certificate bundle and `witness_certificate_manifest.json`. |
+| `cargo run --bin export_proof_carrying_witness_lean_certificate -- --catalog --certificate-dir docs/witness --out-dir lean-proofs/PrimeArithmetic/Generated/Witness --manifest-out docs/witness/witness_lean_catalog_manifest.json` | `regenerates-tracked` | Rewrites the generated Lean arithmetic catalog and Lean catalog manifest for the canonical proof-carrying witness certificate bundle. |
+| `cargo run --bin export_proof_carrying_witness_lean_certificate -- --policy-matrix-catalog --certificate-dir docs/witness/policy_matrix --out-dir lean-proofs/PrimeArithmetic/Generated/Witness --manifest-out docs/witness/witness_policy_matrix_lean_catalog_manifest.json` | `regenerates-tracked` | Rewrites the generated Lean replay modules and Lean catalog manifest for promoted proof-carrying witness policy-matrix rows. |
+| `cargo run --bin export_proof_carrying_witness_lean_catalog_checks -- --manifest docs/witness/witness_lean_catalog_manifest.json --out lean-proofs/PrimeArithmetic/Generated/Witness/CatalogChecks.lean --shard-size 1 --module-prefix PrimeArithmetic.Generated.Witness` | `regenerates-tracked` | Rewrites the tracked silent Lean declaration-check umbrella and deterministic shard files proving every theorem string in the witness Lean catalog manifest resolves. |
+| `cargo run --bin export_proof_carrying_witness_lean_catalog_checks -- --manifest docs/witness/witness_policy_matrix_lean_catalog_manifest.json --out lean-proofs/PrimeArithmetic/Generated/Witness/MatrixCatalogChecks.lean --shard-size 3 --module-prefix PrimeArithmetic.Generated.Witness` | `regenerates-tracked` | Rewrites the tracked silent Lean declaration-check umbrella and deterministic shard files proving every theorem string in the promoted policy-matrix witness Lean catalog manifest resolves. |
+| `cargo run --bin export_proof_carrying_witness_search_policy_atlas -- --certificate-dir docs/witness --out-dir docs/witness` | `regenerates-tracked` | Rewrites the deterministic witness search-policy atlas JSON and Markdown derived from the canonical proof-carrying witness bundle. |
+| `cargo run --bin export_proof_carrying_witness_policy_matrix -- --out-dir /tmp/proof-carrying-witness-policy-matrix` | `writes-/tmp` | Runs the deterministic multi-lane witness policy matrix and emits certificate candidates, matrix JSON/Markdown, policy-matrix atlas JSON/Markdown, and an artifact manifest under the chosen output directory. |
+| `cargo run --bin export_connector_signal_atlas -- --out-dir docs/connector` | `regenerates-tracked` | Rewrites the deterministic connector signal atlas JSON, Markdown, and artifact manifest. |
+| `cargo run --bin export_connector_signal_atlas_checks -- --atlas docs/connector/connector_signal_atlas.json --out /tmp/ConnectorSignalAtlasChecks.lean` | `writes-/tmp` | Emits a Lean import-check surface for every proof-link module named by the connector signal atlas. |
+| `cargo run --bin export_connector_width6_stress_checks -- --stress docs/connector/connector_width6_stress.json --out /tmp/ConnectorWidth6StressChecks.lean` | `writes-/tmp` | Emits a Lean declaration-check surface for theorem links named by the connector width-6 stress artifact. |
+| `cargo run --bin export_signal_catalog -- --out-dir docs/signal_catalog` | `regenerates-tracked` | Rewrites the lightweight top-level signal catalog over matched-control, witness, and connector atlas artifacts. |
+| `cargo run --bin verify_signal_catalog -- --catalog docs/signal_catalog/signal_catalog.json` | `stdout-only` | Shallow-verifies signal catalog row artifact paths and maintained drift-gate command strings without running the row gates. |
+| `cargo run --bin verify_signal_catalog -- --catalog docs/signal_catalog/signal_catalog.json --deep --timeout-seconds 300 --json-out /tmp/signal_catalog_deep.json` | `writes-/tmp` | Runs every known signal-catalog row drift gate with a per-row timeout and writes machine-readable gate results. |
 | `cargo run --features metal --bin membrane-prime-metal-fast -- ...` | `repo-artifact` | macOS/Metal affine transfer-collapse prototype; sends residue metadata rather than candidate values, optional JSON/CSV exports. |
 | `cargo run --bin base57-affine-codec -- ...` | `stdout-only` | Baseline base58/base57 transcoding, base-invariant value maps, and framed affine base57 residue/prime notation encode/decode. |
 | `cargo run --bin membrane-prime*` | `repo-artifact` | Legacy/experimental prime-search binaries; `membrane-prime` can write `lattice_watermark.png`. |
@@ -128,7 +155,7 @@ interactive tools do not get mixed together.
 | `residue_torus_period_lock_report` | `writes-/tmp` | Writes visual-intuition residue torus bundle by default. |
 | `membrane_prime_throughput_report` | `writes-/tmp` | Writes deterministic fast-generation throughput bundle by default. |
 | `large_affine_witness_ladder_report` | `writes-/tmp` | Prime Witness Engine measurement entrypoint; writes large visible affine witness ladder bundle with confirmation tiers, local controls, OpenSSL calibration, primesieve scope rows, semantic rarity, and PNG panels. |
-| `seed_to_witness_demo_report` | `writes-/tmp` | Prime Witness Engine transcript bundle; writes one-seed-to-large-witness demo output with CSV/JSON rows and copyable WolframAlpha/Mathematica/PARI/Sage verification snippets. |
+| `seed_to_witness_demo_report` | `writes-/tmp` | Prime Witness Engine transcript bundle; writes one-seed-to-large-witness demo output with CSV/JSON rows, canonical construction/residue certificate JSON, and copyable WolframAlpha/Mathematica/PARI/Sage verification snippets. |
 | `timestamp_seed_policy_report` | `writes-/tmp` | Prime Witness Engine policy report; measures bounded timestamp-like seed-origin success rates and step quantiles for full-middle and 128-digit lanes. |
 | `special_form_witness_comparison_report` | `writes-/tmp` | Prime Witness Engine special-form comparison report; places Mersenne-prime examples beside affine membrane witnesses with exact Mersenne classification. |
 | `affine_singular_series_report` | `writes-/tmp` | Finite affine singular-profile scout comparing observed lane yield against PNT plus exact small-prime residue-weather expectation. |

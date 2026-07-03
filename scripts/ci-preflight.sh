@@ -63,7 +63,29 @@ else
 fi
 echo ""
 
-# 6. Build with all features (skip on Linux if metal is unavailable)
+# 6. Proof-catalog bridge
+echo "🧾 Checking proof-catalog bridge..."
+if SIGNAL_SPINE_RUN_ID=preflight-proof-catalog \
+    SIGNAL_SPINE_OUT_DIR=/tmp/primes_preflight_proof_catalog \
+    scripts/ci_proof_catalog.sh 2>&1 | tail -20; then
+    echo "   ✅ Proof-catalog bridge passed"
+else
+    echo "   ❌ Proof-catalog bridge failed"
+    exit 1
+fi
+echo ""
+
+# 7. Proof-carrying witness certificate
+echo "🧾 Checking proof-carrying witness certificate..."
+if scripts/ci_witness_certificate.sh; then
+    echo "   ✅ Proof-carrying witness certificate passed"
+else
+    echo "   ❌ Proof-carrying witness certificate failed"
+    exit 1
+fi
+echo ""
+
+# 8. Build with all features (skip on Linux if metal is unavailable)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo "⚙️  Building with all features (macOS)..."
     if cargo build --all-features --verbose 2>&1 | tail -10; then
@@ -78,7 +100,7 @@ else
     echo ""
 fi
 
-# 7. No default features
+# 9. No default features
 echo "🔧 Testing no default features..."
 if cargo test --no-default-features --verbose 2>&1 | tail -10; then
     echo "   ✅ No-default-features tests passed"
@@ -88,7 +110,7 @@ else
 fi
 echo ""
 
-# 8. WASM check (requires wasm32 target)
+# 10. WASM check (requires wasm32 target)
 if rustup target list | grep -q "wasm32-unknown-unknown (installed)"; then
     echo "🌐 Checking WASM build..."
     if cargo check --target wasm32-unknown-unknown --no-default-features --features wasm 2>&1 | tail -10; then
@@ -104,7 +126,7 @@ else
     echo ""
 fi
 
-# 9. Documentation
+# 11. Documentation
 echo "📚 Checking documentation..."
 if RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --document-private-items 2>&1 | tail -10; then
     echo "   ✅ Documentation OK"
@@ -114,7 +136,7 @@ else
 fi
 echo ""
 
-# 10. Example compilation
+# 12. Example compilation
 echo "📋 Checking core examples..."
 examples=(
     "proper_membrane_generator"

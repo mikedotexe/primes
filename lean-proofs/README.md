@@ -169,6 +169,18 @@ lake env lean PrimeArithmetic/Structure/FiniteMaskTransfer.lean
 # Check the direct lane-comparison residue-profile layer
 lake env lean PrimeArithmetic/Structure/BoundedKResidueProfile.lean
 
+# Check generated maintained matched-control family lanes
+lake env lean PrimeArithmetic/Generated/MatchedControlFamilyLanes.lean
+
+# Check the hand-written smoke-lane profile support layer
+lake env lean PrimeArithmetic/Density/CanonicalSmokeLaneProfiles.lean
+
+# Check generated smoke-profile certificate declarations
+lake env lean PrimeArithmetic/Generated/MatchedControlSmokeProfileCertificates.lean
+
+# Check the concrete base-10 forbidden seed-class separation facts
+lake env lean PrimeArithmetic/Density/Base10SeedClassSeparation.lean
+
 # Check the universal transfer-collapse criterion
 lake env lean PrimeArithmetic/Structure/BoundedKTransferCollapse.lean
 
@@ -312,12 +324,16 @@ cargo run --bin export_window_certificate -- \
   --out lean-proofs/PrimeArithmetic/Generated/Examples/WindowP5Base10Span5.lean
 ```
 
-From the repo root, verify or regenerate the whole tracked exported-artifact
-catalog:
+From the repo root, verify or regenerate tracked exported artifacts and check
+the matched-control proof-carrying bridge:
 
 ```bash
 ./scripts/lean_generated_catalog.sh verify
 ./scripts/lean_generated_catalog.sh regenerate
+./scripts/lean_matched_control_family_lanes.sh verify
+./scripts/lean_matched_control_smoke_profile_certificates.sh verify
+./scripts/lean_proof_carrying_witness_certificate.sh verify
+./scripts/matched_control_atlas_bridge.sh verify
 ```
 
 ## Package Layout
@@ -341,6 +357,60 @@ catalog:
   specialization of the period-lock criterion, rewriting the local theorem in
   the lane-grid vocabulary and proving the `k = (0, 0) → (kOuter, kInner)`
   lock condition `kOuter + kInner ≡ 0` modulo the base-unit order
+- `PrimeArithmetic/Generated/MatchedControlFamilyLanes.lean`: generated
+  maintained matched-control smoke-panel lane constants, duplicate-free key
+  facts, and `(familyCode, middleWidth)` lookup theorems exported from Rust
+- `PrimeArithmetic/Density/CanonicalSmokeLaneProfiles.lean`: hand-written
+  support layer for generated smoke-profile certificates, including lane
+  aliases, lookup proofs, coprime proofs, zero-seed-class facts, and reusable
+  profile-certificate helpers
+- `PrimeArithmetic/Generated/MatchedControlSmokeProfileCertificates.lean`:
+  generated smoke-profile certificate declarations and pair-separation wrappers
+  emitted from Rust certificate metadata
+- `PrimeArithmetic/Generated/Witness/Seed60.lean`,
+  `PrimeArithmetic/Generated/Witness/Teaching38.lean`, and
+  `PrimeArithmetic/Generated/Witness/TimestampPolicy29Trial0.lean`: generated
+  arithmetic mirrors of the proof-carrying witness certificate bundle, emitted
+  from the tracked JSON certificates, including generated search-replay
+  certificate objects, exact survivor-list theorems, and replay
+  partition/count accounting theorems, first-accepted-survivor theorems, and
+  indexed by
+  `docs/witness/witness_lean_catalog_manifest.json`
+- `PrimeArithmetic/Generated/Witness/MatrixDecimalReadable22.lean`,
+  `PrimeArithmetic/Generated/Witness/MatrixDecimalClassic22.lean`,
+  `PrimeArithmetic/Generated/Witness/MatrixDecimalBreathing22.lean`,
+  `PrimeArithmetic/Generated/Witness/MatrixDecimalReadable64.lean`,
+  `PrimeArithmetic/Generated/Witness/MatrixDecimalClassic64.lean`,
+  `PrimeArithmetic/Generated/Witness/MatrixDecimalBreathing64.lean`,
+  `PrimeArithmetic/Generated/Witness/MatrixBase30Wheel64.lean`,
+  `PrimeArithmetic/Generated/Witness/MatrixBase6Compact18.lean`,
+  `PrimeArithmetic/Generated/Witness/MatrixBase12Compact18.lean`,
+  `PrimeArithmetic/Generated/Witness/MatrixBase6Compact64.lean`,
+  `PrimeArithmetic/Generated/Witness/MatrixBase12Compact64.lean`, and
+  `PrimeArithmetic/Generated/Witness/MatrixBase30Wheel18.lean`: generated
+  proof-carrying replay modules promoted from the deterministic witness
+  policy-matrix surface, proving the same construction, residue-row, replay
+  accounting, and first-accepted-survivor facts for decimal comparison lanes,
+  atlas-selected 64-digit non-small rows, and non-decimal compact lanes; large
+  replay-window modules keep aggregate theorem links without per-seed replay
+  convenience wrappers; canonical witness theorem links are checked by a
+  generated `CatalogChecks.lean` declaration-link umbrella and deterministic
+  `CatalogChecksShardNN.lean` declaration-check shards; policy-matrix rows are indexed by
+  `docs/witness/witness_policy_matrix_lean_catalog_manifest.json` with a
+  generated `MatrixCatalogChecks.lean` declaration-link umbrella and deterministic
+  `MatrixCatalogChecksShardNN.lean` declaration-check shards
+- `PrimeArithmetic/Witness/SearchReplayCertificate.lean`: generic proof object
+  for finite residue-funnel replay rows, separating residue rejection and
+  residue survival from any primality claim, with exact finite survivor-list and
+  replay accounting theorems plus a first-accepted-survivor theorem for the
+  replay window
+- `PrimeArithmetic/Witness/TeachingSeedCertificate.lean`: theorem-facing
+  wrapper kept only for the small generated teaching witness, forwarding compact
+  aggregate affine-row, residue-funnel survival, replay-soundness, exact
+  survivor-list, first-accepted-survivor, and rejection-example facts
+- `PrimeArithmetic/Density/Base10SeedClassSeparation.lean`: concrete base-10
+  maintained-lane forbidden seed-class separation facts for the certified
+  matched-control smoke-panel rows
 - `PrimeArithmetic/Density/Base22GradientPocket.lean`: concrete base-22,
   modulus-5 affine lane comparison for `M = 2`, proving the exact
   `identity`/`gradientOnly` split for `k = (0, 0)` vs `k = (2, 2)`

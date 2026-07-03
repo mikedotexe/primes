@@ -20,6 +20,9 @@ they are not the primary mathematical interface.
   matched connector-hit scans with density-aware residual audits
 - the **Prime Witness Engine** for seed-origin demos, affine residue funnels,
   large readable probable-prime witnesses, and verification transcripts
+- the proof-carrying matched-control atlas in
+  [`docs/atlas/`](docs/atlas/), linking maintained empirical panel identities
+  to generated Lean lane names and exact local arithmetic facts
 - `tools/prime_unified_cli.rs` and related CLIs for reproducible CSV workflows
 
 ## Current Checked Status
@@ -30,6 +33,8 @@ Canonical repo-level counts live in [`STATUS.md`](STATUS.md).
 - `cargo clippy --lib -- -D warnings` passes cleanly
 - the curated top-level examples in [`examples/README.md`](examples/README.md) compile
 - the Lean 4 package in [`lean-proofs/`](lean-proofs/) builds with `lake build`
+- `scripts/ci_proof_catalog.sh` runs generated Lean/Agda catalog checks plus
+  the matched-control atlas bridge
 
 ## Quick Start
 
@@ -37,6 +42,7 @@ Canonical repo-level counts live in [`STATUS.md`](STATUS.md).
 cargo build --release
 cargo test --lib
 cargo clippy --lib -- -D warnings
+scripts/ci_proof_catalog.sh
 
 cargo run --example prime_count_smoke_test
 cargo run --example proper_membrane_generator
@@ -105,6 +111,21 @@ epoch nanoseconds as the seed origin; with `--seed 60`, it returns the canonical
 measurement entrypoint is `large_affine_witness_ladder_report`, which records
 time-to-first witness, residue-funnel efficacy, backend scope, controls, and
 semantic rarity for large visible witnesses.
+
+The maintained proof-carrying witness bundle lives under
+[`docs/witness/`](docs/witness/): seed-60, a 38-digit teaching witness, and a
+timestamp-policy witness share one manifest and verifier path. These artifacts
+certify construction and residue rows, not primality. The same directory now
+includes a deterministic search-policy atlas summarizing lane identity,
+seed-origin policy, rejection geometry, survivor counts, first-accepted
+distance, and Lean replay theorem links across the maintained bundle. A broader
+policy-matrix exporter can sweep deterministic lane/digit surfaces and emit
+certificate candidates for future Lean promotion. The current matrix includes a
+complete generated-Lean 64-digit tranche across the six maintained matrix
+lanes plus the promoted decimal-readable, decimal-classic, decimal-breathing,
+base6-compact, base12-compact, and base30-wheel 96-digit rows. Large
+replay modules stay on compact aggregate proof links, and all rows keep the
+probable-prime-not-proof-certified boundary explicit.
 
 ## Verified Statements
 
