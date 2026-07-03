@@ -268,4 +268,69 @@ theorem goldbachCoverageFromLambda_monotone :
   have hExp : Real.exp (-b) ≤ Real.exp (-a) := Real.exp_le_exp.mpr hNeg
   linarith
 
+theorem goldbachCoverageFromLambda_strictMono :
+    StrictMono goldbachCoverageFromLambda := by
+  intro a b hab
+  unfold goldbachCoverageFromLambda
+  have hNeg : -b < -a := by
+    linarith
+  have hExp : Real.exp (-b) < Real.exp (-a) := Real.exp_lt_exp.mpr hNeg
+  linarith
+
+theorem goldbachCoverageFromLambda_le_of_lambda_le {lam₁ lam₂ : ℝ}
+    (hLam : lam₁ ≤ lam₂) :
+    goldbachCoverageFromLambda lam₁ ≤ goldbachCoverageFromLambda lam₂ :=
+  goldbachCoverageFromLambda_monotone hLam
+
+theorem goldbachCoverageFromLambda_lt_of_lambda_lt {lam₁ lam₂ : ℝ}
+    (hLam : lam₁ < lam₂) :
+    goldbachCoverageFromLambda lam₁ < goldbachCoverageFromLambda lam₂ :=
+  goldbachCoverageFromLambda_strictMono hLam
+
+theorem goldbachCoverageFromLambda_le_two_mul_of_nonneg {lam : ℝ} (hLam : 0 ≤ lam) :
+    goldbachCoverageFromLambda lam ≤ goldbachCoverageFromLambda (2 * lam) :=
+  goldbachCoverageFromLambda_le_of_lambda_le (by linarith)
+
+theorem goldbachCoverageFromLambda_lt_two_mul_of_pos {lam : ℝ} (hLam : 0 < lam) :
+    goldbachCoverageFromLambda lam < goldbachCoverageFromLambda (2 * lam) :=
+  goldbachCoverageFromLambda_lt_of_lambda_lt (by linarith)
+
+theorem goldbachLambdaShell_coverage_unordered_le_ordered
+    (C2 singularSeries n : ℝ)
+    (hLam : 0 ≤ goldbachLambdaShell PairCount.unordered C2 singularSeries n) :
+    goldbachCoverageFromLambda (goldbachLambdaShell PairCount.unordered C2 singularSeries n) ≤
+      goldbachCoverageFromLambda (goldbachLambdaShell PairCount.ordered C2 singularSeries n) := by
+  rw [goldbachLambdaShell_ordered_eq_two_mul_unordered]
+  exact goldbachCoverageFromLambda_le_two_mul_of_nonneg hLam
+
+theorem goldbachLambdaShell_coverage_unordered_lt_ordered
+    (C2 singularSeries n : ℝ)
+    (hLam : 0 < goldbachLambdaShell PairCount.unordered C2 singularSeries n) :
+    goldbachCoverageFromLambda (goldbachLambdaShell PairCount.unordered C2 singularSeries n) <
+      goldbachCoverageFromLambda (goldbachLambdaShell PairCount.ordered C2 singularSeries n) := by
+  rw [goldbachLambdaShell_ordered_eq_two_mul_unordered]
+  exact goldbachCoverageFromLambda_lt_two_mul_of_pos hLam
+
+theorem goldbachLambdaTruncatedShell_coverage_unordered_le_ordered
+    (C2 singularSeries truncatedScale : ℝ)
+    (hLam :
+      0 ≤ goldbachLambdaTruncatedShell PairCount.unordered C2 singularSeries truncatedScale) :
+    goldbachCoverageFromLambda
+        (goldbachLambdaTruncatedShell PairCount.unordered C2 singularSeries truncatedScale) ≤
+      goldbachCoverageFromLambda
+        (goldbachLambdaTruncatedShell PairCount.ordered C2 singularSeries truncatedScale) := by
+  rw [goldbachLambdaTruncatedShell_ordered_eq_two_mul_unordered]
+  exact goldbachCoverageFromLambda_le_two_mul_of_nonneg hLam
+
+theorem goldbachLambdaTruncatedShell_coverage_unordered_lt_ordered
+    (C2 singularSeries truncatedScale : ℝ)
+    (hLam :
+      0 < goldbachLambdaTruncatedShell PairCount.unordered C2 singularSeries truncatedScale) :
+    goldbachCoverageFromLambda
+        (goldbachLambdaTruncatedShell PairCount.unordered C2 singularSeries truncatedScale) <
+      goldbachCoverageFromLambda
+        (goldbachLambdaTruncatedShell PairCount.ordered C2 singularSeries truncatedScale) := by
+  rw [goldbachLambdaTruncatedShell_ordered_eq_two_mul_unordered]
+  exact goldbachCoverageFromLambda_lt_two_mul_of_pos hLam
+
 end PrimeArithmetic.Analysis

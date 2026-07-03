@@ -1,0 +1,22 @@
+{
+  "artifact_id": "signal-catalog",
+  "generator_cmd": "cargo run --bin export_signal_catalog",
+  "args": [
+    "--out-dir",
+    "docs/signal_catalog"
+  ],
+  "upstream_inputs": [
+    "docs/atlas/matched_control_smoke_atlas_manifest.json",
+    "docs/witness/witness_search_policy_atlas.json",
+    "docs/witness/witness_lean_catalog_manifest.json",
+    "docs/witness/witness_policy_matrix_lean_catalog_manifest.json",
+    "docs/connector/connector_signal_atlas.json",
+    "docs/connector/connector_width6_stress.json",
+    "docs/connector/connector_replication_null_atlas.json"
+  ],
+  "expected_outputs": [
+    "signal_catalog.json",
+    "signal_catalog.md",
+    "artifact_manifest.json"
+  ]
+}

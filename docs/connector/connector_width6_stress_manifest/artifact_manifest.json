@@ -1,0 +1,18 @@
+{
+  "artifact_id": "connector-width6-stress",
+  "generator_cmd": "cargo run --bin export_connector_width6_stress",
+  "args": [
+    "--out-dir",
+    "docs/connector"
+  ],
+  "upstream_inputs": [
+    "src/validation/connector_signal.rs",
+    "src/connector/analysis.rs",
+    "docs/connector/connector_signal_atlas.json"
+  ],
+  "expected_outputs": [
+    "connector_width6_stress.json",
+    "connector_width6_stress.md",
+    "connector_width6_stress_manifest/artifact_manifest.json"
+  ]
+}

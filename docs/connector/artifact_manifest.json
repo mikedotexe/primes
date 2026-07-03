@@ -1,0 +1,21 @@
+{
+  "artifact_id": "connector-signal-atlas",
+  "generator_cmd": "cargo run --bin export_connector_signal_atlas",
+  "args": [
+    "--out-dir",
+    "docs/connector"
+  ],
+  "upstream_inputs": [
+    "src/validation/connector_signal.rs",
+    "src/connector/analysis.rs",
+    "lean-proofs/PrimeArithmetic/Connector/ConcatenationFilters.lean",
+    "lean-proofs/PrimeArithmetic/Connector/ConcatenationFamilies.lean",
+    "lean-proofs/PrimeArithmetic/Connector/ConcatenationProfileExamples.lean",
+    "lean-proofs/PrimeArithmetic/Analysis/HardyLittlewoodShell.lean"
+  ],
+  "expected_outputs": [
+    "connector_signal_atlas.json",
+    "connector_signal_atlas.md",
+    "artifact_manifest.json"
+  ]
+}

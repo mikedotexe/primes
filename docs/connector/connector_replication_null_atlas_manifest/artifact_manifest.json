@@ -1,0 +1,17 @@
+{
+  "artifact_id": "connector-replication-null-atlas",
+  "generator_cmd": "cargo run --bin export_connector_replication_null_atlas",
+  "args": [
+    "--out-dir",
+    "docs/connector"
+  ],
+  "upstream_inputs": [
+    "src/validation/connector_signal.rs",
+    "docs/connector/connector_width6_stress.json"
+  ],
+  "expected_outputs": [
+    "connector_replication_null_atlas.json",
+    "connector_replication_null_atlas.md",
+    "connector_replication_null_atlas_manifest/artifact_manifest.json"
+  ]
+}

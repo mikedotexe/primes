@@ -133,6 +133,25 @@ theorem PairResidueProfile.concatForward_divisible_iff_concatReverse_divisible
         0 [MOD profile.modulus] :=
   profile.concatForward_modEq_target_iff_concatReverse_modEq_target connector connWidth 0
 
+theorem PairResidueProfile.forward_reverse_survivor_count_eq
+    (profile : PairResidueProfile) (connectors : List ℕ) (connWidth : ℕ) :
+    (connectors.filter (fun connector =>
+      decide (¬ concatForward profile.base profile.left profile.right connector profile.rightWidth connWidth ≡
+        0 [MOD profile.modulus]))).length =
+    (connectors.filter (fun connector =>
+      decide (¬ concatReverse profile.base profile.left profile.right connector profile.leftWidth connWidth ≡
+        0 [MOD profile.modulus]))).length := by
+  congr 1
+  apply List.filter_congr
+  intro connector _
+  apply Bool.eq_iff_iff.mpr
+  simp only [decide_eq_true_eq]
+  constructor
+  · intro h hReverse
+    exact h ((profile.concatForward_divisible_iff_concatReverse_divisible connector connWidth).mpr hReverse)
+  · intro h hForward
+    exact h ((profile.concatForward_divisible_iff_concatReverse_divisible connector connWidth).mp hForward)
+
 theorem PairResidueProfile.concatForward_modEq_target_iff_connector_class
     (profile : PairResidueProfile) {target shift : ℕ}
     (hShift : shift + profile.pairResidue ≡ target [MOD profile.modulus])
@@ -256,6 +275,46 @@ theorem canonicalProfileMod9_forward_divisible_iff_across_widths
   simpa [canonicalProfileMod9] using
     PairResidueProfile.concatForward_modEq_target_iff_across_widths
       canonicalProfileMod9 connector connWidth₁ connWidth₂ 0
+
+theorem canonicalProfileMod3_forward_reverse_survivor_count_eq
+    (connectors : List ℕ) (connWidth : ℕ) :
+    (connectors.filter (fun connector =>
+      decide (¬ concatForward 10 canonicalLeft canonicalRight connector 13 connWidth ≡
+        0 [MOD 3]))).length =
+    (connectors.filter (fun connector =>
+      decide (¬ concatReverse 10 canonicalLeft canonicalRight connector 5 connWidth ≡
+        0 [MOD 3]))).length := by
+  simpa [canonicalProfileMod3] using
+    PairResidueProfile.forward_reverse_survivor_count_eq canonicalProfileMod3 connectors connWidth
+
+theorem canonicalProfileMod9_forward_reverse_survivor_count_eq
+    (connectors : List ℕ) (connWidth : ℕ) :
+    (connectors.filter (fun connector =>
+      decide (¬ concatForward 10 canonicalLeft canonicalRight connector 13 connWidth ≡
+        0 [MOD 9]))).length =
+    (connectors.filter (fun connector =>
+      decide (¬ concatReverse 10 canonicalLeft canonicalRight connector 5 connWidth ≡
+        0 [MOD 9]))).length := by
+  simpa [canonicalProfileMod9] using
+    PairResidueProfile.forward_reverse_survivor_count_eq canonicalProfileMod9 connectors connWidth
+
+theorem canonicalProfileMod3_mod9_forward_reverse_survivor_count_eq
+    (connectors : List ℕ) (connWidth : ℕ) :
+    ((connectors.filter (fun connector =>
+      decide (¬ concatForward 10 canonicalLeft canonicalRight connector 13 connWidth ≡
+        0 [MOD 3]))).length =
+    (connectors.filter (fun connector =>
+      decide (¬ concatReverse 10 canonicalLeft canonicalRight connector 5 connWidth ≡
+        0 [MOD 3]))).length) ∧
+    ((connectors.filter (fun connector =>
+      decide (¬ concatForward 10 canonicalLeft canonicalRight connector 13 connWidth ≡
+        0 [MOD 9]))).length =
+    (connectors.filter (fun connector =>
+      decide (¬ concatReverse 10 canonicalLeft canonicalRight connector 5 connWidth ≡
+        0 [MOD 9]))).length) := by
+  exact
+    ⟨canonicalProfileMod3_forward_reverse_survivor_count_eq connectors connWidth,
+      canonicalProfileMod9_forward_reverse_survivor_count_eq connectors connWidth⟩
 
 theorem canonicalProfileMod3_reverse_divisible_iff_connector_mod2
     (connector connWidth : ℕ) :
