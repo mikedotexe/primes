@@ -927,10 +927,10 @@ fn build_pair_candidate_rows(
 fn build_pair_fingerprint_rows(
     lane_rows: &[MatchedControlResidueMaskLaneRow],
 ) -> Vec<MatchedControlResidueMaskPairFingerprintRow> {
-    let mut by_lane_group: BTreeMap<
-        (u32, usize),
-        BTreeMap<String, BTreeMap<u32, &MatchedControlResidueMaskLaneRow>>,
-    > = BTreeMap::new();
+    type LaneRowsByModulus<'a> = BTreeMap<u32, &'a MatchedControlResidueMaskLaneRow>;
+    type LaneRowsByFamily<'a> = BTreeMap<String, LaneRowsByModulus<'a>>;
+
+    let mut by_lane_group: BTreeMap<(u32, usize), LaneRowsByFamily<'_>> = BTreeMap::new();
 
     for row in lane_rows {
         by_lane_group
@@ -1201,12 +1201,12 @@ fn is_prime_u32(value: u32) -> bool {
     if value == 2 {
         return true;
     }
-    if value % 2 == 0 {
+    if value.is_multiple_of(2) {
         return false;
     }
     let mut divisor = 3u32;
     while divisor.saturating_mul(divisor) <= value {
-        if value % divisor == 0 {
+        if value.is_multiple_of(divisor) {
             return false;
         }
         divisor += 2;

@@ -29,7 +29,7 @@ pub const WHEEL30_SEGMENT_SPAN: usize = WHEEL30_SEGMENT_CYCLES * 30;
 #[repr(align(16))]
 pub struct Wheel30Segment {
     /// Bit-packed array: each byte represents 8 candidates
-    /// Only stores residue classes [1,7,11,13,17,19,23,29] mod 30
+    /// Only stores residue classes \[1,7,11,13,17,19,23,29\] mod 30
     bits: Box<[u8; WHEEL30_SEGMENT_BYTES]>, // 32,768 candidates per segment
     base: usize,
 }

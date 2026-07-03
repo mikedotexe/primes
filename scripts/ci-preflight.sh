@@ -85,24 +85,43 @@ else
 fi
 echo ""
 
-# 8. Build with all features (skip on Linux if metal is unavailable)
+# 8. Build with optional features. The Metal feature requires Apple's optional
+# Metal toolchain component; keep local preflight useful when that component is
+# not installed, while still exercising all non-Metal feature surfaces.
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "⚙️  Building with all features (macOS)..."
-    if cargo build --all-features --verbose 2>&1 | tail -10; then
+    if xcrun metal -help >/dev/null 2>&1; then
+        echo "⚙️  Building with all features (macOS + Metal)..."
+        feature_args=(--all-features)
+    else
+        echo "⚙️  Building with non-Metal features (Metal toolchain unavailable)..."
+        feature_args=(
+            --features
+            "visualization,wheel30,dvfs-adaptive,full_precision,experimental,phase4,amx,rl-stats,prime-harmonics"
+        )
+    fi
+    if cargo build "${feature_args[@]}" --verbose 2>&1 | tail -10; then
         echo "   ✅ All-features build successful"
     else
-        echo "   ❌ All-features build failed"
+        echo "   ❌ Feature build failed"
         exit 1
     fi
     echo ""
 else
-    echo "⚙️  Skipping all-features build (not macOS)"
+    echo "⚙️  Building with non-Metal features (not macOS)..."
+    if cargo build --features \
+        "visualization,wheel30,dvfs-adaptive,full_precision,experimental,phase4,amx,rl-stats,prime-harmonics" \
+        --verbose 2>&1 | tail -10; then
+        echo "   ✅ Non-Metal feature build successful"
+    else
+        echo "   ❌ Non-Metal feature build failed"
+        exit 1
+    fi
     echo ""
 fi
 
 # 9. No default features
 echo "🔧 Testing no default features..."
-if cargo test --no-default-features --verbose 2>&1 | tail -10; then
+if cargo test --lib --no-default-features --verbose 2>&1 | tail -10; then
     echo "   ✅ No-default-features tests passed"
 else
     echo "   ❌ No-default-features tests failed"

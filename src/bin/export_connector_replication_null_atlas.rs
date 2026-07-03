@@ -53,6 +53,7 @@ fn run() -> Result<(), Box<dyn Error>> {
             args: vec!["--out-dir".to_string(), "docs/connector".to_string()],
             upstream_inputs: vec![
                 "src/validation/connector_signal.rs".to_string(),
+                "src/validation/connector_signal_impl.rs".to_string(),
                 "docs/connector/connector_width6_stress.json".to_string(),
             ],
             expected_outputs: vec![

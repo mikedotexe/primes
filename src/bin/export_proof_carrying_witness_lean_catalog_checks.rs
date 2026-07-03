@@ -93,7 +93,7 @@ fn run() -> Result<(), Box<dyn Error>> {
         .map_err(|err| io::Error::new(io::ErrorKind::InvalidInput, err))?;
         write_text_file(&output_path, &bundle.umbrella_contents)?;
         for shard in &bundle.shards {
-            write_text_file(&shard_out_dir.join(&shard.file_name), &shard.contents)?;
+            write_text_file(shard_out_dir.join(&shard.file_name), &shard.contents)?;
         }
         println!(
             "Wrote witness Lean catalog check umbrella: {}",

@@ -1,7 +1,7 @@
 //! Metal-backed affine residue sieving with zero candidate-value transfer.
 //!
 //! This module is intentionally narrow and maintained: it consumes the same
-//! [`FastAffineLane`](crate::validation::fast_affine::FastAffineLane) used by
+//! [`FastAffineLane`] used by
 //! the deterministic CPU fast path, sends only small residue rows to Metal, and
 //! writes back a compact survivor bitmask. Full candidate values are
 //! reconstructed on the CPU only for surviving seeds.
@@ -638,7 +638,7 @@ mod tests {
             let by_rows = residue_rows_allow_local_seed(&rows, seed);
             let by_value = moduli.iter().copied().all(|modulus| {
                 let value = lane.candidate_value(seed).unwrap();
-                value % modulus as u64 != 0
+                !value.is_multiple_of(modulus as u64)
             });
             assert_eq!(by_rows, by_value, "seed {seed}");
         }
@@ -656,7 +656,7 @@ mod tests {
             let by_rows = residue_rows_allow_local_seed(&rows, local_seed);
             let by_value = moduli.iter().copied().all(|modulus| {
                 let value = lane.candidate_value(absolute_seed).unwrap();
-                value % modulus as u64 != 0
+                !value.is_multiple_of(modulus as u64)
             });
             assert_eq!(by_rows, by_value, "seed {absolute_seed}");
         }

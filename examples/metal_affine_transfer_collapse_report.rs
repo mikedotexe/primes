@@ -18,7 +18,6 @@ use serde::Serialize;
 use std::{
     env,
     path::{Path, PathBuf},
-    time::Instant,
 };
 
 const DEFAULT_OUT_DIR: &str = "/tmp/primes_metal_affine_transfer";

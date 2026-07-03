@@ -7,6 +7,7 @@
   ],
   "upstream_inputs": [
     "src/validation/connector_signal.rs",
+    "src/validation/connector_signal_impl.rs",
     "src/connector/analysis.rs",
     "docs/connector/connector_signal_atlas.json"
   ],

@@ -7,6 +7,7 @@
   ],
   "upstream_inputs": [
     "src/validation/connector_signal.rs",
+    "src/validation/connector_signal_impl.rs",
     "docs/connector/connector_width6_stress.json"
   ],
   "expected_outputs": [
