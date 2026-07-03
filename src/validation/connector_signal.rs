@@ -4792,7 +4792,7 @@ fn generated_prime_gap_pair_cases(
     pair_count: usize,
 ) -> Vec<PairCase> {
     let mut pairs = Vec::new();
-    let mut left = if lower_bound % 2 == 0 {
+    let mut left = if lower_bound.is_multiple_of(2) {
         lower_bound + 1
     } else {
         lower_bound
